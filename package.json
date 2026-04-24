@@ -6,20 +6,61 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "prepare": "husky"
   },
   "dependencies": {
+    "@auth/drizzle-adapter": "^1.11.2",
+    "@hookform/resolvers": "^5.2.2",
+    "@marsidev/react-turnstile": "^1.5.0",
+    "@sanity/image-url": "^2.1.1",
+    "@vercel/postgres": "^0.10.0",
+    "bcryptjs": "^3.0.3",
+    "clsx": "^2.1.1",
+    "drizzle-orm": "^0.45.2",
+    "embla-carousel-react": "^8.6.0",
+    "jose": "^6.2.2",
     "next": "16.2.4",
+    "next-auth": "^5.0.0-beta.31",
+    "next-intl": "^4.9.1",
+    "next-sanity": "^12.3.0",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-compare-slider": "^4.0.0",
+    "react-dom": "19.2.4",
+    "react-hook-form": "^7.73.1",
+    "resend": "^6.12.2",
+    "sanity": "^5.22.0",
+    "tailwind-merge": "^3.5.0",
+    "zod": "^4.3.6",
+    "zustand": "^5.0.12"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css}": [
+      "prettier --write"
+    ]
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
+    "@eslint/eslintrc": "^3.3.5",
     "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.3",
+    "prettier-plugin-tailwindcss": "^0.0.0-insiders.f7d2598",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

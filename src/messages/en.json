@@ -1,0 +1,23 @@
+{
+  "common": {
+    "reservation": "Book Now",
+    "viewAll": "View All",
+    "viewMore": "Learn More",
+    "close": "Close",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "disclaimer": "Individual results may vary"
+  },
+  "header": {
+    "treatments": "Treatments",
+    "brand": "Brand",
+    "beforeAfter": "Before & After",
+    "media": "Media",
+    "estimate": "My Estimate"
+  },
+  "footer": {
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "copyright": "© 2026 Forever Clinic. All rights reserved."
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "common": {
+    "reservation": "立即预约",
+    "viewAll": "查看全部",
+    "viewMore": "了解更多",
+    "close": "关闭",
+    "loading": "加载中...",
+    "error": "发生了错误",
+    "disclaimer": "效果因人而异"
+  },
+  "header": {
+    "treatments": "项目",
+    "brand": "品牌",
+    "beforeAfter": "前后对比",
+    "media": "媒体",
+    "estimate": "我的报价"
+  },
+  "footer": {
+    "privacy": "隐私政策",
+    "terms": "服务条款",
+    "copyright": "© 2026 Forever Clinic. 保留所有权利。"
+  }
+}

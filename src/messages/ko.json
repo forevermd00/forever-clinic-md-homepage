@@ -1,0 +1,23 @@
+{
+  "common": {
+    "reservation": "예약하기",
+    "viewAll": "전체 보기",
+    "viewMore": "자세히 보기",
+    "close": "닫기",
+    "loading": "로딩 중...",
+    "error": "오류가 발생했습니다",
+    "disclaimer": "개인차가 있을 수 있습니다"
+  },
+  "header": {
+    "treatments": "시술",
+    "brand": "브랜드",
+    "beforeAfter": "Before & After",
+    "media": "미디어",
+    "estimate": "나의 견적"
+  },
+  "footer": {
+    "privacy": "개인정보처리방침",
+    "terms": "이용약관",
+    "copyright": "© 2026 Forever Clinic. All rights reserved."
+  }
+}

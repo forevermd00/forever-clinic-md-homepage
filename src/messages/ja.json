@@ -1,0 +1,23 @@
+{
+  "common": {
+    "reservation": "予約する",
+    "viewAll": "すべて見る",
+    "viewMore": "詳しく見る",
+    "close": "閉じる",
+    "loading": "読み込み中...",
+    "error": "エラーが発生しました",
+    "disclaimer": "効果には個人差があります"
+  },
+  "header": {
+    "treatments": "施術",
+    "brand": "ブランド",
+    "beforeAfter": "ビフォーアフター",
+    "media": "メディア",
+    "estimate": "お見積もり"
+  },
+  "footer": {
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約",
+    "copyright": "© 2026 Forever Clinic. All rights reserved."
+  }
+}
