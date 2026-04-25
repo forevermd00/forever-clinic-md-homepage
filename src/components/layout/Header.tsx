@@ -155,13 +155,20 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [hoveredGroup, setHoveredGroup] = useState<string | null>(null);
+  const [isLg, setIsLg] = useState(false);
   const megaTimeout = useRef<ReturnType<typeof setTimeout>>(null);
   const prevPathname = useRef(pathname);
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 100);
+    const onResize = () => setIsLg(window.innerWidth >= 1280);
+    onResize();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener('resize', onResize, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
+    };
   }, []);
 
   useEffect(() => {
@@ -314,26 +321,18 @@ export function Header() {
             }}
             onMouseLeave={closeMega}
           >
-            {/* lg+: Full sitemap — all columns */}
-            <div className="mx-auto hidden max-w-[1440px] items-start justify-center px-16 py-9 lg:flex">
-              {allColumns.map((col, i) => (
+            <div className="mx-auto flex max-w-[1440px] items-start justify-center px-12 py-9 lg:px-16">
+              {(isLg ? allColumns : filteredColumns).map((col, i, arr) => (
                 <div key={col.title} className="flex items-start">
                   <MegaColumn col={col} locale={currentLocale} />
-                  {col.dividerAfter && i < allColumns.length - 1 && (
-                    <div className="mx-8 h-[200px] w-px bg-[#d9cfc5]" />
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {/* md–lg: Per-nav-item columns only */}
-            <div className="mx-auto flex max-w-[1440px] items-start px-12 py-9 lg:hidden">
-              {filteredColumns.map((col, i) => (
-                <div key={col.title} className="flex items-start">
-                  <MegaColumn col={col} locale={currentLocale} />
-                  {i < filteredColumns.length - 1 && (
-                    <div className="mx-6 h-[180px] w-px bg-[#d9cfc5]" />
-                  )}
+                  {isLg
+                    ? col.dividerAfter &&
+                      i < arr.length - 1 && (
+                        <div className="mx-8 h-[200px] w-px bg-[#d9cfc5]" />
+                      )
+                    : i < arr.length - 1 && (
+                        <div className="mx-6 h-[180px] w-px bg-[#d9cfc5]" />
+                      )}
                 </div>
               ))}
             </div>
