@@ -6,8 +6,12 @@ import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils/cn';
 import { locales, localeNames, type Locale } from '@/lib/i18n/config';
 
-const megamenuColumns = [
+/* ----------------------------------------------------------------
+   Megamenu data — full sitemap columns
+   ---------------------------------------------------------------- */
+const allColumns = [
   {
+    group: 'ba',
     title: 'Before & After',
     href: '/before-after',
     items: [
@@ -20,6 +24,7 @@ const megamenuColumns = [
     dividerAfter: true,
   },
   {
+    group: 'treatments',
     title: '리프팅',
     href: '/treatments/lifting',
     items: [
@@ -31,6 +36,7 @@ const megamenuColumns = [
     ],
   },
   {
+    group: 'treatments',
     title: '피부케어',
     href: '/treatments/skincare',
     items: [
@@ -42,6 +48,7 @@ const megamenuColumns = [
     ],
   },
   {
+    group: 'treatments',
     title: '토닝/색소',
     href: '/treatments/toning',
     items: [
@@ -53,6 +60,7 @@ const megamenuColumns = [
     ],
   },
   {
+    group: 'treatments',
     title: '보톡스/필러',
     href: '/treatments/botox-filler',
     items: [
@@ -64,6 +72,7 @@ const megamenuColumns = [
     ],
   },
   {
+    group: 'treatments',
     title: '이벤트',
     href: '/promotions',
     items: [
@@ -75,6 +84,7 @@ const megamenuColumns = [
     dividerAfter: true,
   },
   {
+    group: 'brand',
     title: '브랜드',
     href: '/brand',
     items: [
@@ -87,6 +97,7 @@ const megamenuColumns = [
     dividerAfter: true,
   },
   {
+    group: 'media',
     title: '미디어',
     href: '/media',
     items: [
@@ -97,12 +108,43 @@ const megamenuColumns = [
   },
 ];
 
+/* Nav items with group mapping */
 const navItems = [
-  { label: 'Before & After', href: '/before-after' },
-  { label: '시술', href: '/treatments' },
-  { label: '브랜드', href: '/brand' },
-  { label: '미디어', href: '/media' },
+  { label: 'Before & After', href: '/before-after', group: 'ba' },
+  { label: '시술', href: '/treatments', group: 'treatments' },
+  { label: '브랜드', href: '/brand', group: 'brand' },
+  { label: '미디어', href: '/media', group: 'media' },
 ];
+
+/* Shared column renderer */
+function MegaColumn({
+  col,
+  locale,
+}: {
+  col: (typeof allColumns)[number];
+  locale: string;
+}) {
+  return (
+    <div className="flex flex-col pr-6 lg:pr-8">
+      <Link
+        href={`/${locale}${col.href}`}
+        className="pb-3 text-[13px] font-bold text-[#a83c44]"
+      >
+        {col.title}
+      </Link>
+      <div className="mb-2 h-px w-[120px] bg-[#d9cfc5]" />
+      {col.items.map((item) => (
+        <Link
+          key={item.label}
+          href={`/${locale}${item.href}`}
+          className="py-[5px] text-[13px] text-[#555] transition-colors hover:text-[#a83c44]"
+        >
+          {item.label}
+        </Link>
+      ))}
+    </div>
+  );
+}
 
 export function Header() {
   const pathname = usePathname();
@@ -112,7 +154,7 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
-  const [isMegaOpen, setIsMegaOpen] = useState(false);
+  const [hoveredGroup, setHoveredGroup] = useState<string | null>(null);
   const megaTimeout = useRef<ReturnType<typeof setTimeout>>(null);
   const prevPathname = useRef(pathname);
 
@@ -126,16 +168,16 @@ export function Header() {
     if (prevPathname.current !== pathname) {
       prevPathname.current = pathname;
       setIsMobileMenuOpen(false);
-      setIsMegaOpen(false);
+      setHoveredGroup(null);
     }
   });
 
-  const openMega = () => {
+  const openMega = (group: string) => {
     if (megaTimeout.current) clearTimeout(megaTimeout.current);
-    setIsMegaOpen(true);
+    setHoveredGroup(group);
   };
   const closeMega = () => {
-    megaTimeout.current = setTimeout(() => setIsMegaOpen(false), 200);
+    megaTimeout.current = setTimeout(() => setHoveredGroup(null), 200);
   };
 
   const switchLocale = (locale: Locale) => {
@@ -144,6 +186,11 @@ export function Header() {
     router.push(segments.join('/'));
     setIsLangOpen(false);
   };
+
+  const isMegaOpen = hoveredGroup !== null;
+  const filteredColumns = allColumns.filter(
+    (col) => col.group === hoveredGroup,
+  );
 
   return (
     <>
@@ -166,14 +213,17 @@ export function Header() {
             <nav
               className="hidden items-center gap-8 md:flex"
               aria-label="main"
-              onMouseEnter={openMega}
-              onMouseLeave={closeMega}
             >
-              {navItems.map(({ label, href }) => (
+              {navItems.map(({ label, href, group }) => (
                 <Link
                   key={href}
                   href={`/${currentLocale}${href}`}
-                  className="text-[14px] font-medium text-[#2b2b2b] transition-colors hover:text-[#a83c44]"
+                  className={cn(
+                    'py-5 text-[14px] font-medium text-[#2b2b2b] transition-colors hover:text-[#a83c44]',
+                    hoveredGroup === group && 'text-[#a83c44]',
+                  )}
+                  onMouseEnter={() => openMega(group)}
+                  onMouseLeave={closeMega}
                 >
                   {label}
                 </Link>
@@ -255,43 +305,40 @@ export function Header() {
           </div>
         </div>
 
-        {/* Mega Menu — sitemap style, Figma exact */}
-        <div
-          className={cn(
-            'hidden overflow-hidden bg-[#faf8f5] transition-all duration-200 md:block',
-            isMegaOpen ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0',
-          )}
-          onMouseEnter={openMega}
-          onMouseLeave={closeMega}
-        >
-          <div className="mx-auto flex max-w-[1440px] items-start justify-center gap-0 px-16 py-9">
-            {megamenuColumns.map((col, i) => (
-              <div key={col.title} className="flex items-start">
-                <div className="flex flex-col pr-6 md:pr-8">
-                  <Link
-                    href={`/${currentLocale}${col.href}`}
-                    className="pb-3 text-[13px] font-bold text-[#a83c44]"
-                  >
-                    {col.title}
-                  </Link>
-                  <div className="mb-2 h-px w-[120px] bg-[#d9cfc5]" />
-                  {col.items.map((item) => (
-                    <Link
-                      key={item.label}
-                      href={`/${currentLocale}${item.href}`}
-                      className="py-[5px] text-[13px] text-[#555] transition-colors hover:text-[#a83c44]"
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
+        {/* Mega Menu */}
+        {isMegaOpen && (
+          <div
+            className="hidden bg-[#faf8f5] md:block"
+            onMouseEnter={() => {
+              if (megaTimeout.current) clearTimeout(megaTimeout.current);
+            }}
+            onMouseLeave={closeMega}
+          >
+            {/* lg+: Full sitemap — all columns */}
+            <div className="mx-auto hidden max-w-[1440px] items-start justify-center px-16 py-9 lg:flex">
+              {allColumns.map((col, i) => (
+                <div key={col.title} className="flex items-start">
+                  <MegaColumn col={col} locale={currentLocale} />
+                  {col.dividerAfter && i < allColumns.length - 1 && (
+                    <div className="mx-8 h-[200px] w-px bg-[#d9cfc5]" />
+                  )}
                 </div>
-                {col.dividerAfter && i < megamenuColumns.length - 1 && (
-                  <div className="mx-4 h-[200px] w-px bg-[#d9cfc5] md:mx-8" />
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
+
+            {/* md–lg: Per-nav-item columns only */}
+            <div className="mx-auto flex max-w-[1440px] items-start px-12 py-9 lg:hidden">
+              {filteredColumns.map((col, i) => (
+                <div key={col.title} className="flex items-start">
+                  <MegaColumn col={col} locale={currentLocale} />
+                  {i < filteredColumns.length - 1 && (
+                    <div className="mx-6 h-[180px] w-px bg-[#d9cfc5]" />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </header>
 
       {/* Mobile Menu */}
