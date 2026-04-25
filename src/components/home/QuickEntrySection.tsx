@@ -99,8 +99,8 @@ export function QuickEntrySection() {
   const cards = CARDS_BY_TAB[activeTab];
 
   return (
-    <section className="flex min-h-[calc(100dvh-4rem)] flex-col bg-[#faf8f5]">
-      <div className="mx-auto my-auto flex w-full max-w-[1280px] flex-col items-center gap-8 px-5 py-16 md:px-10 lg:px-12">
+    <section className="bg-[#faf8f5]">
+      <div className="mx-auto flex w-full max-w-[1280px] flex-col items-center gap-8 px-5 py-16 md:px-10 lg:px-12">
         <h2 className="text-center text-[36px] font-bold text-[#2b2b2b]">
           원하는 시술을 선택하세요
         </h2>

@@ -35,8 +35,8 @@ const PROMOS = [
 
 export function PromoSection() {
   return (
-    <section className="flex min-h-[calc(100dvh-4rem)] flex-col bg-[#faf8f5]">
-      <div className="mx-auto my-auto flex w-full max-w-[1280px] flex-col items-start gap-8 px-5 py-16 md:px-10 lg:px-12">
+    <section className="bg-[#faf8f5]">
+      <div className="mx-auto flex w-full max-w-[1280px] flex-col items-start gap-8 px-5 py-16 md:px-10 lg:px-12">
         <h2 className="w-full text-center text-[28px] font-bold">
           이벤트 · 프로모션
         </h2>
