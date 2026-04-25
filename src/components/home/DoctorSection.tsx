@@ -23,39 +23,41 @@ const DOCTORS = [
 
 export function DoctorSection() {
   return (
-    <section className="flex flex-col items-center gap-8 bg-[#faf8f5] px-4 py-16 md:px-[120px]">
-      <div className="flex flex-col items-center gap-2">
-        <span className="text-[12px] font-medium tracking-[1.8px] text-[#d4c8bd]">
-          OUR DOCTORS
-        </span>
-        <h2 className="text-[28px] font-bold">의료진 소개</h2>
-      </div>
+    <section className="bg-[#faf8f5] py-16">
+      <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-8 px-5 md:px-10 lg:px-12">
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-[12px] font-medium tracking-[1.8px] text-[#d4c8bd]">
+            OUR DOCTORS
+          </span>
+          <h2 className="text-[28px] font-bold">의료진 소개</h2>
+        </div>
 
-      {/* Doctor cards — fixed width, wrap */}
-      <div className="flex flex-wrap justify-center gap-6">
-        {DOCTORS.map((doctor) => (
-          <div
-            key={doctor.name}
-            className="w-[282px] overflow-hidden rounded-[8px] bg-white"
-          >
-            <div className="h-[220px] overflow-hidden bg-[#efe5d9]">
-              <img
-                src="/images/home/doctor-placeholder.png"
-                alt={doctor.name}
-                className="h-full w-full object-cover"
-              />
+        {/* Doctor cards — fixed width, wrap */}
+        <div className="flex flex-wrap justify-center gap-6">
+          {DOCTORS.map((doctor) => (
+            <div
+              key={doctor.name}
+              className="w-[282px] overflow-hidden rounded-[8px] bg-white"
+            >
+              <div className="h-[220px] overflow-hidden bg-[#efe5d9]">
+                <img
+                  src="/images/home/doctor-placeholder.png"
+                  alt={doctor.name}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              <div className="flex flex-col gap-2 p-5">
+                <h3 className="text-[18px] font-bold">{doctor.name}</h3>
+                <span className="text-[13px] font-medium text-[#d4c8bd]">
+                  {doctor.specialty}
+                </span>
+                <p className="text-[13px] whitespace-pre-line text-[#808080]">
+                  {doctor.bio}
+                </p>
+              </div>
             </div>
-            <div className="flex flex-col gap-2 p-5">
-              <h3 className="text-[18px] font-bold">{doctor.name}</h3>
-              <span className="text-[13px] font-medium text-[#d4c8bd]">
-                {doctor.specialty}
-              </span>
-              <p className="text-[13px] whitespace-pre-line text-[#808080]">
-                {doctor.bio}
-              </p>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );

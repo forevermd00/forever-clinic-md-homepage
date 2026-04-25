@@ -99,54 +99,56 @@ export function QuickEntrySection() {
   const cards = CARDS_BY_TAB[activeTab];
 
   return (
-    <section className="flex flex-col items-center gap-8 bg-[#faf8f5] px-4 py-16 md:px-12">
-      <h2 className="text-center text-[36px] font-bold text-[#2b2b2b]">
-        원하는 시술을 선택하세요
-      </h2>
+    <section className="bg-[#faf8f5]">
+      <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-8 px-5 py-16 md:px-10 lg:px-12">
+        <h2 className="text-center text-[36px] font-bold text-[#2b2b2b]">
+          원하는 시술을 선택하세요
+        </h2>
 
-      {/* Tabs — square, no border-radius */}
-      <div className="flex flex-wrap justify-center gap-0">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={cn(
-              'px-6 py-3 text-[14px] font-medium transition-colors',
-              activeTab === tab.id
-                ? 'bg-[#a83c44] text-white'
-                : 'bg-transparent text-[#2b2b2b] hover:bg-[#2b2b2b]/5',
-            )}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+        {/* Tabs — square, no border-radius */}
+        <div className="flex flex-wrap justify-center gap-0">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                'px-6 py-3 text-[14px] font-medium transition-colors',
+                activeTab === tab.id
+                  ? 'bg-[#a83c44] text-white'
+                  : 'bg-transparent text-[#2b2b2b] hover:bg-[#2b2b2b]/5',
+              )}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-      {/* Cards */}
-      <div className="flex flex-wrap justify-center gap-6">
-        {cards.map((card) => (
-          <Link
-            key={card.id}
-            href="/ko/treatments"
-            className="w-[300px] overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)] transition-shadow hover:drop-shadow-[0_4px_8px_rgba(0,0,0,0.12)]"
-          >
-            {/* Image */}
-            <div className="h-[160px] w-full overflow-hidden">
-              <img
-                src={card.image}
-                alt={card.title}
-                className="h-full w-full object-cover"
-              />
-            </div>
-            {/* Text */}
-            <div className="flex flex-col gap-1 px-4 pt-2 pb-4">
-              <h3 className="text-[16px] font-bold text-[#2b2b2b]">
-                {card.title}
-              </h3>
-              <p className="text-[13px] text-[#706263]">{card.description}</p>
-            </div>
-          </Link>
-        ))}
+        {/* Cards */}
+        <div className="flex flex-wrap justify-center gap-6">
+          {cards.map((card) => (
+            <Link
+              key={card.id}
+              href="/ko/treatments"
+              className="w-[300px] overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)] transition-shadow hover:drop-shadow-[0_4px_8px_rgba(0,0,0,0.12)]"
+            >
+              {/* Image */}
+              <div className="h-[160px] w-full overflow-hidden">
+                <img
+                  src={card.image}
+                  alt={card.title}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              {/* Text */}
+              <div className="flex flex-col gap-1 px-4 pt-2 pb-4">
+                <h3 className="text-[16px] font-bold text-[#2b2b2b]">
+                  {card.title}
+                </h3>
+                <p className="text-[13px] text-[#706263]">{card.description}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
     </section>
   );

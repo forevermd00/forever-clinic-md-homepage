@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { cn } from '@/lib/utils/cn';
 
 const VALUES = [
@@ -29,9 +30,9 @@ const VALUES = [
 
 export function BrandPhilosophySection() {
   return (
-    <section className="flex flex-col bg-white">
+    <section className="bg-white py-16">
       {/* Header */}
-      <div className="flex flex-col items-center gap-3 px-4 pt-20 pb-10 text-center">
+      <div className="mb-8 flex flex-col items-center gap-3 px-5 text-center md:px-10 lg:px-12">
         <span className="text-[12px] font-medium tracking-[3px] text-[#706263]">
           BRAND PHILOSOPHY
         </span>
@@ -43,7 +44,7 @@ export function BrandPhilosophySection() {
         </p>
       </div>
 
-      {/* Value rows — alternating layout */}
+      {/* Value rows — alternating, compact */}
       {VALUES.map((value, index) => {
         const imageOnLeft = index % 2 === 0;
 
@@ -51,13 +52,13 @@ export function BrandPhilosophySection() {
           <div
             key={value.korean}
             className={cn(
-              'flex flex-col items-center gap-10 px-4 py-12',
-              'md:flex-row md:items-center md:justify-center md:gap-20 md:px-[120px]',
+              'mx-auto flex max-w-[1280px] flex-col items-center gap-8 px-5 py-8',
+              'md:flex-row md:items-center md:justify-center md:gap-16 md:px-10 lg:px-[120px]',
               !imageOnLeft && 'md:flex-row-reverse',
             )}
           >
-            {/* Image — fluid, aspect-square on desktop */}
-            <div className="bg-forever-beige w-full overflow-hidden rounded-[8px] md:aspect-square md:w-auto md:max-w-[440px] md:flex-1">
+            {/* Image — 320x320 on desktop, fluid on mobile */}
+            <div className="bg-forever-beige aspect-square w-full max-w-[320px] shrink-0 overflow-hidden rounded-[8px]">
               <img
                 src={value.image}
                 alt={value.korean}
@@ -65,12 +66,12 @@ export function BrandPhilosophySection() {
               />
             </div>
 
-            {/* Text — flex-1, vertically centered */}
-            <div className="flex w-full flex-col gap-3.5 md:max-w-[440px] md:flex-1">
+            {/* Text */}
+            <div className="flex w-full flex-col gap-2.5 md:max-w-[400px]">
               <span className="text-[12px] font-medium tracking-[2px] text-[#706263]">
                 {value.english}
               </span>
-              <h3 className="text-[36px] font-bold text-[#2b2b2b]">
+              <h3 className="text-[32px] font-bold text-[#2b2b2b]">
                 {value.korean}
               </h3>
               <p className="text-[15px] leading-relaxed text-[#706263]">
@@ -80,6 +81,16 @@ export function BrandPhilosophySection() {
           </div>
         );
       })}
+
+      {/* CTA */}
+      <div className="mt-8 flex justify-center">
+        <Link
+          href="/ko/brand"
+          className="rounded-[24px] border border-[#2b2b2b] px-8 py-3 text-[14px] font-medium text-[#2b2b2b] transition-colors hover:bg-[#2b2b2b] hover:text-white"
+        >
+          브랜드 스토리 자세히 보기 →
+        </Link>
+      </div>
     </section>
   );
 }
