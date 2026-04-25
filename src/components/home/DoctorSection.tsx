@@ -39,8 +39,14 @@ export function DoctorSection() {
             key={doctor.name}
             className="min-w-[282px] flex-1 overflow-hidden rounded-[8px] bg-white"
           >
-            {/* Photo placeholder */}
-            <div className="h-[220px] bg-[#efe5d9]" />
+            {/* Photo */}
+            <div className="h-[220px] overflow-hidden bg-[#efe5d9]">
+              <img
+                src="/images/home/doctor-placeholder.png"
+                alt={doctor.name}
+                className="h-full w-full object-cover"
+              />
+            </div>
             {/* Content */}
             <div className="flex flex-col gap-2 p-5">
               <h3 className="text-[18px] font-bold">{doctor.name}</h3>
