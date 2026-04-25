@@ -1,14 +1,25 @@
-import { useTranslations } from 'next-intl';
+import { HeroSection } from '@/components/home/HeroSection';
+import { QuickEntrySection } from '@/components/home/QuickEntrySection';
+import { PromoSection } from '@/components/home/PromoSection';
+import { BrandPhilosophySection } from '@/components/home/BrandPhilosophySection';
+import { BAPreviewSection } from '@/components/home/BAPreviewSection';
+import { StatsStripSection } from '@/components/home/StatsStripSection';
+import { DoctorSection } from '@/components/home/DoctorSection';
+import { GallerySection } from '@/components/home/GallerySection';
+import { LocationSection } from '@/components/home/LocationSection';
 
 export default function HomePage() {
-  const t = useTranslations('common');
-
   return (
-    <main className="bg-forever-ivory flex min-h-screen flex-col items-center justify-center">
-      <h1 className="text-forever-charcoal text-4xl font-bold">
-        Forever Clinic Myeongdong
-      </h1>
-      <p className="mt-4 text-neutral-600">{t('loading')}</p>
-    </main>
+    <>
+      <HeroSection />
+      <QuickEntrySection />
+      <PromoSection />
+      <BrandPhilosophySection />
+      <BAPreviewSection />
+      <StatsStripSection />
+      <DoctorSection />
+      <GallerySection />
+      <LocationSection />
+    </>
   );
 }
