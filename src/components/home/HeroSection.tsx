@@ -1,6 +1,12 @@
 export function HeroSection() {
   return (
     <section className="relative h-[600px] w-full overflow-hidden bg-[#c4b7a9]">
+      {/* Background image */}
+      <img
+        src="/images/home/hero-1.png"
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover"
+      />
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/30" />
 

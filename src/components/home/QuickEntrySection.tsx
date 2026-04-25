@@ -12,28 +12,32 @@ const TABS = [
 
 const CARDS_BY_TAB: Record<
   string,
-  { id: string; title: string; description: string }[]
+  { id: string; title: string; description: string; image: string }[]
 > = {
   treatment: [
     {
       id: 't1',
       title: '리프팅',
       description: '처진 피부를 끌어올려 탄력을 되찾아 드립니다',
+      image: '/images/home/qe-lifting.png',
     },
     {
       id: 't2',
       title: '피부케어',
       description: '건강한 피부 본연의 광채를 되살리는 케어',
+      image: '/images/home/qe-skincare.png',
     },
     {
       id: 't3',
       title: '토닝·색소',
       description: '균일한 피부톤으로 맑은 인상을 완성합니다',
+      image: '/images/home/qe-toning.png',
     },
     {
       id: 't4',
       title: '보톡스·필러',
       description: '자연스러운 볼륨과 라인으로 아름다움을',
+      image: '/images/home/qe-botox.jpg',
     },
   ],
   concern: [
@@ -41,43 +45,51 @@ const CARDS_BY_TAB: Record<
       id: 'c1',
       title: '주름·처짐',
       description: '나이 들어 보이는 주름과 처진 피부 개선',
+      image: '/images/home/qe-concern-wrinkle.png',
     },
     {
       id: 'c2',
       title: '색소·잡티',
       description: '기미, 주근깨 등 고르지 못한 피부톤 해결',
+      image: '/images/home/qe-concern-pigment.png',
     },
     {
       id: 'c3',
       title: '모공·피부결',
       description: '넓은 모공과 거친 피부결 매끈하게',
+      image: '/images/home/qe-concern-pore.png',
     },
     {
       id: 'c4',
       title: '볼륨·윤곽',
       description: '꺼진 볼륨과 윤곽선을 자연스럽게 회복',
+      image: '/images/home/qe-concern-volume.png',
     },
   ],
   situation: [
     {
       id: 's1',
-      title: '결혼 준비',
+      title: '특별한 날 준비',
       description: '웨딩 D-day를 위한 맞춤 피부 관리 플랜',
+      image: '/images/home/qe-situation-special.png',
     },
     {
       id: 's2',
-      title: '면접 준비',
-      description: '자신감 있는 첫인상을 위한 빠른 개선',
+      title: '정기 관리',
+      description: '지속적인 피부 컨디션 유지 관리',
+      image: '/images/home/qe-situation-regular.png',
     },
     {
       id: 's3',
-      title: '여행 전 관리',
-      description: '여행 사진이 잘 나오는 피부 컨디션',
+      title: '빠른 시술',
+      description: '바쁜 일정 속 빠르게 효과를 보는 시술',
+      image: '/images/home/qe-situation-quick.png',
     },
     {
       id: 's4',
-      title: '시술 후 유지',
-      description: '기존 시술 효과를 오래 유지하는 관리',
+      title: '처음 방문',
+      description: '피부과가 처음이신 분을 위한 가이드',
+      image: '/images/home/qe-situation-first.png',
     },
   ],
 };
@@ -118,8 +130,14 @@ export function QuickEntrySection() {
             href="/ko/treatments"
             className="w-[300px] overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)] transition-shadow hover:drop-shadow-[0_4px_8px_rgba(0,0,0,0.12)]"
           >
-            {/* Image placeholder */}
-            <div className="bg-forever-beige h-[160px] w-full" />
+            {/* Image */}
+            <div className="h-[160px] w-full overflow-hidden">
+              <img
+                src={card.image}
+                alt={card.title}
+                className="h-full w-full object-cover"
+              />
+            </div>
             {/* Text */}
             <div className="flex flex-col gap-1 px-4 pt-2 pb-4">
               <h3 className="text-[16px] font-bold text-[#2b2b2b]">

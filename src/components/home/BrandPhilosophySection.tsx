@@ -5,21 +5,25 @@ const VALUES = [
     english: 'Honesty',
     korean: '정직',
     description: '투명한 시술 과정과 가격, 정량까지 공개하는 신뢰',
+    image: '/images/home/brand-honesty.png',
   },
   {
     english: 'Precision',
     korean: '정교',
     description: '시간 엄수, 오차 없는 시술, 체계적 사전·사후 안내',
+    image: '/images/home/brand-precision.png',
   },
   {
     english: 'Expertise',
     korean: '전문',
     description: '의사 직접 참여 1:1 페이셜 디자인 컨설팅',
+    image: '/images/home/brand-expertise.png',
   },
   {
     english: 'Dignity',
     korean: '존엄',
     description: '완전한 프라이빗 공간, 전담 컨시어지 서비스',
+    image: '/images/home/brand-dignity.png',
   },
 ];
 
@@ -53,7 +57,13 @@ export function BrandPhilosophySection() {
             )}
           >
             {/* Image — fixed 440x440 */}
-            <div className="bg-forever-beige h-[280px] w-full shrink-0 rounded-[8px] md:h-[440px] md:w-[440px]" />
+            <div className="bg-forever-beige h-[280px] w-full shrink-0 overflow-hidden rounded-[8px] md:h-[440px] md:w-[440px]">
+              <img
+                src={value.image}
+                alt={value.korean}
+                className="h-full w-full object-cover"
+              />
+            </div>
 
             {/* Text — fixed width to align across rows */}
             <div className="flex w-full flex-col gap-3.5 md:w-[440px] md:shrink-0">
