@@ -125,7 +125,7 @@ function MegaColumn({
   locale: string;
 }) {
   return (
-    <div className="flex flex-col pr-6 lg:pr-8">
+    <div className="flex flex-col pr-4 lg:pr-6">
       <Link
         href={`/${locale}${col.href}`}
         className="pb-3 text-[13px] font-bold text-[#a83c44]"
@@ -321,17 +321,17 @@ export function Header() {
             }}
             onMouseLeave={closeMega}
           >
-            <div className="mx-auto flex max-w-[1440px] items-start justify-center px-12 py-9 lg:px-16">
+            <div className="mx-auto flex max-w-[1440px] items-start justify-center overflow-x-auto px-8 py-9 lg:px-16">
               {(isLg ? allColumns : filteredColumns).map((col, i, arr) => (
-                <div key={col.title} className="flex items-start">
+                <div key={col.title} className="flex shrink-0 items-start">
                   <MegaColumn col={col} locale={currentLocale} />
                   {isLg
                     ? col.dividerAfter &&
                       i < arr.length - 1 && (
-                        <div className="mx-8 h-[200px] w-px bg-[#d9cfc5]" />
+                        <div className="mx-6 h-[200px] w-px bg-[#d9cfc5]" />
                       )
                     : i < arr.length - 1 && (
-                        <div className="mx-6 h-[180px] w-px bg-[#d9cfc5]" />
+                        <div className="mx-4 h-[180px] w-px bg-[#d9cfc5]" />
                       )}
                 </div>
               ))}

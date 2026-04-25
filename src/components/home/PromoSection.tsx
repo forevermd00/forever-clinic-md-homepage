@@ -45,7 +45,7 @@ export function PromoSection() {
           {PROMOS.map((promo) => (
             <div
               key={promo.id}
-              className="w-[384px] overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)]"
+              className="w-[370px] overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)]"
             >
               <div className="relative h-[198px] overflow-hidden">
                 <img

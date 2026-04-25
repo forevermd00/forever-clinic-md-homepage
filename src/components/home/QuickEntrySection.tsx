@@ -129,7 +129,7 @@ export function QuickEntrySection() {
             <Link
               key={card.id}
               href="/ko/treatments"
-              className="w-[300px] overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)] transition-shadow hover:drop-shadow-[0_4px_8px_rgba(0,0,0,0.12)]"
+              className="w-[270px] overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)] transition-shadow hover:drop-shadow-[0_4px_8px_rgba(0,0,0,0.12)]"
             >
               {/* Image */}
               <div className="h-[160px] w-full overflow-hidden">

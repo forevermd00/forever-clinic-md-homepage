@@ -37,7 +37,7 @@ export function DoctorSection() {
           {DOCTORS.map((doctor) => (
             <div
               key={doctor.name}
-              className="w-[282px] overflow-hidden rounded-[8px] bg-white"
+              className="w-[270px] overflow-hidden rounded-[8px] bg-white"
             >
               <div className="h-[220px] overflow-hidden bg-[#efe5d9]">
                 <img
