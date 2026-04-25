@@ -1,10 +1,11 @@
+import Link from 'next/link';
 import { cn } from '@/lib/utils/cn';
 
 const treatmentLinks = [
   { label: '리프팅', href: '/treatments/lifting' },
   { label: '피부케어', href: '/treatments/skincare' },
   { label: '토닝·색소', href: '/treatments/toning' },
-  { label: '보톡스·필러', href: '/treatments/botox' },
+  { label: '보톡스·필러', href: '/treatments/botox-filler' },
 ];
 
 const brandLinks = [
@@ -16,7 +17,7 @@ const brandLinks = [
 
 const mediaLinks = [
   { label: '공지사항', href: '/media/notice' },
-  { label: '이벤트', href: '/media/events' },
+  { label: '이벤트', href: '/promotions' },
   { label: '예약 상담', href: '/contact' },
   { label: '개인정보처리방침', href: '/privacy' },
 ];
@@ -58,13 +59,13 @@ export function Footer({ locale = 'ko', className }: FooterProps) {
             <span className="text-[14px] font-bold text-white">시술</span>
             <div className="flex flex-col gap-2">
               {treatmentLinks.map(({ label, href }) => (
-                <a
+                <Link
                   key={href}
                   href={`/${locale}${href}`}
                   className="text-[13px] text-[#706263] transition-colors hover:text-white"
                 >
                   {label}
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -74,13 +75,13 @@ export function Footer({ locale = 'ko', className }: FooterProps) {
             <span className="text-[14px] font-bold text-white">브랜드</span>
             <div className="flex flex-col gap-2">
               {brandLinks.map(({ label, href }) => (
-                <a
+                <Link
                   key={href}
                   href={`/${locale}${href}`}
                   className="text-[13px] text-[#706263] transition-colors hover:text-white"
                 >
                   {label}
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -90,13 +91,13 @@ export function Footer({ locale = 'ko', className }: FooterProps) {
             <span className="text-[14px] font-bold text-white">미디어</span>
             <div className="flex flex-col gap-2">
               {mediaLinks.map(({ label, href }) => (
-                <a
+                <Link
                   key={href}
                   href={`/${locale}${href}`}
                   className="text-[13px] text-[#706263] transition-colors hover:text-white"
                 >
                   {label}
-                </a>
+                </Link>
               ))}
             </div>
           </div>

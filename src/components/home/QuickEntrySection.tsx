@@ -1,64 +1,94 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { cn } from '@/lib/utils/cn';
 
 const TABS = [
-  { id: 'lifting', label: '리프팅' },
-  { id: 'skincare', label: '피부케어' },
-  { id: 'toning', label: '토닝·색소' },
-  { id: 'botox', label: '보톡스·필러' },
+  { id: 'treatment', label: '시술로 찾기' },
+  { id: 'concern', label: '고민으로 찾기' },
+  { id: 'situation', label: '상황으로 찾기' },
 ];
 
 const CARDS_BY_TAB: Record<
   string,
   { id: string; title: string; description: string }[]
 > = {
-  lifting: [
+  treatment: [
     {
-      id: 'l1',
-      title: '울쎄라 리프팅',
-      description: 'HIFU 초음파로 탄력 개선',
-    },
-    { id: 'l2', title: '써마지 FLX', description: '고주파 콜라겐 리모델링' },
-    {
-      id: 'l3',
-      title: '실리프팅',
-      description: '녹는 실을 이용한 즉각 리프팅',
+      id: 't1',
+      title: '리프팅',
+      description: '처진 피부를 끌어올려 탄력을 되찾아 드립니다',
     },
     {
-      id: 'l4',
-      title: '인모드 리프팅',
-      description: 'RF 에너지 피부 타이트닝',
+      id: 't2',
+      title: '피부케어',
+      description: '건강한 피부 본연의 광채를 되살리는 케어',
+    },
+    {
+      id: 't3',
+      title: '토닝·색소',
+      description: '균일한 피부톤으로 맑은 인상을 완성합니다',
+    },
+    {
+      id: 't4',
+      title: '보톡스·필러',
+      description: '자연스러운 볼륨과 라인으로 아름다움을',
     },
   ],
-  skincare: [
-    { id: 's1', title: '아쿠아필', description: '수분 공급 딥클렌징' },
-    { id: 's2', title: '리쥬란 힐러', description: 'PN 성분 피부 재생' },
-    { id: 's3', title: '엑소좀 부스터', description: '세포 재생 촉진 부스터' },
-    { id: 's4', title: '피부 관리 패키지', description: '맞춤 복합 케어' },
+  concern: [
+    {
+      id: 'c1',
+      title: '주름·처짐',
+      description: '나이 들어 보이는 주름과 처진 피부 개선',
+    },
+    {
+      id: 'c2',
+      title: '색소·잡티',
+      description: '기미, 주근깨 등 고르지 못한 피부톤 해결',
+    },
+    {
+      id: 'c3',
+      title: '모공·피부결',
+      description: '넓은 모공과 거친 피부결 매끈하게',
+    },
+    {
+      id: 'c4',
+      title: '볼륨·윤곽',
+      description: '꺼진 볼륨과 윤곽선을 자연스럽게 회복',
+    },
   ],
-  toning: [
-    { id: 't1', title: '피코토닝', description: '색소 및 잡티 개선' },
-    { id: 't2', title: '레이저토닝', description: '멜라닌 색소 파괴' },
-    { id: 't3', title: 'IPL 광선치료', description: '복합 색소 치료' },
-    { id: 't4', title: '미백 관리', description: '브라이트닝 집중 케어' },
-  ],
-  botox: [
-    { id: 'b1', title: '보톡스 주름', description: '표정 주름 개선' },
-    { id: 'b2', title: '턱 보톡스', description: '사각턱 라인 교정' },
-    { id: 'b3', title: '필러 볼륨', description: '볼륨 및 윤곽 보정' },
-    { id: 'b4', title: '스킨 보톡스', description: '피부결 개선 미량 주사' },
+  situation: [
+    {
+      id: 's1',
+      title: '결혼 준비',
+      description: '웨딩 D-day를 위한 맞춤 피부 관리 플랜',
+    },
+    {
+      id: 's2',
+      title: '면접 준비',
+      description: '자신감 있는 첫인상을 위한 빠른 개선',
+    },
+    {
+      id: 's3',
+      title: '여행 전 관리',
+      description: '여행 사진이 잘 나오는 피부 컨디션',
+    },
+    {
+      id: 's4',
+      title: '시술 후 유지',
+      description: '기존 시술 효과를 오래 유지하는 관리',
+    },
   ],
 };
 
 export function QuickEntrySection() {
-  const [activeTab, setActiveTab] = useState('lifting');
+  const [activeTab, setActiveTab] = useState('treatment');
   const cards = CARDS_BY_TAB[activeTab];
 
   return (
     <section className="flex flex-col items-center gap-8 bg-[#faf8f5] px-4 py-16 md:px-12">
-      <h2 className="text-center text-[36px] font-bold">
+      <h2 className="text-center text-[36px] font-bold text-[#2b2b2b]">
         원하는 시술을 선택하세요
       </h2>
 
@@ -83,12 +113,13 @@ export function QuickEntrySection() {
       {/* Cards */}
       <div className="flex flex-wrap justify-center gap-6">
         {cards.map((card) => (
-          <div
+          <Link
             key={card.id}
-            className="w-[300px] overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)]"
+            href="/ko/treatments"
+            className="w-[300px] overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)] transition-shadow hover:drop-shadow-[0_4px_8px_rgba(0,0,0,0.12)]"
           >
             {/* Image placeholder */}
-            <div className="bg-forever-beige h-[160px] w-full rounded-t-[8px]" />
+            <div className="bg-forever-beige h-[160px] w-full" />
             {/* Text */}
             <div className="flex flex-col gap-1 px-4 pt-2 pb-4">
               <h3 className="text-[16px] font-bold text-[#2b2b2b]">
@@ -96,7 +127,7 @@ export function QuickEntrySection() {
               </h3>
               <p className="text-[13px] text-[#706263]">{card.description}</p>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </section>

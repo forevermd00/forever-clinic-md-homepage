@@ -1,15 +1,53 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils/cn';
 import { locales, localeNames, type Locale } from '@/lib/i18n/config';
 
-const navItems = [
-  { label: 'Before & After', href: '/before-after' },
-  { label: '시술', href: '/treatments' },
-  { label: '브랜드', href: '/brand' },
-  { label: '미디어', href: '/media' },
+const megamenuData = [
+  {
+    label: 'Before & After',
+    href: '/before-after',
+    children: [
+      { label: '전체', href: '/before-after' },
+      { label: '리프팅', href: '/before-after?category=lifting' },
+      { label: '피부케어', href: '/before-after?category=skincare' },
+      { label: '토닝·색소', href: '/before-after?category=toning' },
+      { label: '보톡스·필러', href: '/before-after?category=botox' },
+    ],
+  },
+  {
+    label: '시술',
+    href: '/treatments',
+    children: [
+      { label: '리프팅', href: '/treatments/lifting' },
+      { label: '피부케어', href: '/treatments/skincare' },
+      { label: '토닝·색소', href: '/treatments/toning' },
+      { label: '보톡스·필러', href: '/treatments/botox-filler' },
+    ],
+  },
+  {
+    label: '브랜드',
+    href: '/brand',
+    children: [
+      { label: '브랜드 스토리', href: '/brand' },
+      { label: '의료진 소개', href: '/brand#doctors' },
+      { label: '시설 안내', href: '/brand#facilities' },
+      { label: '오시는 길', href: '/brand#location' },
+    ],
+  },
+  {
+    label: '미디어',
+    href: '/media',
+    children: [
+      { label: '공지사항', href: '/media/notice' },
+      { label: '이벤트', href: '/promotions' },
+      { label: '블로그', href: '/media/blog' },
+      { label: '영상', href: '/media/video' },
+    ],
+  },
 ] as const;
 
 export function Header() {
@@ -20,6 +58,8 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
+  const [hoveredNav, setHoveredNav] = useState<string | null>(null);
+  const megamenuTimeout = useRef<ReturnType<typeof setTimeout>>(null);
   const prevPathname = useRef(pathname);
 
   useEffect(() => {
@@ -32,8 +72,18 @@ export function Header() {
     if (prevPathname.current !== pathname) {
       prevPathname.current = pathname;
       setIsMobileMenuOpen(false);
+      setHoveredNav(null);
     }
   });
+
+  const handleNavEnter = (label: string) => {
+    if (megamenuTimeout.current) clearTimeout(megamenuTimeout.current);
+    setHoveredNav(label);
+  };
+
+  const handleNavLeave = () => {
+    megamenuTimeout.current = setTimeout(() => setHoveredNav(null), 150);
+  };
 
   const switchLocale = (locale: Locale) => {
     const segments = pathname.split('/');
@@ -41,6 +91,8 @@ export function Header() {
     router.push(segments.join('/'));
     setIsLangOpen(false);
   };
+
+  const activeMenu = megamenuData.find((m) => m.label === hoveredNav);
 
   return (
     <>
@@ -52,29 +104,36 @@ export function Header() {
       >
         <div className="mx-auto flex h-16 items-center justify-between px-4 md:px-12">
           {/* Logo */}
-          <a
+          <Link
             href={`/${currentLocale}`}
             className="text-[18px] font-bold tracking-[2px] text-[#2b2b2b]"
           >
             FOREVER CLINIC
-          </a>
+          </Link>
 
           {/* Desktop Nav — center */}
           <nav className="hidden items-center gap-8 md:flex" aria-label="main">
-            {navItems.map(({ label, href }) => (
-              <a
-                key={href}
-                href={`/${currentLocale}${href}`}
-                className="text-[14px] font-medium text-[#2b2b2b] transition-colors hover:opacity-70"
+            {megamenuData.map((item) => (
+              <div
+                key={item.label}
+                onMouseEnter={() => handleNavEnter(item.label)}
+                onMouseLeave={handleNavLeave}
               >
-                {label}
-              </a>
+                <Link
+                  href={`/${currentLocale}${item.href}`}
+                  className={cn(
+                    'relative py-5 text-[14px] font-medium text-[#2b2b2b] transition-colors hover:text-[#a83c44]',
+                    hoveredNav === item.label && 'text-[#a83c44]',
+                  )}
+                >
+                  {item.label}
+                </Link>
+              </div>
             ))}
           </nav>
 
           {/* Right actions */}
           <div className="flex items-center gap-3">
-            {/* Language Selector */}
             <div className="relative">
               <button
                 onClick={() => setIsLangOpen(!isLangOpen)}
@@ -109,21 +168,20 @@ export function Header() {
               )}
             </div>
 
-            {/* Cart icon — desktop */}
-            <button
+            <Link
+              href={`/${currentLocale}/estimate`}
               className="hidden text-[18px] text-[#2b2b2b] md:inline-flex"
               aria-label="Cart"
             >
               🛒
-            </button>
+            </Link>
 
-            {/* CTA Button — desktop */}
-            <a
+            <Link
               href={`/${currentLocale}/contact`}
               className="hidden rounded-[4px] bg-[#a83c44] px-4 py-2 text-[13px] text-white transition-colors hover:bg-[#8c2e38] md:inline-flex"
             >
               예약하기
-            </a>
+            </Link>
 
             {/* Mobile hamburger */}
             <button
@@ -155,27 +213,65 @@ export function Header() {
             </button>
           </div>
         </div>
+
+        {/* Megamenu dropdown */}
+        {activeMenu && (
+          <div
+            className="hidden border-t border-[#e8dfd7] bg-white md:block"
+            onMouseEnter={() => handleNavEnter(activeMenu.label)}
+            onMouseLeave={handleNavLeave}
+          >
+            <div className="mx-auto flex max-w-[1280px] gap-8 px-12 py-6">
+              <div className="flex flex-col gap-3">
+                <span className="text-[13px] font-bold text-[#2b2b2b]">
+                  {activeMenu.label}
+                </span>
+                {activeMenu.children.map((child) => (
+                  <Link
+                    key={child.href}
+                    href={`/${currentLocale}${child.href}`}
+                    className="text-[13px] text-[#706263] transition-colors hover:text-[#a83c44]"
+                  >
+                    {child.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-40 bg-white pt-16 md:hidden">
+        <div className="fixed inset-0 z-40 overflow-y-auto bg-white pt-16 md:hidden">
           <nav className="flex flex-col px-6 py-8">
-            {navItems.map(({ label, href }) => (
-              <a
-                key={href}
-                href={`/${currentLocale}${href}`}
-                className="border-b border-neutral-200 py-4 text-[16px] font-medium text-[#2b2b2b]"
-              >
-                {label}
-              </a>
+            {megamenuData.map((item) => (
+              <div key={item.label} className="border-b border-neutral-200">
+                <Link
+                  href={`/${currentLocale}${item.href}`}
+                  className="block py-4 text-[16px] font-medium text-[#2b2b2b]"
+                >
+                  {item.label}
+                </Link>
+                <div className="flex flex-col gap-2 pb-4 pl-4">
+                  {item.children.map((child) => (
+                    <Link
+                      key={child.href}
+                      href={`/${currentLocale}${child.href}`}
+                      className="text-[14px] text-[#706263]"
+                    >
+                      {child.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
             ))}
-            <a
+            <Link
               href={`/${currentLocale}/contact`}
               className="mt-6 flex items-center justify-center rounded-[4px] bg-[#a83c44] py-3 text-[16px] font-medium text-white"
             >
               예약하기
-            </a>
+            </Link>
           </nav>
         </div>
       )}

@@ -4,26 +4,22 @@ const VALUES = [
   {
     english: 'Honesty',
     korean: '정직',
-    description:
-      '결제한 용량 그대로, 눈앞에서 확인합니다. 보여주기식이 아닌, 투명한 시술 과정을 약속합니다.',
+    description: '투명한 시술 과정과 가격, 정량까지 공개하는 신뢰',
   },
   {
     english: 'Precision',
     korean: '정교',
-    description:
-      '예약 시간 그대로 시작하고, 예상 시간 그대로 끝납니다. 모든 시술은 정밀하게 설계됩니다.',
+    description: '시간 엄수, 오차 없는 시술, 체계적 사전·사후 안내',
   },
   {
     english: 'Expertise',
     korean: '전문',
-    description:
-      '의사가 직접 당신의 얼굴을 설계합니다. 15년 이상의 경력을 가진 전문 의료진이 함께합니다.',
+    description: '의사 직접 참여 1:1 페이셜 디자인 컨설팅',
   },
   {
     english: 'Dignity',
     korean: '존엄',
-    description:
-      '1인 전용 공간, 전담 컨시어지. 모든 고객을 존중하는 프라이빗한 경험을 제공합니다.',
+    description: '완전한 프라이빗 공간, 전담 컨시어지 서비스',
   },
 ];
 
@@ -43,45 +39,34 @@ export function BrandPhilosophySection() {
         </p>
       </div>
 
-      {/* Value rows — alternating layout */}
+      {/* Value rows — alternating layout, fixed sizing */}
       {VALUES.map((value, index) => {
         const imageOnLeft = index % 2 === 0;
-
-        const imageBlock = (
-          <div className="bg-forever-beige h-[320px] w-full rounded-[8px] md:h-[440px] md:w-[440px] md:shrink-0" />
-        );
-
-        const textBlock = (
-          <div className="flex flex-col gap-3.5">
-            <span className="text-[12px] font-medium tracking-[2px] text-[#706263]">
-              {value.english}
-            </span>
-            <h3 className="text-[36px] font-bold text-[#2b2b2b]">
-              {value.korean}
-            </h3>
-            <p className="text-[15px] text-[#706263]">{value.description}</p>
-          </div>
-        );
 
         return (
           <div
             key={value.korean}
             className={cn(
-              'flex flex-col items-center justify-center gap-10 px-4 py-12 md:flex-row md:gap-20 md:px-[120px]',
+              'mx-auto flex w-full max-w-[1200px] flex-col items-center gap-10 px-4 py-12',
+              'md:flex-row md:items-center md:justify-center md:gap-20 md:px-0',
               !imageOnLeft && 'md:flex-row-reverse',
             )}
           >
-            {imageOnLeft ? (
-              <>
-                {imageBlock}
-                {textBlock}
-              </>
-            ) : (
-              <>
-                {textBlock}
-                {imageBlock}
-              </>
-            )}
+            {/* Image — fixed 440x440 */}
+            <div className="bg-forever-beige h-[280px] w-full shrink-0 rounded-[8px] md:h-[440px] md:w-[440px]" />
+
+            {/* Text — fixed width to align across rows */}
+            <div className="flex w-full flex-col gap-3.5 md:w-[440px] md:shrink-0">
+              <span className="text-[12px] font-medium tracking-[2px] text-[#706263]">
+                {value.english}
+              </span>
+              <h3 className="text-[36px] font-bold text-[#2b2b2b]">
+                {value.korean}
+              </h3>
+              <p className="text-[15px] leading-relaxed text-[#706263]">
+                {value.description}
+              </p>
+            </div>
           </div>
         );
       })}
