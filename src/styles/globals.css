@@ -5,39 +5,39 @@
   --breakpoint-lg: 1280px;
   --breakpoint-xl: 1440px;
 
-  /* Core Palette */
-  --color-forever-ivory: #faf8f5;
-  --color-forever-beige: #efe5d9;
-  --color-forever-taupe: #d4c8bd;
-  --color-forever-charcoal: #2b2b2b;
-  --color-forever-red: #a83c44;
+  /* Core Palette — Figma Variables (Global mode) */
+  --color-forever-ivory: #f3eee6;
+  --color-forever-beige: #e0d2b6;
+  --color-forever-taupe: #c4b7a9;
+  --color-forever-charcoal: #353535;
+  --color-forever-red: #840202;
   --color-forever-red-hover: #8c2e38;
 
   /* Sub Colors - Harmony */
-  --color-sub-sand-oat: #e8ddd0;
-  --color-sub-soft-stone: #d9ccbe;
-  --color-sub-cocoa-taupe: #b8a99a;
+  --color-sub-sand-oat: #e2dfd0;
+  --color-sub-soft-stone: #ddd5c8;
+  --color-sub-cocoa-taupe: #60574e;
 
   /* Sub Colors - Complement */
-  --color-sub-lavender: #c8bfd6;
-  --color-sub-teal-gray: #8fa8a0;
-  --color-sub-sage-green: #a3b5a0;
+  --color-sub-lavender: #bbb0d2;
+  --color-sub-teal-gray: #7c8790;
+  --color-sub-sage-green: #8fa089;
 
   /* Neutral Scale */
-  --color-neutral-50: #f9f7f5;
-  --color-neutral-100: #f3edea;
-  --color-neutral-200: #e8dfd7;
-  --color-neutral-300: #d4c8bd;
-  --color-neutral-400: #b8aaad;
-  --color-neutral-500: #9c8d8f;
-  --color-neutral-600: #706263;
-  --color-neutral-700: #4a4344;
-  --color-neutral-800: #2b2b2b;
-  --color-neutral-900: #0f0f0f;
+  --color-neutral-50: #f7f4ef;
+  --color-neutral-100: #f0ebe2;
+  --color-neutral-200: #e6ded3;
+  --color-neutral-300: #d5cabe;
+  --color-neutral-400: #bab0a4;
+  --color-neutral-500: #9a928a;
+  --color-neutral-600: #726a63;
+  --color-neutral-700: #4d4743;
+  --color-neutral-800: #353535;
+  --color-neutral-900: #121110;
 
   /* Semantic */
-  --color-success: #66bb6a;
-  --color-warning: #ffa726;
+  --color-success: #5da866;
+  --color-warning: #e8982a;
   --color-error: #c94442;
   --color-info: #42a5f5;
 
@@ -61,11 +61,12 @@
   --radius-modal: 12px;
   --radius-badge: 12px;
 
-  /* Shadows */
+  /* Shadows — Figma Variables */
   --shadow-card: 0 2px 6px rgba(20, 20, 43, 0.06);
-  --shadow-1: 0 2px 4px rgba(0, 0, 0, 0.08);
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.08);
   --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.12);
-  --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.16);
+  --shadow-3: 0 8px 24px rgba(0, 0, 0, 0.16);
 
   /* Container */
   --container-max: 1280px;
