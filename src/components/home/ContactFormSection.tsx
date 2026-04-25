@@ -26,8 +26,8 @@ export function ContactFormSection() {
   };
 
   return (
-    <section className="flex min-h-[100dvh] flex-col justify-center bg-white py-16">
-      <div className="mx-auto max-w-[1280px] px-5 md:px-10 lg:px-12">
+    <section className="flex min-h-[100dvh] flex-col bg-[#faf8f5]">
+      <div className="mx-auto my-auto max-w-[1280px] px-5 py-16 md:px-10 lg:px-12">
         <div className="mx-auto flex max-w-[840px] flex-col items-center gap-6">
           <h2 className="text-[28px] font-bold">상담 문의</h2>
           <p className="text-[15px] text-[#808080]">
