@@ -22,8 +22,8 @@ export function BAPreviewSection() {
   const [activeFilter, setActiveFilter] = useState('all');
 
   return (
-    <section className="flex min-h-[100dvh] flex-col bg-white">
-      <div className="mx-auto my-auto flex max-w-[1280px] flex-col items-center gap-6 px-5 py-12 md:px-10 lg:px-12">
+    <section className="flex min-h-[calc(100dvh-4rem)] flex-col bg-white">
+      <div className="mx-auto my-auto flex w-full max-w-[1280px] flex-col items-center gap-6 px-5 py-12 md:px-10 lg:px-12">
         <h2 className="text-[28px] font-bold">Before &amp; After</h2>
 
         {/* Filter pills */}
