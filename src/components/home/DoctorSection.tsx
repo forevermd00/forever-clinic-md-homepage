@@ -24,7 +24,6 @@ const DOCTORS = [
 export function DoctorSection() {
   return (
     <section className="flex flex-col items-center gap-8 bg-[#faf8f5] px-4 py-16 md:px-[120px]">
-      {/* Header */}
       <div className="flex flex-col items-center gap-2">
         <span className="text-[12px] font-medium tracking-[1.8px] text-[#d4c8bd]">
           OUR DOCTORS
@@ -32,14 +31,13 @@ export function DoctorSection() {
         <h2 className="text-[28px] font-bold">의료진 소개</h2>
       </div>
 
-      {/* Doctor cards */}
-      <div className="flex w-full flex-wrap justify-center gap-6">
+      {/* Doctor cards — fixed width, wrap */}
+      <div className="flex flex-wrap justify-center gap-6">
         {DOCTORS.map((doctor) => (
           <div
             key={doctor.name}
-            className="min-w-[282px] flex-1 overflow-hidden rounded-[8px] bg-white"
+            className="w-[282px] overflow-hidden rounded-[8px] bg-white"
           >
-            {/* Photo */}
             <div className="h-[220px] overflow-hidden bg-[#efe5d9]">
               <img
                 src="/images/home/doctor-placeholder.png"
@@ -47,7 +45,6 @@ export function DoctorSection() {
                 className="h-full w-full object-cover"
               />
             </div>
-            {/* Content */}
             <div className="flex flex-col gap-2 p-5">
               <h3 className="text-[18px] font-bold">{doctor.name}</h3>
               <span className="text-[13px] font-medium text-[#d4c8bd]">

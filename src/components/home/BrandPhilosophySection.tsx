@@ -43,7 +43,7 @@ export function BrandPhilosophySection() {
         </p>
       </div>
 
-      {/* Value rows — alternating layout, fixed sizing */}
+      {/* Value rows — alternating layout */}
       {VALUES.map((value, index) => {
         const imageOnLeft = index % 2 === 0;
 
@@ -51,13 +51,13 @@ export function BrandPhilosophySection() {
           <div
             key={value.korean}
             className={cn(
-              'mx-auto flex w-full max-w-[1200px] flex-col items-center gap-10 px-4 py-12',
-              'md:flex-row md:items-center md:justify-center md:gap-20 md:px-0',
+              'flex flex-col items-center gap-10 px-4 py-12',
+              'md:flex-row md:items-center md:justify-center md:gap-20 md:px-[120px]',
               !imageOnLeft && 'md:flex-row-reverse',
             )}
           >
-            {/* Image — fixed 440x440 */}
-            <div className="bg-forever-beige h-[280px] w-full shrink-0 overflow-hidden rounded-[8px] md:h-[440px] md:w-[440px]">
+            {/* Image — fluid, aspect-square on desktop */}
+            <div className="bg-forever-beige w-full overflow-hidden rounded-[8px] md:aspect-square md:w-auto md:max-w-[440px] md:flex-1">
               <img
                 src={value.image}
                 alt={value.korean}
@@ -65,8 +65,8 @@ export function BrandPhilosophySection() {
               />
             </div>
 
-            {/* Text — fixed width to align across rows */}
-            <div className="flex w-full flex-col gap-3.5 md:w-[440px] md:shrink-0">
+            {/* Text — flex-1, vertically centered */}
+            <div className="flex w-full flex-col gap-3.5 md:max-w-[440px] md:flex-1">
               <span className="text-[12px] font-medium tracking-[2px] text-[#706263]">
                 {value.english}
               </span>
