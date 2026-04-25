@@ -20,7 +20,7 @@ const INFO_ROWS = [
 
 export function LocationSection() {
   return (
-    <section className="bg-[#faf8f5] py-16">
+    <section className="flex min-h-[100dvh] flex-col justify-center bg-[#faf8f5] py-16">
       <div className="mx-auto flex max-w-[1280px] flex-col gap-12 px-5 md:flex-row md:px-10 lg:px-12">
         {/* Map placeholder */}
         <div className="flex h-[360px] flex-1 items-center justify-center rounded-[12px] bg-[#efe5d9]">

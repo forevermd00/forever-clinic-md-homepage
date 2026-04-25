@@ -22,7 +22,7 @@ export function BAPreviewSection() {
   const [activeFilter, setActiveFilter] = useState('all');
 
   return (
-    <section className="bg-white py-12">
+    <section className="flex min-h-[100dvh] flex-col justify-center bg-white py-12">
       <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-6 px-5 md:px-10 lg:px-12">
         <h2 className="text-[28px] font-bold">Before &amp; After</h2>
 

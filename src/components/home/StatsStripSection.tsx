@@ -7,7 +7,7 @@ const STATS = [
 
 export function StatsStripSection() {
   return (
-    <section className="bg-white py-10">
+    <section className="flex min-h-[100dvh] flex-col justify-center bg-white py-10">
       <div className="mx-auto flex max-w-[1280px] flex-col items-center justify-between gap-8 px-5 md:flex-row md:px-10 lg:px-12">
         {STATS.map((stat) => (
           <div

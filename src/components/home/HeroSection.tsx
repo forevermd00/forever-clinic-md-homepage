@@ -1,6 +1,6 @@
 export function HeroSection() {
   return (
-    <section className="relative h-[600px] w-full overflow-hidden bg-[#c4b7a9]">
+    <section className="relative min-h-[100dvh] w-full overflow-hidden bg-[#c4b7a9]">
       {/* Background image */}
       <img
         src="/images/home/hero-1.png"
