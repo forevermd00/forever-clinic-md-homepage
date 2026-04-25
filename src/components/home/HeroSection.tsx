@@ -1,20 +1,18 @@
-import { HeroBanner } from '@/components/common/HeroBanner';
-
-interface HeroSectionProps {
-  locale?: string;
-}
-
-function HeroSection({ locale: _locale }: HeroSectionProps) {
+export function HeroSection() {
   return (
-    <HeroBanner
-      variant="fullscreen"
-      title="보여주기식 럭셔리가 아니라, 정교하게 설계된 신뢰의 프리미엄"
-      subtitle="Smart-Boutique Aesthetic Clinic in Myeongdong"
-      ctaText="무료 상담 예약"
-      ctaHref="#contact"
-      className="bg-forever-beige"
-    />
+    <section className="relative h-[600px] w-full overflow-hidden bg-[#c4b7a9]">
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-black/30" />
+
+      {/* Content */}
+      <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
+        <h1 className="text-[48px] leading-[62px] font-bold whitespace-pre-line text-white">
+          {'정교하게 설계된\n신뢰의 프리미엄'}
+        </h1>
+        <p className="mt-4 text-[18px] text-white/90">
+          Smart-Boutique 포지셔닝 — 포에버 의원 명동점
+        </p>
+      </div>
+    </section>
   );
 }
-
-export { HeroSection, type HeroSectionProps };

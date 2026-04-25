@@ -1,60 +1,59 @@
-import { SectionLayout } from '@/components/common/SectionLayout';
-import { CardGrid } from '@/components/common/CardGrid';
-import { Avatar } from '@/components/ui/Avatar';
-
-interface DoctorSectionProps {
-  locale?: string;
-}
-
 const DOCTORS = [
   {
-    name: 'Dr. 김민수',
-    position: '원장 / 피부과 전문의',
-    philosophy: '환자와의 신뢰 위에 정교한 시술을 설계합니다.',
-    initial: '김',
+    name: '김포에버 원장',
+    specialty: '리프팅 · 피부케어 전문',
+    bio: '서울대학교 의과대학 졸업\n피부과 전문의 15년 경력',
   },
   {
-    name: 'Dr. 이수진',
-    position: '부원장 / 피부과 전문의',
-    philosophy: '자연스러운 아름다움을 추구합니다.',
-    initial: '이',
+    name: '이포에버 원장',
+    specialty: '토닝 · 색소 전문',
+    bio: '연세대학교 의과대학 졸업\n레이저 치료 전문의 12년 경력',
   },
   {
-    name: 'Dr. 박지훈',
-    position: '전문의 / 피부과 전문의',
-    philosophy: '정확한 진단과 섬세한 시술',
-    initial: '박',
+    name: '박포에버 원장',
+    specialty: '보톡스 · 필러 전문',
+    bio: '고려대학교 의과대학 졸업\n성형외과 전문의 10년 경력',
   },
   {
-    name: 'Dr. 최예린',
-    position: '전문의 / 피부과 전문의',
-    philosophy: '개인 맞춤 솔루션',
-    initial: '최',
+    name: '최포에버 원장',
+    specialty: '스킨케어 · 재생 전문',
+    bio: '서울대학교 의과대학 졸업\n피부과 전문의 8년 경력',
   },
 ];
 
-function DoctorSection({ locale: _locale }: DoctorSectionProps) {
+export function DoctorSection() {
   return (
-    <SectionLayout title="의료진 소개" background="ivory">
-      <CardGrid columns={{ mobile: 1, tablet: 2, desktop: 4 }} gap="md">
+    <section className="flex flex-col items-center gap-8 bg-[#faf8f5] px-4 py-16 md:px-[120px]">
+      {/* Header */}
+      <div className="flex flex-col items-center gap-2">
+        <span className="text-[12px] font-medium tracking-[1.8px] text-[#d4c8bd]">
+          OUR DOCTORS
+        </span>
+        <h2 className="text-[28px] font-bold">의료진 소개</h2>
+      </div>
+
+      {/* Doctor cards */}
+      <div className="flex w-full flex-wrap justify-center gap-6">
         {DOCTORS.map((doctor) => (
           <div
             key={doctor.name}
-            className="flex flex-col items-center rounded-[var(--radius-card)] bg-white p-6 text-center shadow-[var(--shadow-card)]"
+            className="min-w-[282px] flex-1 overflow-hidden rounded-[8px] bg-white"
           >
-            <Avatar size="xl" shape="circle" initial={doctor.initial} />
-            <h3 className="text-forever-charcoal mt-4 text-[18px] font-bold">
-              {doctor.name}
-            </h3>
-            <p className="text-[14px] text-neutral-500">{doctor.position}</p>
-            <p className="mt-3 text-[14px] text-neutral-600 italic">
-              &ldquo;{doctor.philosophy}&rdquo;
-            </p>
+            {/* Photo placeholder */}
+            <div className="h-[220px] bg-[#efe5d9]" />
+            {/* Content */}
+            <div className="flex flex-col gap-2 p-5">
+              <h3 className="text-[18px] font-bold">{doctor.name}</h3>
+              <span className="text-[13px] font-medium text-[#d4c8bd]">
+                {doctor.specialty}
+              </span>
+              <p className="text-[13px] whitespace-pre-line text-[#808080]">
+                {doctor.bio}
+              </p>
+            </div>
           </div>
         ))}
-      </CardGrid>
-    </SectionLayout>
+      </div>
+    </section>
   );
 }
-
-export { DoctorSection, type DoctorSectionProps };

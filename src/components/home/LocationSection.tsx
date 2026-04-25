@@ -1,71 +1,57 @@
-import { SectionLayout } from '@/components/common/SectionLayout';
-import { cn } from '@/lib/utils/cn';
+const INFO_ROWS = [
+  {
+    label: '주소',
+    value: '서울특별시 중구 명동길 74 5층',
+  },
+  {
+    label: '지하철',
+    value:
+      '4호선 명동역 6번 출구 도보 2분\n2호선 을지로입구역 5번 출구 도보 5분',
+  },
+  {
+    label: '진료시간',
+    value: '월–금 10:00 – 19:00\n토요일 10:00 – 16:00\n일·공휴일 휴진',
+  },
+  {
+    label: '전화',
+    value: '02-XXX-XXXX',
+  },
+];
 
-interface LocationSectionProps {
-  locale?: string;
-}
-
-function LocationSection({ locale: _locale }: LocationSectionProps) {
+export function LocationSection() {
   return (
-    <SectionLayout title="오시는 길" background="ivory">
-      <div className={cn('flex flex-col gap-8', 'lg:flex-row')}>
-        {/* Map placeholder */}
-        <div className="flex h-[380px] flex-1 items-center justify-center rounded-[12px] bg-neutral-200">
-          <span className="text-[15px] text-neutral-500">지도 영역</span>
-        </div>
-
-        {/* Clinic info */}
-        <div className="flex flex-1 flex-col gap-6">
-          <div>
-            <h3 className="text-forever-charcoal text-[18px] font-bold">
-              주소
-            </h3>
-            <p className="mt-2 text-[15px] leading-relaxed text-neutral-600">
-              서울특별시 중구 명동길 74 5층
-              <br />
-              (명동역 6번 출구 도보 2분)
-            </p>
-          </div>
-
-          <div>
-            <p className="text-[15px] text-neutral-600">TEL 02-XXX-XXXX</p>
-          </div>
-
-          <div>
-            <h3 className="text-forever-charcoal text-[18px] font-bold">
-              진료 시간
-            </h3>
-            <ul className="mt-2 flex flex-col gap-1 text-[15px] text-neutral-600">
-              <li>월–금 10:00 – 19:00</li>
-              <li>토요일 10:00 – 16:00</li>
-              <li>일·공휴일 휴진</li>
-              <li>점심시간 13:00 – 14:00</li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-forever-charcoal text-[18px] font-bold">
-              교통편
-            </h3>
-            <ul className="mt-2 flex flex-col gap-1 text-[15px] text-neutral-600">
-              <li>
-                <span className="mr-2 inline-flex size-5 items-center justify-center rounded-full bg-[#00a651] text-[11px] font-bold text-white">
-                  2
-                </span>
-                2호선 을지로입구역 5번 출구 도보 5분
-              </li>
-              <li>
-                <span className="mr-2 inline-flex size-5 items-center justify-center rounded-full bg-[#eb6f0d] text-[11px] font-bold text-white">
-                  4
-                </span>
-                4호선 명동역 6번 출구 도보 2분
-              </li>
-            </ul>
-          </div>
-        </div>
+    <section className="flex flex-col gap-12 bg-[#faf8f5] px-4 py-16 md:flex-row md:px-[120px]">
+      {/* Map placeholder */}
+      <div className="flex h-[360px] flex-1 items-center justify-center rounded-[12px] bg-[#efe5d9]">
+        <span className="text-center text-[14px] whitespace-pre-line text-[#808080]">
+          {'지도 영역\n(Google Maps / Naver Maps)'}
+        </span>
       </div>
-    </SectionLayout>
+
+      {/* Info */}
+      <div className="flex h-auto flex-1 flex-col gap-6 md:h-[360px]">
+        <h2 className="text-[24px] font-bold">오시는 길</h2>
+
+        {INFO_ROWS.map((row) => (
+          <div key={row.label} className="flex gap-3">
+            {/* Icon circle */}
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#efe5d9]">
+              <span className="text-[11px] text-[#706263]">
+                {row.label.charAt(0)}
+              </span>
+            </div>
+            {/* Content */}
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[12px] font-medium text-[#d4c8bd]">
+                {row.label}
+              </span>
+              <p className="text-[14px] leading-[1.5] whitespace-pre-line text-[#2b2b2b]">
+                {row.value}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
-
-export { LocationSection, type LocationSectionProps };

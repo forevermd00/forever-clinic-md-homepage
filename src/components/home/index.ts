@@ -1,9 +1,9 @@
 export { HeroSection } from './HeroSection';
 export { QuickEntrySection } from './QuickEntrySection';
 export { PromoSection } from './PromoSection';
-export { BrandPhilosophySection } from './BrandPhilosophySection';
 export { BAPreviewSection } from './BAPreviewSection';
+export { BrandPhilosophySection } from './BrandPhilosophySection';
 export { StatsStripSection } from './StatsStripSection';
 export { DoctorSection } from './DoctorSection';
-export { GallerySection } from './GallerySection';
 export { LocationSection } from './LocationSection';
+export { ContactFormSection } from './ContactFormSection';

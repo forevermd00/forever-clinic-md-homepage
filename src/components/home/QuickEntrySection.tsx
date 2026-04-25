@@ -1,84 +1,104 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { SectionLayout } from '@/components/common/SectionLayout';
-import { FilterTabs } from '@/components/common/FilterTabs';
-import { CardGrid } from '@/components/common/CardGrid';
 import { cn } from '@/lib/utils/cn';
 
-interface QuickEntrySectionProps {
-  locale?: string;
-}
-
 const TABS = [
-  { id: 'treatment', label: '시술로 찾기' },
-  { id: 'concern', label: '고민으로 찾기' },
-  { id: 'situation', label: '상황으로 찾기' },
+  { id: 'lifting', label: '리프팅' },
+  { id: 'skincare', label: '피부케어' },
+  { id: 'toning', label: '토닝·색소' },
+  { id: 'botox', label: '보톡스·필러' },
 ];
 
-const CARDS_BY_TAB: Record<string, { id: string; title: string }[]> = {
-  treatment: [
-    { id: 't1', title: '리프팅' },
-    { id: 't2', title: '스킨케어·부스터' },
-    { id: 't3', title: '색소·미백' },
-    { id: 't4', title: '모공·흉터' },
-    { id: 't5', title: '보톡스·필러' },
-    { id: 't6', title: '제모' },
+const CARDS_BY_TAB: Record<
+  string,
+  { id: string; title: string; description: string }[]
+> = {
+  lifting: [
+    {
+      id: 'l1',
+      title: '울쎄라 리프팅',
+      description: 'HIFU 초음파로 탄력 개선',
+    },
+    { id: 'l2', title: '써마지 FLX', description: '고주파 콜라겐 리모델링' },
+    {
+      id: 'l3',
+      title: '실리프팅',
+      description: '녹는 실을 이용한 즉각 리프팅',
+    },
+    {
+      id: 'l4',
+      title: '인모드 리프팅',
+      description: 'RF 에너지 피부 타이트닝',
+    },
   ],
-  concern: [
-    { id: 'c1', title: '주름·탄력' },
-    { id: 'c2', title: '기미·잡티' },
-    { id: 'c3', title: '여드름·트러블' },
-    { id: 'c4', title: '모공·블랙헤드' },
-    { id: 'c5', title: '다크서클' },
-    { id: 'c6', title: '홍조·민감' },
+  skincare: [
+    { id: 's1', title: '아쿠아필', description: '수분 공급 딥클렌징' },
+    { id: 's2', title: '리쥬란 힐러', description: 'PN 성분 피부 재생' },
+    { id: 's3', title: '엑소좀 부스터', description: '세포 재생 촉진 부스터' },
+    { id: 's4', title: '피부 관리 패키지', description: '맞춤 복합 케어' },
   ],
-  situation: [
-    { id: 's1', title: '결혼 전 관리' },
-    { id: 's2', title: '여행 전 관리' },
-    { id: 's3', title: '계절 관리' },
-    { id: 's4', title: '첫 시술' },
-    { id: 's5', title: '정기 관리' },
-    { id: 's6', title: '특별한 날' },
+  toning: [
+    { id: 't1', title: '피코토닝', description: '색소 및 잡티 개선' },
+    { id: 't2', title: '레이저토닝', description: '멜라닌 색소 파괴' },
+    { id: 't3', title: 'IPL 광선치료', description: '복합 색소 치료' },
+    { id: 't4', title: '미백 관리', description: '브라이트닝 집중 케어' },
+  ],
+  botox: [
+    { id: 'b1', title: '보톡스 주름', description: '표정 주름 개선' },
+    { id: 'b2', title: '턱 보톡스', description: '사각턱 라인 교정' },
+    { id: 'b3', title: '필러 볼륨', description: '볼륨 및 윤곽 보정' },
+    { id: 'b4', title: '스킨 보톡스', description: '피부결 개선 미량 주사' },
   ],
 };
 
-function QuickEntrySection({ locale: _locale }: QuickEntrySectionProps) {
-  const [activeTab, setActiveTab] = useState('treatment');
+export function QuickEntrySection() {
+  const [activeTab, setActiveTab] = useState('lifting');
   const cards = CARDS_BY_TAB[activeTab];
 
   return (
-    <SectionLayout title="무엇을 고민하고 계신가요?" background="ivory">
-      <FilterTabs
-        tabs={TABS}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        variant="pill"
-        className="mb-8"
-      />
-      <CardGrid columns={{ mobile: 2, tablet: 3, desktop: 6 }} gap="md">
-        {cards.map((card) => (
-          <Link
-            key={card.id}
-            href="/ko/treatments"
+    <section className="flex flex-col items-center gap-8 bg-[#faf8f5] px-4 py-16 md:px-12">
+      <h2 className="text-center text-[36px] font-bold">
+        원하는 시술을 선택하세요
+      </h2>
+
+      {/* Tabs — square, no border-radius */}
+      <div className="flex flex-wrap justify-center gap-0">
+        {TABS.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
             className={cn(
-              'border-forever-taupe flex flex-col gap-1.5 rounded-[var(--radius-card)] border bg-white p-4',
-              'hover:border-forever-red transition-colors duration-200',
+              'px-6 py-3 text-[14px] font-medium transition-colors',
+              activeTab === tab.id
+                ? 'bg-[#a83c44] text-white'
+                : 'bg-transparent text-[#2b2b2b] hover:bg-[#2b2b2b]/5',
             )}
           >
-            <div className="bg-forever-taupe size-9 rounded-[4px]" />
-            <div className="flex items-center justify-between">
-              <span className="text-forever-charcoal text-[15px] font-medium">
-                {card.title}
-              </span>
-              <span className="text-neutral-400">→</span>
-            </div>
-          </Link>
+            {tab.label}
+          </button>
         ))}
-      </CardGrid>
-    </SectionLayout>
+      </div>
+
+      {/* Cards */}
+      <div className="flex flex-wrap justify-center gap-6">
+        {cards.map((card) => (
+          <div
+            key={card.id}
+            className="w-[300px] overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)]"
+          >
+            {/* Image placeholder */}
+            <div className="bg-forever-beige h-[160px] w-full rounded-t-[8px]" />
+            {/* Text */}
+            <div className="flex flex-col gap-1 px-4 pt-2 pb-4">
+              <h3 className="text-[16px] font-bold text-[#2b2b2b]">
+                {card.title}
+              </h3>
+              <p className="text-[13px] text-[#706263]">{card.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
-
-export { QuickEntrySection, type QuickEntrySectionProps };

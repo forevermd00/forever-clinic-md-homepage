@@ -1,80 +1,90 @@
 import { cn } from '@/lib/utils/cn';
 
-interface BrandPhilosophySectionProps {
-  locale?: string;
-}
-
 const VALUES = [
   {
-    name: '정직',
-    description: '결제한 용량 그대로, 눈앞에서 확인합니다.',
-    english: 'Safety Ritual',
+    english: 'Honesty',
+    korean: '정직',
+    description:
+      '결제한 용량 그대로, 눈앞에서 확인합니다. 보여주기식이 아닌, 투명한 시술 과정을 약속합니다.',
   },
   {
-    name: '정교',
-    description: '예약 시간 그대로 시작하고, 예상 시간 그대로 끝납니다.',
-    english: 'Zero Error Protocol',
+    english: 'Precision',
+    korean: '정교',
+    description:
+      '예약 시간 그대로 시작하고, 예상 시간 그대로 끝납니다. 모든 시술은 정밀하게 설계됩니다.',
   },
   {
-    name: '전문',
-    description: '의사가 직접 당신의 얼굴을 설계합니다.',
-    english: 'Doctor-designed',
+    english: 'Expertise',
+    korean: '전문',
+    description:
+      '의사가 직접 당신의 얼굴을 설계합니다. 15년 이상의 경력을 가진 전문 의료진이 함께합니다.',
   },
   {
-    name: '존엄',
-    description: '1인 전용 공간. 전담 컨시어지.',
-    english: 'Private & Exclusive',
+    english: 'Dignity',
+    korean: '존엄',
+    description:
+      '1인 전용 공간, 전담 컨시어지. 모든 고객을 존중하는 프라이빗한 경험을 제공합니다.',
   },
 ];
 
-function BrandPhilosophySection({
-  locale: _locale,
-}: BrandPhilosophySectionProps) {
+export function BrandPhilosophySection() {
   return (
-    <section className="bg-forever-ivory px-4 pt-20 pb-12 md:px-6 lg:px-12">
-      <div className="mx-auto max-w-[var(--container-max)]">
-        <div className="mb-10">
-          <h2 className="text-forever-charcoal text-[32px] font-bold">
-            Smart-Boutique, 신뢰의 프리미엄
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {VALUES.map((value) => (
-            <div
-              key={value.name}
-              className={cn(
-                'relative h-[200px] overflow-hidden rounded-[var(--radius-card)] lg:h-[340px]',
-              )}
-            >
-              {/* Background placeholder */}
-              <div className="absolute inset-0 bg-neutral-400" />
-
-              {/* Dark overlay */}
-              <div className="absolute inset-0 bg-black/40" />
-
-              {/* Content */}
-              <div className="absolute bottom-0 left-0 z-10 p-6">
-                <h3 className="text-[40px] leading-tight font-bold text-white">
-                  {value.name}
-                </h3>
-                <p className="mt-1 text-[18px] text-white">
-                  {value.description}
-                </p>
-                <span className="mt-1 block text-[14px] text-[#d9d9d9]">
-                  {value.english}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <p className="mt-10 text-center text-[16px] text-neutral-600">
-          보여주기식 럭셔리가 아니라, 정교하게 설계된 신뢰의 프리미엄
+    <section className="flex flex-col bg-white">
+      {/* Header */}
+      <div className="flex flex-col items-center gap-3 px-4 pt-20 pb-10 text-center">
+        <span className="text-[12px] font-medium tracking-[3px] text-[#706263]">
+          BRAND PHILOSOPHY
+        </span>
+        <h2 className="text-[28px] font-bold text-[#2b2b2b]">
+          Smart-Boutique 철학
+        </h2>
+        <p className="text-[14px] text-[#706263]">
+          보여주기식 럭셔리가 아닌, 정교하게 설계된 신뢰의 프리미엄
         </p>
       </div>
+
+      {/* Value rows — alternating layout */}
+      {VALUES.map((value, index) => {
+        const imageOnLeft = index % 2 === 0;
+
+        const imageBlock = (
+          <div className="bg-forever-beige h-[320px] w-full rounded-[8px] md:h-[440px] md:w-[440px] md:shrink-0" />
+        );
+
+        const textBlock = (
+          <div className="flex flex-col gap-3.5">
+            <span className="text-[12px] font-medium tracking-[2px] text-[#706263]">
+              {value.english}
+            </span>
+            <h3 className="text-[36px] font-bold text-[#2b2b2b]">
+              {value.korean}
+            </h3>
+            <p className="text-[15px] text-[#706263]">{value.description}</p>
+          </div>
+        );
+
+        return (
+          <div
+            key={value.korean}
+            className={cn(
+              'flex flex-col items-center justify-center gap-10 px-4 py-12 md:flex-row md:gap-20 md:px-[120px]',
+              !imageOnLeft && 'md:flex-row-reverse',
+            )}
+          >
+            {imageOnLeft ? (
+              <>
+                {imageBlock}
+                {textBlock}
+              </>
+            ) : (
+              <>
+                {textBlock}
+                {imageBlock}
+              </>
+            )}
+          </div>
+        );
+      })}
     </section>
   );
 }
-
-export { BrandPhilosophySection, type BrandPhilosophySectionProps };

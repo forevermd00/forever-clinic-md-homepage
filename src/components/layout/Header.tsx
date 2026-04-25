@@ -1,26 +1,22 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useTranslations } from 'next-intl';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils/cn';
 import { locales, localeNames, type Locale } from '@/lib/i18n/config';
 
 const navItems = [
-  { key: 'treatments', href: '/treatments' },
-  { key: 'brand', href: '/brand' },
-  { key: 'beforeAfter', href: '/before-after' },
-  { key: 'media', href: '/media' },
-  { key: 'estimate', href: '/estimate' },
+  { label: 'Before & After', href: '/before-after' },
+  { label: '시술', href: '/treatments' },
+  { label: '브랜드', href: '/brand' },
+  { label: '미디어', href: '/media' },
 ] as const;
 
 export function Header() {
-  const t = useTranslations('header');
-  const tCommon = useTranslations('common');
   const pathname = usePathname();
   const currentLocale = pathname.split('/')[1] as Locale;
-
   const router = useRouter();
+
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
@@ -32,7 +28,6 @@ export function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => {
     if (prevPathname.current !== pathname) {
       prevPathname.current = pathname;
@@ -44,34 +39,35 @@ export function Header() {
     const segments = pathname.split('/');
     segments[1] = locale;
     router.push(segments.join('/'));
+    setIsLangOpen(false);
   };
 
   return (
     <>
       <header
         className={cn(
-          'fixed top-0 right-0 left-0 z-50 transition-[background-color,box-shadow] duration-200',
-          isScrolled ? 'bg-white shadow-[var(--shadow-2)]' : 'bg-white',
+          'fixed top-0 right-0 left-0 z-50 border-b border-[#e8dfd7] bg-white transition-shadow duration-200',
+          isScrolled && 'shadow-[0_2px_8px_rgba(0,0,0,0.06)]',
         )}
       >
-        <div className="mx-auto flex h-14 max-w-[var(--container-max)] items-center justify-between px-4 md:h-[60px] md:px-6 lg:h-16 lg:px-12">
+        <div className="mx-auto flex h-16 items-center justify-between px-4 md:px-12">
           {/* Logo */}
           <a
             href={`/${currentLocale}`}
-            className="text-forever-charcoal text-[18px] font-bold"
+            className="text-[18px] font-bold tracking-[2px] text-[#2b2b2b]"
           >
-            Forever Clinic
+            FOREVER CLINIC
           </a>
 
-          {/* Desktop Nav */}
+          {/* Desktop Nav — center */}
           <nav className="hidden items-center gap-8 md:flex" aria-label="main">
-            {navItems.map(({ key, href }) => (
+            {navItems.map(({ label, href }) => (
               <a
-                key={key}
+                key={href}
                 href={`/${currentLocale}${href}`}
-                className="hover:text-forever-charcoal text-[14px] font-medium text-neutral-600 transition-colors"
+                className="text-[14px] font-medium text-[#2b2b2b] transition-colors hover:opacity-70"
               >
-                {t(key)}
+                {label}
               </a>
             ))}
           </nav>
@@ -82,27 +78,28 @@ export function Header() {
             <div className="relative">
               <button
                 onClick={() => setIsLangOpen(!isLangOpen)}
-                className="border-forever-taupe text-forever-charcoal flex items-center gap-2 rounded-[var(--radius-button)] border px-3 py-2 text-[13px] font-medium"
+                className="flex items-center gap-1.5 text-[13px] font-medium text-[#2b2b2b]"
                 aria-label="Change language"
               >
-                <span>🌐</span>
-                <span>{localeNames[currentLocale]}</span>
-                <span className="text-[10px] text-neutral-500">▾</span>
+                <span>🇰🇷</span>
+                <span>
+                  {localeNames[currentLocale] === '한국어'
+                    ? 'KO'
+                    : currentLocale.toUpperCase()}
+                </span>
+                <span className="text-[10px]">▾</span>
               </button>
               {isLangOpen && (
-                <div className="absolute top-full right-0 mt-1 overflow-hidden rounded-[var(--radius-card)] bg-white shadow-[var(--shadow-2)]">
+                <div className="absolute top-full right-0 mt-1 overflow-hidden rounded-[4px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.12)]">
                   {locales.map((locale) => (
                     <button
                       key={locale}
-                      onClick={() => {
-                        switchLocale(locale);
-                        setIsLangOpen(false);
-                      }}
+                      onClick={() => switchLocale(locale)}
                       className={cn(
                         'block w-full px-4 py-2 text-left text-[13px] transition-colors hover:bg-neutral-100',
                         locale === currentLocale
-                          ? 'text-forever-red font-semibold'
-                          : 'text-forever-charcoal',
+                          ? 'font-semibold text-[#a83c44]'
+                          : 'text-[#2b2b2b]',
                       )}
                     >
                       {localeNames[locale]}
@@ -112,12 +109,20 @@ export function Header() {
               )}
             </div>
 
-            {/* CTA Button — desktop only */}
+            {/* Cart icon — desktop */}
+            <button
+              className="hidden text-[18px] text-[#2b2b2b] md:inline-flex"
+              aria-label="Cart"
+            >
+              🛒
+            </button>
+
+            {/* CTA Button — desktop */}
             <a
               href={`/${currentLocale}/contact`}
-              className="bg-forever-red hover:bg-forever-red-hover hidden rounded-[var(--radius-button)] px-5 py-2.5 text-[14px] font-medium text-white transition-colors md:inline-flex"
+              className="hidden rounded-[4px] bg-[#a83c44] px-4 py-2 text-[13px] text-white transition-colors hover:bg-[#8c2e38] md:inline-flex"
             >
-              {tCommon('reservation')}
+              예약하기
             </a>
 
             {/* Mobile hamburger */}
@@ -130,19 +135,19 @@ export function Header() {
               <div className="space-y-1.5">
                 <span
                   className={cn(
-                    'bg-forever-charcoal block h-0.5 w-5 transition-transform',
+                    'block h-0.5 w-5 bg-[#2b2b2b] transition-transform',
                     isMobileMenuOpen && 'translate-y-2 rotate-45',
                   )}
                 />
                 <span
                   className={cn(
-                    'bg-forever-charcoal block h-0.5 w-5 transition-opacity',
+                    'block h-0.5 w-5 bg-[#2b2b2b] transition-opacity',
                     isMobileMenuOpen && 'opacity-0',
                   )}
                 />
                 <span
                   className={cn(
-                    'bg-forever-charcoal block h-0.5 w-5 transition-transform',
+                    'block h-0.5 w-5 bg-[#2b2b2b] transition-transform',
                     isMobileMenuOpen && '-translate-y-2 -rotate-45',
                   )}
                 />
@@ -154,29 +159,29 @@ export function Header() {
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-40 bg-white pt-14 md:hidden">
+        <div className="fixed inset-0 z-40 bg-white pt-16 md:hidden">
           <nav className="flex flex-col px-6 py-8">
-            {navItems.map(({ key, href }) => (
+            {navItems.map(({ label, href }) => (
               <a
-                key={key}
+                key={href}
                 href={`/${currentLocale}${href}`}
-                className="text-forever-charcoal border-b border-neutral-200 py-4 text-[16px] font-medium"
+                className="border-b border-neutral-200 py-4 text-[16px] font-medium text-[#2b2b2b]"
               >
-                {t(key)}
+                {label}
               </a>
             ))}
             <a
               href={`/${currentLocale}/contact`}
-              className="bg-forever-red mt-6 flex items-center justify-center rounded-[var(--radius-button)] py-3 text-[16px] font-medium text-white"
+              className="mt-6 flex items-center justify-center rounded-[4px] bg-[#a83c44] py-3 text-[16px] font-medium text-white"
             >
-              {tCommon('reservation')}
+              예약하기
             </a>
           </nav>
         </div>
       )}
 
       {/* Spacer for fixed header */}
-      <div className="h-14 md:h-[60px] lg:h-16" />
+      <div className="h-16" />
     </>
   );
 }

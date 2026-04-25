@@ -2,19 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { SectionLayout } from '@/components/common/SectionLayout';
-import { FilterTabs } from '@/components/common/FilterTabs';
-import { CardGrid } from '@/components/common/CardGrid';
 import { cn } from '@/lib/utils/cn';
 
-interface BAPreviewSectionProps {
-  locale?: string;
-}
-
-const TABS = [
+const FILTERS = [
   { id: 'all', label: '전체' },
   { id: 'lifting', label: '리프팅' },
-  { id: 'skincare', label: '스킨케어' },
+  { id: 'skincare', label: '피부케어' },
+  { id: 'toning', label: '토닝·색소' },
   { id: 'botox', label: '보톡스·필러' },
 ];
 
@@ -24,59 +18,66 @@ const BA_CARDS = [
   { id: 3, treatment: '보톡스 턱라인', sessions: '1회 시술' },
 ];
 
-function BAPreviewSection({ locale: _locale }: BAPreviewSectionProps) {
-  const [activeTab, setActiveTab] = useState('all');
+export function BAPreviewSection() {
+  const [activeFilter, setActiveFilter] = useState('all');
 
   return (
-    <SectionLayout title="Before & After" background="ivory">
-      <FilterTabs
-        tabs={TABS}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        variant="underline"
-        className="mb-8"
-      />
-      <CardGrid columns={{ mobile: 1, tablet: 2, desktop: 3 }} gap="md">
+    <section className="flex flex-col items-center gap-6 bg-white p-12">
+      <h2 className="text-[28px] font-bold">Before &amp; After</h2>
+
+      {/* Filter pills */}
+      <div className="flex flex-wrap gap-2">
+        {FILTERS.map((filter) => (
+          <button
+            key={filter.id}
+            onClick={() => setActiveFilter(filter.id)}
+            className={cn(
+              'rounded-[20px] px-4 py-2 text-[13px] font-medium transition-colors',
+              activeFilter === filter.id
+                ? 'bg-[#2b2b2b] text-white'
+                : 'border border-[#efe5d9] bg-white text-[#2b2b2b] hover:bg-[#2b2b2b]/5',
+            )}
+          >
+            {filter.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Cards */}
+      <div className="flex flex-wrap justify-center gap-5">
         {BA_CARDS.map((card) => (
           <div
             key={card.id}
-            className={cn(
-              'overflow-hidden rounded-[var(--radius-card)] bg-white shadow-[var(--shadow-card)]',
-            )}
+            className="w-[311px] overflow-hidden rounded-[8px] border border-[#efe5d9] drop-shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
           >
-            <div className="flex h-[200px]">
-              <div className="flex flex-1 items-center justify-center bg-neutral-300">
-                <span className="text-[13px] font-medium text-neutral-600">
-                  BEFORE
-                </span>
+            {/* BA image area */}
+            <div className="flex h-[250px]">
+              <div className="bg-forever-ivory flex flex-1 items-center justify-center">
+                <span className="text-[13px] text-[#706263]">BEFORE</span>
               </div>
-              <div className="flex flex-1 items-center justify-center bg-neutral-200">
-                <span className="text-[13px] font-medium text-neutral-600">
-                  AFTER
-                </span>
+              <div className="w-px bg-[#efe5d9]" />
+              <div className="bg-forever-beige flex flex-1 items-center justify-center">
+                <span className="text-[13px] text-[#706263]">AFTER</span>
               </div>
             </div>
-            <div className="p-4">
-              <h3 className="text-forever-charcoal text-[16px] font-semibold">
-                {card.treatment}
-              </h3>
-              <p className="mt-1 text-[14px] text-neutral-500">
+            {/* Info row */}
+            <div className="flex items-center justify-between px-3 pt-2 pb-2.5">
+              <span className="text-[15px] font-bold">{card.treatment}</span>
+              <span className="text-[13px] text-[#706263]">
                 {card.sessions}
-              </p>
+              </span>
             </div>
           </div>
         ))}
-      </CardGrid>
-      <div className="mt-8">
-        <Link
-          href="/ko/before-after"
-          className="text-forever-red text-[15px] font-medium hover:underline"
-        >
-          {'B&A 전체 보기 →'}
-        </Link>
       </div>
-    </SectionLayout>
+
+      {/* CTA button */}
+      <Link
+        href="/ko/before-after"
+        className="rounded-[4px] border border-[#efe5d9] px-6 py-3 text-[14px] font-medium text-[#2b2b2b] transition-colors hover:bg-[#2b2b2b]/5"
+      >
+        Before &amp; After 더보기 →
+      </Link>
+    </section>
   );
 }
-
-export { BAPreviewSection, type BAPreviewSectionProps };

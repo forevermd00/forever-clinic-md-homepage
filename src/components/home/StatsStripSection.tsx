@@ -1,36 +1,24 @@
-import { cn } from '@/lib/utils/cn';
-
-interface StatsStripSectionProps {
-  locale?: string;
-}
-
 const STATS = [
-  { value: '15,000+', label: '누적 시술' },
+  { value: '15+', label: '전문 의료진' },
+  { value: '30,000+', label: '누적 시술 건수' },
   { value: '98%', label: '고객 만족도' },
-  { value: '12년', label: '의료 경력' },
-  { value: '100%', label: '정품 사용' },
+  { value: '10+', label: '보유 장비' },
 ];
 
-function StatsStripSection({ locale: _locale }: StatsStripSectionProps) {
+export function StatsStripSection() {
   return (
-    <section className="bg-forever-beige py-16">
-      <div
-        className={cn(
-          'mx-auto grid max-w-[var(--container-max)] grid-cols-2 gap-8 px-4 text-center',
-          'lg:flex lg:flex-row lg:justify-center lg:gap-20',
-        )}
-      >
-        {STATS.map((stat) => (
-          <div key={stat.label} className="flex flex-col items-center gap-1">
-            <span className="text-forever-red text-[36px] font-bold">
-              {stat.value}
-            </span>
-            <span className="text-[14px] text-neutral-600">{stat.label}</span>
-          </div>
-        ))}
-      </div>
+    <section className="flex flex-col items-center justify-between gap-8 bg-white px-4 py-10 md:flex-row md:px-[120px]">
+      {STATS.map((stat) => (
+        <div
+          key={stat.label}
+          className="flex flex-1 flex-col items-center gap-1"
+        >
+          <span className="text-[32px] font-bold text-[#a83c44]">
+            {stat.value}
+          </span>
+          <span className="text-[14px] text-[#808080]">{stat.label}</span>
+        </div>
+      ))}
     </section>
   );
 }
-
-export { StatsStripSection, type StatsStripSectionProps };

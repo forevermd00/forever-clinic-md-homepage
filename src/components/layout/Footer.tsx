@@ -1,43 +1,32 @@
-import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
 
-const navLinks = [
-  { key: 'treatments', href: '/treatments' },
-  { key: 'brand', href: '/brand' },
-  { key: 'beforeAfter', href: '/before-after' },
-  { key: 'media', href: '/media' },
-] as const;
+const treatmentLinks = [
+  { label: '리프팅', href: '/treatments/lifting' },
+  { label: '피부케어', href: '/treatments/skincare' },
+  { label: '토닝·색소', href: '/treatments/toning' },
+  { label: '보톡스·필러', href: '/treatments/botox' },
+];
 
-const messengerIcons = [
-  { label: 'KakaoTalk', initial: 'K' },
-  { label: 'LINE', initial: 'L' },
-  { label: 'WeChat', initial: 'W' },
-  { label: 'WhatsApp', initial: 'W' },
-] as const;
+const brandLinks = [
+  { label: '브랜드 스토리', href: '/brand' },
+  { label: '의료진 소개', href: '/brand#doctors' },
+  { label: '시설 안내', href: '/brand#facilities' },
+  { label: '오시는 길', href: '/brand#location' },
+];
+
+const mediaLinks = [
+  { label: '공지사항', href: '/media/notice' },
+  { label: '이벤트', href: '/media/events' },
+  { label: '예약 상담', href: '/contact' },
+  { label: '개인정보처리방침', href: '/privacy' },
+];
 
 const snsIcons = [
-  { label: 'Instagram', initial: 'I' },
-  { label: 'YouTube', initial: 'Y' },
+  { label: 'Instagram', initial: 'IG' },
+  { label: 'YouTube', initial: 'YT' },
+  { label: 'WeChat', initial: 'WC' },
   { label: 'Blog', initial: 'B' },
-] as const;
-
-const languages = [
-  { code: 'ko', label: 'KR' },
-  { code: 'en', label: 'EN' },
-  { code: 'zh', label: 'CN' },
-  { code: 'ja', label: 'JP' },
-] as const;
-
-function IconCircle({ initial, label }: { initial: string; label: string }) {
-  return (
-    <span
-      title={label}
-      className="flex size-9 cursor-pointer items-center justify-center rounded-full bg-neutral-700 text-[16px] font-bold text-white transition-colors hover:bg-neutral-600"
-    >
-      {initial}
-    </span>
-  );
-}
+];
 
 interface FooterProps {
   locale?: string;
@@ -45,74 +34,92 @@ interface FooterProps {
 }
 
 export function Footer({ locale = 'ko', className }: FooterProps) {
-  const t = useTranslations('header');
-  const tFooter = useTranslations('footer');
-
   return (
-    <footer className={cn('bg-forever-charcoal text-white', className)}>
-      <div className="mx-auto max-w-[var(--container-max)] px-6 pt-12 pb-8 lg:px-[120px]">
-        {/* Top Row */}
-        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-          <span className="text-[18px] font-bold">Forever Clinic</span>
+    <footer className={cn('bg-[#2b2b2b]', className)}>
+      <div className="px-6 pt-16 pb-8 lg:px-12">
+        {/* 4-column grid */}
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Column 1: Clinic Info */}
+          <div className="flex flex-col gap-4">
+            <span className="text-[16px] font-bold tracking-[1.5px] text-white">
+              FOREVER CLINIC
+              <br />
+              MYEONGDONG
+            </span>
+            <div className="flex flex-col gap-1 text-[13px] text-[#706263]">
+              <p>서울특별시 중구 명동길 74 5층</p>
+              <p>TEL 02-XXX-XXXX</p>
+              <p>info@foreverclinic.co.kr</p>
+            </div>
+          </div>
 
-          <nav className="flex flex-wrap gap-6">
-            {navLinks.map(({ key, href }) => (
-              <a
-                key={key}
-                href={`/${locale}${href}`}
-                className="text-[14px] text-neutral-400 transition-colors hover:text-white"
-              >
-                {t(key)}
-              </a>
-            ))}
-          </nav>
+          {/* Column 2: 시술 */}
+          <div className="flex flex-col gap-3">
+            <span className="text-[14px] font-bold text-white">시술</span>
+            <div className="flex flex-col gap-2">
+              {treatmentLinks.map(({ label, href }) => (
+                <a
+                  key={href}
+                  href={`/${locale}${href}`}
+                  className="text-[13px] text-[#706263] transition-colors hover:text-white"
+                >
+                  {label}
+                </a>
+              ))}
+            </div>
+          </div>
 
-          <div className="flex gap-3">
-            {languages.map(({ code, label }) => (
-              <a
-                key={code}
-                href={`/${code}`}
-                className={cn(
-                  'text-[13px] font-semibold transition-colors',
-                  code === locale
-                    ? 'text-white'
-                    : 'text-neutral-500 hover:text-white',
-                )}
-              >
-                {label}
-              </a>
-            ))}
+          {/* Column 3: 브랜드 */}
+          <div className="flex flex-col gap-3">
+            <span className="text-[14px] font-bold text-white">브랜드</span>
+            <div className="flex flex-col gap-2">
+              {brandLinks.map(({ label, href }) => (
+                <a
+                  key={href}
+                  href={`/${locale}${href}`}
+                  className="text-[13px] text-[#706263] transition-colors hover:text-white"
+                >
+                  {label}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Column 4: 미디어 */}
+          <div className="flex flex-col gap-3">
+            <span className="text-[14px] font-bold text-white">미디어</span>
+            <div className="flex flex-col gap-2">
+              {mediaLinks.map(({ label, href }) => (
+                <a
+                  key={href}
+                  href={`/${locale}${href}`}
+                  className="text-[13px] text-[#706263] transition-colors hover:text-white"
+                >
+                  {label}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Divider */}
-        <div className="my-6 h-px bg-neutral-700" />
+        <div className="my-8 h-px bg-[rgba(112,98,99,0.3)]" />
 
-        {/* Icon Row */}
-        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-          <div className="flex gap-4">
-            {messengerIcons.map(({ label, initial }) => (
-              <IconCircle key={label} initial={initial} label={label} />
-            ))}
-          </div>
-          <div className="flex gap-4">
+        {/* Copyright row */}
+        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+          <p className="text-[12px] text-[#706263]">
+            © 2026 Forever Clinic. All rights reserved.
+          </p>
+          <div className="flex gap-3">
             {snsIcons.map(({ label, initial }) => (
-              <IconCircle key={label} initial={initial} label={label} />
+              <span
+                key={label}
+                title={label}
+                className="flex size-9 cursor-pointer items-center justify-center rounded-full border border-white/20 text-[11px] text-white/60 transition-colors hover:text-white"
+              >
+                {initial}
+              </span>
             ))}
-          </div>
-        </div>
-
-        {/* Bottom Info */}
-        <div className="mt-6 space-y-1.5 text-[12px] text-neutral-500">
-          <p>포에버 의원 명동점 | 대표: OOO | 사업자등록번호: XXX-XX-XXXXX</p>
-          <p>{tFooter('copyright')}</p>
-          <div className="flex gap-4 pt-2">
-            <a href={`/${locale}/privacy`} className="hover:text-white">
-              {tFooter('privacy')}
-            </a>
-            <a href={`/${locale}/terms`} className="hover:text-white">
-              {tFooter('terms')}
-            </a>
           </div>
         </div>
       </div>
