@@ -1,3 +1,7 @@
+import { getTranslations } from 'next-intl/server';
+import { ImagePlaceholder } from '@/components/common/ImagePlaceholder';
+
+/* Doctor data is CMS content — not translated */
 const DOCTORS = [
   {
     name: '김포에버 원장',
@@ -21,7 +25,9 @@ const DOCTORS = [
   },
 ];
 
-export function DoctorSection() {
+export async function DoctorSection() {
+  const t = await getTranslations('home');
+
   return (
     <section className="bg-[#faf8f5]">
       <div className="mx-auto flex w-full max-w-[1280px] flex-col items-center gap-8 px-5 py-16 md:px-10 lg:px-12">
@@ -29,7 +35,7 @@ export function DoctorSection() {
           <span className="text-[12px] font-medium tracking-[1.8px] text-[#d4c8bd]">
             OUR DOCTORS
           </span>
-          <h2 className="text-[28px] font-bold">의료진 소개</h2>
+          <h2 className="text-[28px] font-bold">{t('doctorsTitle')}</h2>
         </div>
 
         {/* Doctor cards — fixed width, wrap */}
@@ -39,13 +45,11 @@ export function DoctorSection() {
               key={doctor.name}
               className="w-[270px] overflow-hidden rounded-[8px] bg-white"
             >
-              <div className="h-[220px] overflow-hidden bg-[#efe5d9]">
-                <img
-                  src="/images/home/doctor-placeholder.png"
-                  alt={doctor.name}
-                  className="h-full w-full object-cover"
-                />
-              </div>
+              <ImagePlaceholder
+                label={doctor.name}
+                variant="cool"
+                className="h-[220px]"
+              />
               <div className="flex flex-col gap-2 p-5">
                 <h3 className="text-[18px] font-bold">{doctor.name}</h3>
                 <span className="text-[13px] font-medium text-[#d4c8bd]">

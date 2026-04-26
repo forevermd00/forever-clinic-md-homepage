@@ -1,5 +1,7 @@
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 
+/* Promo items are CMS content — not translated */
 const PROMOS = [
   {
     id: 1,
@@ -33,12 +35,15 @@ const PROMOS = [
   },
 ];
 
-export function PromoSection() {
+export async function PromoSection({ locale = 'ko' }: { locale?: string }) {
+  const t = await getTranslations('home');
+  const tc = await getTranslations('common');
+
   return (
     <section className="bg-[#faf8f5]">
       <div className="mx-auto flex w-full max-w-[1280px] flex-col items-start gap-8 px-5 py-16 md:px-10 lg:px-12">
         <h2 className="w-full text-center text-[28px] font-bold">
-          이벤트 · 프로모션
+          {t('promoTitle')}
         </h2>
 
         <div className="flex w-full flex-wrap justify-center gap-6">
@@ -80,10 +85,10 @@ export function PromoSection() {
 
         <div className="flex w-full justify-center">
           <Link
-            href="/ko/promotions"
+            href={`/${locale}/promotions`}
             className="rounded-[24px] border border-[#2b2b2b] px-8 py-3 text-[14px] font-medium text-[#2b2b2b] transition-colors hover:bg-[#2b2b2b] hover:text-white"
           >
-            프로모션 전체보기
+            {tc('viewAllPromotions')}
           </Link>
         </div>
       </div>

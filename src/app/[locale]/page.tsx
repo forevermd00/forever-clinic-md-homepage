@@ -7,12 +7,17 @@ import { DoctorSection } from '@/components/home/DoctorSection';
 import { LocationSection } from '@/components/home/LocationSection';
 import { ContactFormSection } from '@/components/home/ContactFormSection';
 
-export default function HomePage() {
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
   return (
     <>
       <HeroSection />
       <QuickEntrySection />
-      <PromoSection />
+      <PromoSection locale={locale} />
       <BAPreviewSection />
       <StatsStripSection />
       <DoctorSection />

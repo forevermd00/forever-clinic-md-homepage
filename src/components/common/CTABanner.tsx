@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { cn } from '@/lib/utils/cn';
 
 type CTAVariant = 'default' | 'highlight';
@@ -33,7 +34,7 @@ function CTABanner({
     >
       <h2 className="text-[28px] font-bold">{title}</h2>
       {description && <p className="mt-3 text-base">{description}</p>}
-      <a
+      <Link
         href={ctaHref}
         className={cn(
           'mt-6 inline-flex items-center justify-center rounded-[var(--radius-button)] px-8 py-3 font-semibold transition-colors duration-200',
@@ -43,7 +44,7 @@ function CTABanner({
         )}
       >
         {ctaText}
-      </a>
+      </Link>
     </section>
   );
 }

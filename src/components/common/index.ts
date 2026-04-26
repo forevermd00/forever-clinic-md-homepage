@@ -42,3 +42,7 @@ export {
   type DisclaimerBannerProps,
   type DisclaimerVariant,
 } from './DisclaimerBanner';
+export {
+  ImagePlaceholder,
+  type ImagePlaceholderProps,
+} from './ImagePlaceholder';

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
 
 const channels = [
@@ -31,6 +32,7 @@ const channels = [
 ] as const;
 
 export function FloatingCTA() {
+  const t = useTranslations('floatingCta');
   // Default: expanded. Click to collapse.
   const [isOpen, setIsOpen] = useState(true);
 
@@ -38,7 +40,7 @@ export function FloatingCTA() {
     <div
       className="fixed right-6 bottom-6 z-[900] md:right-8 md:bottom-8"
       role="region"
-      aria-label="Contact options"
+      aria-label={t('contactOptions')}
     >
       {/* Expanded menu */}
       <div
@@ -80,7 +82,7 @@ export function FloatingCTA() {
           !isOpen && 'rotate-0',
           isOpen && 'rotate-0',
         )}
-        aria-label={isOpen ? 'Close chat options' : 'Open chat options'}
+        aria-label={isOpen ? t('closeChat') : t('openChat')}
       >
         {isOpen ? (
           <svg

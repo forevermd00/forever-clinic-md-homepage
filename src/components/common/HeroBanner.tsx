@@ -27,14 +27,40 @@ function HeroBanner({
     return (
       <section
         className={cn(
-          'bg-forever-beige flex items-center justify-center',
-          'h-[200px] lg:h-[260px]',
+          'relative flex flex-col items-center justify-center gap-3 overflow-hidden',
+          'h-[240px] lg:h-[280px]',
+          !imageSrc && 'bg-forever-beige',
           className,
         )}
       >
-        <h1 className="text-forever-charcoal text-center text-[28px] font-bold lg:text-[36px]">
+        {imageSrc && (
+          <>
+            <img
+              src={imageSrc}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/20" />
+          </>
+        )}
+        <h1
+          className={cn(
+            'relative text-center text-[28px] font-bold lg:text-[36px]',
+            imageSrc ? 'text-white' : 'text-forever-charcoal',
+          )}
+        >
           {title}
         </h1>
+        {subtitle && (
+          <p
+            className={cn(
+              'relative text-center text-[15px] lg:text-[16px]',
+              imageSrc ? 'text-white/85' : 'text-[#706263]',
+            )}
+          >
+            {subtitle}
+          </p>
+        )}
       </section>
     );
   }

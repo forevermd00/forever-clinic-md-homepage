@@ -28,7 +28,7 @@ const VALUES = [
   },
 ];
 
-export function BrandPhilosophySection() {
+export function BrandPhilosophySection({ locale = 'ko' }: { locale?: string }) {
   return (
     <section className="bg-white py-16">
       {/* Header */}
@@ -85,7 +85,7 @@ export function BrandPhilosophySection() {
       {/* CTA */}
       <div className="mt-8 flex justify-center">
         <Link
-          href="/ko/brand"
+          href={`/${locale}/brand`}
           className="rounded-[24px] border border-[#2b2b2b] px-8 py-3 text-[14px] font-medium text-[#2b2b2b] transition-colors hover:bg-[#2b2b2b] hover:text-white"
         >
           브랜드 스토리 자세히 보기 →

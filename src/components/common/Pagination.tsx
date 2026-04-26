@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { cn } from '@/lib/utils/cn';
 
 interface PaginationProps {
@@ -10,7 +11,9 @@ interface PaginationProps {
 }
 
 function getPageUrl(basePath: string, page: number): string {
-  return page === 1 ? basePath : `${basePath}?page=${page}`;
+  if (page === 1) return basePath;
+  const separator = basePath.includes('?') ? '&' : '?';
+  return `${basePath}${separator}page=${page}`;
 }
 
 function getVisiblePages(
@@ -106,13 +109,13 @@ function Pagination({
           <ChevronLeft />
         </span>
       ) : (
-        <a
+        <Link
           href={getPageUrl(basePath, currentPage - 1)}
           aria-label="Previous page"
           className="hover:text-forever-charcoal inline-flex h-10 min-w-10 items-center justify-center text-neutral-400 transition-colors"
         >
           <ChevronLeft />
-        </a>
+        </Link>
       )}
 
       {/* Page numbers */}
@@ -134,18 +137,18 @@ function Pagination({
           <span
             key={page}
             aria-current="page"
-            className="bg-forever-red inline-flex h-10 min-w-10 items-center justify-center rounded-[4px] text-sm font-medium text-white"
+            className="inline-flex h-10 min-w-10 items-center justify-center rounded-[4px] bg-[#2b2b2b] text-sm font-medium text-white"
           >
             {page}
           </span>
         ) : (
-          <a
+          <Link
             key={page}
             href={getPageUrl(basePath, page)}
             className="hover:text-forever-charcoal inline-flex h-10 min-w-10 items-center justify-center rounded-[4px] text-sm text-neutral-600 transition-colors"
           >
             {page}
-          </a>
+          </Link>
         );
       })}
 
@@ -158,13 +161,13 @@ function Pagination({
           <ChevronRight />
         </span>
       ) : (
-        <a
+        <Link
           href={getPageUrl(basePath, currentPage + 1)}
           aria-label="Next page"
           className="hover:text-forever-charcoal inline-flex h-10 min-w-10 items-center justify-center text-neutral-400 transition-colors"
         >
           <ChevronRight />
-        </a>
+        </Link>
       )}
     </nav>
   );

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
 import { locales, localeNames, type Locale } from '@/lib/i18n/config';
 
@@ -88,7 +89,7 @@ const allColumns = [
     title: '브랜드',
     href: '/brand',
     items: [
-      { label: '브랜드 스토리', href: '/brand' },
+      { label: '브랜드 철학', href: '/brand#philosophy' },
       { label: '의료진 소개', href: '/brand#doctors' },
       { label: '시설 안내', href: '/brand#facilities' },
       { label: '장비 안내', href: '/brand#equipment' },
@@ -101,20 +102,21 @@ const allColumns = [
     title: '미디어',
     href: '/media',
     items: [
+      { label: '보도자료', href: '/media/press' },
+      { label: '영상', href: '/media/video' },
       { label: '블로그', href: '/media/blog' },
-      { label: '영상 콘텐츠', href: '/media/video' },
-      { label: '뉴스/보도자료', href: '/media/press' },
+      { label: '공지사항', href: '/media/notice' },
     ],
   },
 ];
 
-/* Nav items with group mapping */
+/* Nav items with group mapping — label is a translation key under "nav" namespace */
 const navItems = [
-  { label: 'Before & After', href: '/before-after', group: 'ba' },
-  { label: '시술', href: '/treatments', group: 'treatments' },
-  { label: '브랜드', href: '/brand', group: 'brand' },
-  { label: '미디어', href: '/media', group: 'media' },
-];
+  { labelKey: 'beforeAfter', href: '/before-after', group: 'ba' },
+  { labelKey: 'treatments', href: '/treatments', group: 'treatments' },
+  { labelKey: 'brand', href: '/brand', group: 'brand' },
+  { labelKey: 'media', href: '/media', group: 'media' },
+] as const;
 
 /* Shared column renderer */
 function MegaColumn({
@@ -150,12 +152,16 @@ export function Header() {
   const pathname = usePathname();
   const currentLocale = pathname.split('/')[1] as Locale;
   const router = useRouter();
+  const tNav = useTranslations('nav');
+  const tCommon = useTranslations('common');
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [hoveredGroup, setHoveredGroup] = useState<string | null>(null);
   const [isLg, setIsLg] = useState(false);
+  const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const megaTimeout = useRef<ReturnType<typeof setTimeout>>(null);
   const prevPathname = useRef(pathname);
 
@@ -176,8 +182,10 @@ export function Header() {
       prevPathname.current = pathname;
       setIsMobileMenuOpen(false);
       setHoveredGroup(null);
+      setExpandedMenu(null);
+      setExpandedCategory(null);
     }
-  });
+  }, [pathname]);
 
   const openMega = (group: string) => {
     if (megaTimeout.current) clearTimeout(megaTimeout.current);
@@ -221,7 +229,7 @@ export function Header() {
               className="hidden items-center gap-8 md:flex"
               aria-label="main"
             >
-              {navItems.map(({ label, href, group }) => (
+              {navItems.map(({ labelKey, href, group }) => (
                 <Link
                   key={href}
                   href={`/${currentLocale}${href}`}
@@ -232,7 +240,7 @@ export function Header() {
                   onMouseEnter={() => openMega(group)}
                   onMouseLeave={closeMega}
                 >
-                  {label}
+                  {tNav(labelKey)}
                 </Link>
               ))}
             </nav>
@@ -244,7 +252,8 @@ export function Header() {
                   className="flex items-center gap-1.5 text-[13px] font-medium text-[#2b2b2b]"
                   aria-label="Change language"
                 >
-                  🇰🇷 KO <span className="text-[10px]">▾</span>
+                  {localeNames[currentLocale]}{' '}
+                  <span className="text-[10px]">▾</span>
                 </button>
                 {isLangOpen && (
                   <div className="absolute top-full right-0 mt-1 overflow-hidden rounded-[4px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.12)]">
@@ -278,7 +287,7 @@ export function Header() {
                 href={`/${currentLocale}/contact`}
                 className="hidden rounded-[4px] bg-[#a83c44] px-4 py-2 text-[13px] text-white transition-colors hover:bg-[#8c2e38] md:inline-flex"
               >
-                예약하기
+                {tCommon('reservation')}
               </Link>
 
               <button
@@ -344,20 +353,257 @@ export function Header() {
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 overflow-y-auto bg-white pt-16 md:hidden">
           <nav className="flex flex-col px-6 py-8">
-            {navItems.map(({ label, href }) => (
+            {/* Before & After */}
+            <div className="flex items-center">
               <Link
-                key={href}
-                href={`/${currentLocale}${href}`}
-                className="border-b border-neutral-200 py-4 text-[16px] font-medium text-[#2b2b2b]"
+                href={`/${currentLocale}/before-after`}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={cn(
+                  'flex-1 py-3.5 text-[16px] font-medium',
+                  expandedMenu === 'ba' ? 'text-[#a83c44]' : 'text-[#2b2b2b]',
+                )}
               >
-                {label}
+                {tNav('beforeAfter')}
               </Link>
-            ))}
+              <button
+                onClick={() => {
+                  setExpandedMenu(expandedMenu === 'ba' ? null : 'ba');
+                  setExpandedCategory(null);
+                }}
+                className="flex h-12 w-12 items-center justify-center text-[14px] text-[#706263]"
+              >
+                {expandedMenu === 'ba' ? '▾' : '▸'}
+              </button>
+            </div>
+            <div
+              className={cn(
+                'grid transition-[grid-template-rows] duration-300 ease-out',
+                expandedMenu === 'ba' ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+              )}
+            >
+              <div className="overflow-hidden pl-4">
+                {allColumns
+                  .filter((c) => c.group === 'ba')
+                  .flatMap((c) => c.items)
+                  .map((item) => (
+                    <Link
+                      key={item.href}
+                      href={`/${currentLocale}${item.href}`}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="block py-2 text-[13px] text-[#706263]"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+              </div>
+            </div>
+
+            {/* 시술 */}
+            <div className="flex items-center">
+              <Link
+                href={`/${currentLocale}/treatments`}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={cn(
+                  'flex-1 py-3.5 text-[16px] font-medium',
+                  expandedMenu === 'treatments'
+                    ? 'text-[#a83c44]'
+                    : 'text-[#2b2b2b]',
+                )}
+              >
+                {tNav('treatments')}
+              </Link>
+              <button
+                onClick={() => {
+                  setExpandedMenu(
+                    expandedMenu === 'treatments' ? null : 'treatments',
+                  );
+                  setExpandedCategory(null);
+                }}
+                className="flex h-12 w-12 items-center justify-center text-[14px] text-[#706263]"
+              >
+                {expandedMenu === 'treatments' ? '▾' : '▸'}
+              </button>
+            </div>
+            <div
+              className={cn(
+                'grid transition-[grid-template-rows] duration-300 ease-out',
+                expandedMenu === 'treatments'
+                  ? 'grid-rows-[1fr]'
+                  : 'grid-rows-[0fr]',
+              )}
+            >
+              <div className="overflow-hidden pl-4">
+                {allColumns
+                  .filter((c) => c.group === 'treatments')
+                  .map((cat) => (
+                    <div key={cat.title}>
+                      <div className="flex items-center">
+                        <Link
+                          href={`/${currentLocale}${cat.href}`}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className={cn(
+                            'flex-1 py-2.5 text-[14px] font-bold',
+                            expandedCategory === cat.title
+                              ? 'text-[#a83c44]'
+                              : 'text-[#2b2b2b]',
+                          )}
+                        >
+                          {cat.title}
+                        </Link>
+                        <button
+                          onClick={() =>
+                            setExpandedCategory(
+                              expandedCategory === cat.title ? null : cat.title,
+                            )
+                          }
+                          className="flex h-10 w-12 items-center justify-center text-[12px] text-[#706263]"
+                        >
+                          {expandedCategory === cat.title ? '▾' : '▸'}
+                        </button>
+                      </div>
+                      <div
+                        className={cn(
+                          'grid transition-[grid-template-rows] duration-300 ease-out',
+                          expandedCategory === cat.title
+                            ? 'grid-rows-[1fr]'
+                            : 'grid-rows-[0fr]',
+                        )}
+                      >
+                        <div className="overflow-hidden pl-4">
+                          {cat.items.map((item) => (
+                            <Link
+                              key={item.href}
+                              href={`/${currentLocale}${item.href}`}
+                              onClick={() => setIsMobileMenuOpen(false)}
+                              className="block py-2 text-[13px] text-[#706263]"
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* 브랜드 */}
+            <div className="flex items-center">
+              <Link
+                href={`/${currentLocale}/brand`}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={cn(
+                  'flex-1 py-3.5 text-[16px] font-medium',
+                  expandedMenu === 'brand'
+                    ? 'text-[#a83c44]'
+                    : 'text-[#2b2b2b]',
+                )}
+              >
+                {tNav('brand')}
+              </Link>
+              <button
+                onClick={() => {
+                  setExpandedMenu(expandedMenu === 'brand' ? null : 'brand');
+                  setExpandedCategory(null);
+                }}
+                className="flex h-12 w-12 items-center justify-center text-[14px] text-[#706263]"
+              >
+                {expandedMenu === 'brand' ? '▾' : '▸'}
+              </button>
+            </div>
+            <div
+              className={cn(
+                'grid transition-[grid-template-rows] duration-300 ease-out',
+                expandedMenu === 'brand'
+                  ? 'grid-rows-[1fr]'
+                  : 'grid-rows-[0fr]',
+              )}
+            >
+              <div className="overflow-hidden pl-4">
+                {allColumns
+                  .filter((c) => c.group === 'brand')
+                  .flatMap((c) => c.items)
+                  .map((item) => (
+                    <Link
+                      key={item.href}
+                      href={`/${currentLocale}${item.href}`}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="block py-2 text-[13px] text-[#706263]"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+              </div>
+            </div>
+
+            {/* 미디어 */}
+            <div className="flex items-center">
+              <Link
+                href={`/${currentLocale}/media/press`}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={cn(
+                  'flex-1 py-3.5 text-[16px] font-medium',
+                  expandedMenu === 'media'
+                    ? 'text-[#a83c44]'
+                    : 'text-[#2b2b2b]',
+                )}
+              >
+                {tNav('media')}
+              </Link>
+              <button
+                onClick={() => {
+                  setExpandedMenu(expandedMenu === 'media' ? null : 'media');
+                  setExpandedCategory(null);
+                }}
+                className="flex h-12 w-12 items-center justify-center text-[14px] text-[#706263]"
+              >
+                {expandedMenu === 'media' ? '▾' : '▸'}
+              </button>
+            </div>
+            <div
+              className={cn(
+                'grid transition-[grid-template-rows] duration-300 ease-out',
+                expandedMenu === 'media'
+                  ? 'grid-rows-[1fr]'
+                  : 'grid-rows-[0fr]',
+              )}
+            >
+              <div className="overflow-hidden pl-4">
+                {allColumns
+                  .filter((c) => c.group === 'media')
+                  .flatMap((c) => c.items)
+                  .map((item) => (
+                    <Link
+                      key={item.href}
+                      href={`/${currentLocale}${item.href}`}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="block py-2 text-[13px] text-[#706263]"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="my-4 h-px bg-[#efe5d9]" />
+
+            {/* Cart */}
+            <Link
+              href={`/${currentLocale}/estimate`}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="py-2 text-[14px] font-medium text-[#2b2b2b]"
+            >
+              🛒 {tCommon('estimate')}
+            </Link>
+
+            {/* CTA */}
             <Link
               href={`/${currentLocale}/contact`}
-              className="mt-6 flex items-center justify-center rounded-[4px] bg-[#a83c44] py-3 text-[16px] font-medium text-white"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="mt-4 flex items-center justify-center rounded-[4px] bg-[#a83c44] py-3.5 text-[14px] font-medium text-white"
             >
-              예약하기
+              {tCommon('reservation')}
             </Link>
           </nav>
         </div>

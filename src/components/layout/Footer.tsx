@@ -1,25 +1,32 @@
+'use client';
+
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
-const treatmentLinks = [
-  { label: '리프팅', href: '/treatments/lifting' },
-  { label: '피부케어', href: '/treatments/skincare' },
-  { label: '토닝·색소', href: '/treatments/toning' },
-  { label: '보톡스·필러', href: '/treatments/botox-filler' },
-];
+/* Treatment links — i18n keys */
+const treatmentLinkKeys = [
+  { key: 'lifting', href: '/treatments/lifting' },
+  { key: 'skincare', href: '/treatments/skincare' },
+  { key: 'toningSkin', href: '/treatments/toning' },
+  { key: 'botoxFiller', href: '/treatments/botox-filler' },
+] as const;
 
-const brandLinks = [
-  { label: '브랜드 스토리', href: '/brand' },
-  { label: '의료진 소개', href: '/brand#doctors' },
-  { label: '시설 안내', href: '/brand#facilities' },
-  { label: '오시는 길', href: '/brand#location' },
-];
+/* Brand links use i18n keys */
+const brandLinkKeys = [
+  { key: 'brandPhilosophy', href: '/brand#philosophy' },
+  { key: 'doctors', href: '/brand#doctors' },
+  { key: 'facilities', href: '/brand#facilities' },
+  { key: 'equipment', href: '/brand#equipment' },
+  { key: 'location', href: '/brand#location' },
+] as const;
 
-const mediaLinks = [
-  { label: '공지사항', href: '/media/notice' },
-  { label: '이벤트', href: '/promotions' },
-  { label: '예약 상담', href: '/contact' },
-  { label: '개인정보처리방침', href: '/privacy' },
-];
+/* Media links use i18n keys */
+const mediaLinkKeys = [
+  { key: 'press', href: '/media/press' },
+  { key: 'video', href: '/media/video' },
+  { key: 'blog', href: '/media/blog' },
+  { key: 'notice', href: '/media/notice' },
+] as const;
 
 const snsIcons = [
   { label: 'IG', title: 'Instagram' },
@@ -33,6 +40,8 @@ interface FooterProps {
 }
 
 export function Footer({ locale = 'ko' }: FooterProps) {
+  const t = useTranslations('footer');
+
   return (
     <footer className="bg-[#2b2b2b]">
       <div className="mx-auto max-w-[1440px] px-6 pt-16 pb-8 md:px-12">
@@ -51,44 +60,50 @@ export function Footer({ locale = 'ko' }: FooterProps) {
             </div>
           </div>
 
-          {/* Column 2: 시술 */}
+          {/* Column 2: Treatments */}
           <div className="flex min-w-0 flex-1 flex-col gap-2.5">
-            <span className="text-[14px] font-bold text-white">시술</span>
-            {treatmentLinks.map(({ label, href }) => (
+            <span className="text-[14px] font-bold text-white">
+              {t('treatments')}
+            </span>
+            {treatmentLinkKeys.map(({ key, href }) => (
               <Link
                 key={href}
                 href={`/${locale}${href}`}
                 className="text-[13px] text-[#706263] transition-colors hover:text-white"
               >
-                {label}
+                {t(key)}
               </Link>
             ))}
           </div>
 
-          {/* Column 3: 브랜드 */}
+          {/* Column 3: Brand */}
           <div className="flex min-w-0 flex-1 flex-col gap-2.5">
-            <span className="text-[14px] font-bold text-white">브랜드</span>
-            {brandLinks.map(({ label, href }) => (
+            <span className="text-[14px] font-bold text-white">
+              {t('brand')}
+            </span>
+            {brandLinkKeys.map(({ key, href }) => (
               <Link
                 key={href}
                 href={`/${locale}${href}`}
                 className="text-[13px] text-[#706263] transition-colors hover:text-white"
               >
-                {label}
+                {t(key)}
               </Link>
             ))}
           </div>
 
-          {/* Column 4: 미디어 */}
+          {/* Column 4: Media */}
           <div className="flex min-w-0 flex-1 flex-col gap-2.5">
-            <span className="text-[14px] font-bold text-white">미디어</span>
-            {mediaLinks.map(({ label, href }) => (
+            <span className="text-[14px] font-bold text-white">
+              {t('media')}
+            </span>
+            {mediaLinkKeys.map(({ key, href }) => (
               <Link
                 key={href}
                 href={`/${locale}${href}`}
                 className="text-[13px] text-[#706263] transition-colors hover:text-white"
               >
-                {label}
+                {t(key)}
               </Link>
             ))}
           </div>
@@ -99,9 +114,7 @@ export function Footer({ locale = 'ko' }: FooterProps) {
 
         {/* Copyright row */}
         <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-          <p className="text-[12px] text-[#706263]">
-            © 2026 Forever Clinic. All rights reserved.
-          </p>
+          <p className="text-[12px] text-[#706263]">{t('copyright')}</p>
           <div className="flex gap-2.5">
             {snsIcons.map(({ label, title }) => (
               <span

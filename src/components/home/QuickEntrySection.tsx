@@ -1,15 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { cn } from '@/lib/utils/cn';
 
-const TABS = [
-  { id: 'treatment', label: '시술로 찾기' },
-  { id: 'concern', label: '고민으로 찾기' },
-  { id: 'situation', label: '상황으로 찾기' },
-];
+const TAB_IDS = ['treatment', 'concern', 'situation'] as const;
 
+/* Card content is CMS-like dummy data — not translated */
 const CARDS_BY_TAB: Record<
   string,
   { id: string; title: string; description: string; image: string }[]
@@ -94,7 +93,16 @@ const CARDS_BY_TAB: Record<
   ],
 };
 
+const TAB_KEYS: Record<string, string> = {
+  treatment: 'tabTreatment',
+  concern: 'tabConcern',
+  situation: 'tabSituation',
+};
+
 export function QuickEntrySection() {
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1] || 'ko';
+  const t = useTranslations('home');
   const [activeTab, setActiveTab] = useState('treatment');
   const cards = CARDS_BY_TAB[activeTab];
 
@@ -102,23 +110,23 @@ export function QuickEntrySection() {
     <section className="bg-[#faf8f5]">
       <div className="mx-auto flex w-full max-w-[1280px] flex-col items-center gap-8 px-5 py-16 md:px-10 lg:px-12">
         <h2 className="text-center text-[36px] font-bold text-[#2b2b2b]">
-          원하는 시술을 선택하세요
+          {t('quickEntryTitle')}
         </h2>
 
         {/* Tabs — square, no border-radius */}
         <div className="flex flex-wrap justify-center gap-0">
-          {TABS.map((tab) => (
+          {TAB_IDS.map((tabId) => (
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              key={tabId}
+              onClick={() => setActiveTab(tabId)}
               className={cn(
                 'px-6 py-3 text-[14px] font-medium transition-colors',
-                activeTab === tab.id
+                activeTab === tabId
                   ? 'bg-[#a83c44] text-white'
                   : 'bg-transparent text-[#2b2b2b] hover:bg-[#2b2b2b]/5',
               )}
             >
-              {tab.label}
+              {t(TAB_KEYS[tabId])}
             </button>
           ))}
         </div>
@@ -128,7 +136,7 @@ export function QuickEntrySection() {
           {cards.map((card) => (
             <Link
               key={card.id}
-              href="/ko/treatments"
+              href={`/${locale}/treatments`}
               className="w-[270px] overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)] transition-shadow hover:drop-shadow-[0_4px_8px_rgba(0,0,0,0.12)]"
             >
               {/* Image */}

@@ -1,17 +1,21 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { cn } from '@/lib/utils/cn';
+import { ImagePlaceholder } from '@/components/common/ImagePlaceholder';
 
-const FILTERS = [
-  { id: 'all', label: '전체' },
-  { id: 'lifting', label: '리프팅' },
-  { id: 'skincare', label: '피부케어' },
-  { id: 'toning', label: '토닝·색소' },
-  { id: 'botox', label: '보톡스·필러' },
-];
+const FILTER_KEYS = [
+  { id: 'all', key: 'filterAll' },
+  { id: 'lifting', key: 'filterLifting' },
+  { id: 'skincare', key: 'filterSkincare' },
+  { id: 'toning', key: 'filterToning' },
+  { id: 'botox', key: 'filterBotox' },
+] as const;
 
+/* BA card content is CMS data — not translated */
 const BA_CARDS = [
   { id: 1, treatment: '울쎄라 리프팅', sessions: '3회 시술' },
   { id: 2, treatment: '피코레이저 토닝', sessions: '5회 시술' },
@@ -19,16 +23,20 @@ const BA_CARDS = [
 ];
 
 export function BAPreviewSection() {
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1] || 'ko';
+  const t = useTranslations('ba');
+  const tc = useTranslations('common');
   const [activeFilter, setActiveFilter] = useState('all');
 
   return (
     <section className="bg-white">
       <div className="mx-auto flex w-full max-w-[1280px] flex-col items-center gap-6 px-5 py-12 md:px-10 lg:px-12">
-        <h2 className="text-[28px] font-bold">Before &amp; After</h2>
+        <h2 className="text-[28px] font-bold">{t('title')}</h2>
 
         {/* Filter pills */}
         <div className="flex flex-wrap gap-2">
-          {FILTERS.map((filter) => (
+          {FILTER_KEYS.map((filter) => (
             <button
               key={filter.id}
               onClick={() => setActiveFilter(filter.id)}
@@ -39,7 +47,7 @@ export function BAPreviewSection() {
                   : 'border border-[#efe5d9] bg-white text-[#2b2b2b] hover:bg-[#2b2b2b]/5',
               )}
             >
-              {filter.label}
+              {t(filter.key)}
             </button>
           ))}
         </div>
@@ -53,13 +61,17 @@ export function BAPreviewSection() {
             >
               {/* BA image area */}
               <div className="flex h-[250px]">
-                <div className="bg-forever-ivory flex flex-1 items-center justify-center">
-                  <span className="text-[13px] text-[#706263]">BEFORE</span>
-                </div>
+                <ImagePlaceholder
+                  label="BEFORE"
+                  variant="neutral"
+                  className="flex-1"
+                />
                 <div className="w-px bg-[#efe5d9]" />
-                <div className="bg-forever-beige flex flex-1 items-center justify-center">
-                  <span className="text-[13px] text-[#706263]">AFTER</span>
-                </div>
+                <ImagePlaceholder
+                  label="AFTER"
+                  variant="warm"
+                  className="flex-1"
+                />
               </div>
               {/* Info row */}
               <div className="flex items-center justify-between px-3 pt-2 pb-2.5">
@@ -74,10 +86,10 @@ export function BAPreviewSection() {
 
         {/* CTA button */}
         <Link
-          href="/ko/before-after"
+          href={`/${locale}/before-after`}
           className="rounded-[4px] border border-[#efe5d9] px-6 py-3 text-[14px] font-medium text-[#2b2b2b] transition-colors hover:bg-[#2b2b2b]/5"
         >
-          Before &amp; After 더보기 →
+          {tc('baViewMore')} &rarr;
         </Link>
       </div>
     </section>
