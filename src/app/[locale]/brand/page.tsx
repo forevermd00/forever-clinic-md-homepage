@@ -1,111 +1,84 @@
 import { getTranslations } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
-import { DoctorCard, type Doctor } from '@/components/brand/DoctorCard';
+import { DoctorCard } from '@/components/brand/DoctorCard';
 import { GalleryCarousel } from '@/components/brand/GalleryCarousel';
 import { EquipmentShowcase } from '@/components/brand/EquipmentShowcase';
-
-type GalleryItem = {
-  id: string;
-  name?: string;
-  image?: { src: string; alt: string };
-};
-import { LocationInfo, type ClinicInfo } from '@/components/brand/LocationInfo';
+import { LocationInfo } from '@/components/brand/LocationInfo';
 import { BrandSectionNav } from '@/components/brand/BrandSectionNav';
+import { getDoctors } from '@/lib/data/doctors';
+import { getClinicInfo, getFacilities, getEquipment } from '@/lib/data/clinic';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { getMedicalBusinessJsonLd } from '@/lib/seo/jsonld';
+import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
 
-/* ─── Dummy Data (Sanity schema: doctor) ─── */
-const DUMMY_DOCTORS: Doctor[] = [
-  {
-    name: '김포에버 원장',
-    specialty: '리프팅 · 피부케어 전문',
-    bio: '서울대 의과대학 졸업, 대한피부과학회 정회원. 15년간 리프팅 시술 경험으로 자연스러운 결과를 추구합니다.',
-  },
-  {
-    name: '이명동 원장',
-    specialty: '레이저 · 토닝 전문',
-    bio: '연세대 의과대학 졸업, 미국 피부과학회 정회원. 최신 레이저 장비를 활용한 맞춤형 피부 치료를 제공합니다.',
-  },
-  {
-    name: '박프리미엄 원장',
-    specialty: '보톡스 · 필러 전문',
-    bio: '고려대 의과대학 졸업, 대한미용성형외과학회 정회원. 정밀한 주사 기법으로 자연스러운 볼륨감을 완성합니다.',
-  },
-  {
-    name: '최케어 원장',
-    specialty: '스킨케어 · 재생 전문',
-    bio: '성균관대 의과대학 졸업, 대한피부과학회 정회원. 피부 장벽 회복과 근본적 피부 건강 개선에 집중합니다.',
-  },
-];
+import type { Metadata } from 'next';
 
-/* ─── Dummy Data (Sanity schema: facility) ─── */
-const DUMMY_FACILITIES: GalleryItem[] = [
-  { id: 'f1', name: '대기실' },
-  { id: 'f2', name: '상담실' },
-  { id: 'f3', name: '시술실 1' },
-  { id: 'f4', name: '시술실 2' },
-  { id: 'f5', name: '리커버리룸' },
-  { id: 'f6', name: '파우더룸' },
-];
-
-/* ─── Dummy Data (Sanity schema: equipment) ─── */
-const DUMMY_EQUIPMENT = [
-  {
-    id: 'e1',
-    name: '울쎄라',
-    description:
-      'FDA 승인 고밀도 초음파(MFU) 리프팅 장비. SMAS 근막층까지 에너지를 전달하여 자연스러운 리프팅 효과를 제공합니다.',
-    treatments: '울쎄라 리프팅',
-  },
-  {
-    id: 'e2',
-    name: '써마지 FLX',
-    description:
-      '4세대 RF 에너지 기반 피부 타이트닝 장비. 콜라겐 재생을 촉진하여 즉각적인 리프팅과 점진적 개선 효과를 동시에 제공합니다.',
-    treatments: '써마지 FLX',
-  },
-  {
-    id: 'e3',
-    name: '피코슈어',
-    description:
-      '755nm 피코초 레이저. 기미, 색소, 문신 제거에 탁월하며 피부 재생 효과까지 기대할 수 있습니다.',
-    treatments: '피코토닝, 색소 치료',
-  },
-  {
-    id: 'e4',
-    name: '인모드',
-    description:
-      'RF와 마이크로 니들을 결합한 복합 리프팅 장비. 피부 표면과 깊은 층을 동시에 개선합니다.',
-    treatments: '인모드 리프팅',
-  },
-  {
-    id: 'e5',
-    name: 'LDM',
-    description:
-      '초음파 피부 관리 장비. 듀얼 주파수로 피부 재생과 보습 효과를 극대화합니다.',
-    treatments: 'LDM 관리',
-  },
-  {
-    id: 'e6',
-    name: '아쿠아필',
-    description:
-      '수소수 기반 필링 장비. 피부 딥클렌징과 수분 공급을 동시에 진행합니다.',
-    treatments: '아쿠아필 관리',
-  },
-];
-
-/* ─── Dummy Data (Sanity schema: clinicInfo) ─── */
-const DUMMY_CLINIC_INFO: ClinicInfo = {
-  address: '서울특별시 중구 명동길 14, 포에버빌딩 3층',
-  subway: '4호선 명동역 6번 출구 도보 3분',
-  hours: '월~금 10:00-19:00 / 토 10:00-16:00 (일·공휴일 휴진)',
-  phone: '02-XXX-XXXX',
+const brandTitles: Record<string, string> = {
+  ko: '브랜드 스토리',
+  en: 'Brand Story',
+  zh: '品牌故事',
+  ja: 'ブランドストーリー',
+};
+const brandDescriptions: Record<string, string> = {
+  ko: '포에버 클리닉 명동의 브랜드 철학, 의료진, 시설, 장비를 소개합니다. Smart-Boutique 프리미엄 피부과.',
+  en: 'Discover Forever Clinic Myeongdong brand philosophy, doctors, facilities, and equipment. Smart-Boutique premium dermatology.',
+  zh: '了解永恒诊所明洞的品牌理念、医疗团队、设施和设备。Smart-Boutique高端皮肤科。',
+  ja: 'フォーエバークリニック明洞のブランド哲学、医師、施設、設備をご紹介します。Smart-Boutiqueプレミアム皮膚科。',
 };
 
-export default async function BrandPage() {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: brandTitles[locale] ?? brandTitles.ko,
+    description: brandDescriptions[locale] ?? brandDescriptions.ko,
+    alternates: getAlternates(locale, '/brand'),
+    openGraph: {
+      title: `${brandTitles[locale] ?? brandTitles.ko} | ${siteNames[locale] ?? siteNames.ko}`,
+      description: brandDescriptions[locale] ?? brandDescriptions.ko,
+      locale: ogLocales[locale] ?? 'ko_KR',
+      images: [
+        { url: '/images/heroes/brand-hero.png', width: 1200, height: 630 },
+      ],
+    },
+  };
+}
+
+export default async function BrandPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
   const t = await getTranslations('brand');
   const th = await getTranslations('home');
 
+  const [doctors, facilities, equipment, clinicInfo] = await Promise.all([
+    getDoctors(locale),
+    getFacilities(locale),
+    getEquipment(locale),
+    getClinicInfo(locale),
+  ]);
+
+  const brandJsonLd = {
+    ...getMedicalBusinessJsonLd(locale),
+    medicalSpecialty: ['Dermatology', 'PlasticSurgery'],
+    description:
+      locale === 'ko'
+        ? '명동 프리미엄 피부과 · 리프팅, 스킨케어, 토닝, 보톡스/필러 전문'
+        : locale === 'en'
+          ? 'Premium dermatology clinic in Myeongdong — lifting, skincare, toning, botox & filler'
+          : locale === 'zh'
+            ? '明洞高端皮肤科 · 提升、护肤、调理、肉毒素/填充剂专业'
+            : '明洞プレミアム皮膚科 · リフティング、スキンケア、トーニング、ボトックス/フィラー専門',
+  };
+
   return (
     <>
+      <JsonLd data={brandJsonLd} />
       {/* Hero */}
       <HeroBanner
         variant="fullscreen"
@@ -277,7 +250,7 @@ export default async function BrandPage() {
             </h2>
           </div>
           <div className="flex flex-wrap justify-center gap-6">
-            {DUMMY_DOCTORS.map((doctor) => (
+            {doctors.map((doctor) => (
               <DoctorCard key={doctor.name} doctor={doctor} />
             ))}
           </div>
@@ -298,7 +271,7 @@ export default async function BrandPage() {
               {t('facilityGallery')}
             </h2>
           </div>
-          <GalleryCarousel items={DUMMY_FACILITIES} />
+          <GalleryCarousel items={facilities} />
         </div>
       </section>
 
@@ -316,7 +289,7 @@ export default async function BrandPage() {
               {t('equipment')}
             </h2>
           </div>
-          <EquipmentShowcase items={DUMMY_EQUIPMENT} />
+          <EquipmentShowcase items={equipment} />
         </div>
       </section>
 
@@ -341,7 +314,7 @@ export default async function BrandPage() {
             </div>
             {/* Clinic Info */}
             <div className="flex-1">
-              <LocationInfo clinicInfo={DUMMY_CLINIC_INFO} />
+              <LocationInfo clinicInfo={clinicInfo} />
             </div>
           </div>
         </div>

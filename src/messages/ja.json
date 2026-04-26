@@ -123,7 +123,8 @@
     "treatmentCount": "施術{count}件",
     "discountApplied": "割引適用",
     "decreaseQuantity": "数量を減らす",
-    "increaseQuantity": "数量を増やす"
+    "increaseQuantity": "数量を増やす",
+    "removeItem": "項目を削除"
   },
   "brand": {
     "doctors": "医療チーム紹介",

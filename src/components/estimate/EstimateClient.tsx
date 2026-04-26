@@ -1,52 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import { useTranslations } from 'next-intl';
-import { CartItem, type CartItemData } from '@/components/estimate/CartItem';
+import { useCartStore } from '@/lib/store/cart';
+import { CartItem } from '@/components/estimate/CartItem';
 import { CartSummary } from '@/components/estimate/CartSummary';
-
-const INITIAL_CART_ITEMS: CartItemData[] = [
-  {
-    id: '1',
-    name: '울쎄라 리프팅',
-    packageLabel: '전체 얼굴 1회',
-    unitPrice: 1500000,
-    quantity: 1,
-  },
-  {
-    id: '2',
-    name: '써마지 FLX',
-    packageLabel: '눈가 300샷',
-    unitPrice: 800000,
-    quantity: 1,
-  },
-  {
-    id: '3',
-    name: '울쎄라 리프팅',
-    packageLabel: '턱선 집중 1회',
-    unitPrice: 1500000,
-    quantity: 1,
-  },
-];
-
-const DISCOUNT_RATE = 0.1;
 
 export function EstimateClient({ locale }: { locale: string }) {
   const t = useTranslations('estimate');
-  // Filter out quantity-0 items from initial state (simulates reload cleanup)
-  const [items, setItems] = useState<CartItemData[]>(() =>
-    INITIAL_CART_ITEMS.filter((item) => item.quantity > 0),
+  const items = useCartStore((s) => s.items);
+  const updateQuantity = useCartStore((s) => s.updateQuantity);
+  const removeItem = useCartStore((s) => s.removeItem);
+
+  // Hydration guard: avoid SSR/client mismatch
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
   );
 
   function handleQuantityChange(id: string, quantity: number) {
     if (quantity < 0) return;
-    setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity } : item)),
-    );
+    updateQuantity(id, quantity);
   }
 
   function handleRemove(id: string) {
-    setItems((prev) => prev.filter((item) => item.id !== id));
+    removeItem(id);
   }
 
   // Only count items with quantity > 0 for subtotal
@@ -55,8 +34,41 @@ export function EstimateClient({ locale }: { locale: string }) {
     (sum, item) => sum + item.unitPrice * item.quantity,
     0,
   );
-  const discount = Math.round(subtotal * DISCOUNT_RATE);
+  const discount = 0;
   const itemCount = activeItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  if (!mounted) {
+    return (
+      <section className="bg-[#faf8f5] px-5 py-12 md:px-10 lg:px-[120px] lg:py-16">
+        <div className="mx-auto flex max-w-[var(--container-max)] flex-col gap-8 lg:flex-row">
+          <div className="flex-1">
+            <h2 className="text-forever-charcoal text-[24px] font-bold">
+              {t('myEstimateList')}
+            </h2>
+            <div className="mt-6 rounded-[8px] bg-white p-8 text-center text-neutral-500">
+              {t('emptyEstimate')}
+            </div>
+          </div>
+          <CartSummary
+            itemCount={0}
+            subtotal={0}
+            discount={0}
+            locale={locale}
+            className="self-start"
+          />
+        </div>
+      </section>
+    );
+  }
+
+  // Map CartStore items to CartItemData shape
+  const cartItemData = items.map((item) => ({
+    id: item.id,
+    name: item.treatmentName,
+    packageLabel: item.packageLabel,
+    unitPrice: item.unitPrice,
+    quantity: item.quantity,
+  }));
 
   return (
     <section className="bg-[#faf8f5] px-5 py-12 md:px-10 lg:px-[120px] lg:py-16">
@@ -73,7 +85,7 @@ export function EstimateClient({ locale }: { locale: string }) {
             </div>
           ) : (
             <div className="mt-6 space-y-3">
-              {items.map((item) => (
+              {cartItemData.map((item) => (
                 <CartItem
                   key={item.id}
                   item={item}

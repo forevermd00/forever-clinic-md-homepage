@@ -123,7 +123,8 @@
     "treatmentCount": "시술 {count}건",
     "discountApplied": "할인 적용",
     "decreaseQuantity": "수량 줄이기",
-    "increaseQuantity": "수량 늘리기"
+    "increaseQuantity": "수량 늘리기",
+    "removeItem": "항목 삭제"
   },
   "brand": {
     "doctors": "의료진 소개",

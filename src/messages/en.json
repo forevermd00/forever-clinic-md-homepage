@@ -123,7 +123,8 @@
     "treatmentCount": "{count} treatment(s)",
     "discountApplied": "Discount Applied",
     "decreaseQuantity": "Decrease quantity",
-    "increaseQuantity": "Increase quantity"
+    "increaseQuantity": "Increase quantity",
+    "removeItem": "Remove item"
   },
   "brand": {
     "doctors": "Medical Team",

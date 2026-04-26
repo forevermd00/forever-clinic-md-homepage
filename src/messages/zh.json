@@ -123,7 +123,8 @@
     "treatmentCount": "{count}个项目",
     "discountApplied": "已享折扣",
     "decreaseQuantity": "减少数量",
-    "increaseQuantity": "增加数量"
+    "increaseQuantity": "增加数量",
+    "removeItem": "删除项目"
   },
   "brand": {
     "doctors": "医疗团队",

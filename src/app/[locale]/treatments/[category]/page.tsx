@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
@@ -5,10 +6,32 @@ import { SectionLayout } from '@/components/common/SectionLayout';
 import { CardGrid } from '@/components/common/CardGrid';
 import { CTABanner } from '@/components/common/CTABanner';
 import { TreatmentCard } from '@/components/treatments/TreatmentCard';
-import {
-  TREATMENT_CATEGORIES,
-  getCategoryBySlug,
-} from '@/components/treatments/treatmentData';
+import { TREATMENT_CATEGORIES } from '@/components/treatments/treatmentData';
+import { getTreatmentsByCategory } from '@/lib/data/treatments';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { getItemListJsonLd } from '@/lib/seo/jsonld';
+import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; category: string }>;
+}): Promise<Metadata> {
+  const { locale, category: categorySlug } = await params;
+  const cat = TREATMENT_CATEGORIES.find((c) => c.slug === categorySlug);
+  if (!cat) return {};
+
+  return {
+    title: cat.label,
+    description: cat.description,
+    alternates: getAlternates(locale, `/treatments/${categorySlug}`),
+    openGraph: {
+      title: `${cat.label} | ${siteNames[locale] ?? siteNames.ko}`,
+      description: cat.description,
+      locale: ogLocales[locale] ?? 'ko_KR',
+    },
+  };
+}
 
 export function generateStaticParams() {
   return TREATMENT_CATEGORIES.map((c) => ({ category: c.slug }));
@@ -27,15 +50,26 @@ export default async function TreatmentCategoryPage({
   params: Promise<{ locale: string; category: string }>;
 }) {
   const { locale, category: categorySlug } = await params;
-  const category = getCategoryBySlug(categorySlug);
+  const category = await getTreatmentsByCategory(categorySlug, locale);
   const tc = await getTranslations('common');
 
   if (!category) {
     notFound();
   }
 
+  const baseUrl = 'https://forever-clinic-myeongdong.com';
+
   return (
     <>
+      <JsonLd
+        data={getItemListJsonLd(
+          category.treatments.map((treatment) => ({
+            name: treatment.name,
+            url: `${baseUrl}/${locale}/treatments/${category.slug}/${treatment.slug}`,
+          })),
+          locale,
+        )}
+      />
       <HeroBanner
         variant="fullscreen"
         title={category.label}

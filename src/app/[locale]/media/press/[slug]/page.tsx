@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation';
 import { ArticleDetail } from '@/components/media/ArticleDetail';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { getArticleJsonLd } from '@/lib/seo/jsonld';
 
 const articles = [
   {
@@ -35,13 +37,25 @@ export default async function PressDetailPage({
   const prevArticle = index < articles.length - 1 ? articles[index + 1] : null;
   const nextArticle = index > 0 ? articles[index - 1] : null;
 
+  const baseUrl = 'https://forever-clinic-myeongdong.com';
+
   return (
-    <ArticleDetail
-      article={article}
-      prevArticle={prevArticle}
-      nextArticle={nextArticle}
-      basePath={`/${locale}/media/press`}
-      locale={locale}
-    />
+    <>
+      <JsonLd
+        data={getArticleJsonLd({
+          title: article.title,
+          date: article.date,
+          description: article.content.slice(0, 160),
+          url: `${baseUrl}/${locale}/media/press/${article.slug}`,
+        })}
+      />
+      <ArticleDetail
+        article={article}
+        prevArticle={prevArticle}
+        nextArticle={nextArticle}
+        basePath={`/${locale}/media/press`}
+        locale={locale}
+      />
+    </>
   );
 }

@@ -1,36 +1,43 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { cn } from '@/lib/utils/cn';
-
-/* Treatment IDs — names are CMS content, not translated */
-const TREATMENTS = [
-  { id: 'ulthera', label: '울쎄라 리프팅' },
-  { id: 'thermage', label: '써마지 FLX' },
-  { id: 'skinbooster', label: '스킨 부스터' },
-  { id: 'picotoning', label: '피코토닝' },
-  { id: 'botox', label: '보톡스' },
-  { id: 'filler', label: '필러' },
-];
+import { useCartStore } from '@/lib/store/cart';
 
 export function ContactFormSection() {
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'ko';
   const t = useTranslations('home');
   const tc = useTranslations('common');
+
+  const cartItems = useCartStore((s) => s.items);
+  const updateQuantity = useCartStore((s) => s.updateQuantity);
+  const removeItem = useCartStore((s) => s.removeItem);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
-  const [selectedTreatments, setSelectedTreatments] = useState<string[]>([]);
+  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
 
-  const toggleTreatment = (id: string) => {
-    setSelectedTreatments((prev) =>
-      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id],
-    );
+  const toggleCheck = (id: string) => {
+    setCheckedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
+
+  const activeCartItems = mounted
+    ? cartItems.filter((i) => i.quantity > 0)
+    : [];
 
   return (
     <section className="bg-[#faf8f5]">
@@ -68,56 +75,95 @@ export function ContactFormSection() {
               </div>
             </div>
 
-            {/* Row 2: Treatment interest — checkboxes */}
+            {/* Row 2: Cart treatments with quantity controls */}
             <div className="flex flex-col gap-2">
               <label className="text-[13px] font-medium text-[#2b2b2b]">
                 {t('formTreatmentInterest')}
               </label>
               <div className="overflow-hidden rounded-[6px] border border-[#efe5d9] bg-white">
-                {TREATMENTS.map((treatment) => {
-                  const isChecked = selectedTreatments.includes(treatment.id);
-                  return (
-                    <label
-                      key={treatment.id}
-                      className="flex cursor-pointer items-center gap-3 border-b border-[#faf8f5] px-3.5 py-3 transition-colors hover:bg-[#faf8f5]"
-                    >
-                      <span
-                        className={cn(
-                          'flex size-[18px] shrink-0 items-center justify-center rounded-[3px] border transition-colors',
-                          isChecked
-                            ? 'border-[#a83c44] bg-[#a83c44]'
-                            : 'border-[#d5cabe] bg-white',
-                        )}
+                {activeCartItems.length > 0 ? (
+                  activeCartItems.map((item) => {
+                    const isChecked = checkedIds.has(item.id);
+                    return (
+                      <div
+                        key={item.id}
+                        className="flex items-center gap-3 border-b border-[#faf8f5] px-3.5 py-2.5"
                       >
-                        {isChecked && (
-                          <svg
-                            width="12"
-                            height="12"
-                            viewBox="0 0 12 12"
-                            fill="none"
+                        {/* Checkbox */}
+                        <label className="flex cursor-pointer items-center">
+                          <span
+                            className={cn(
+                              'flex size-[18px] shrink-0 items-center justify-center rounded-[3px] border transition-colors',
+                              isChecked
+                                ? 'border-[#a83c44] bg-[#a83c44]'
+                                : 'border-[#d5cabe] bg-white',
+                            )}
                           >
-                            <path
-                              d="M2.5 6L5 8.5L9.5 4"
-                              stroke="white"
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                        )}
-                      </span>
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => toggleTreatment(treatment.id)}
-                        className="sr-only"
-                      />
-                      <span className="text-[13px] text-[#2b2b2b]">
-                        {treatment.label}
-                      </span>
-                    </label>
-                  );
-                })}
+                            {isChecked && (
+                              <svg
+                                width="12"
+                                height="12"
+                                viewBox="0 0 12 12"
+                                fill="none"
+                              >
+                                <path
+                                  d="M2.5 6L5 8.5L9.5 4"
+                                  stroke="white"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            )}
+                          </span>
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => toggleCheck(item.id)}
+                            className="sr-only"
+                          />
+                        </label>
+                        {/* Name */}
+                        <span className="flex-1 text-[13px] text-[#2b2b2b]">
+                          {item.treatmentName}
+                          <span className="ml-1.5 text-[11px] text-[#999]">
+                            {item.packageLabel}
+                          </span>
+                        </span>
+                        {/* Quantity */}
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              item.quantity <= 1
+                                ? removeItem(item.id)
+                                : updateQuantity(item.id, item.quantity - 1)
+                            }
+                            className="flex size-6 items-center justify-center rounded-full bg-[#f3edea] text-[12px] text-[#2b2b2b]"
+                          >
+                            −
+                          </button>
+                          <span className="w-5 text-center text-[13px] font-medium">
+                            {item.quantity}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              updateQuantity(item.id, item.quantity + 1)
+                            }
+                            className="flex size-6 items-center justify-center rounded-full bg-[#f3edea] text-[12px] text-[#2b2b2b]"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="px-3.5 py-4 text-center text-[13px] text-[#999]">
+                    견적에 담긴 시술이 없습니다
+                  </div>
+                )}
                 <Link
                   href={`/${locale}/treatments`}
                   className="flex items-center justify-center py-2.5 text-[12px] font-medium text-[#a83c44] transition-colors hover:bg-[#faf8f5]"
@@ -125,6 +171,9 @@ export function ContactFormSection() {
                   + {tc('exploreTreatments')}
                 </Link>
               </div>
+              <p className="text-[11px] text-[#999]">
+                관심시술로 선택하지 않고, 문의 내용에 적어주셔도 됩니다
+              </p>
             </div>
 
             {/* Row 3: Message */}

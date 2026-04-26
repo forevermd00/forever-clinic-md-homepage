@@ -1,49 +1,53 @@
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
 import { PromoCard } from '@/components/promotions/PromoCard';
+import { getPromotions } from '@/lib/data/promotions';
+import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
 
-/* Promo content is CMS data — not translated */
-const DUMMY_PROMOS = [
-  {
-    id: '1',
-    slug: 'spring-lifting-event',
-    image: undefined,
-    badge: 'EVENT',
-    title: '봄맞이 리프팅 특별 이벤트',
-    description:
-      '울쎄라 + 써마지 FLX 동시 시술 시 특별 할인가를 만나보세요. 탄력 있는 피부로 봄을 시작하세요.',
-    date: '2026.04.01 ~ 2026.05.31',
-    originalPrice: '₩2,500,000',
-    discountedPrice: '₩1,890,000',
-  },
-  {
-    id: '2',
-    slug: 'first-visit-discount',
-    image: undefined,
-    badge: 'EVENT',
-    title: '첫 방문 고객 20% 할인',
-    description:
-      '포에버 명동을 처음 방문하시는 고객님께 전 시술 20% 할인 혜택을 드립니다.',
-    date: '2026.03.01 ~ 2026.06.30',
-    originalPrice: undefined,
-    discountedPrice: '전 시술 20% OFF',
-  },
-  {
-    id: '3',
-    slug: 'skin-care-package',
-    image: undefined,
-    badge: 'EVENT',
-    title: '프리미엄 스킨케어 패키지',
-    description:
-      '아쿠아필 + LDM + 진정관리 3회 패키지를 합리적인 가격에 만나보세요.',
-    date: '2026.04.15 ~ 2026.05.15',
-    originalPrice: '₩900,000',
-    discountedPrice: '₩690,000',
-  },
-];
+const titles: Record<string, string> = {
+  ko: '이벤트 & 프로모션',
+  en: 'Events & Promotions',
+  zh: '活动与优惠',
+  ja: 'イベント＆プロモーション',
+};
+const descriptions: Record<string, string> = {
+  ko: '포에버 클리닉 명동 진행 중인 이벤트와 프로모션. 울쎄라, 써마지, 보톡스 할인 정보.',
+  en: 'Current events and promotions at Forever Clinic Myeongdong. Ultherapy, Thermage, Botox discounts.',
+  zh: '永恒诊所明洞正在进行的活动与优惠。超声刀、热玛吉、肉毒素折扣信息。',
+  ja: 'フォーエバークリニック明洞の開催中イベントとプロモーション。ウルセラ、サーマジ、ボトックス割引情報。',
+};
 
-export default async function PromotionsPage() {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: titles[locale] ?? titles.ko,
+    description: descriptions[locale] ?? descriptions.ko,
+    alternates: getAlternates(locale, '/promotions'),
+    openGraph: {
+      title: `${titles[locale] ?? titles.ko} | ${siteNames[locale] ?? siteNames.ko}`,
+      description: descriptions[locale] ?? descriptions.ko,
+      locale: ogLocales[locale] ?? 'ko_KR',
+      images: [
+        { url: '/images/heroes/promo-hero.png', width: 1200, height: 630 },
+      ],
+    },
+  };
+}
+
+export default async function PromotionsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
   const t = await getTranslations('promotions');
+
+  const promos = await getPromotions(locale);
 
   return (
     <>
@@ -57,7 +61,7 @@ export default async function PromotionsPage() {
 
       <section className="bg-[#faf8f5] px-5 py-12 md:px-10 lg:px-[120px] lg:py-16">
         <div className="mx-auto flex max-w-[var(--container-max)] flex-wrap gap-6">
-          {DUMMY_PROMOS.map((promo) => (
+          {promos.map((promo) => (
             <PromoCard
               key={promo.id}
               image={promo.image}

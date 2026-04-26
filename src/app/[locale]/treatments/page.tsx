@@ -1,8 +1,67 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
 import { CategorySection } from '@/components/treatments/CategorySection';
 import { TREATMENT_CATEGORIES } from '@/components/treatments/treatmentData';
+import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
+
+const titles: Record<string, string> = {
+  ko: '시술 안내',
+  en: 'Treatments',
+  zh: '治疗项目',
+  ja: '施術案内',
+};
+const descriptions: Record<string, string> = {
+  ko: '포에버 클리닉 명동 시술 안내. 리프팅, 피부케어, 토닝/색소, 보톡스/필러 전체 시술 정보.',
+  en: 'All treatments at Forever Clinic Myeongdong. Lifting, Skincare, Toning & Pigment, Botox & Filler.',
+  zh: '永恒诊所明洞全部治疗项目。提升、皮肤管理、色素管理、肉毒素与玻尿酸。',
+  ja: 'フォーエバークリニック明洞の施術一覧。リフティング、スキンケア、トーニング、ボトックス＆フィラー。',
+};
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: titles[locale] ?? titles.ko,
+    description: descriptions[locale] ?? descriptions.ko,
+    keywords: [
+      ...(locale === 'ko'
+        ? [
+            '울쎄라',
+            '써마지',
+            '보톡스',
+            '필러',
+            '피코토닝',
+            '리프팅',
+            '피부관리',
+          ]
+        : []),
+      ...(locale === 'en'
+        ? [
+            'ultherapy',
+            'thermage',
+            'botox',
+            'filler',
+            'skin lifting',
+            'skincare',
+          ]
+        : []),
+    ],
+    alternates: getAlternates(locale, '/treatments'),
+    openGraph: {
+      title: `${titles[locale] ?? titles.ko} | ${siteNames[locale] ?? siteNames.ko}`,
+      description: descriptions[locale] ?? descriptions.ko,
+      locale: ogLocales[locale] ?? 'ko_KR',
+      images: [
+        { url: '/images/treatments/lifting.png', width: 1200, height: 630 },
+      ],
+    },
+  };
+}
 
 const categoryImages: Record<string, string> = {
   lifting: '/images/treatments/lifting.png',

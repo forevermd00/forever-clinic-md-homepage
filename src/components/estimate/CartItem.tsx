@@ -25,7 +25,7 @@ function formatPrice(price: number): string {
 function CartItem({
   item,
   onQuantityChange,
-  onRemove: _onRemove,
+  onRemove,
   className,
 }: CartItemProps) {
   const t = useTranslations('estimate');
@@ -77,6 +77,16 @@ function CartItem({
       <span className="text-forever-charcoal min-w-[100px] text-right text-[15px] font-bold">
         {formatPrice(item.unitPrice * item.quantity)}
       </span>
+
+      {/* Remove */}
+      <button
+        type="button"
+        onClick={() => onRemove(item.id)}
+        className="ml-2 flex size-7 shrink-0 items-center justify-center rounded-full text-[14px] text-[#999] transition-colors hover:bg-[#f3edea] hover:text-[#2b2b2b]"
+        aria-label={t('removeItem')}
+      >
+        ✕
+      </button>
     </div>
   );
 }

@@ -1,9 +1,16 @@
-import { createClient } from 'next-sanity';
+import { createClient, type SanityClient } from 'next-sanity';
 import { projectId, dataset, apiVersion } from './config';
 
-export const client = createClient({
-  projectId,
-  dataset,
-  apiVersion,
-  useCdn: true,
-});
+function createSanityClient(): SanityClient | null {
+  if (!projectId) {
+    return null;
+  }
+  return createClient({
+    projectId,
+    dataset,
+    apiVersion,
+    useCdn: true,
+  });
+}
+
+export const client = createSanityClient();

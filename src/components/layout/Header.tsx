@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
 import { locales, localeNames, type Locale } from '@/lib/i18n/config';
+import { CartBadge } from '@/components/layout/CartBadge';
 
 /* ----------------------------------------------------------------
    Megamenu data — full sitemap columns
@@ -277,10 +278,11 @@ export function Header() {
 
               <Link
                 href={`/${currentLocale}/estimate`}
-                className="hidden text-[16px] text-[#2b2b2b] md:inline-flex"
+                className="relative hidden text-[16px] text-[#2b2b2b] md:inline-flex"
                 aria-label="Cart"
               >
                 🛒
+                <CartBadge />
               </Link>
 
               <Link
@@ -592,9 +594,13 @@ export function Header() {
             <Link
               href={`/${currentLocale}/estimate`}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="py-2 text-[14px] font-medium text-[#2b2b2b]"
+              className="relative inline-flex items-center gap-1 py-2 text-[14px] font-medium text-[#2b2b2b]"
             >
-              🛒 {tCommon('estimate')}
+              <span className="relative">
+                🛒
+                <CartBadge />
+              </span>
+              {tCommon('estimate')}
             </Link>
 
             {/* CTA */}

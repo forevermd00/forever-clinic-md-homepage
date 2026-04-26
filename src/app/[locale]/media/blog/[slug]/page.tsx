@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation';
 import { ArticleDetail } from '@/components/media/ArticleDetail';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { getArticleJsonLd } from '@/lib/seo/jsonld';
 
 const posts = [
   {
@@ -35,13 +37,25 @@ export default async function BlogDetailPage({
   const prevArticle = index < posts.length - 1 ? posts[index + 1] : null;
   const nextArticle = index > 0 ? posts[index - 1] : null;
 
+  const baseUrl = 'https://forever-clinic-myeongdong.com';
+
   return (
-    <ArticleDetail
-      article={article}
-      prevArticle={prevArticle}
-      nextArticle={nextArticle}
-      basePath={`/${locale}/media/blog`}
-      locale={locale}
-    />
+    <>
+      <JsonLd
+        data={getArticleJsonLd({
+          title: article.title,
+          date: article.date,
+          description: article.content.slice(0, 160),
+          url: `${baseUrl}/${locale}/media/blog/${article.slug}`,
+        })}
+      />
+      <ArticleDetail
+        article={article}
+        prevArticle={prevArticle}
+        nextArticle={nextArticle}
+        basePath={`/${locale}/media/blog`}
+        locale={locale}
+      />
+    </>
   );
 }
