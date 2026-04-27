@@ -2,32 +2,35 @@ import { defineType, defineField } from 'sanity';
 
 export default defineType({
   name: 'pressArticle',
-  title: 'Press Article',
+  title: '보도자료',
   type: 'document',
+  preview: {
+    select: { title: 'title.ko', subtitle: 'source', media: 'thumbnail' },
+  },
   fields: [
     defineField({
       name: 'title',
-      title: 'Title',
+      title: '기사 제목',
       type: 'localizedString',
     }),
     defineField({
       name: 'source',
-      title: 'Source',
+      title: '출처',
       type: 'string',
     }),
     defineField({
       name: 'url',
-      title: 'URL',
-      type: 'string',
+      title: '기사 URL',
+      type: 'url',
     }),
     defineField({
       name: 'publishDate',
-      title: 'Publish Date',
+      title: '게재일',
       type: 'date',
     }),
     defineField({
       name: 'thumbnail',
-      title: 'Thumbnail',
+      title: '썸네일',
       type: 'image',
       options: { hotspot: true },
     }),

@@ -2,7 +2,7 @@ import { defineType, defineField } from 'sanity';
 
 export default defineType({
   name: 'localizedText',
-  title: 'Localized Text',
+  title: '다국어 장문',
   type: 'object',
   fields: [
     defineField({

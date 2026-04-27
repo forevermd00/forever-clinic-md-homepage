@@ -14,6 +14,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@marsidev/react-turnstile": "^1.5.0",
     "@sanity/image-url": "^2.1.1",
+    "@sanity/vision": "^5.22.0",
     "@vercel/postgres": "^0.10.0",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",

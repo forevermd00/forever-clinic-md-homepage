@@ -9,25 +9,60 @@ import {
   type TreatmentCategory,
 } from '@/components/treatments/treatmentData';
 
+/* ─── Sanity raw shape (what GROQ returns) ─── */
+
+interface SanityTreatment {
+  _id: string;
+  name?: Record<string, string>;
+  slug?: { current: string };
+  category?: string;
+  tagline?: Record<string, string>;
+  priceOptions?: { label?: string; price?: number; discountPrice?: number }[];
+  isEvent?: boolean;
+  isVisible?: boolean;
+  sortOrder?: number;
+  duration?: string;
+  downtime?: string;
+  treatmentTime?: string;
+}
+
 export async function getTreatmentsByCategory(
   category: string,
-  _locale: string,
+  locale: string,
 ): Promise<TreatmentCategory | undefined> {
   const fallback = getCategoryBySlug(category);
 
-  const sanityData = await sanityFetch(
+  const treatments = await sanityFetch<SanityTreatment[]>(
     treatmentsByCategoryQuery,
     { category },
-    null,
   );
 
-  if (sanityData) {
-    // When Sanity returns data, map it to the TreatmentCategory shape.
-    // For now, return sanityData as-is (shape alignment will happen when CMS is live).
-    return sanityData as unknown as TreatmentCategory;
-  }
+  if (!treatments || treatments.length === 0) return fallback;
 
-  return fallback;
+  const categoryMeta = TREATMENT_CATEGORIES.find((c) => c.slug === category);
+
+  return {
+    slug: category,
+    label: categoryMeta?.label || category,
+    labelEn: categoryMeta?.labelEn || category,
+    description: categoryMeta?.description || '',
+    bgColor: categoryMeta?.bgColor || 'bg-white',
+    treatments: treatments.map((t) => ({
+      name: t.name?.[locale] || t.name?.ko || '',
+      slug: t.slug?.current || '',
+      category,
+      price: t.priceOptions?.[0]
+        ? `₩${t.priceOptions[0].price?.toLocaleString()}~`
+        : '',
+      priceNumeric: t.priceOptions?.[0]?.price || 0,
+      hasEvent: t.isEvent || false,
+      description: t.tagline?.[locale] || t.tagline?.ko || '',
+      duration: t.treatmentTime || '',
+      anesthesia: '',
+      recovery: t.downtime || '',
+      recommended: t.duration || '',
+    })),
+  };
 }
 
 export async function getTreatmentDetail(slug: string, locale: string) {

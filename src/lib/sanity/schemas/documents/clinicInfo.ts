@@ -2,55 +2,62 @@ import { defineType, defineField, defineArrayMember } from 'sanity';
 
 export default defineType({
   name: 'clinicInfo',
-  title: 'Clinic Info',
+  title: '병원 정보',
   type: 'document',
+
+  preview: {
+    prepare() {
+      return { title: '포에버 클리닉 명동 — 병원 정보' };
+    },
+  },
 
   fields: [
     defineField({
       name: 'address',
-      title: 'Address',
+      title: '주소',
       type: 'localizedString',
     }),
     defineField({
       name: 'phone',
-      title: 'Phone',
+      title: '전화번호',
       type: 'string',
     }),
     defineField({
       name: 'email',
-      title: 'Email',
+      title: '이메일',
       type: 'string',
     }),
     defineField({
       name: 'businessHours',
-      title: 'Business Hours',
+      title: '진료 시간',
       type: 'array',
       of: [defineArrayMember({ type: 'businessHours' })],
     }),
     defineField({
       name: 'closedDayNotice',
-      title: 'Closed Day Notice',
+      title: '휴진 안내',
       type: 'localizedString',
     }),
     defineField({
       name: 'googleMapsEmbedUrl',
-      title: 'Google Maps Embed URL',
-      type: 'string',
+      title: 'Google Maps URL',
+      description: 'Google Maps 임베드용 URL',
+      type: 'url',
     }),
     defineField({
       name: 'walkingGuide',
-      title: 'Walking Guide',
+      title: '도보 안내',
       type: 'localizedText',
     }),
     defineField({
       name: 'snsLinks',
-      title: 'SNS Links',
+      title: 'SNS 링크',
       type: 'array',
       of: [defineArrayMember({ type: 'snsLink' })],
     }),
     defineField({
       name: 'messengerLinks',
-      title: 'Messenger Links',
+      title: '메신저 링크',
       type: 'array',
       of: [defineArrayMember({ type: 'snsLink' })],
     }),

@@ -2,12 +2,29 @@ import { defineType, defineField } from 'sanity';
 
 export default defineType({
   name: 'snsLink',
-  title: 'SNS Link',
+  title: 'SNS 링크',
   type: 'object',
+  preview: {
+    select: { platform: 'platform', label: 'label' },
+    prepare({ platform, label }) {
+      const platformLabels: Record<string, string> = {
+        instagram: 'Instagram',
+        youtube: 'YouTube',
+        blog: 'Blog',
+        wechat: 'WeChat',
+        weibo: 'Weibo',
+        xiaohongshu: 'Xiaohongshu',
+      };
+      return {
+        title: platformLabels[platform] || platform || '(플랫폼 미선택)',
+        subtitle: label || '',
+      };
+    },
+  },
   fields: [
     defineField({
       name: 'platform',
-      title: 'Platform',
+      title: '플랫폼',
       type: 'string',
       options: {
         list: [
@@ -23,11 +40,11 @@ export default defineType({
     defineField({
       name: 'url',
       title: 'URL',
-      type: 'string',
+      type: 'url',
     }),
     defineField({
       name: 'label',
-      title: 'Label',
+      title: '표시명',
       type: 'string',
     }),
   ],

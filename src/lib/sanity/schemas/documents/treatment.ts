@@ -2,17 +2,35 @@ import { defineType, defineField, defineArrayMember } from 'sanity';
 
 export default defineType({
   name: 'treatment',
-  title: 'Treatment',
+  title: '시술 관리',
   type: 'document',
+  preview: {
+    select: { title: 'name.ko', subtitle: 'category', media: 'thumbnail' },
+    prepare({ title, subtitle, media }) {
+      const categoryLabels: Record<string, string> = {
+        lifting: '리프팅',
+        skincare: '피부케어',
+        toning: '토닝/색소',
+        'botox-filler': '보톡스/필러',
+      };
+      return {
+        title: title || '(시술명 미입력)',
+        subtitle: categoryLabels[subtitle] || subtitle,
+        media,
+      };
+    },
+  },
   fields: [
     defineField({
       name: 'name',
-      title: 'Name',
+      title: '시술명',
+      description: '4개 언어로 시술 이름을 입력하세요',
       type: 'localizedString',
     }),
     defineField({
       name: 'slug',
-      title: 'Slug',
+      title: 'URL 주소',
+      description: '영문으로 자동 생성됩니다',
       type: 'slug',
       options: {
         source: 'name.en',
@@ -21,70 +39,77 @@ export default defineType({
     }),
     defineField({
       name: 'category',
-      title: 'Category',
+      title: '카테고리',
+      description: '시술이 속하는 카테고리',
       type: 'string',
       options: {
         list: [
-          { title: 'Lifting', value: 'lifting' },
-          { title: 'Skincare', value: 'skincare' },
-          { title: 'Toning', value: 'toning' },
-          { title: 'Botox & Filler', value: 'botox-filler' },
+          { title: '리프팅', value: 'lifting' },
+          { title: '피부케어', value: 'skincare' },
+          { title: '토닝/색소', value: 'toning' },
+          { title: '보톡스/필러', value: 'botox-filler' },
         ],
       },
     }),
     defineField({
       name: 'thumbnail',
-      title: 'Thumbnail',
+      title: '대표 이미지',
+      description: '시술 카드에 표시되는 이미지',
       type: 'image',
       options: { hotspot: true },
     }),
     defineField({
       name: 'detailImages',
-      title: 'Detail Images',
+      title: '상세 이미지',
+      description: '시술 상세 페이지에 표시됩니다',
       type: 'array',
       of: [defineArrayMember({ type: 'image', options: { hotspot: true } })],
     }),
     defineField({
       name: 'tagline',
-      title: 'Tagline',
+      title: '한줄 소개',
       type: 'localizedString',
     }),
     defineField({
       name: 'effects',
-      title: 'Effects',
+      title: '시술 효과',
       type: 'array',
       of: [defineArrayMember({ type: 'localizedString' })],
     }),
     defineField({
       name: 'duration',
-      title: 'Duration',
+      title: '지속 기간',
+      description: '예: 6개월~1년',
       type: 'string',
     }),
     defineField({
       name: 'downtime',
-      title: 'Downtime',
+      title: '다운타임',
+      description: '예: 없음, 1~2일',
       type: 'string',
     }),
     defineField({
       name: 'treatmentTime',
-      title: 'Treatment Time',
+      title: '시술 시간',
+      description: '예: 약 30분',
       type: 'string',
     }),
     defineField({
       name: 'priceOptions',
-      title: 'Price Options',
+      title: '가격 옵션',
+      description: '회차별 가격을 설정하세요',
       type: 'array',
       of: [defineArrayMember({ type: 'priceOption' })],
     }),
     defineField({
       name: 'faq',
-      title: 'FAQ',
+      title: '자주 묻는 질문',
       type: 'array',
       of: [defineArrayMember({ type: 'faqItem' })],
     }),
     defineField({
       name: 'relatedTreatments',
-      title: 'Related Treatments',
+      title: '관련 시술',
       type: 'array',
       of: [
         defineArrayMember({
@@ -95,19 +120,25 @@ export default defineType({
     }),
     defineField({
       name: 'isEvent',
-      title: 'Is Event',
+      title: '이벤트 표시',
+      description: 'EVENT 뱃지를 표시합니다',
       type: 'boolean',
+      initialValue: false,
     }),
     defineField({
       name: 'isVisible',
-      title: 'Is Visible',
+      title: '노출 여부',
+      description: '체크 해제 시 홈페이지에서 숨깁니다',
       type: 'boolean',
       initialValue: true,
     }),
     defineField({
       name: 'sortOrder',
-      title: 'Sort Order',
+      title: '정렬 순서',
+      description: '숫자가 작을수록 앞에 표시됩니다',
       type: 'number',
+      initialValue: 0,
+      validation: (rule) => rule.min(0).integer(),
     }),
   ],
 });

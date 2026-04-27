@@ -2,6 +2,20 @@ import { sanityFetch } from '@/lib/sanity/fetch';
 import { doctorsQuery } from '@/lib/sanity/queries';
 import type { Doctor } from '@/components/brand/DoctorCard';
 
+/* ─── Sanity raw shape (GROQ projects locale-specific fields) ─── */
+
+interface SanityDoctor {
+  _id: string;
+  name?: string;
+  position?: string;
+  philosophy?: string;
+  specialties?: string[];
+  profileImage?: unknown;
+  licenseNumber?: string;
+}
+
+/* ─── Fallback Data ─── */
+
 const FALLBACK_DOCTORS: Doctor[] = [
   {
     name: '김포에버 원장',
@@ -25,11 +39,18 @@ const FALLBACK_DOCTORS: Doctor[] = [
   },
 ];
 
+function mapSanityDoctors(raw: SanityDoctor[]): Doctor[] {
+  return raw.map((d) => ({
+    name: d.name || '',
+    specialty: d.specialties?.filter(Boolean).join(' · ') || d.position || '',
+    bio: d.philosophy || '',
+  }));
+}
+
 export async function getDoctors(locale: string): Promise<Doctor[]> {
-  const data = await sanityFetch<Doctor[]>(
-    doctorsQuery,
-    { locale },
-    FALLBACK_DOCTORS,
-  );
-  return data ?? FALLBACK_DOCTORS;
+  const data = await sanityFetch<SanityDoctor[]>(doctorsQuery, { locale });
+
+  if (!data || data.length === 0) return FALLBACK_DOCTORS;
+
+  return mapSanityDoctors(data);
 }

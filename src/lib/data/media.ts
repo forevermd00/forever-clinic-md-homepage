@@ -7,7 +7,43 @@ import {
 } from '@/lib/sanity/queries';
 import type { NoticeItem } from '@/components/media/NoticeTable';
 
-/* ─── Types ─── */
+/* ─── Sanity raw shapes ─── */
+
+interface SanityPressArticle {
+  _id: string;
+  title?: string;
+  source?: string;
+  url?: string;
+  thumbnail?: unknown;
+  publishDate?: string;
+}
+
+interface SanityBlogPost {
+  _id: string;
+  title?: string;
+  slug?: string;
+  thumbnail?: unknown;
+  category?: string;
+  publishDate?: string;
+}
+
+interface SanityYoutubeVideo {
+  _id: string;
+  title?: string;
+  youtubeId?: string;
+  thumbnail?: unknown;
+  description?: string;
+  publishDate?: string;
+}
+
+interface SanityNotice {
+  _id: string;
+  title?: string;
+  publishDate?: string;
+  isPinned?: boolean;
+}
+
+/* ─── Page types ─── */
 
 export type PressArticle = {
   slug: string;
@@ -142,44 +178,88 @@ const FALLBACK_NOTICES: NoticeItem[] = [
   },
 ];
 
+/* ─── Mapping helpers ─── */
+
+function formatDate(iso?: string): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function mapPressArticles(raw: SanityPressArticle[]): PressArticle[] {
+  return raw.map((a) => ({
+    slug: a._id,
+    date: formatDate(a.publishDate),
+    title: a.title || '',
+    description: a.source ? `${a.source}` : '',
+  }));
+}
+
+function mapBlogPosts(raw: SanityBlogPost[]): BlogPost[] {
+  return raw.map((p) => ({
+    slug: p.slug || p._id,
+    date: formatDate(p.publishDate),
+    title: p.title || '',
+    description: p.category || '',
+  }));
+}
+
+function mapYoutubeVideos(raw: SanityYoutubeVideo[]): YoutubeVideo[] {
+  return raw.map((v) => ({
+    slug: v.youtubeId || v._id,
+    title: v.title || '',
+    views: v.description || '',
+  }));
+}
+
+function mapNotices(raw: SanityNotice[]): NoticeItem[] {
+  return raw.map((n, i) => ({
+    id: i + 1,
+    slug: n._id,
+    title: n.title || '',
+    date: formatDate(n.publishDate),
+    views: 0,
+  }));
+}
+
 /* ─── Fetch Functions ─── */
 
 export async function getPressArticles(
   locale: string,
 ): Promise<PressArticle[]> {
-  const data = await sanityFetch<PressArticle[]>(
-    pressArticlesQuery,
-    { locale },
-    FALLBACK_PRESS,
-  );
-  return data ?? FALLBACK_PRESS;
+  const data = await sanityFetch<SanityPressArticle[]>(pressArticlesQuery, {
+    locale,
+  });
+
+  if (!data || data.length === 0) return FALLBACK_PRESS;
+
+  return mapPressArticles(data);
 }
 
 export async function getBlogPosts(locale: string): Promise<BlogPost[]> {
-  const data = await sanityFetch<BlogPost[]>(
-    blogPostsQuery,
-    { locale },
-    FALLBACK_BLOG,
-  );
-  return data ?? FALLBACK_BLOG;
+  const data = await sanityFetch<SanityBlogPost[]>(blogPostsQuery, { locale });
+
+  if (!data || data.length === 0) return FALLBACK_BLOG;
+
+  return mapBlogPosts(data);
 }
 
 export async function getYoutubeVideos(
   locale: string,
 ): Promise<YoutubeVideo[]> {
-  const data = await sanityFetch<YoutubeVideo[]>(
-    youtubeVideosQuery,
-    { locale },
-    FALLBACK_VIDEOS,
-  );
-  return data ?? FALLBACK_VIDEOS;
+  const data = await sanityFetch<SanityYoutubeVideo[]>(youtubeVideosQuery, {
+    locale,
+  });
+
+  if (!data || data.length === 0) return FALLBACK_VIDEOS;
+
+  return mapYoutubeVideos(data);
 }
 
 export async function getNotices(locale: string): Promise<NoticeItem[]> {
-  const data = await sanityFetch<NoticeItem[]>(
-    noticesQuery,
-    { locale },
-    FALLBACK_NOTICES,
-  );
-  return data ?? FALLBACK_NOTICES;
+  const data = await sanityFetch<SanityNotice[]>(noticesQuery, { locale });
+
+  if (!data || data.length === 0) return FALLBACK_NOTICES;
+
+  return mapNotices(data);
 }

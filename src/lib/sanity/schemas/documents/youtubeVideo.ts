@@ -2,32 +2,36 @@ import { defineType, defineField } from 'sanity';
 
 export default defineType({
   name: 'youtubeVideo',
-  title: 'YouTube Video',
+  title: '영상 콘텐츠',
   type: 'document',
+  preview: {
+    select: { title: 'title.ko', subtitle: 'publishDate', media: 'thumbnail' },
+  },
   fields: [
     defineField({
       name: 'title',
-      title: 'Title',
+      title: '영상 제목',
       type: 'localizedString',
     }),
     defineField({
       name: 'youtubeId',
       title: 'YouTube ID',
+      description: 'YouTube 영상 URL에서 v= 뒤의 값',
       type: 'string',
     }),
     defineField({
       name: 'description',
-      title: 'Description',
+      title: '설명',
       type: 'localizedText',
     }),
     defineField({
       name: 'publishDate',
-      title: 'Publish Date',
+      title: '게시일',
       type: 'date',
     }),
     defineField({
       name: 'thumbnail',
-      title: 'Thumbnail',
+      title: '썸네일',
       type: 'image',
       options: { hotspot: true },
     }),

@@ -2,51 +2,61 @@ import { defineType, defineField, defineArrayMember } from 'sanity';
 
 export default defineType({
   name: 'doctor',
-  title: 'Doctor',
+  title: '의료진 관리',
   type: 'document',
+  preview: {
+    select: {
+      title: 'name.ko',
+      subtitle: 'position.ko',
+      media: 'profileImage',
+    },
+  },
   fields: [
     defineField({
       name: 'name',
-      title: 'Name',
+      title: '의사 이름',
       type: 'localizedString',
     }),
     defineField({
       name: 'position',
-      title: 'Position',
+      title: '직위',
       type: 'localizedString',
     }),
     defineField({
       name: 'profileImage',
-      title: 'Profile Image',
+      title: '프로필 사진',
       type: 'image',
       options: { hotspot: true },
     }),
     defineField({
       name: 'philosophy',
-      title: 'Philosophy',
+      title: '진료 철학',
       type: 'localizedText',
     }),
     defineField({
       name: 'specialties',
-      title: 'Specialties',
+      title: '전문 분야',
       type: 'array',
       of: [defineArrayMember({ type: 'localizedString' })],
     }),
     defineField({
       name: 'licenseNumber',
-      title: 'License Number',
+      title: '면허 번호',
       type: 'string',
     }),
     defineField({
       name: 'isVisible',
-      title: 'Is Visible',
+      title: '노출 여부',
       type: 'boolean',
       initialValue: true,
     }),
     defineField({
       name: 'sortOrder',
-      title: 'Sort Order',
+      title: '정렬 순서',
+      description: '숫자가 작을수록 앞에 표시됩니다',
       type: 'number',
+      initialValue: 0,
+      validation: (rule) => rule.min(0).integer(),
     }),
   ],
 });

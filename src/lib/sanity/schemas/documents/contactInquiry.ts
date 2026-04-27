@@ -2,32 +2,45 @@ import { defineType, defineField, defineArrayMember } from 'sanity';
 
 export default defineType({
   name: 'contactInquiry',
-  title: 'Contact Inquiry',
+  title: '상담 문의',
   type: 'document',
+  preview: {
+    select: { title: 'name', subtitle: 'createdAt', source: 'source' },
+    prepare({ title, subtitle, source }) {
+      const sourceLabels: Record<string, string> = {
+        'contact-form': '문의 폼',
+        'consult-modal': '상담 모달',
+      };
+      return {
+        title: title || '(이름 없음)',
+        subtitle: `${sourceLabels[source] || source || ''} ${subtitle ? `| ${subtitle}` : ''}`,
+      };
+    },
+  },
   fields: [
     defineField({
       name: 'name',
-      title: 'Name',
+      title: '이름',
       type: 'string',
     }),
     defineField({
       name: 'email',
-      title: 'Email',
+      title: '이메일',
       type: 'string',
     }),
     defineField({
       name: 'phone',
-      title: 'Phone',
+      title: '전화번호',
       type: 'string',
     }),
     defineField({
       name: 'message',
-      title: 'Message',
+      title: '문의 내용',
       type: 'text',
     }),
     defineField({
       name: 'selectedTreatments',
-      title: 'Selected Treatments',
+      title: '관심 시술',
       type: 'array',
       of: [
         defineArrayMember({
@@ -38,19 +51,20 @@ export default defineType({
     }),
     defineField({
       name: 'source',
-      title: 'Source',
+      title: '유입 경로',
       type: 'string',
       options: {
         list: [
-          { title: 'Contact Form', value: 'contact-form' },
-          { title: 'Consult Modal', value: 'consult-modal' },
+          { title: '문의 폼', value: 'contact-form' },
+          { title: '상담 모달', value: 'consult-modal' },
         ],
       },
     }),
     defineField({
       name: 'createdAt',
-      title: 'Created At',
+      title: '문의일시',
       type: 'datetime',
+      readOnly: true,
     }),
   ],
 });
