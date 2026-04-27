@@ -111,6 +111,22 @@ const fallbackCards: Record<string, QuickEntryCard[]> = {
   ],
 };
 
+// Fallback images by card ID pattern
+const fallbackImageMap: Record<string, string> = {
+  'qec-treatment-1': '/images/home/qe-lifting.png',
+  'qec-treatment-2': '/images/home/qe-skincare.png',
+  'qec-treatment-3': '/images/home/qe-toning.png',
+  'qec-treatment-4': '/images/home/qe-botox.jpg',
+  'qec-concern-1': '/images/home/qe-concern-wrinkle.png',
+  'qec-concern-2': '/images/home/qe-concern-pigment.png',
+  'qec-concern-3': '/images/home/qe-concern-pore.png',
+  'qec-concern-4': '/images/home/qe-concern-volume.png',
+  'qec-situation-1': '/images/home/qe-situation-special.png',
+  'qec-situation-2': '/images/home/qe-situation-regular.png',
+  'qec-situation-3': '/images/home/qe-situation-quick.png',
+  'qec-situation-4': '/images/home/qe-situation-first.png',
+};
+
 function mapToPageShape(
   data: SanityQuickEntryCard[],
   _locale: string,
@@ -119,7 +135,7 @@ function mapToPageShape(
     id: card._id,
     title: card.title || '',
     description: card.description || '',
-    image: '', // CMS icon images would need imageUrl builder
+    image: fallbackImageMap[card._id] || '/images/home/qe-lifting.png',
     linkUrl: card.linkUrl || '/treatments',
   }));
 }

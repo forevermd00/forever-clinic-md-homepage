@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { cn } from '@/lib/utils/cn';
-import { ImagePlaceholder } from '@/components/common/ImagePlaceholder';
+import { BALockOverlay } from '@/components/ba/BALockOverlay';
 import type { BACase } from '@/lib/data/ba';
 
 const FILTER_KEYS = [
@@ -81,50 +81,36 @@ export function BAPreviewSection({ cases }: BAPreviewSectionProps = {}) {
                 activeFilter === 'all' || card.category === activeFilter,
             )
             .map((card) => (
-              <div
+              <Link
                 key={card.id}
-                className="w-[311px] overflow-hidden rounded-[8px] border border-[#efe5d9] drop-shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
+                href={`/${locale}/before-after/${card.id}`}
+                className="block w-[311px] overflow-hidden rounded-[8px] border border-[#efe5d9] shadow-[0px_1px_2px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-md"
               >
-                {/* BA image area */}
                 <div className="flex h-[250px]">
-                  {card.beforeImage ? (
-                    <img
-                      src={card.beforeImage}
-                      alt="BEFORE"
-                      className="flex-1 object-cover"
-                    />
-                  ) : (
-                    <ImagePlaceholder
-                      label="BEFORE"
-                      variant="neutral"
-                      className="flex-1"
-                    />
-                  )}
-                  <div className="w-px bg-[#efe5d9]" />
-                  {card.afterImage ? (
-                    <img
-                      src={card.afterImage}
-                      alt="AFTER"
-                      className="flex-1 object-cover"
-                    />
-                  ) : (
-                    <ImagePlaceholder
-                      label="AFTER"
-                      variant="warm"
-                      className="flex-1"
-                    />
-                  )}
+                  <div className="flex-1 overflow-hidden">
+                    <BALockOverlay locale={locale} className="h-[250px] w-full">
+                      {card.beforeImage ? (
+                        <img
+                          src={card.beforeImage}
+                          alt="BEFORE"
+                          className="h-[250px] w-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-[250px] w-full bg-[#f3eee6]" />
+                      )}
+                    </BALockOverlay>
+                  </div>
+                  <div className="flex-1 bg-[#e0d2b6]" />
                 </div>
-                {/* Info row */}
-                <div className="flex items-center justify-between px-3 pt-2 pb-2.5">
-                  <span className="text-[15px] font-bold">
+                <div className="flex items-center justify-between px-3 py-2">
+                  <span className="text-forever-charcoal text-[15px] font-bold">
                     {card.treatment}
                   </span>
                   <span className="text-[13px] text-[#706263]">
                     {card.sessions}
                   </span>
                 </div>
-              </div>
+              </Link>
             ))}
         </div>
 

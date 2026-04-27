@@ -114,7 +114,8 @@
     "newPassword": "New Password",
     "changePassword": "Change Password",
     "passwordChangedTitle": "Password Changed",
-    "passwordChangedSubtitle": "Please log in with your new password."
+    "passwordChangedSubtitle": "Please log in with your new password.",
+    "logout": "Log out"
   },
   "estimate": {
     "myEstimate": "My Estimate",
@@ -188,7 +189,9 @@
     "sessions": "Session {count}",
     "heroSubtitle": "See real results from Forever Clinic Myeongdong",
     "ctaTitle": "Want to experience this transformation?",
-    "ctaDescription": "Find the right treatment for you with a 1:1 consultation"
+    "ctaDescription": "Find the right treatment for you with a 1:1 consultation",
+    "loginRequired": "Log in to view Before photos",
+    "loginToView": "Log in to view"
   },
   "treatments": {
     "title": "Treatments",

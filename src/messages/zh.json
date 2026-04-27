@@ -114,7 +114,8 @@
     "newPassword": "新密码",
     "changePassword": "更改密码",
     "passwordChangedTitle": "密码已更改",
-    "passwordChangedSubtitle": "请使用新密码登录。"
+    "passwordChangedSubtitle": "请使用新密码登录。",
+    "logout": "退出登录"
   },
   "estimate": {
     "myEstimate": "我的报价",
@@ -188,7 +189,9 @@
     "sessions": "第{count}次",
     "heroSubtitle": "查看 Forever Clinic 明洞的诊疗效果",
     "ctaTitle": "想要体验这样的变化吗？",
-    "ctaDescription": "通过1:1专家咨询，找到最适合您的诊疗方案"
+    "ctaDescription": "通过1:1专家咨询，找到最适合您的诊疗方案",
+    "loginRequired": "登录后可查看术前照片",
+    "loginToView": "登录查看"
   },
   "treatments": {
     "title": "诊疗项目",

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { cn } from '@/lib/utils/cn';
+import { BALockOverlay } from './BALockOverlay';
 
 export interface BACase {
   id: string;
@@ -28,13 +29,15 @@ async function BACard({ baCase, locale, className }: BACardProps) {
         className,
       )}
     >
-      {/* Before / After image area */}
       <div className="flex h-[250px]">
-        <div className="flex-1 bg-[#f3eee6]" />
+        <div className="flex-1 overflow-hidden">
+          <BALockOverlay locale={locale} className="h-[250px] w-full">
+            <div className="h-[250px] w-full bg-[#f3eee6]" />
+          </BALockOverlay>
+        </div>
         <div className="flex-1 bg-[#e0d2b6]" />
       </div>
 
-      {/* Info */}
       <div className="flex items-center justify-between px-3 py-2">
         <span className="text-forever-charcoal text-[15px] font-bold">
           {baCase.treatmentName}

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
 import { getBADetail } from '@/lib/data/ba';
+import { BALockOverlay } from '@/components/ba/BALockOverlay';
 
 const DUMMY_DETAIL = {
   id: '1',
@@ -67,9 +68,14 @@ export default async function BADetailPage({
 
             {/* Images */}
             <div className="flex w-full max-w-4xl gap-4">
-              {/* Before */}
+              {/* Before - locked for Korean locale if not logged in */}
               <div className="flex-1">
-                <div className="h-[300px] rounded-[8px] bg-[#d4c7bd] md:h-[400px]" />
+                <BALockOverlay
+                  locale={locale}
+                  className="h-[300px] md:h-[400px]"
+                >
+                  <div className="h-[300px] rounded-[8px] bg-[#d4c7bd] md:h-[400px]" />
+                </BALockOverlay>
                 <p className="mt-2 text-center text-[13px] font-bold text-[#999]">
                   BEFORE
                 </p>

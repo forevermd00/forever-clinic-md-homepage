@@ -6,6 +6,7 @@ import { locales, type Locale } from '@/lib/i18n/config';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { FloatingCTA } from '@/components/layout/FloatingCTA';
+import { SessionProvider } from 'next-auth/react';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getMedicalBusinessJsonLd } from '@/lib/seo/jsonld';
 import {
@@ -58,12 +59,14 @@ export default async function LocaleLayout({
     <html lang={locale}>
       <body>
         <JsonLd data={getMedicalBusinessJsonLd(locale)} />
-        <NextIntlClientProvider messages={messages}>
-          <Header />
-          <main>{children}</main>
-          <Footer locale={locale} />
-          <FloatingCTA />
-        </NextIntlClientProvider>
+        <SessionProvider>
+          <NextIntlClientProvider messages={messages}>
+            <Header />
+            <main>{children}</main>
+            <Footer locale={locale} />
+            <FloatingCTA />
+          </NextIntlClientProvider>
+        </SessionProvider>
       </body>
     </html>
   );

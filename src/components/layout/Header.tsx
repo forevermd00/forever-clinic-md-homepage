@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
 import { locales, localeNames, type Locale } from '@/lib/i18n/config';
 import { CartBadge } from '@/components/layout/CartBadge';
+import { UserMenu } from '@/components/layout/UserMenu';
 
 /* ----------------------------------------------------------------
    Megamenu data - full sitemap columns
@@ -309,6 +310,8 @@ export function Header() {
                   </div>
                 )}
               </div>
+
+              <UserMenu locale={currentLocale} />
 
               <Link
                 href={`/${currentLocale}/estimate`}
@@ -640,6 +643,9 @@ export function Header() {
 
             {/* Divider */}
             <div className="my-4 h-px bg-[#efe5d9]" />
+
+            {/* User */}
+            <UserMenu locale={currentLocale} mobile />
 
             {/* Cart */}
             <Link

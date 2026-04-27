@@ -114,7 +114,8 @@
     "newPassword": "新しいパスワード",
     "changePassword": "パスワードを変更",
     "passwordChangedTitle": "パスワードが変更されました",
-    "passwordChangedSubtitle": "新しいパスワードでログインしてください。"
+    "passwordChangedSubtitle": "新しいパスワードでログインしてください。",
+    "logout": "ログアウト"
   },
   "estimate": {
     "myEstimate": "お見積もり",
@@ -188,7 +189,9 @@
     "sessions": "{count}回目",
     "heroSubtitle": "Forever Clinic 明洞の施術結果をご覧ください",
     "ctaTitle": "この変化を体験してみたいですか？",
-    "ctaDescription": "専門医との1:1カウンセリングで最適な施術を見つけましょう"
+    "ctaDescription": "専門医との1:1カウンセリングで最適な施術を見つけましょう",
+    "loginRequired": "ログインするとBefore写真を確認できます",
+    "loginToView": "ログインして見る"
   },
   "treatments": {
     "title": "施術案内",
