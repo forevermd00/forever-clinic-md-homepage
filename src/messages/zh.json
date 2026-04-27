@@ -32,7 +32,8 @@
     "startConsultation": "立即开始咨询",
     "whichTreatmentFits": "哪个项目适合我？",
     "findRightTreatment": "让专业医生为您找到最适合的诊疗方案",
-    "submit": "提交"
+    "submit": "提交",
+    "addedToEstimate": "已添加到报价单"
   },
   "nav": {
     "beforeAfter": "前后对比",
@@ -60,6 +61,9 @@
     "notice": "通知公告",
     "events": "优惠活动",
     "consultationBooking": "预约咨询",
+    "clinicAddress": "首尔市中区明洞路00号",
+    "clinicPhone": "02-0000-0000",
+    "clinicEmail": "contact@forever-clinic.kr",
     "privacy": "隐私政策",
     "terms": "服务条款",
     "copyright": "© 2026 Forever Clinic. 保留所有权利。",
@@ -103,7 +107,7 @@
     "resetPasswordSubtitle": "请输入注册邮箱，我们将发送密码重置链接。",
     "sendVerificationEmail": "发送验证邮件",
     "emailSentTitle": "邮件已发送",
-    "emailSentDescription": " — 密码重置链接已发送，请查看邮箱。",
+    "emailSentDescription": " - 密码重置链接已发送，请查看邮箱。",
     "openResetLink": "打开重置链接（演示）",
     "newPasswordTitle": "设置新密码",
     "newPasswordSubtitle": "请输入新密码（至少8个字符）。",
@@ -153,7 +157,9 @@
     "sectionDoctors": "医疗团队",
     "sectionFacilities": "设施",
     "sectionEquipment": "设备",
-    "sectionLocation": "交通指南"
+    "sectionLocation": "交通指南",
+    "brandStoryLink": "了解更多品牌故事",
+    "applicableTreatments": "适用项目"
   },
   "media": {
     "press": "新闻报道",
@@ -208,15 +214,15 @@
     "baSubtitle": "查看真实的诊疗前后变化"
   },
   "home": {
-    "heroTitle": "精心设计的\n信赖之选",
-    "heroSubtitle": "Smart-Boutique 定位 — Forever Clinic 明洞店",
+    "heroTitle": "精心设计的\n信赖之高端",
+    "heroSubtitle": "Smart-Boutique定位 - 永恒诊所明洞店",
     "quickEntryTitle": "选择您的诊疗项目",
     "tabTreatment": "按项目查找",
-    "tabConcern": "按困扰查找",
+    "tabConcern": "按烦恼查找",
     "tabSituation": "按场景查找",
     "promoTitle": "活动 · 优惠",
     "statsExperts": "专业医疗团队",
-    "statsCases": "累计诊疗人次",
+    "statsCases": "累计诊疗案例",
     "statsSatisfaction": "客户满意度",
     "statsEquipment": "医疗设备",
     "doctorsTitle": "医疗团队",
@@ -234,7 +240,11 @@
     "locationSubway": "地铁",
     "locationHours": "营业时间",
     "locationPhone": "电话",
-    "mapPlaceholder": "地图区域\n(Google Maps / Naver Maps)"
+    "mapPlaceholder": "地图区域\n(Google Maps / Naver Maps)",
+    "emptyCartNote": "报价单中没有项目",
+    "treatmentOptionalNote": "您也可以不选择项目，直接在咨询内容中描述",
+    "submitSuccess": "咨询已成功提交，我们会尽快与您联系。",
+    "submitting": "提交中..."
   },
   "contact": {
     "heroTitle": "预约与咨询",
@@ -243,7 +253,10 @@
     "address": "地址",
     "phone": "电话",
     "hours": "营业时间",
-    "mapPlaceholder": "地图区域 (Google Maps)"
+    "mapPlaceholder": "地图区域 (Google Maps)",
+    "clinicAddress": "首尔特别市中区明洞路14号 Forever大厦3层",
+    "clinicPhone": "02-XXX-XXXX",
+    "clinicHours": "周一至周五 10:00-19:00\n周六 10:00-16:00（周日及法定假日休息）"
   },
   "promotions": {
     "heroTitle": "活动 & 优惠",
@@ -253,5 +266,45 @@
     "contactOptions": "咨询渠道",
     "openChat": "打开聊天咨询",
     "closeChat": "关闭聊天咨询"
+  },
+  "megamenu": {
+    "baAll": "查看全部",
+    "baLifting": "提拉紧致",
+    "baSkincare": "皮肤护理",
+    "baToning": "色素调理",
+    "baBotox": "肉毒素/填充",
+    "liftingUlthera": "超声刀提升",
+    "liftingThermage": "热玛吉 FLX",
+    "liftingThread": "线雕提升",
+    "liftingHifu": "HIFU",
+    "liftingShrink": "Shrink",
+    "skincareMulkwang": "水光针",
+    "skincareBooster": "皮肤助推器",
+    "skincareExosome": "外泌体",
+    "skincareRejuran": "婴儿针",
+    "skincarePrp": "PRP",
+    "toningPico": "皮秒激光",
+    "toningIpl": "IPL调理",
+    "toningPigment": "色素激光",
+    "toningAcne": "痤疮管理",
+    "toningScar": "疤痕治疗",
+    "botoxBotox": "肉毒素",
+    "botoxFiller": "玻尿酸填充",
+    "botoxSkin": "皮肤肉毒素",
+    "botoxJaw": "瘦脸针",
+    "botoxNose": "鼻部填充",
+    "promoSpringLifting": "春季提升特惠",
+    "promoNewBotox": "新客肉毒素套餐",
+    "promoUltheraCombo": "超声刀+热玛吉组合",
+    "promoMonthlySkincare": "本月皮肤护理套装",
+    "brandPhilosophy": "品牌理念",
+    "doctors": "医疗团队",
+    "facilities": "设施介绍",
+    "equipment": "医疗设备",
+    "location": "交通指南",
+    "press": "新闻报道",
+    "video": "视频",
+    "blog": "博客",
+    "notice": "通知公告"
   }
 }

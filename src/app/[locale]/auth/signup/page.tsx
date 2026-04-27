@@ -45,7 +45,7 @@ export default function SignupPage() {
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
 
-    // Demo — no actual auth
+    // Demo - no actual auth
   };
 
   return (
@@ -180,7 +180,7 @@ export default function SignupPage() {
             />
             <span className="text-[13px] text-[#2b2b2b]">
               <Link
-                href={`/${locale}/privacy`} /* TODO: /privacy 페이지 미구현 — 빌드 필요 */
+                href={`/${locale}/privacy`} /* TODO: /privacy 페이지 미구현 - 빌드 필요 */
                 className="underline underline-offset-2"
               >
                 {t('privacyAgree')}

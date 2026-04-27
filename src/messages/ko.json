@@ -32,7 +32,8 @@
     "startConsultation": "지금 바로 상담을 시작하세요",
     "whichTreatmentFits": "어떤 시술이 나에게 맞을까요?",
     "findRightTreatment": "피부 상태에 맞는 시술을 전문의와 함께 확인해 보세요",
-    "submit": "문의하기"
+    "submit": "문의하기",
+    "addedToEstimate": "견적에 추가되었습니다"
   },
   "nav": {
     "beforeAfter": "Before & After",
@@ -60,6 +61,9 @@
     "notice": "공지사항",
     "events": "이벤트",
     "consultationBooking": "예약 상담",
+    "clinicAddress": "서울시 중구 명동길 00",
+    "clinicPhone": "02-0000-0000",
+    "clinicEmail": "contact@forever-clinic.kr",
     "privacy": "개인정보처리방침",
     "terms": "이용약관",
     "copyright": "© 2026 Forever Clinic. All rights reserved.",
@@ -153,7 +157,9 @@
     "sectionDoctors": "의료진",
     "sectionFacilities": "시설",
     "sectionEquipment": "장비",
-    "sectionLocation": "오시는 길"
+    "sectionLocation": "오시는 길",
+    "brandStoryLink": "브랜드 스토리 자세히 보기",
+    "applicableTreatments": "적용 시술"
   },
   "media": {
     "press": "보도자료",
@@ -209,14 +215,14 @@
   },
   "home": {
     "heroTitle": "정교하게 설계된\n신뢰의 프리미엄",
-    "heroSubtitle": "Smart-Boutique 포지셔닝 — 포에버 의원 명동점",
+    "heroSubtitle": "Smart-Boutique 포지셔닝 - 포에버 의원 명동점",
     "quickEntryTitle": "원하는 시술을 선택하세요",
     "tabTreatment": "시술로 찾기",
     "tabConcern": "고민으로 찾기",
     "tabSituation": "상황으로 찾기",
     "promoTitle": "이벤트 · 프로모션",
     "statsExperts": "전문 의료진",
-    "statsCases": "누적 시술 건수",
+    "statsCases": "누적 시술 건",
     "statsSatisfaction": "고객 만족도",
     "statsEquipment": "보유 장비",
     "doctorsTitle": "의료진 소개",
@@ -234,7 +240,11 @@
     "locationSubway": "지하철",
     "locationHours": "진료시간",
     "locationPhone": "전화",
-    "mapPlaceholder": "지도 영역\n(Google Maps / Naver Maps)"
+    "mapPlaceholder": "지도 영역\n(Google Maps / Naver Maps)",
+    "emptyCartNote": "견적에 담긴 시술이 없습니다",
+    "treatmentOptionalNote": "관심시술로 선택하지 않고, 문의 내용에 적어주셔도 됩니다",
+    "submitSuccess": "문의가 성공적으로 접수되었습니다. 빠른 시일 내에 연락드리겠습니다.",
+    "submitting": "접수 중..."
   },
   "contact": {
     "heroTitle": "예약 및 상담",
@@ -243,7 +253,10 @@
     "address": "주소",
     "phone": "전화",
     "hours": "진료시간",
-    "mapPlaceholder": "지도 영역 (Google Maps)"
+    "mapPlaceholder": "지도 영역 (Google Maps)",
+    "clinicAddress": "서울특별시 중구 명동길 14, 포에버빌딩 3층",
+    "clinicPhone": "02-XXX-XXXX",
+    "clinicHours": "월~금 10:00-19:00\n토 10:00-16:00 (일·공휴일 휴진)"
   },
   "promotions": {
     "heroTitle": "이벤트 & 프로모션",
@@ -253,5 +266,45 @@
     "contactOptions": "문의 채널",
     "openChat": "채팅 상담 열기",
     "closeChat": "채팅 상담 닫기"
+  },
+  "megamenu": {
+    "baAll": "전체 보기",
+    "baLifting": "리프팅",
+    "baSkincare": "피부케어",
+    "baToning": "토닝/색소",
+    "baBotox": "보톡스/필러",
+    "liftingUlthera": "울쎄라 리프팅",
+    "liftingThermage": "써마지 FLX",
+    "liftingThread": "실리프팅",
+    "liftingHifu": "HIFU",
+    "liftingShrink": "슈링크",
+    "skincareMulkwang": "물광주사",
+    "skincareBooster": "스킨부스터",
+    "skincareExosome": "엑소좀",
+    "skincareRejuran": "리쥬란",
+    "skincarePrp": "PRP",
+    "toningPico": "피코레이저",
+    "toningIpl": "IPL 토닝",
+    "toningPigment": "색소레이저",
+    "toningAcne": "여드름관리",
+    "toningScar": "흉터치료",
+    "botoxBotox": "보톡스",
+    "botoxFiller": "필러",
+    "botoxSkin": "스킨보톡스",
+    "botoxJaw": "턱보톡스",
+    "botoxNose": "코필러",
+    "promoSpringLifting": "봄맞이 리프팅 특가",
+    "promoNewBotox": "신규 고객 보톡스 패키지",
+    "promoUltheraCombo": "울쎄라+써마지 콤보",
+    "promoMonthlySkincare": "이달의 피부케어 세트",
+    "brandPhilosophy": "브랜드 철학",
+    "doctors": "의료진 소개",
+    "facilities": "시설 안내",
+    "equipment": "장비 안내",
+    "location": "오시는 길",
+    "press": "보도자료",
+    "video": "영상",
+    "blog": "블로그",
+    "notice": "공지사항"
   }
 }

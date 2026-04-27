@@ -62,6 +62,7 @@ async function BAGrid({
                 <Link
                   key={tab.id}
                   href={getFilterUrl(locale, tab.id)}
+                  scroll={true}
                   role="tab"
                   aria-selected={isActive}
                   className={cn(

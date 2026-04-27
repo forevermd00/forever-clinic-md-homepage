@@ -16,7 +16,7 @@ type QuickEntryCard = {
   linkUrl?: string;
 };
 
-/* Fallback card content — used when CMS data is not provided */
+/* Fallback card content - used when CMS data is not provided */
 const FALLBACK_CARDS_BY_TAB: Record<string, QuickEntryCard[]> = {
   treatment: [
     {
@@ -123,7 +123,7 @@ export function QuickEntrySection({ cardsByTab }: QuickEntrySectionProps = {}) {
           {t('quickEntryTitle')}
         </h2>
 
-        {/* Tabs — square, no border-radius */}
+        {/* Tabs - square, no border-radius */}
         <div className="flex flex-wrap justify-center gap-0">
           {TAB_IDS.map((tabId) => (
             <button

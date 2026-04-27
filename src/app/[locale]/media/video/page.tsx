@@ -1,4 +1,4 @@
-// TODO: i18n — apply getTranslations to page title, subtitle
+// TODO: i18n - apply getTranslations to page title, subtitle
 import type { Metadata } from 'next';
 import { VideoCard } from '@/components/media/VideoCard';
 import { Pagination } from '@/components/common/Pagination';

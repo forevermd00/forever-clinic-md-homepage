@@ -109,7 +109,7 @@ export default function ComponentsShowcase() {
             Forever Clinic Design System
           </h1>
           <p className="mt-2 text-neutral-500">
-            W1 Component Showcase — Figma 디자인 검토용
+            W1 Component Showcase - Figma 디자인 검토용
           </p>
         </div>
 
@@ -635,7 +635,7 @@ export default function ComponentsShowcase() {
           <CTABanner
             variant="highlight"
             title="Smart-Boutique 포에버 의원"
-            description="정직, 정교, 전문, 존엄 — 신뢰의 프리미엄"
+            description="정직, 정교, 전문, 존엄 - 신뢰의 프리미엄"
             ctaText="브랜드 소개"
             ctaHref="#"
           />

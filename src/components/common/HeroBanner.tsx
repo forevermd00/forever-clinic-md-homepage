@@ -45,7 +45,7 @@ function HeroBanner({
         )}
         <h1
           className={cn(
-            'relative text-center text-[28px] font-bold lg:text-[36px]',
+            'relative text-center text-[28px] font-bold whitespace-pre-line lg:text-[36px]',
             imageSrc ? 'text-white' : 'text-forever-charcoal',
           )}
         >
@@ -97,7 +97,7 @@ function HeroBanner({
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center gap-4 px-6 text-center text-white">
-        <h1 className="text-[28px] font-bold md:text-[36px] lg:text-[40px]">
+        <h1 className="text-[28px] font-bold whitespace-pre-line md:text-[36px] lg:text-[40px]">
           {title}
         </h1>
         {subtitle && <p className="text-[18px] text-white/90">{subtitle}</p>}

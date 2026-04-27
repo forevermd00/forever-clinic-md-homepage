@@ -146,14 +146,14 @@ export default async function TreatmentDetailPage({
       />
       <section className="bg-[#faf8f5]">
         <div className="mx-auto flex max-w-[var(--container-max)] flex-col gap-8 p-5 lg:flex-row lg:gap-12 lg:px-[120px] lg:py-16">
-          {/* Left — Image */}
+          {/* Left - Image */}
           <ImagePlaceholder
             label={treatment.name}
             variant="neutral"
             className="h-[260px] w-full shrink-0 rounded-[8px] lg:h-[500px] lg:flex-1"
           />
 
-          {/* Right — Details */}
+          {/* Right - Details */}
           <div className="flex flex-col lg:flex-1">
             {/* Breadcrumb */}
             <nav className="flex items-center gap-1.5 text-[12px] text-[#d4c8bd]">

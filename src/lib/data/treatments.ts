@@ -72,7 +72,7 @@ export async function getTreatmentDetail(slug: string, locale: string) {
 export async function getAllCategories(
   _locale: string,
 ): Promise<TreatmentCategory[]> {
-  // Categories are structural — always use the static list as fallback.
+  // Categories are structural - always use the static list as fallback.
   // When Sanity is configured, this could fetch dynamic categories.
   return TREATMENT_CATEGORIES;
 }

@@ -19,7 +19,7 @@ export default function LoginPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Demo — no actual auth
+    // Demo - no actual auth
   };
 
   return (

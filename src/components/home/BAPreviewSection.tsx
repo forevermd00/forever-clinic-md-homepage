@@ -16,7 +16,7 @@ const FILTER_KEYS = [
   { id: 'botox', key: 'filterBotox' },
 ] as const;
 
-/* Fallback BA cards — used when CMS data is not provided */
+/* Fallback BA cards - used when CMS data is not provided */
 const FALLBACK_BA_CARDS = [
   { id: 1, treatment: '울쎄라 리프팅', sessions: '3회 시술' },
   { id: 2, treatment: '피코레이저 토닝', sessions: '5회 시술' },

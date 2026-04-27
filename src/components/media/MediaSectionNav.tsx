@@ -2,17 +2,19 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
 
 const MEDIA_TABS = [
-  { label: '보도자료', path: 'press' },
-  { label: '영상', path: 'video' },
-  { label: '블로그', path: 'blog' },
-  { label: '공지사항', path: 'notice' },
+  { key: 'press', path: 'press' },
+  { key: 'video', path: 'video' },
+  { key: 'blog', path: 'blog' },
+  { key: 'notice', path: 'notice' },
 ] as const;
 
 export function MediaSectionNav() {
   const pathname = usePathname();
+  const t = useTranslations('media');
 
   return (
     <nav className="sticky top-16 z-20 border-b border-[#e8ded6] bg-white/92 backdrop-blur-sm">
@@ -30,7 +32,7 @@ export function MediaSectionNav() {
                   : 'text-[#706163] hover:text-[#2b2b2b]',
               )}
             >
-              {tab.label}
+              {t(tab.key)}
             </Link>
           );
         })}

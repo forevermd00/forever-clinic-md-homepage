@@ -9,109 +9,131 @@ import { locales, localeNames, type Locale } from '@/lib/i18n/config';
 import { CartBadge } from '@/components/layout/CartBadge';
 
 /* ----------------------------------------------------------------
-   Megamenu data — full sitemap columns
+   Megamenu data - full sitemap columns
+   i18n keys used for UI text; CMS content (treatment names) uses
+   tKey for translation lookup via "megamenu" namespace.
    ---------------------------------------------------------------- */
-const allColumns = [
+type MegaItem = { tKey: string; href: string };
+type MegaColumn = {
+  group: string;
+  titleKey: string;
+  titleNs: 'megamenu' | 'nav' | 'footer';
+  href: string;
+  items: MegaItem[];
+  dividerAfter?: boolean;
+};
+
+const allColumns: MegaColumn[] = [
   {
     group: 'ba',
-    title: 'Before & After',
+    titleKey: 'beforeAfter',
+    titleNs: 'nav',
     href: '/before-after',
     items: [
-      { label: '전체 보기', href: '/before-after' },
-      { label: '리프팅', href: '/before-after?cat=lifting' },
-      { label: '피부케어', href: '/before-after?cat=skincare' },
-      { label: '토닝/색소', href: '/before-after?cat=toning' },
-      { label: '보톡스/필러', href: '/before-after?cat=botox' },
+      { tKey: 'baAll', href: '/before-after' },
+      { tKey: 'baLifting', href: '/before-after?cat=lifting' },
+      { tKey: 'baSkincare', href: '/before-after?cat=skincare' },
+      { tKey: 'baToning', href: '/before-after?cat=toning' },
+      { tKey: 'baBotox', href: '/before-after?cat=botox' },
     ],
     dividerAfter: true,
   },
+  // TODO: Treatment names are CMS content - replace with dynamic data when CMS is ready
   {
     group: 'treatments',
-    title: '리프팅',
+    titleKey: 'lifting',
+    titleNs: 'footer',
     href: '/treatments/lifting',
     items: [
-      { label: '울쎄라 리프팅', href: '/treatments/lifting/ulthera' },
-      { label: '써마지 FLX', href: '/treatments/lifting/thermage' },
-      { label: '실리프팅', href: '/treatments/lifting/thread' },
-      { label: 'HIFU', href: '/treatments/lifting/hifu' },
-      { label: '슈링크', href: '/treatments/lifting/shrink' },
+      { tKey: 'liftingUlthera', href: '/treatments/lifting/ulthera' },
+      { tKey: 'liftingThermage', href: '/treatments/lifting/thermage' },
+      { tKey: 'liftingThread', href: '/treatments/lifting/thread' },
+      { tKey: 'liftingHifu', href: '/treatments/lifting/hifu' },
+      { tKey: 'liftingShrink', href: '/treatments/lifting/shrink' },
     ],
   },
   {
     group: 'treatments',
-    title: '피부케어',
+    titleKey: 'skincare',
+    titleNs: 'footer',
     href: '/treatments/skincare',
     items: [
-      { label: '물광주사', href: '/treatments/skincare/mulkwang' },
-      { label: '스킨부스터', href: '/treatments/skincare/booster' },
-      { label: '엑소좀', href: '/treatments/skincare/exosome' },
-      { label: '리쥬란', href: '/treatments/skincare/rejuran' },
-      { label: 'PRP', href: '/treatments/skincare/prp' },
+      { tKey: 'skincareMulkwang', href: '/treatments/skincare/mulkwang' },
+      { tKey: 'skincareBooster', href: '/treatments/skincare/booster' },
+      { tKey: 'skincareExosome', href: '/treatments/skincare/exosome' },
+      { tKey: 'skincareRejuran', href: '/treatments/skincare/rejuran' },
+      { tKey: 'skincarePrp', href: '/treatments/skincare/prp' },
     ],
   },
   {
     group: 'treatments',
-    title: '토닝/색소',
+    titleKey: 'toningSkin',
+    titleNs: 'footer',
     href: '/treatments/toning',
     items: [
-      { label: '피코레이저', href: '/treatments/toning/pico' },
-      { label: 'IPL 토닝', href: '/treatments/toning/ipl' },
-      { label: '색소레이저', href: '/treatments/toning/pigment' },
-      { label: '여드름관리', href: '/treatments/toning/acne' },
-      { label: '흉터치료', href: '/treatments/toning/scar' },
+      { tKey: 'toningPico', href: '/treatments/toning/pico' },
+      { tKey: 'toningIpl', href: '/treatments/toning/ipl' },
+      { tKey: 'toningPigment', href: '/treatments/toning/pigment' },
+      { tKey: 'toningAcne', href: '/treatments/toning/acne' },
+      { tKey: 'toningScar', href: '/treatments/toning/scar' },
     ],
   },
   {
     group: 'treatments',
-    title: '보톡스/필러',
+    titleKey: 'botoxFiller',
+    titleNs: 'footer',
     href: '/treatments/botox-filler',
     items: [
-      { label: '보톡스', href: '/treatments/botox-filler/botox' },
-      { label: '필러', href: '/treatments/botox-filler/filler' },
-      { label: '스킨보톡스', href: '/treatments/botox-filler/skin-botox' },
-      { label: '턱보톡스', href: '/treatments/botox-filler/jaw' },
-      { label: '코필러', href: '/treatments/botox-filler/nose' },
+      { tKey: 'botoxBotox', href: '/treatments/botox-filler/botox' },
+      { tKey: 'botoxFiller', href: '/treatments/botox-filler/filler' },
+      { tKey: 'botoxSkin', href: '/treatments/botox-filler/skin-botox' },
+      { tKey: 'botoxJaw', href: '/treatments/botox-filler/jaw' },
+      { tKey: 'botoxNose', href: '/treatments/botox-filler/nose' },
     ],
   },
+  // TODO: Event/promo names are CMS content - replace with dynamic data when CMS is ready
   {
     group: 'treatments',
-    title: '이벤트',
+    titleKey: 'events',
+    titleNs: 'footer',
     href: '/promotions',
     items: [
-      { label: '봄맞이 리프팅 특가', href: '/promotions' },
-      { label: '신규 고객 보톡스 패키지', href: '/promotions' },
-      { label: '울쎄라+써마지 콤보', href: '/promotions' },
-      { label: '이달의 피부케어 세트', href: '/promotions' },
+      { tKey: 'promoSpringLifting', href: '/promotions' },
+      { tKey: 'promoNewBotox', href: '/promotions' },
+      { tKey: 'promoUltheraCombo', href: '/promotions' },
+      { tKey: 'promoMonthlySkincare', href: '/promotions' },
     ],
     dividerAfter: true,
   },
   {
     group: 'brand',
-    title: '브랜드',
+    titleKey: 'brand',
+    titleNs: 'footer',
     href: '/brand',
     items: [
-      { label: '브랜드 철학', href: '/brand#philosophy' },
-      { label: '의료진 소개', href: '/brand#doctors' },
-      { label: '시설 안내', href: '/brand#facilities' },
-      { label: '장비 안내', href: '/brand#equipment' },
-      { label: '오시는 길', href: '/brand#location' },
+      { tKey: 'brandPhilosophy', href: '/brand#philosophy' },
+      { tKey: 'doctors', href: '/brand#doctors' },
+      { tKey: 'facilities', href: '/brand#facilities' },
+      { tKey: 'equipment', href: '/brand#equipment' },
+      { tKey: 'location', href: '/brand#location' },
     ],
     dividerAfter: true,
   },
   {
     group: 'media',
-    title: '미디어',
+    titleKey: 'media',
+    titleNs: 'footer',
     href: '/media',
     items: [
-      { label: '보도자료', href: '/media/press' },
-      { label: '영상', href: '/media/video' },
-      { label: '블로그', href: '/media/blog' },
-      { label: '공지사항', href: '/media/notice' },
+      { tKey: 'press', href: '/media/press' },
+      { tKey: 'video', href: '/media/video' },
+      { tKey: 'blog', href: '/media/blog' },
+      { tKey: 'notice', href: '/media/notice' },
     ],
   },
 ];
 
-/* Nav items with group mapping — label is a translation key under "nav" namespace */
+/* Nav items with group mapping - label is a translation key under "nav" namespace */
 const navItems = [
   { labelKey: 'beforeAfter', href: '/before-after', group: 'ba' },
   { labelKey: 'treatments', href: '/treatments', group: 'treatments' },
@@ -123,26 +145,36 @@ const navItems = [
 function MegaColumn({
   col,
   locale,
+  tMega,
+  tFooter,
+  tNav,
 }: {
-  col: (typeof allColumns)[number];
+  col: MegaColumn;
   locale: string;
+  tMega: (key: string) => string;
+  tFooter: (key: string) => string;
+  tNav: (key: string) => string;
 }) {
+  const titleTranslate =
+    col.titleNs === 'nav' ? tNav : col.titleNs === 'footer' ? tFooter : tMega;
+
   return (
     <div className="flex flex-col pr-4 lg:pr-6">
       <Link
         href={`/${locale}${col.href}`}
         className="pb-3 text-[13px] font-bold text-[#a83c44]"
       >
-        {col.title}
+        {titleTranslate(col.titleKey)}
       </Link>
       <div className="mb-2 h-px w-[120px] bg-[#d9cfc5]" />
       {col.items.map((item) => (
         <Link
-          key={item.label}
+          key={item.tKey}
           href={`/${locale}${item.href}`}
+          scroll={true}
           className="py-[5px] text-[13px] text-[#555] transition-colors hover:text-[#a83c44]"
         >
-          {item.label}
+          {tMega(item.tKey)}
         </Link>
       ))}
     </div>
@@ -155,6 +187,8 @@ export function Header() {
   const router = useRouter();
   const tNav = useTranslations('nav');
   const tCommon = useTranslations('common');
+  const tFooter = useTranslations('footer');
+  const tMega = useTranslations('megamenu');
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -334,8 +368,17 @@ export function Header() {
           >
             <div className="mx-auto flex max-w-[1440px] items-start justify-center overflow-x-auto px-8 py-9 lg:px-16">
               {(isLg ? allColumns : filteredColumns).map((col, i, arr) => (
-                <div key={col.title} className="flex shrink-0 items-start">
-                  <MegaColumn col={col} locale={currentLocale} />
+                <div
+                  key={col.titleKey + col.group}
+                  className="flex shrink-0 items-start"
+                >
+                  <MegaColumn
+                    col={col}
+                    locale={currentLocale}
+                    tMega={tMega}
+                    tFooter={tFooter}
+                    tNav={tNav}
+                  />
                   {isLg
                     ? col.dividerAfter &&
                       i < arr.length - 1 && (
@@ -394,7 +437,7 @@ export function Header() {
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="block py-2 text-[13px] text-[#706263]"
                     >
-                      {item.label}
+                      {tMega(item.tKey)}
                     </Link>
                   ))}
               </div>
@@ -437,55 +480,63 @@ export function Header() {
               <div className="overflow-hidden pl-4">
                 {allColumns
                   .filter((c) => c.group === 'treatments')
-                  .map((cat) => (
-                    <div key={cat.title}>
-                      <div className="flex items-center">
-                        <Link
-                          href={`/${currentLocale}${cat.href}`}
-                          onClick={() => setIsMobileMenuOpen(false)}
+                  .map((cat) => {
+                    const catLabel =
+                      cat.titleNs === 'footer'
+                        ? tFooter(cat.titleKey)
+                        : tMega(cat.titleKey);
+                    return (
+                      <div key={cat.titleKey}>
+                        <div className="flex items-center">
+                          <Link
+                            href={`/${currentLocale}${cat.href}`}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className={cn(
+                              'flex-1 py-2.5 text-[14px] font-bold',
+                              expandedCategory === cat.titleKey
+                                ? 'text-[#a83c44]'
+                                : 'text-[#2b2b2b]',
+                            )}
+                          >
+                            {catLabel}
+                          </Link>
+                          <button
+                            onClick={() =>
+                              setExpandedCategory(
+                                expandedCategory === cat.titleKey
+                                  ? null
+                                  : cat.titleKey,
+                              )
+                            }
+                            className="flex h-10 w-12 items-center justify-center text-[12px] text-[#706263]"
+                          >
+                            {expandedCategory === cat.titleKey ? '▾' : '▸'}
+                          </button>
+                        </div>
+                        <div
                           className={cn(
-                            'flex-1 py-2.5 text-[14px] font-bold',
-                            expandedCategory === cat.title
-                              ? 'text-[#a83c44]'
-                              : 'text-[#2b2b2b]',
+                            'grid transition-[grid-template-rows] duration-300 ease-out',
+                            expandedCategory === cat.titleKey
+                              ? 'grid-rows-[1fr]'
+                              : 'grid-rows-[0fr]',
                           )}
                         >
-                          {cat.title}
-                        </Link>
-                        <button
-                          onClick={() =>
-                            setExpandedCategory(
-                              expandedCategory === cat.title ? null : cat.title,
-                            )
-                          }
-                          className="flex h-10 w-12 items-center justify-center text-[12px] text-[#706263]"
-                        >
-                          {expandedCategory === cat.title ? '▾' : '▸'}
-                        </button>
-                      </div>
-                      <div
-                        className={cn(
-                          'grid transition-[grid-template-rows] duration-300 ease-out',
-                          expandedCategory === cat.title
-                            ? 'grid-rows-[1fr]'
-                            : 'grid-rows-[0fr]',
-                        )}
-                      >
-                        <div className="overflow-hidden pl-4">
-                          {cat.items.map((item) => (
-                            <Link
-                              key={item.href}
-                              href={`/${currentLocale}${item.href}`}
-                              onClick={() => setIsMobileMenuOpen(false)}
-                              className="block py-2 text-[13px] text-[#706263]"
-                            >
-                              {item.label}
-                            </Link>
-                          ))}
+                          <div className="overflow-hidden pl-4">
+                            {cat.items.map((item) => (
+                              <Link
+                                key={item.href}
+                                href={`/${currentLocale}${item.href}`}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="block py-2 text-[13px] text-[#706263]"
+                              >
+                                {tMega(item.tKey)}
+                              </Link>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
               </div>
             </div>
 
@@ -532,7 +583,7 @@ export function Header() {
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="block py-2 text-[13px] text-[#706263]"
                     >
-                      {item.label}
+                      {tMega(item.tKey)}
                     </Link>
                   ))}
               </div>
@@ -581,7 +632,7 @@ export function Header() {
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="block py-2 text-[13px] text-[#706263]"
                     >
-                      {item.label}
+                      {tMega(item.tKey)}
                     </Link>
                   ))}
               </div>

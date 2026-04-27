@@ -30,7 +30,8 @@ export default defineType({
     defineField({
       name: 'mainTitle',
       title: '메인 타이틀',
-      type: 'localizedString',
+      description: '줄바꿈이 필요하면 Enter를 누르세요',
+      type: 'localizedText',
     }),
     defineField({
       name: 'mainSubtitle',
@@ -78,7 +79,8 @@ export default defineType({
             defineField({
               name: 'title',
               title: '제목',
-              type: 'localizedString',
+              description: '줄바꿈이 필요하면 Enter를 누르세요',
+              type: 'localizedText',
             }),
             defineField({
               name: 'subtitle',

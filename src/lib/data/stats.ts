@@ -12,8 +12,8 @@ export type StatItem = {
 
 interface SanityStatsStrip {
   stats?: {
-    label?: string;
-    number?: string;
+    label?: Record<string, string> | string;
+    number?: number;
     unit?: string;
   }[];
 }
@@ -34,8 +34,14 @@ export async function getStats(locale: string): Promise<StatItem[]> {
 
   if (!data?.stats || data.stats.length === 0) return FALLBACK_STATS;
 
-  return data.stats.map((s) => ({
-    label: s.label || '',
-    value: `${s.number || ''}${s.unit || ''}`,
-  }));
+  return data.stats.map((s) => {
+    const label =
+      typeof s.label === 'string'
+        ? s.label
+        : s.label?.[locale] || s.label?.ko || '';
+    return {
+      label,
+      value: `${s.number?.toLocaleString() ?? ''}${s.unit || ''}`,
+    };
+  });
 }

@@ -32,7 +32,8 @@
     "startConsultation": "今すぐカウンセリングを始めましょう",
     "whichTreatmentFits": "どの施術が自分に合うのか？",
     "findRightTreatment": "お肌の状態に合った施術を専門医と一緒に確認しましょう",
-    "submit": "送信"
+    "submit": "送信",
+    "addedToEstimate": "見積もりに追加しました"
   },
   "nav": {
     "beforeAfter": "ビフォーアフター",
@@ -60,6 +61,9 @@
     "notice": "お知らせ",
     "events": "キャンペーン",
     "consultationBooking": "カウンセリング予約",
+    "clinicAddress": "ソウル市中区明洞ギル00",
+    "clinicPhone": "02-0000-0000",
+    "clinicEmail": "contact@forever-clinic.kr",
     "privacy": "プライバシーポリシー",
     "terms": "利用規約",
     "copyright": "© 2026 Forever Clinic. All rights reserved.",
@@ -153,7 +157,9 @@
     "sectionDoctors": "医療チーム",
     "sectionFacilities": "施設",
     "sectionEquipment": "機器",
-    "sectionLocation": "アクセス"
+    "sectionLocation": "アクセス",
+    "brandStoryLink": "ブランドストーリーを詳しく見る",
+    "applicableTreatments": "適用施術"
   },
   "media": {
     "press": "プレスリリース",
@@ -209,15 +215,15 @@
   },
   "home": {
     "heroTitle": "精密に設計された\n信頼のプレミアム",
-    "heroSubtitle": "Smart-Boutique ポジショニング — Forever Clinic 明洞店",
+    "heroSubtitle": "Smart-Boutiqueポジショニング - フォーエバークリニック明洞",
     "quickEntryTitle": "ご希望の施術をお選びください",
-    "tabTreatment": "施術から探す",
-    "tabConcern": "お悩みから探す",
-    "tabSituation": "シーンから探す",
+    "tabTreatment": "施術で探す",
+    "tabConcern": "悩みで探す",
+    "tabSituation": "シーンで探す",
     "promoTitle": "イベント・キャンペーン",
-    "statsExperts": "専門医療スタッフ",
+    "statsExperts": "専門医療チーム",
     "statsCases": "累計施術件数",
-    "statsSatisfaction": "患者満足度",
+    "statsSatisfaction": "顧客満足度",
     "statsEquipment": "保有機器",
     "doctorsTitle": "医療チーム紹介",
     "locationTitle": "アクセス",
@@ -234,7 +240,11 @@
     "locationSubway": "地下鉄",
     "locationHours": "診療時間",
     "locationPhone": "電話",
-    "mapPlaceholder": "地図エリア\n(Google Maps / Naver Maps)"
+    "mapPlaceholder": "地図エリア\n(Google Maps / Naver Maps)",
+    "emptyCartNote": "見積もりに追加された施術がありません",
+    "treatmentOptionalNote": "関心のある施術を選択せずに、お問い合わせ内容にご記入いただいても構いません",
+    "submitSuccess": "お問い合わせが正常に送信されました。早急にご連絡いたします。",
+    "submitting": "送信中..."
   },
   "contact": {
     "heroTitle": "ご予約・お問い合わせ",
@@ -243,7 +253,10 @@
     "address": "住所",
     "phone": "電話",
     "hours": "診療時間",
-    "mapPlaceholder": "地図エリア (Google Maps)"
+    "mapPlaceholder": "地図エリア (Google Maps)",
+    "clinicAddress": "ソウル特別市中区明洞ギル14 フォーエバービル3F",
+    "clinicPhone": "02-XXX-XXXX",
+    "clinicHours": "月〜金 10:00-19:00\n土 10:00-16:00（日・祝日休診）"
   },
   "promotions": {
     "heroTitle": "イベント & キャンペーン",
@@ -253,5 +266,45 @@
     "contactOptions": "お問い合わせ",
     "openChat": "チャット相談を開く",
     "closeChat": "チャット相談を閉じる"
+  },
+  "megamenu": {
+    "baAll": "すべて見る",
+    "baLifting": "リフティング",
+    "baSkincare": "スキンケア",
+    "baToning": "トーニング・色素",
+    "baBotox": "ボトックス・フィラー",
+    "liftingUlthera": "ウルセラリフティング",
+    "liftingThermage": "サーマジ FLX",
+    "liftingThread": "糸リフト",
+    "liftingHifu": "HIFU",
+    "liftingShrink": "シュリンク",
+    "skincareMulkwang": "水光注射",
+    "skincareBooster": "スキンブースター",
+    "skincareExosome": "エクソソーム",
+    "skincareRejuran": "リジュラン",
+    "skincarePrp": "PRP",
+    "toningPico": "ピコレーザー",
+    "toningIpl": "IPLトーニング",
+    "toningPigment": "色素レーザー",
+    "toningAcne": "ニキビ治療",
+    "toningScar": "傷跡治療",
+    "botoxBotox": "ボトックス",
+    "botoxFiller": "フィラー",
+    "botoxSkin": "スキンボトックス",
+    "botoxJaw": "エラボトックス",
+    "botoxNose": "鼻フィラー",
+    "promoSpringLifting": "春のリフティング特価",
+    "promoNewBotox": "新規ボトックスパッケージ",
+    "promoUltheraCombo": "ウルセラ+サーマジコンボ",
+    "promoMonthlySkincare": "今月のスキンケアセット",
+    "brandPhilosophy": "ブランド理念",
+    "doctors": "医療チーム紹介",
+    "facilities": "施設案内",
+    "equipment": "保有機器",
+    "location": "アクセス",
+    "press": "プレスリリース",
+    "video": "動画",
+    "blog": "ブログ",
+    "notice": "お知らせ"
   }
 }

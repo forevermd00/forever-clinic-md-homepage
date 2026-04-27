@@ -887,7 +887,7 @@ const heroContent = {
   ),
   mainSubtitle: ls(
     '강남 프리미엄 피부과 포에버 클리닉',
-    'Gangnam Premium Dermatology — Forever Clinic',
+    'Gangnam Premium Dermatology - Forever Clinic',
     '江南高端皮肤科 Forever Clinic',
     '江南プレミアム皮膚科 フォーエバークリニック'
   ),
@@ -1371,10 +1371,10 @@ async function seed() {
   for (const doc of allDocs) {
     try {
       await client.createOrReplace(doc);
-      console.log(`  [OK] ${doc._type} — ${doc._id}`);
+      console.log(`  [OK] ${doc._type} - ${doc._id}`);
       success++;
     } catch (err) {
-      console.error(`  [FAIL] ${doc._type} — ${doc._id}: ${err.message}`);
+      console.error(`  [FAIL] ${doc._type} - ${doc._id}: ${err.message}`);
       failed++;
     }
   }

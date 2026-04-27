@@ -103,7 +103,7 @@ export default async function TreatmentsHubPage({
         isEvent
       />
 
-      {/* Category Sections — alternating layout */}
+      {/* Category Sections - alternating layout */}
       {TREATMENT_CATEGORIES.map((category, index) => {
         // Event is text-left/image-right, so lifting (index 0) starts image-left/text-right
         const imagePosition = index % 2 === 0 ? 'left' : 'right';

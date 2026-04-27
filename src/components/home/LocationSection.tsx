@@ -2,7 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { ImagePlaceholder } from '@/components/common/ImagePlaceholder';
 import type { ClinicInfo } from '@/components/brand/LocationInfo';
 
-/* Fallback clinic info — used when CMS data is not provided */
+/* Fallback clinic info - used when CMS data is not provided */
 const FALLBACK_INFO_ROWS = [
   {
     key: 'locationAddress',

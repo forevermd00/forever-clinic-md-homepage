@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
-/* Treatment links — i18n keys */
+/* Treatment links - i18n keys */
 const treatmentLinkKeys = [
   { key: 'lifting', href: '/treatments/lifting' },
   { key: 'skincare', href: '/treatments/skincare' },
@@ -53,10 +53,11 @@ export function Footer({ locale = 'ko' }: FooterProps) {
               <p>FOREVER CLINIC</p>
               <p>MYEONGDONG</p>
             </div>
+            {/* TODO: Clinic info should come from CMS (clinicInfo) */}
             <div className="flex flex-col gap-0.5 text-[13px] leading-[22px] text-[#706263]">
-              <p>서울시 중구 명동길 00</p>
-              <p>02-0000-0000</p>
-              <p>contact@forever-clinic.kr</p>
+              <p>{t('clinicAddress')}</p>
+              <p>{t('clinicPhone')}</p>
+              <p>{t('clinicEmail')}</p>
             </div>
           </div>
 

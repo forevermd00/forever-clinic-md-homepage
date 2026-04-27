@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
 
 interface EquipmentItem {
@@ -20,6 +21,7 @@ export function EquipmentShowcase({
   items,
   className,
 }: EquipmentShowcaseProps) {
+  const t = useTranslations('brand');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const selected = items[selectedIndex];
 
@@ -60,7 +62,7 @@ export function EquipmentShowcase({
           {selected.treatments && (
             <div className="flex items-center gap-2">
               <span className="text-[13px] font-medium text-[#808080]">
-                적용 시술
+                {t('applicableTreatments')}
               </span>
               <span className="text-[13px] text-[#2b2b2b]">
                 {selected.treatments}

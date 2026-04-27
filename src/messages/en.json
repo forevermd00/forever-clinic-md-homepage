@@ -32,7 +32,8 @@
     "startConsultation": "Start Your Consultation Today",
     "whichTreatmentFits": "Which treatment is right for me?",
     "findRightTreatment": "Find the best treatment for your skin with our specialists",
-    "submit": "Submit"
+    "submit": "Submit",
+    "addedToEstimate": "Added to estimate"
   },
   "nav": {
     "beforeAfter": "Before & After",
@@ -60,6 +61,9 @@
     "notice": "Announcements",
     "events": "Promotions",
     "consultationBooking": "Book Consultation",
+    "clinicAddress": "00 Myeongdong-gil, Jung-gu, Seoul",
+    "clinicPhone": "02-0000-0000",
+    "clinicEmail": "contact@forever-clinic.kr",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
     "copyright": "© 2026 Forever Clinic. All rights reserved.",
@@ -91,7 +95,7 @@
     "forgotPassword": "Forgot Password?",
     "alreadyHaveAccount": "Already have an account?",
     "privacyAgree": "Privacy Policy",
-    "privacyAgreeText": " — I agree to the terms",
+    "privacyAgreeText": " - I agree to the terms",
     "marketingAgree": "I agree to receive marketing communications",
     "errorEmailRequired": "Please enter your email address.",
     "errorPasswordRequired": "Please enter your password.",
@@ -103,7 +107,7 @@
     "resetPasswordSubtitle": "Enter your email address and we'll send you a password reset link.",
     "sendVerificationEmail": "Send Reset Email",
     "emailSentTitle": "Email Sent",
-    "emailSentDescription": " — a password reset link has been sent. Please check your inbox.",
+    "emailSentDescription": " - a password reset link has been sent. Please check your inbox.",
     "openResetLink": "Open Reset Link (Demo)",
     "newPasswordTitle": "Set New Password",
     "newPasswordSubtitle": "Enter your new password (at least 8 characters).",
@@ -153,7 +157,9 @@
     "sectionDoctors": "Doctors",
     "sectionFacilities": "Facilities",
     "sectionEquipment": "Equipment",
-    "sectionLocation": "Directions"
+    "sectionLocation": "Directions",
+    "brandStoryLink": "Learn More About Our Story",
+    "applicableTreatments": "Applicable Treatments"
   },
   "media": {
     "press": "Press",
@@ -208,17 +214,17 @@
     "baSubtitle": "See real treatment results"
   },
   "home": {
-    "heroTitle": "Precision-Engineered\nTrusted Premium",
-    "heroSubtitle": "Smart-Boutique Positioning — Forever Clinic Myeongdong",
+    "heroTitle": "Precisely Designed\nPremium of Trust",
+    "heroSubtitle": "Smart-Boutique Positioning - Forever Clinic Myeongdong",
     "quickEntryTitle": "Choose Your Treatment",
     "tabTreatment": "By Treatment",
     "tabConcern": "By Concern",
     "tabSituation": "By Situation",
     "promoTitle": "Events & Promotions",
-    "statsExperts": "Expert Medical Staff",
-    "statsCases": "Total Treatments",
-    "statsSatisfaction": "Patient Satisfaction",
-    "statsEquipment": "Medical Devices",
+    "statsExperts": "Expert Physicians",
+    "statsCases": "Cumulative Cases",
+    "statsSatisfaction": "Client Satisfaction",
+    "statsEquipment": "Medical Equipment",
     "doctorsTitle": "Medical Team",
     "locationTitle": "Directions",
     "contactTitle": "Contact Us",
@@ -234,7 +240,11 @@
     "locationSubway": "Subway",
     "locationHours": "Hours",
     "locationPhone": "Phone",
-    "mapPlaceholder": "Map Area\n(Google Maps / Naver Maps)"
+    "mapPlaceholder": "Map Area\n(Google Maps / Naver Maps)",
+    "emptyCartNote": "No treatments in your estimate",
+    "treatmentOptionalNote": "You can also describe your interest in the message field instead",
+    "submitSuccess": "Your inquiry has been submitted successfully. We will contact you shortly.",
+    "submitting": "Submitting..."
   },
   "contact": {
     "heroTitle": "Reservations & Consultations",
@@ -243,7 +253,10 @@
     "address": "Address",
     "phone": "Phone",
     "hours": "Hours",
-    "mapPlaceholder": "Map Area (Google Maps)"
+    "mapPlaceholder": "Map Area (Google Maps)",
+    "clinicAddress": "14 Myeongdong-gil, Jung-gu, Seoul, Forever Building 3F",
+    "clinicPhone": "02-XXX-XXXX",
+    "clinicHours": "Mon-Fri 10:00-19:00\nSat 10:00-16:00 (Closed Sun & Holidays)"
   },
   "promotions": {
     "heroTitle": "Events & Promotions",
@@ -253,5 +266,45 @@
     "contactOptions": "Contact Options",
     "openChat": "Open chat options",
     "closeChat": "Close chat options"
+  },
+  "megamenu": {
+    "baAll": "View All",
+    "baLifting": "Lifting",
+    "baSkincare": "Skincare",
+    "baToning": "Toning & Pigment",
+    "baBotox": "Botox & Fillers",
+    "liftingUlthera": "Ulthera Lifting",
+    "liftingThermage": "Thermage FLX",
+    "liftingThread": "Thread Lifting",
+    "liftingHifu": "HIFU",
+    "liftingShrink": "Shrink",
+    "skincareMulkwang": "Skin Booster Injection",
+    "skincareBooster": "Skin Booster",
+    "skincareExosome": "Exosome",
+    "skincareRejuran": "Rejuran",
+    "skincarePrp": "PRP",
+    "toningPico": "Pico Laser",
+    "toningIpl": "IPL Toning",
+    "toningPigment": "Pigment Laser",
+    "toningAcne": "Acne Treatment",
+    "toningScar": "Scar Treatment",
+    "botoxBotox": "Botox",
+    "botoxFiller": "Filler",
+    "botoxSkin": "Skin Botox",
+    "botoxJaw": "Jaw Botox",
+    "botoxNose": "Nose Filler",
+    "promoSpringLifting": "Spring Lifting Special",
+    "promoNewBotox": "New Client Botox Package",
+    "promoUltheraCombo": "Ulthera + Thermage Combo",
+    "promoMonthlySkincare": "Monthly Skincare Set",
+    "brandPhilosophy": "Brand Philosophy",
+    "doctors": "Medical Team",
+    "facilities": "Facilities",
+    "equipment": "Equipment",
+    "location": "Directions",
+    "press": "Press",
+    "video": "Videos",
+    "blog": "Blog",
+    "notice": "Announcements"
   }
 }

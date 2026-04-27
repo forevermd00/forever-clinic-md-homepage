@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { Promotion } from '@/lib/data/promotions';
 
-/* Fallback promo data — used when CMS data is not provided */
+/* Fallback promo data - used when CMS data is not provided */
 const FALLBACK_PROMOS = [
   {
     id: '1',

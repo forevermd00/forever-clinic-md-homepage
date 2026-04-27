@@ -183,7 +183,7 @@ export function ContactFormSection() {
                   })
                 ) : (
                   <div className="px-3.5 py-4 text-center text-[13px] text-[#999]">
-                    견적에 담긴 시술이 없습니다
+                    {t('emptyCartNote')}
                   </div>
                 )}
                 <Link
@@ -194,7 +194,7 @@ export function ContactFormSection() {
                 </Link>
               </div>
               <p className="text-[11px] text-[#999]">
-                관심시술로 선택하지 않고, 문의 내용에 적어주셔도 됩니다
+                {t('treatmentOptionalNote')}
               </p>
             </div>
 
@@ -217,8 +217,7 @@ export function ContactFormSection() {
 
             {isSuccess && (
               <div className="rounded-[6px] bg-[#e8f5e9] px-4 py-3 text-center text-[14px] text-[#2e7d32]">
-                문의가 성공적으로 접수되었습니다. 빠른 시일 내에
-                연락드리겠습니다.
+                {t('submitSuccess')}
               </div>
             )}
 
@@ -229,7 +228,7 @@ export function ContactFormSection() {
                 disabled={isSubmitting}
                 className="rounded-[4px] bg-[#2b2b2b] px-12 py-4 text-[15px] font-bold text-white transition-colors hover:bg-[#1a1a1a] disabled:opacity-50"
               >
-                {isSubmitting ? '접수 중...' : tc('submit')}
+                {isSubmitting ? t('submitting') : tc('submit')}
               </button>
             </div>
           </div>

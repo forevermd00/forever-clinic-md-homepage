@@ -114,7 +114,7 @@ export default async function BrandPage({
       locale === 'ko'
         ? '명동 프리미엄 피부과 · 리프팅, 스킨케어, 토닝, 보톡스/필러 전문'
         : locale === 'en'
-          ? 'Premium dermatology clinic in Myeongdong — lifting, skincare, toning, botox & filler'
+          ? 'Premium dermatology clinic in Myeongdong - lifting, skincare, toning, botox & filler'
           : locale === 'zh'
             ? '明洞高端皮肤科 · 提升、护肤、调理、肉毒素/填充剂专业'
             : '明洞プレミアム皮膚科 · リフティング、スキンケア、トーニング、ボトックス/フィラー専門',
@@ -132,7 +132,7 @@ export default async function BrandPage({
         className="!h-[280px] !max-h-[280px]"
       />
 
-      {/* Section Tabs (sticky) — client component */}
+      {/* Section Tabs (sticky) - client component */}
       <BrandSectionNav />
 
       {/* Philosophy Section */}
@@ -150,7 +150,7 @@ export default async function BrandPage({
           </p>
         </div>
 
-        {/* Philosophy Values — dynamically rendered from CMS with fallback */}
+        {/* Philosophy Values - dynamically rendered from CMS with fallback */}
         {philosophyValues.map((value, index) => {
           const isEven = index % 2 === 0;
           const bgColor = isEven ? 'bg-white' : 'bg-[#f9f6f3]';

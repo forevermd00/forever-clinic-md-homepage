@@ -88,7 +88,7 @@ const FALLBACK_PRESS: PressArticle[] = [
   {
     slug: 'skincare-trend-2026',
     date: '2026.02.15',
-    title: '2026 피부 관리 트렌드 — 전문의 인터뷰',
+    title: '2026 피부 관리 트렌드 - 전문의 인터뷰',
     description:
       '포에버 클리닉 원장이 올해의 피부 관리 트렌드에 대해 전문 매체와 인터뷰를 진행했습니다. 엑소좀과 스킨부스터의 부상에 대해 다루었습니다.',
   },
@@ -105,14 +105,14 @@ const FALLBACK_BLOG: BlogPost[] = [
   {
     slug: 'exosome-explained',
     date: '2026.03.30',
-    title: '엑소좀 시술이란? — 원리부터 효과까지',
+    title: '엑소좀 시술이란? - 원리부터 효과까지',
     description:
       '최근 주목받고 있는 엑소좀 시술의 원리와 기대 효과, 시술 후 관리법에 대해 상세히 알려드립니다.',
   },
   {
     slug: 'lifting-comparison',
     date: '2026.03.05',
-    title: '울쎄라 vs 써마지 — 어떤 리프팅이 나에게 맞을까?',
+    title: '울쎄라 vs 써마지 - 어떤 리프팅이 나에게 맞을까?',
     description:
       '대표적인 비수술 리프팅 시술인 울쎄라와 써마지의 차이점을 비교 분석합니다. 피부 타입별 추천 시술을 확인해보세요.',
   },
@@ -126,7 +126,7 @@ const FALLBACK_VIDEOS: YoutubeVideo[] = [
   },
   {
     slug: 'thermage-review',
-    title: '써마지 FLX 시술 후기 — 실제 고객 인터뷰',
+    title: '써마지 FLX 시술 후기 - 실제 고객 인터뷰',
     views: '조회수 8,920회',
   },
   {

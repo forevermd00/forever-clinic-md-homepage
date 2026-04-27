@@ -1,4 +1,4 @@
-// TODO: i18n — apply getTranslations to page title, subtitle
+// TODO: i18n - apply getTranslations to page title, subtitle
 import type { Metadata } from 'next';
 import { ContentCard } from '@/components/media/ContentCard';
 import { Pagination } from '@/components/common/Pagination';

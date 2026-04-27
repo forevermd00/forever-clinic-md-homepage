@@ -35,7 +35,7 @@ export async function generateMetadata({
 }
 
 /* ----------------------------------------------------------------
-   Contact — Reservations & Consultations
+   Contact - Reservations & Consultations
    Hero -> Online consultation form -> Directions
    ---------------------------------------------------------------- */
 
@@ -77,7 +77,7 @@ export default async function ContactPage() {
                     {t('address')}
                   </p>
                   <p className="text-[14px] leading-[1.5] text-[#2b2b2b]">
-                    서울특별시 중구 명동길 14, 포에버빌딩 3층
+                    {t('clinicAddress')}
                   </p>
                 </div>
               </div>
@@ -87,7 +87,9 @@ export default async function ContactPage() {
                   <p className="text-[12px] font-medium text-[#d4c8bd]">
                     {t('phone')}
                   </p>
-                  <p className="text-[14px] text-[#2b2b2b]">02-XXX-XXXX</p>
+                  <p className="text-[14px] text-[#2b2b2b]">
+                    {t('clinicPhone')}
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -96,9 +98,8 @@ export default async function ContactPage() {
                   <p className="text-[12px] font-medium text-[#d4c8bd]">
                     {t('hours')}
                   </p>
-                  <p className="text-[14px] leading-[1.5] text-[#2b2b2b]">
-                    월~금 10:00-19:00
-                    <br />토 10:00-16:00 (일·공휴일 휴진)
+                  <p className="text-[14px] leading-[1.5] whitespace-pre-line text-[#2b2b2b]">
+                    {t('clinicHours')}
                   </p>
                 </div>
               </div>

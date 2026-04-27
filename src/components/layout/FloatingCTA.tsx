@@ -74,7 +74,7 @@ export function FloatingCTA() {
         ))}
       </div>
 
-      {/* Main FAB button — click to toggle */}
+      {/* Main FAB button - click to toggle */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(

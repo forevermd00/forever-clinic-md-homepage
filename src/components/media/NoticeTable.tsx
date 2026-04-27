@@ -44,7 +44,7 @@ async function NoticeTable({ notices, locale }: NoticeTableProps) {
             key={notice.id}
             className="flex min-h-[52px] items-center border-b border-[#efe5d9] px-4"
           >
-            {/* Number — desktop only */}
+            {/* Number - desktop only */}
             <div className="hidden w-[80px] text-center text-[14px] text-[#999] md:block">
               {notice.id}
             </div>
@@ -64,7 +64,7 @@ async function NoticeTable({ notices, locale }: NoticeTableProps) {
               {notice.date}
             </div>
 
-            {/* Views — desktop only */}
+            {/* Views - desktop only */}
             <div className="hidden w-[100px] text-center text-[13px] text-[#999] md:block">
               {formatViews(notice.views)}
             </div>

@@ -17,9 +17,30 @@ export function getMedicalBusinessJsonLd(locale: string) {
     email: 'contact@forever-clinic.kr',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: '명동길 14, 포에버빌딩 3층',
-      addressLocality: '중구',
-      addressRegion: '서울특별시',
+      streetAddress:
+        locale === 'ko'
+          ? '명동길 14, 포에버빌딩 3층'
+          : locale === 'zh'
+            ? '明洞路14号 永恒大厦3层'
+            : locale === 'ja'
+              ? '明洞ギル14、フォーエバービル3階'
+              : '14 Myeongdong-gil, Forever Bldg. 3F',
+      addressLocality:
+        locale === 'ko'
+          ? '중구'
+          : locale === 'zh'
+            ? '中区'
+            : locale === 'ja'
+              ? '中区'
+              : 'Jung-gu',
+      addressRegion:
+        locale === 'ko'
+          ? '서울특별시'
+          : locale === 'zh'
+            ? '首尔特别市'
+            : locale === 'ja'
+              ? 'ソウル特別市'
+              : 'Seoul',
       postalCode: '04536',
       addressCountry: 'KR',
     },

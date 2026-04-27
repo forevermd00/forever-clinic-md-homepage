@@ -105,7 +105,7 @@ export const clinicInfoQuery = `
 
 // === QuickEntry ===
 export const quickEntryCardsQuery = `
-  *[_type == "quickEntryCard" && tab == $tab] | order(sortOrder asc) {
+  *[_type == "quickEntryCard" && tab->key == $tab] | order(sortOrder asc) {
     _id, "title": title[$locale], "description": description[$locale],
     icon, linkUrl
   }

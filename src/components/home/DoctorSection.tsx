@@ -2,7 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { ImagePlaceholder } from '@/components/common/ImagePlaceholder';
 import type { Doctor } from '@/components/brand/DoctorCard';
 
-/* Fallback doctor data — used when CMS data is not provided */
+/* Fallback doctor data - used when CMS data is not provided */
 const FALLBACK_DOCTORS: Doctor[] = [
   {
     name: '김포에버 원장',
@@ -43,7 +43,7 @@ export async function DoctorSection({ doctors }: DoctorSectionProps = {}) {
           <h2 className="text-[28px] font-bold">{t('doctorsTitle')}</h2>
         </div>
 
-        {/* Doctor cards — fixed width, wrap */}
+        {/* Doctor cards - fixed width, wrap */}
         <div className="flex flex-wrap justify-center gap-6">
           {(doctors ?? FALLBACK_DOCTORS).map((doctor) => (
             <div

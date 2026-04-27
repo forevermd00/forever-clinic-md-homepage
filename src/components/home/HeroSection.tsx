@@ -22,7 +22,7 @@ export async function HeroSection({ hero }: HeroSectionProps = {}) {
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/30" />
 
-      {/* Content — centered */}
+      {/* Content - centered */}
       <div className="relative z-10 flex flex-col items-center px-6 text-center">
         <h1 className="text-[32px] leading-[1.3] font-bold whitespace-pre-line text-white md:text-[40px] md:leading-[52px] lg:text-[48px] lg:leading-[62px]">
           {title}
