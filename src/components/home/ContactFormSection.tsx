@@ -25,6 +25,28 @@ export function ContactFormSection() {
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleSubmit = async () => {
+    if (isSubmitting || !name || !phone) return;
+    setIsSubmitting(true);
+    try {
+      // TODO: Resend 이메일 발송 API 연동 예정
+      // const treatments = activeCartItems
+      //   .filter((i) => checkedIds.has(i.id))
+      //   .map((i) => `${i.treatmentName} (${i.packageLabel} × ${i.quantity})`);
+      // await fetch('/api/contact', { method: 'POST', body: JSON.stringify({ name, phone, treatments, message }) });
+
+      setIsSuccess(true);
+      setName('');
+      setPhone('');
+      setMessage('');
+      setCheckedIds(new Set());
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const toggleCheck = (id: string) => {
     setCheckedIds((prev) => {
@@ -193,12 +215,21 @@ export function ContactFormSection() {
               {t('formOptionalNote')}
             </p>
 
+            {isSuccess && (
+              <div className="rounded-[6px] bg-[#e8f5e9] px-4 py-3 text-center text-[14px] text-[#2e7d32]">
+                문의가 성공적으로 접수되었습니다. 빠른 시일 내에
+                연락드리겠습니다.
+              </div>
+            )}
+
             <div className="flex justify-center">
               <button
                 type="button"
-                className="rounded-[4px] bg-[#2b2b2b] px-12 py-4 text-[15px] font-bold text-white transition-colors hover:bg-[#1a1a1a]"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="rounded-[4px] bg-[#2b2b2b] px-12 py-4 text-[15px] font-bold text-white transition-colors hover:bg-[#1a1a1a] disabled:opacity-50"
               >
-                {tc('submit')}
+                {isSubmitting ? '접수 중...' : tc('submit')}
               </button>
             </div>
           </div>

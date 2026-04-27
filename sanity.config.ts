@@ -121,6 +121,9 @@ export default defineConfig({
                           .schemaType('statsStrip')
                           .documentId('forever-myeongdong-stats'),
                       ),
+                    S.documentTypeListItem('quickEntryTab').title(
+                      '빠른 탐색 탭',
+                    ),
                     S.documentTypeListItem('quickEntryCard').title(
                       '빠른 탐색 카드',
                     ),
@@ -128,7 +131,6 @@ export default defineConfig({
                   ]),
               ),
             S.divider(),
-            S.documentTypeListItem('contactInquiry').title('상담 문의 내역'),
           ]),
     }),
     visionTool(),

@@ -2,8 +2,9 @@ import { notFound } from 'next/navigation';
 import { ArticleDetail } from '@/components/media/ArticleDetail';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getArticleJsonLd } from '@/lib/seo/jsonld';
+import { getPressDetail } from '@/lib/data/media';
 
-const articles = [
+const FALLBACK_ARTICLES = [
   {
     slug: 'ulthera-award-2026',
     title: '포에버 클리닉 명동, 울쎄라 공식 인증 클리닉 선정',
@@ -30,12 +31,40 @@ export default async function PressDetailPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const index = articles.findIndex((a) => a.slug === slug);
+
+  // Try CMS first
+  const cmsResult = await getPressDetail(slug, locale);
+  if (cmsResult) {
+    const baseUrl = 'https://forever-clinic-myeongdong.com';
+    return (
+      <>
+        <JsonLd
+          data={getArticleJsonLd({
+            title: cmsResult.article.title,
+            date: cmsResult.article.date,
+            description: cmsResult.article.content.slice(0, 160),
+            url: `${baseUrl}/${locale}/media/press/${cmsResult.article.slug}`,
+          })}
+        />
+        <ArticleDetail
+          article={cmsResult.article}
+          prevArticle={cmsResult.prevArticle}
+          nextArticle={cmsResult.nextArticle}
+          basePath={`/${locale}/media/press`}
+          locale={locale}
+        />
+      </>
+    );
+  }
+
+  // Fallback to hardcoded data
+  const index = FALLBACK_ARTICLES.findIndex((a) => a.slug === slug);
   if (index === -1) notFound();
 
-  const article = articles[index];
-  const prevArticle = index < articles.length - 1 ? articles[index + 1] : null;
-  const nextArticle = index > 0 ? articles[index - 1] : null;
+  const article = FALLBACK_ARTICLES[index];
+  const prevArticle =
+    index < FALLBACK_ARTICLES.length - 1 ? FALLBACK_ARTICLES[index + 1] : null;
+  const nextArticle = index > 0 ? FALLBACK_ARTICLES[index - 1] : null;
 
   const baseUrl = 'https://forever-clinic-myeongdong.com';
 

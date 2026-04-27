@@ -5,7 +5,10 @@ import { getTranslations } from 'next-intl/server';
 import {
   TREATMENT_CATEGORIES,
   getTreatmentBySlug,
+  type Treatment,
+  type TreatmentCategory,
 } from '@/components/treatments/treatmentData';
+import { getTreatmentDetail } from '@/lib/data/treatments';
 import { ImagePlaceholder } from '@/components/common/ImagePlaceholder';
 import { AddToCartButton } from '@/components/treatments/AddToCartButton';
 import { JsonLd } from '@/components/seo/JsonLd';
@@ -15,13 +18,50 @@ import {
 } from '@/lib/seo/jsonld';
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function mapCmsTreatment(
+  raw: any,
+  locale: string,
+  categorySlug: string,
+): { category: TreatmentCategory; treatment: Treatment } | undefined {
+  if (!raw) return undefined;
+  const categoryMeta = TREATMENT_CATEGORIES.find(
+    (c) => c.slug === categorySlug,
+  );
+  if (!categoryMeta) return undefined;
+
+  const name = raw.name?.[locale] || raw.name?.ko || '';
+  const tagline = raw.tagline?.[locale] || raw.tagline?.ko || '';
+  const firstPrice = raw.priceOptions?.[0];
+
+  const treatment: Treatment = {
+    name,
+    slug: raw.slug?.current || '',
+    category: categorySlug,
+    price: firstPrice ? `₩${firstPrice.price?.toLocaleString()}~` : '',
+    priceNumeric: firstPrice?.price || 0,
+    hasEvent: raw.isEvent || false,
+    description: tagline,
+    duration: raw.treatmentTime || '',
+    anesthesia: raw.anesthesia?.[locale] || raw.anesthesia?.ko || '',
+    recovery: raw.downtime || '',
+    recommended: raw.duration || '',
+  };
+
+  return { category: categoryMeta, treatment };
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ locale: string; category: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, category: categorySlug, slug } = await params;
-  const result = getTreatmentBySlug(categorySlug, slug);
+
+  const cmsData = await getTreatmentDetail(slug, locale);
+  const cmsResult = mapCmsTreatment(cmsData, locale, categorySlug);
+  const result = cmsResult ?? getTreatmentBySlug(categorySlug, slug);
   if (!result) return {};
 
   const { treatment } = result;
@@ -62,7 +102,10 @@ export default async function TreatmentDetailPage({
   params: Promise<{ locale: string; category: string; slug: string }>;
 }) {
   const { locale, category: categorySlug, slug } = await params;
-  const result = getTreatmentBySlug(categorySlug, slug);
+
+  const cmsData = await getTreatmentDetail(slug, locale);
+  const cmsResult = mapCmsTreatment(cmsData, locale, categorySlug);
+  const result = cmsResult ?? getTreatmentBySlug(categorySlug, slug);
 
   if (!result) {
     notFound();

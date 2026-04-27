@@ -73,13 +73,13 @@ export const heroContentQuery = `
   *[_type == "heroContent"][0] {
     mainVideo, mainFallbackImage,
     "mainTitle": mainTitle[$locale], "mainSubtitle": mainSubtitle[$locale],
-    "pageHeroes": pageHeroes[] { pageKey, "title": title[$locale], "subtitle": subtitle[$locale] }
+    "pageHeroes": pageHeroes[] { pageKey, "title": title[$locale], "subtitle": subtitle[$locale], heroImage }
   }
 `;
 
 export const heroContentByPageQuery = `
   *[_type == "heroContent"][0].pageHeroes[pageKey == $pageKey][0] {
-    "title": title[$locale], "subtitle": subtitle[$locale]
+    "title": title[$locale], "subtitle": subtitle[$locale], heroImage
   }
 `;
 
@@ -136,11 +136,44 @@ export const noticesQuery = `
   }
 `;
 
+// === Media Detail ===
+export const pressArticleDetailQuery = `
+  *[_type == "pressArticle" && _id == $slug][0] {
+    _id, "title": title[$locale], source, url, thumbnail, publishDate,
+    "content": content[$locale],
+    "prevArticle": *[_type == "pressArticle" && publishDate > ^.publishDate] | order(publishDate asc)[0] { _id, "title": title[$locale] },
+    "nextArticle": *[_type == "pressArticle" && publishDate < ^.publishDate] | order(publishDate desc)[0] { _id, "title": title[$locale] }
+  }
+`;
+
+export const blogPostDetailQuery = `
+  *[_type == "blogPost" && slug.current == $slug][0] {
+    _id, "title": title[$locale], "slug": slug.current, thumbnail, category, publishDate,
+    "content": content[$locale],
+    "prevArticle": *[_type == "blogPost" && publishDate > ^.publishDate] | order(publishDate asc)[0] { "slug": slug.current, "title": title[$locale] },
+    "nextArticle": *[_type == "blogPost" && publishDate < ^.publishDate] | order(publishDate desc)[0] { "slug": slug.current, "title": title[$locale] }
+  }
+`;
+
+export const noticeDetailQuery = `
+  *[_type == "notice" && _id == $slug][0] {
+    _id, "title": title[$locale], publishDate, isPinned,
+    "content": content[$locale],
+    "prevArticle": *[_type == "notice" && (isPinned == true && ^.isPinned == false) || (isPinned == ^.isPinned && publishDate > ^.publishDate)] | order(isPinned desc, publishDate asc)[0] { _id, "title": title[$locale] },
+    "nextArticle": *[_type == "notice" && (isPinned == false && ^.isPinned == true) || (isPinned == ^.isPinned && publishDate < ^.publishDate)] | order(isPinned desc, publishDate desc)[0] { _id, "title": title[$locale] }
+  }
+`;
+
 // === Singletons ===
 export const brandPhilosophyQuery = `
   *[_type == "brandPhilosophy"][0] {
     "title": title[$locale], "subtitle": subtitle[$locale],
-    backgroundImage, "content": content[$locale]
+    backgroundImage, "content": content[$locale],
+    "values": values[] {
+      _key, titleKo, titleEn,
+      "description": description[$locale],
+      image
+    }
   }
 `;
 

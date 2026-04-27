@@ -13,6 +13,13 @@ import {
   ogLocales,
   siteNames,
 } from '@/lib/seo/keywords';
+import { getHeroContent } from '@/lib/data/hero';
+import { getQuickEntryCards } from '@/lib/data/quickEntry';
+import { getPromotions } from '@/lib/data/promotions';
+import { getBACases } from '@/lib/data/ba';
+import { getStats } from '@/lib/data/stats';
+import { getDoctors } from '@/lib/data/doctors';
+import { getClinicInfo } from '@/lib/data/clinic';
 
 export async function generateMetadata({
   params,
@@ -40,15 +47,44 @@ export default async function HomePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+
+  const [
+    hero,
+    qeTreatment,
+    qeConcern,
+    qeSituation,
+    promotions,
+    baCases,
+    stats,
+    doctors,
+    clinicInfo,
+  ] = await Promise.all([
+    getHeroContent(locale),
+    getQuickEntryCards('treatment', locale),
+    getQuickEntryCards('concern', locale),
+    getQuickEntryCards('situation', locale),
+    getPromotions(locale),
+    getBACases(locale),
+    getStats(locale),
+    getDoctors(locale),
+    getClinicInfo(locale),
+  ]);
+
+  const cardsByTab = {
+    treatment: qeTreatment,
+    concern: qeConcern,
+    situation: qeSituation,
+  };
+
   return (
     <>
-      <HeroSection />
-      <QuickEntrySection />
-      <PromoSection locale={locale} />
-      <BAPreviewSection />
-      <StatsStripSection />
-      <DoctorSection />
-      <LocationSection />
+      <HeroSection hero={hero} />
+      <QuickEntrySection cardsByTab={cardsByTab} />
+      <PromoSection locale={locale} promotions={promotions} />
+      <BAPreviewSection cases={baCases} />
+      <StatsStripSection stats={stats} />
+      <DoctorSection doctors={doctors} />
+      <LocationSection clinicInfo={clinicInfo} />
       <ContactFormSection />
     </>
   );

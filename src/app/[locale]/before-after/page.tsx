@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
 import { BAGrid } from '@/components/ba/BAGrid';
 import { type BACase } from '@/components/ba/BACard';
+import { getBACases } from '@/lib/data/ba';
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
 
 const titles: Record<string, string> = {
@@ -37,7 +38,7 @@ export async function generateMetadata({
   };
 }
 
-const DUMMY_BA_CASES: BACase[] = [
+const FALLBACK_BA_CASES: BACase[] = [
   {
     id: '1',
     treatmentName: '울쎄라 리프팅',
@@ -87,6 +88,19 @@ const DUMMY_BA_CASES: BACase[] = [
   },
 ];
 
+function mapCmsCases(
+  cmsCases: Awaited<ReturnType<typeof getBACases>>,
+): BACase[] {
+  return cmsCases.map((c) => ({
+    id: c._id,
+    treatmentName: c.treatment?.name ?? '',
+    sessionCount: c.sessions ? parseInt(c.sessions, 10) || 0 : 0,
+    category: c.treatment?.category ?? '',
+    beforeImage: c.beforeImage,
+    afterImage: c.afterImage,
+  }));
+}
+
 export default async function BeforeAfterPage({
   params,
   searchParams,
@@ -100,6 +114,9 @@ export default async function BeforeAfterPage({
   const activeCategory = cat || 'all';
   const t = await getTranslations('ba');
 
+  const cmsCases = await getBACases(locale, activeCategory);
+  const cases = cmsCases.length > 0 ? mapCmsCases(cmsCases) : FALLBACK_BA_CASES;
+
   return (
     <>
       <HeroBanner
@@ -110,7 +127,7 @@ export default async function BeforeAfterPage({
         className="!h-[280px] !max-h-[280px]"
       />
       <BAGrid
-        cases={DUMMY_BA_CASES}
+        cases={cases}
         locale={locale}
         currentPage={currentPage}
         activeCategory={activeCategory}

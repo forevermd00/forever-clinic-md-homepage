@@ -789,6 +789,52 @@ const brandPhilosophy = {
     'Forever Clinic基于最新医疗技术和丰富的临床经验，为每位患者提供优化的定制治疗方案。我们追求自然之美，以安全有效的治疗将患者满意度放在首位。',
     'フォーエバークリニックは最新の医療技術と豊富な臨床経験を基に、患者様お一人おひとりに最適化されたオーダーメイド施術を提供します。自然な美しさを追求し、安全で効果的な施術でお客様の満足を最優先にします。'
   ),
+  values: [
+    {
+      _key: 'honesty',
+      titleKo: '정직',
+      titleEn: 'Honesty',
+      description: lt(
+        '투명한 시술 정보 공개와 정량 기준 준수로 환자와의 신뢰를 구축합니다',
+        'We build trust with patients through transparent treatment information and adherence to quantitative standards',
+        '通过透明的治疗信息公开和遵守定量标准来建立与患者的信任',
+        '透明な施術情報の公開と定量基準の遵守で患者様との信頼を構築します'
+      ),
+    },
+    {
+      _key: 'precision',
+      titleKo: '정교',
+      titleEn: 'Precision',
+      description: lt(
+        '밀리미터 단위의 정밀한 시술 설계로 자연스러운 결과를 추구합니다',
+        'We pursue natural results through millimeter-precise treatment planning',
+        '通过毫米级精密治疗设计追求自然的效果',
+        'ミリ単位の精密な施術設計で自然な結果を追求します'
+      ),
+    },
+    {
+      _key: 'expertise',
+      titleKo: '전문',
+      titleEn: 'Expertise',
+      description: lt(
+        '피부과 전문의의 깊은 학술 역량과 풍부한 임상 경험이 뒷받침됩니다',
+        'Backed by deep academic expertise and extensive clinical experience of dermatology specialists',
+        '以皮肤科专家的深厚学术能力和丰富临床经验为后盾',
+        '皮膚科専門医の深い学術的力量と豊富な臨床経験が裏付けとなります'
+      ),
+    },
+    {
+      _key: 'dignity',
+      titleKo: '존엄',
+      titleEn: 'Dignity',
+      description: lt(
+        '환자 한 분 한 분의 고유한 아름다움을 존중하는 시술 철학입니다',
+        'A treatment philosophy that respects the unique beauty of each patient',
+        '尊重每位患者独特之美的治疗理念',
+        '患者様お一人おひとりの固有の美しさを尊重する施術哲学です'
+      ),
+    },
+  ],
 };
 
 // ── Stats Strip ─────────────────────────────────────────────────────────────
@@ -849,9 +895,9 @@ const heroContent = {
     {
       _type: 'object',
       _key: k(),
-      pageKey: 'about',
-      title: ls('포에버 클리닉 소개', 'About Forever Clinic', '关于Forever Clinic', 'フォーエバークリニック紹介'),
-      subtitle: ls('15년 경력의 피부과 전문의 팀', 'A team of dermatologists with 15 years of experience', '15年经验的皮肤科专家团队', '15年キャリアの皮膚科専門医チーム'),
+      pageKey: 'before-after',
+      title: ls('Before & After', 'Before & After', 'Before & After', 'Before & After'),
+      subtitle: ls('실제 시술 전후 비교 사진', 'Real treatment before & after photos', '真实治疗前后对比照片', '実際の施術前後の比較写真'),
     },
     {
       _type: 'object',
@@ -863,9 +909,58 @@ const heroContent = {
     {
       _type: 'object',
       _key: k(),
+      pageKey: 'brand',
+      title: ls('브랜드 철학', 'Brand Philosophy', '品牌理念', 'ブランド哲学'),
+      subtitle: ls('영원한 아름다움을 추구하는 철학', 'Our philosophy of pursuing timeless beauty', '追求永恒之美的理念', '永遠の美しさを追求する哲学'),
+    },
+    {
+      _type: 'object',
+      _key: k(),
+      pageKey: 'promotions',
+      title: ls('프로모션', 'Promotions', '促销活动', 'プロモーション'),
+      subtitle: ls('지금 진행 중인 특별 이벤트', 'Current special events', '正在进行的特别活动', '現在開催中の特別イベント'),
+    },
+    {
+      _type: 'object',
+      _key: k(),
+      pageKey: 'press',
+      title: ls('보도자료', 'Press', '新闻报道', 'プレスリリース'),
+      subtitle: ls('미디어에 소개된 포에버 클리닉', 'Forever Clinic in the media', '媒体报道的Forever Clinic', 'メディアに紹介されたフォーエバークリニック'),
+    },
+    {
+      _type: 'object',
+      _key: k(),
+      pageKey: 'video',
+      title: ls('영상 콘텐츠', 'Video', '视频内容', '動画コンテンツ'),
+      subtitle: ls('시술 영상과 전문의 인터뷰', 'Treatment videos and specialist interviews', '治疗视频和专家访谈', '施術動画と専門医インタビュー'),
+    },
+    {
+      _type: 'object',
+      _key: k(),
+      pageKey: 'blog',
+      title: ls('블로그', 'Blog', '博客', 'ブログ'),
+      subtitle: ls('피부 건강을 위한 전문 정보', 'Expert information for skin health', '关于皮肤健康的专业信息', '肌の健康のための専門情報'),
+    },
+    {
+      _type: 'object',
+      _key: k(),
+      pageKey: 'notice',
+      title: ls('공지사항', 'Notice', '公告', 'お知らせ'),
+      subtitle: ls('클리닉 소식과 안내', 'Clinic news and announcements', '诊所新闻和公告', 'クリニックのニュースとお知らせ'),
+    },
+    {
+      _type: 'object',
+      _key: k(),
+      pageKey: 'estimate',
+      title: ls('견적', 'Estimate', '报价', 'お見積り'),
+      subtitle: ls('맞춤 시술 견적을 확인하세요', 'Check your customized treatment estimate', '查看定制化治疗报价', 'オーダーメイド施術のお見積りをご確認ください'),
+    },
+    {
+      _type: 'object',
+      _key: k(),
       pageKey: 'contact',
-      title: ls('오시는 길', 'Contact & Location', '联系方式', 'アクセス'),
-      subtitle: ls('강남역 3번 출구 도보 5분', '5 min walk from Gangnam Station Exit 3', '江南站3号出口步行5分钟', '江南駅3番出口から徒歩5分'),
+      title: ls('예약/상담', 'Contact', '预约/咨询', '予約/相談'),
+      subtitle: ls('편하게 상담 문의해 주세요', 'Feel free to contact us', '请随时咨询我们', 'お気軽にご相談ください'),
     },
   ],
 };

@@ -8,11 +8,16 @@ import { cn } from '@/lib/utils/cn';
 
 const TAB_IDS = ['treatment', 'concern', 'situation'] as const;
 
-/* Card content is CMS-like dummy data — not translated */
-const CARDS_BY_TAB: Record<
-  string,
-  { id: string; title: string; description: string; image: string }[]
-> = {
+type QuickEntryCard = {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  linkUrl?: string;
+};
+
+/* Fallback card content — used when CMS data is not provided */
+const FALLBACK_CARDS_BY_TAB: Record<string, QuickEntryCard[]> = {
   treatment: [
     {
       id: 't1',
@@ -99,12 +104,17 @@ const TAB_KEYS: Record<string, string> = {
   situation: 'tabSituation',
 };
 
-export function QuickEntrySection() {
+interface QuickEntrySectionProps {
+  cardsByTab?: Record<string, QuickEntryCard[]>;
+}
+
+export function QuickEntrySection({ cardsByTab }: QuickEntrySectionProps = {}) {
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'ko';
   const t = useTranslations('home');
   const [activeTab, setActiveTab] = useState('treatment');
-  const cards = CARDS_BY_TAB[activeTab];
+  const allCards = cardsByTab ?? FALLBACK_CARDS_BY_TAB;
+  const cards = allCards[activeTab] ?? [];
 
   return (
     <section className="bg-[#faf8f5]">
@@ -136,7 +146,7 @@ export function QuickEntrySection() {
           {cards.map((card) => (
             <Link
               key={card.id}
-              href={`/${locale}/treatments`}
+              href={`/${locale}${card.linkUrl || '/treatments'}`}
               className="w-[270px] overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)] transition-shadow hover:drop-shadow-[0_4px_8px_rgba(0,0,0,0.12)]"
             >
               {/* Image */}

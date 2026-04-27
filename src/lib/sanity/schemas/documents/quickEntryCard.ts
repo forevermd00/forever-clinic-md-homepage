@@ -5,16 +5,11 @@ export default defineType({
   title: '빠른 탐색 카드',
   type: 'document',
   preview: {
-    select: { title: 'title.ko', subtitle: 'tab' },
-    prepare({ title, subtitle }) {
-      const tabLabels: Record<string, string> = {
-        concern: '고민별',
-        situation: '상황별',
-        treatment: '시술별',
-      };
+    select: { title: 'title.ko', tabLabel: 'tab.label.ko' },
+    prepare({ title, tabLabel }) {
       return {
         title: title || '(제목 미입력)',
-        subtitle: tabLabels[subtitle] || subtitle,
+        subtitle: tabLabel || '',
       };
     },
   },
@@ -22,14 +17,10 @@ export default defineType({
     defineField({
       name: 'tab',
       title: '탭 분류',
-      type: 'string',
-      options: {
-        list: [
-          { title: '고민별', value: 'concern' },
-          { title: '상황별', value: 'situation' },
-          { title: '시술별', value: 'treatment' },
-        ],
-      },
+      description: '이 카드가 속하는 탭',
+      type: 'reference',
+      to: [{ type: 'quickEntryTab' }],
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: 'title',
@@ -43,7 +34,7 @@ export default defineType({
     }),
     defineField({
       name: 'icon',
-      title: '아이콘',
+      title: '아이콘/이미지',
       type: 'image',
     }),
     defineField({
@@ -55,6 +46,7 @@ export default defineType({
     defineField({
       name: 'linkedTreatments',
       title: '연결 시술',
+      description: '이 카드와 연결된 시술들',
       type: 'array',
       of: [
         defineArrayMember({

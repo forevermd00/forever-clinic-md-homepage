@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
+import type { Promotion } from '@/lib/data/promotions';
 
-/* Promo items are CMS content — not translated */
-const PROMOS = [
+/* Fallback promo data — used when CMS data is not provided */
+const FALLBACK_PROMOS = [
   {
-    id: 1,
+    id: '1',
     badge: 'EVENT',
     title: '울쎄라 리프팅 3회 패키지',
     description: '봄맞이 탄력 케어 특별 프로모션',
@@ -14,7 +15,7 @@ const PROMOS = [
     image: '/images/home/promo-1.png',
   },
   {
-    id: 2,
+    id: '2',
     badge: 'EVENT',
     title: '피코토닝 10회 패키지',
     description: '색소·잡티 집중 개선 이벤트',
@@ -24,7 +25,7 @@ const PROMOS = [
     image: '/images/home/promo-2.png',
   },
   {
-    id: 3,
+    id: '3',
     badge: 'EVENT',
     title: '리쥬란 힐러 + 아쿠아필',
     description: '수분·재생 복합 케어 할인',
@@ -35,7 +36,15 @@ const PROMOS = [
   },
 ];
 
-export async function PromoSection({ locale = 'ko' }: { locale?: string }) {
+interface PromoSectionProps {
+  locale?: string;
+  promotions?: Promotion[];
+}
+
+export async function PromoSection({
+  locale = 'ko',
+  promotions,
+}: PromoSectionProps) {
   const t = await getTranslations('home');
   const tc = await getTranslations('common');
 
@@ -47,17 +56,35 @@ export async function PromoSection({ locale = 'ko' }: { locale?: string }) {
         </h2>
 
         <div className="flex w-full flex-wrap justify-center gap-6">
-          {PROMOS.map((promo) => (
+          {(promotions
+            ? promotions.map((p) => ({
+                id: p.id,
+                badge: p.badge,
+                title: p.title,
+                description: p.description,
+                date: p.date,
+                originalPrice: p.originalPrice,
+                salePrice: p.discountedPrice,
+                image: p.image?.src,
+              }))
+            : FALLBACK_PROMOS
+          ).map((promo) => (
             <div
               key={promo.id}
               className="w-[370px] overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)]"
             >
               <div className="relative h-[198px] overflow-hidden">
-                <img
-                  src={promo.image}
-                  alt={promo.title}
-                  className="h-full w-full object-cover"
-                />
+                {promo.image ? (
+                  <img
+                    src={promo.image}
+                    alt={promo.title}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-[#efe5d9] text-[14px] text-[#706263]">
+                    {promo.title}
+                  </div>
+                )}
                 <span className="absolute top-3 left-3 rounded-[4px] bg-[#a83c44] px-2 py-1 text-[11px] font-bold text-white">
                   {promo.badge}
                 </span>
@@ -71,9 +98,11 @@ export async function PromoSection({ locale = 'ko' }: { locale?: string }) {
                 </p>
                 <p className="text-[11px] text-[#999]">{promo.date}</p>
                 <div className="flex gap-2">
-                  <span className="text-[13px] text-[#999] line-through">
-                    {promo.originalPrice}
-                  </span>
+                  {promo.originalPrice && (
+                    <span className="text-[13px] text-[#999] line-through">
+                      {promo.originalPrice}
+                    </span>
+                  )}
                   <span className="text-[14px] font-bold text-[#a83c44]">
                     {promo.salePrice}
                   </span>

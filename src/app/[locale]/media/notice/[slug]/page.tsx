@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation';
 import { ArticleDetail } from '@/components/media/ArticleDetail';
+import { getNoticeDetail } from '@/lib/data/media';
 
-const notices = [
+const FALLBACK_NOTICES = [
   {
     slug: 'chuseok-hours',
     title: '2025년 추석 연휴 진료 안내',
@@ -52,12 +53,29 @@ export default async function NoticeDetailPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const index = notices.findIndex((n) => n.slug === slug);
+
+  // Try CMS first
+  const cmsResult = await getNoticeDetail(slug, locale);
+  if (cmsResult) {
+    return (
+      <ArticleDetail
+        article={cmsResult.article}
+        prevArticle={cmsResult.prevArticle}
+        nextArticle={cmsResult.nextArticle}
+        basePath={`/${locale}/media/notice`}
+        locale={locale}
+      />
+    );
+  }
+
+  // Fallback to hardcoded data
+  const index = FALLBACK_NOTICES.findIndex((n) => n.slug === slug);
   if (index === -1) notFound();
 
-  const article = notices[index];
-  const prevArticle = index < notices.length - 1 ? notices[index + 1] : null;
-  const nextArticle = index > 0 ? notices[index - 1] : null;
+  const article = FALLBACK_NOTICES[index];
+  const prevArticle =
+    index < FALLBACK_NOTICES.length - 1 ? FALLBACK_NOTICES[index + 1] : null;
+  const nextArticle = index > 0 ? FALLBACK_NOTICES[index - 1] : null;
 
   return (
     <ArticleDetail

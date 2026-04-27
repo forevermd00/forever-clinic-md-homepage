@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { cn } from '@/lib/utils/cn';
 import { ImagePlaceholder } from '@/components/common/ImagePlaceholder';
+import type { BACase } from '@/lib/data/ba';
 
 const FILTER_KEYS = [
   { id: 'all', key: 'filterAll' },
@@ -15,14 +16,18 @@ const FILTER_KEYS = [
   { id: 'botox', key: 'filterBotox' },
 ] as const;
 
-/* BA card content is CMS data — not translated */
-const BA_CARDS = [
+/* Fallback BA cards — used when CMS data is not provided */
+const FALLBACK_BA_CARDS = [
   { id: 1, treatment: '울쎄라 리프팅', sessions: '3회 시술' },
   { id: 2, treatment: '피코레이저 토닝', sessions: '5회 시술' },
   { id: 3, treatment: '보톡스 턱라인', sessions: '1회 시술' },
 ];
 
-export function BAPreviewSection() {
+interface BAPreviewSectionProps {
+  cases?: BACase[];
+}
+
+export function BAPreviewSection({ cases }: BAPreviewSectionProps = {}) {
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'ko';
   const t = useTranslations('ba');
@@ -54,34 +59,73 @@ export function BAPreviewSection() {
 
         {/* Cards */}
         <div className="flex flex-wrap justify-center gap-5">
-          {BA_CARDS.map((card) => (
-            <div
-              key={card.id}
-              className="w-[311px] overflow-hidden rounded-[8px] border border-[#efe5d9] drop-shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
-            >
-              {/* BA image area */}
-              <div className="flex h-[250px]">
-                <ImagePlaceholder
-                  label="BEFORE"
-                  variant="neutral"
-                  className="flex-1"
-                />
-                <div className="w-px bg-[#efe5d9]" />
-                <ImagePlaceholder
-                  label="AFTER"
-                  variant="warm"
-                  className="flex-1"
-                />
+          {(cases && cases.length > 0
+            ? cases.map((c) => ({
+                id: c._id,
+                treatment: c.treatment?.name || '',
+                sessions: c.sessions || '',
+                beforeImage: c.beforeImage,
+                afterImage: c.afterImage,
+                category: c.treatment?.category,
+              }))
+            : FALLBACK_BA_CARDS.map((c) => ({
+                ...c,
+                id: String(c.id),
+                beforeImage: undefined as string | undefined,
+                afterImage: undefined as string | undefined,
+                category: undefined as string | undefined,
+              }))
+          )
+            .filter(
+              (card) =>
+                activeFilter === 'all' || card.category === activeFilter,
+            )
+            .map((card) => (
+              <div
+                key={card.id}
+                className="w-[311px] overflow-hidden rounded-[8px] border border-[#efe5d9] drop-shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
+              >
+                {/* BA image area */}
+                <div className="flex h-[250px]">
+                  {card.beforeImage ? (
+                    <img
+                      src={card.beforeImage}
+                      alt="BEFORE"
+                      className="flex-1 object-cover"
+                    />
+                  ) : (
+                    <ImagePlaceholder
+                      label="BEFORE"
+                      variant="neutral"
+                      className="flex-1"
+                    />
+                  )}
+                  <div className="w-px bg-[#efe5d9]" />
+                  {card.afterImage ? (
+                    <img
+                      src={card.afterImage}
+                      alt="AFTER"
+                      className="flex-1 object-cover"
+                    />
+                  ) : (
+                    <ImagePlaceholder
+                      label="AFTER"
+                      variant="warm"
+                      className="flex-1"
+                    />
+                  )}
+                </div>
+                {/* Info row */}
+                <div className="flex items-center justify-between px-3 pt-2 pb-2.5">
+                  <span className="text-[15px] font-bold">
+                    {card.treatment}
+                  </span>
+                  <span className="text-[13px] text-[#706263]">
+                    {card.sessions}
+                  </span>
+                </div>
               </div>
-              {/* Info row */}
-              <div className="flex items-center justify-between px-3 pt-2 pb-2.5">
-                <span className="text-[15px] font-bold">{card.treatment}</span>
-                <span className="text-[13px] text-[#706263]">
-                  {card.sessions}
-                </span>
-              </div>
-            </div>
-          ))}
+            ))}
         </div>
 
         {/* CTA button */}

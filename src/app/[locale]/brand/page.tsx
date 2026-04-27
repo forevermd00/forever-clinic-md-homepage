@@ -7,6 +7,7 @@ import { LocationInfo } from '@/components/brand/LocationInfo';
 import { BrandSectionNav } from '@/components/brand/BrandSectionNav';
 import { getDoctors } from '@/lib/data/doctors';
 import { getClinicInfo, getFacilities, getEquipment } from '@/lib/data/clinic';
+import { getBrandPhilosophy } from '@/lib/data/brand';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getMedicalBusinessJsonLd } from '@/lib/seo/jsonld';
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
@@ -56,12 +57,55 @@ export default async function BrandPage({
   const t = await getTranslations('brand');
   const th = await getTranslations('home');
 
-  const [doctors, facilities, equipment, clinicInfo] = await Promise.all([
-    getDoctors(locale),
-    getFacilities(locale),
-    getEquipment(locale),
-    getClinicInfo(locale),
-  ]);
+  const [doctors, facilities, equipment, clinicInfo, brandPhilosophy] =
+    await Promise.all([
+      getDoctors(locale),
+      getFacilities(locale),
+      getEquipment(locale),
+      getClinicInfo(locale),
+      getBrandPhilosophy(locale),
+    ]);
+
+  // Map CMS brand values to page structure (key order: honesty, precision, expertise, dignity)
+  const valueKeyMap: Record<string, { tKey: string; imgFallback: string }> = {
+    honesty: {
+      tKey: 'honesty',
+      imgFallback: '/images/brand/philosophy-honesty.png',
+    },
+    precision: {
+      tKey: 'precision',
+      imgFallback: '/images/brand/philosophy-precision.png',
+    },
+    expertise: {
+      tKey: 'expertise',
+      imgFallback: '/images/brand/philosophy-expertise.png',
+    },
+    dignity: {
+      tKey: 'dignity',
+      imgFallback: '/images/brand/philosophy-dignity.png',
+    },
+  };
+
+  // Build philosophy values: CMS values override translation keys when available
+  const cmsValues = brandPhilosophy?.values ?? [];
+  const philosophyValues = ['honesty', 'precision', 'expertise', 'dignity'].map(
+    (key, index) => {
+      const cms = cmsValues[index];
+      const mapping = valueKeyMap[key];
+      return {
+        key,
+        title:
+          cms?.titleKo && locale === 'ko'
+            ? cms.titleKo
+            : cms?.titleEn && locale === 'en'
+              ? cms.titleEn
+              : t(mapping.tKey),
+        description: cms?.description || t(`${mapping.tKey}Desc`),
+        descriptionDesktop: cms?.description || t(`${mapping.tKey}DescDesktop`),
+        image: cms?.image || mapping.imgFallback,
+      };
+    },
+  );
 
   const brandJsonLd = {
     ...getMedicalBusinessJsonLd(locale),
@@ -106,133 +150,69 @@ export default async function BrandPage({
           </p>
         </div>
 
-        {/* Value 1: Honesty — text left, image right */}
-        <div className="bg-white">
-          <div className="mx-auto hidden max-w-[1440px] items-center justify-center gap-[60px] px-[100px] py-[60px] lg:flex">
-            <div className="flex flex-col gap-3">
-              <p className="text-[28px] font-bold text-[#2b2b2b]">
-                {t('honesty')}
-              </p>
-              <p className="text-[14px] whitespace-pre-line text-[#706263]">
-                {t('honestyDescDesktop')}
-              </p>
-            </div>
-            <img
-              src="/images/brand/philosophy-honesty.png"
-              alt={t('honesty')}
-              className="h-[400px] w-[620px] shrink-0 rounded-[8px] object-cover"
-            />
-          </div>
-          <div className="flex flex-col pb-4 lg:hidden">
-            <img
-              src="/images/brand/philosophy-honesty.png"
-              alt={t('honesty')}
-              className="h-[220px] w-full object-cover"
-            />
-            <div className="flex flex-col gap-2 px-5 pt-4">
-              <p className="text-[20px] font-bold text-[#2b2b2b]">
-                {t('honesty')}
-              </p>
-              <p className="text-[12px] text-[#706263]">{t('honestyDesc')}</p>
-            </div>
-          </div>
-        </div>
+        {/* Philosophy Values — dynamically rendered from CMS with fallback */}
+        {philosophyValues.map((value, index) => {
+          const isEven = index % 2 === 0;
+          const bgColor = isEven ? 'bg-white' : 'bg-[#f9f6f3]';
+          const imgSrc = typeof value.image === 'string' ? value.image : '';
 
-        {/* Value 2: Precision — image left, text right */}
-        <div className="bg-[#f9f6f3]">
-          <div className="mx-auto hidden max-w-[1440px] items-center justify-center gap-[60px] px-[100px] py-[60px] lg:flex">
-            <img
-              src="/images/brand/philosophy-precision.png"
-              alt={t('precision')}
-              className="h-[400px] w-[620px] shrink-0 rounded-[8px] object-cover"
-            />
-            <div className="flex flex-col gap-3">
-              <p className="text-[28px] font-bold text-[#2b2b2b]">
-                {t('precision')}
-              </p>
-              <p className="text-[14px] whitespace-pre-line text-[#706263]">
-                {t('precisionDescDesktop')}
-              </p>
+          return (
+            <div key={value.key} className={bgColor}>
+              {/* Desktop layout */}
+              <div className="mx-auto hidden max-w-[1440px] items-center justify-center gap-[60px] px-[100px] py-[60px] lg:flex">
+                {isEven ? (
+                  <>
+                    <div className="flex flex-col gap-3">
+                      <p className="text-[28px] font-bold text-[#2b2b2b]">
+                        {value.title}
+                      </p>
+                      <p className="text-[14px] whitespace-pre-line text-[#706263]">
+                        {value.descriptionDesktop}
+                      </p>
+                    </div>
+                    <img
+                      src={imgSrc}
+                      alt={value.title}
+                      className="h-[400px] w-[620px] shrink-0 rounded-[8px] object-cover"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <img
+                      src={imgSrc}
+                      alt={value.title}
+                      className="h-[400px] w-[620px] shrink-0 rounded-[8px] object-cover"
+                    />
+                    <div className="flex flex-col gap-3">
+                      <p className="text-[28px] font-bold text-[#2b2b2b]">
+                        {value.title}
+                      </p>
+                      <p className="text-[14px] whitespace-pre-line text-[#706263]">
+                        {value.descriptionDesktop}
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
+              {/* Mobile layout */}
+              <div className="flex flex-col pb-4 lg:hidden">
+                <img
+                  src={imgSrc}
+                  alt={value.title}
+                  className="h-[220px] w-full object-cover"
+                />
+                <div className="flex flex-col gap-2 px-5 pt-4">
+                  <p className="text-[20px] font-bold text-[#2b2b2b]">
+                    {value.title}
+                  </p>
+                  <p className="text-[12px] text-[#706263]">
+                    {value.description}
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="flex flex-col pb-4 lg:hidden">
-            <img
-              src="/images/brand/philosophy-precision.png"
-              alt={t('precision')}
-              className="h-[220px] w-full object-cover"
-            />
-            <div className="flex flex-col gap-2 px-5 pt-4">
-              <p className="text-[20px] font-bold text-[#2b2b2b]">
-                {t('precision')}
-              </p>
-              <p className="text-[12px] text-[#706263]">{t('precisionDesc')}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Value 3: Expertise — text left, image right */}
-        <div className="bg-white">
-          <div className="mx-auto hidden max-w-[1440px] items-center justify-center gap-[60px] px-[100px] py-[60px] lg:flex">
-            <div className="flex flex-col gap-3">
-              <p className="text-[28px] font-bold text-[#2b2b2b]">
-                {t('expertise')}
-              </p>
-              <p className="text-[14px] whitespace-pre-line text-[#706263]">
-                {t('expertiseDescDesktop')}
-              </p>
-            </div>
-            <img
-              src="/images/brand/philosophy-expertise.png"
-              alt={t('expertise')}
-              className="h-[400px] w-[620px] shrink-0 rounded-[8px] object-cover"
-            />
-          </div>
-          <div className="flex flex-col pb-4 lg:hidden">
-            <img
-              src="/images/brand/philosophy-expertise.png"
-              alt={t('expertise')}
-              className="h-[220px] w-full object-cover"
-            />
-            <div className="flex flex-col gap-2 px-5 pt-4">
-              <p className="text-[20px] font-bold text-[#2b2b2b]">
-                {t('expertise')}
-              </p>
-              <p className="text-[12px] text-[#706263]">{t('expertiseDesc')}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Value 4: Dignity — image left, text right */}
-        <div className="bg-[#f9f6f3]">
-          <div className="mx-auto hidden max-w-[1440px] items-center justify-center gap-[60px] px-[100px] py-[60px] lg:flex">
-            <img
-              src="/images/brand/philosophy-dignity.png"
-              alt={t('dignity')}
-              className="h-[400px] w-[620px] shrink-0 rounded-[8px] object-cover"
-            />
-            <div className="flex flex-col gap-3">
-              <p className="text-[28px] font-bold text-[#2b2b2b]">
-                {t('dignity')}
-              </p>
-              <p className="text-[14px] whitespace-pre-line text-[#706263]">
-                {t('dignityDescDesktop')}
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-col pb-4 lg:hidden">
-            <img
-              src="/images/brand/philosophy-dignity.png"
-              alt={t('dignity')}
-              className="h-[220px] w-full object-cover"
-            />
-            <div className="flex flex-col gap-2 px-5 pt-4">
-              <p className="text-[20px] font-bold text-[#2b2b2b]">
-                {t('dignity')}
-              </p>
-              <p className="text-[12px] text-[#706263]">{t('dignityDesc')}</p>
-            </div>
-          </div>
-        </div>
+          );
+        })}
       </section>
 
       {/* Doctors Section */}

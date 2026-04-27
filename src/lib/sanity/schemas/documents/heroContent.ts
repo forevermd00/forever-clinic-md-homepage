@@ -57,8 +57,23 @@ export default defineType({
             defineField({
               name: 'pageKey',
               title: '페이지 키',
-              description: '예: about, treatments, contact',
+              description: '예: before-after, treatments, brand',
               type: 'string',
+              validation: (rule) => rule.required(),
+              options: {
+                list: [
+                  { title: 'Before & After', value: 'before-after' },
+                  { title: '시술 안내', value: 'treatments' },
+                  { title: '브랜드', value: 'brand' },
+                  { title: '프로모션', value: 'promotions' },
+                  { title: '보도자료', value: 'press' },
+                  { title: '영상 콘텐츠', value: 'video' },
+                  { title: '블로그', value: 'blog' },
+                  { title: '공지사항', value: 'notice' },
+                  { title: '견적', value: 'estimate' },
+                  { title: '예약/상담', value: 'contact' },
+                ],
+              },
             }),
             defineField({
               name: 'title',
@@ -69,6 +84,12 @@ export default defineType({
               name: 'subtitle',
               title: '부제목',
               type: 'localizedString',
+            }),
+            defineField({
+              name: 'heroImage',
+              title: '히어로 배경 이미지',
+              type: 'image',
+              options: { hotspot: true },
             }),
           ],
         }),

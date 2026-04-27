@@ -1,8 +1,9 @@
 import { getTranslations } from 'next-intl/server';
 import { ImagePlaceholder } from '@/components/common/ImagePlaceholder';
+import type { Doctor } from '@/components/brand/DoctorCard';
 
-/* Doctor data is CMS content — not translated */
-const DOCTORS = [
+/* Fallback doctor data — used when CMS data is not provided */
+const FALLBACK_DOCTORS: Doctor[] = [
   {
     name: '김포에버 원장',
     specialty: '리프팅 · 피부케어 전문',
@@ -25,7 +26,11 @@ const DOCTORS = [
   },
 ];
 
-export async function DoctorSection() {
+interface DoctorSectionProps {
+  doctors?: Doctor[];
+}
+
+export async function DoctorSection({ doctors }: DoctorSectionProps = {}) {
   const t = await getTranslations('home');
 
   return (
@@ -40,7 +45,7 @@ export async function DoctorSection() {
 
         {/* Doctor cards — fixed width, wrap */}
         <div className="flex flex-wrap justify-center gap-6">
-          {DOCTORS.map((doctor) => (
+          {(doctors ?? FALLBACK_DOCTORS).map((doctor) => (
             <div
               key={doctor.name}
               className="w-[270px] overflow-hidden rounded-[8px] bg-white"

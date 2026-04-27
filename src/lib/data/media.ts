@@ -4,6 +4,9 @@ import {
   blogPostsQuery,
   youtubeVideosQuery,
   noticesQuery,
+  pressArticleDetailQuery,
+  blogPostDetailQuery,
+  noticeDetailQuery,
 } from '@/lib/sanity/queries';
 import type { NoticeItem } from '@/components/media/NoticeTable';
 
@@ -262,4 +265,131 @@ export async function getNotices(locale: string): Promise<NoticeItem[]> {
   if (!data || data.length === 0) return FALLBACK_NOTICES;
 
   return mapNotices(data);
+}
+
+/* ─── Detail Types ─── */
+
+export type ArticleDetail = {
+  slug: string;
+  title: string;
+  date: string;
+  content: string;
+  views?: number;
+};
+
+export type ArticleNav = {
+  slug: string;
+  title: string;
+} | null;
+
+interface SanityArticleDetail {
+  _id: string;
+  title?: string;
+  slug?: string;
+  content?: string;
+  publishDate?: string;
+  source?: string;
+  prevArticle?: { _id?: string; slug?: string; title?: string };
+  nextArticle?: { _id?: string; slug?: string; title?: string };
+}
+
+/* ─── Detail Fetch Functions ─── */
+
+export async function getPressDetail(
+  slug: string,
+  locale: string,
+): Promise<{
+  article: ArticleDetail;
+  prevArticle: ArticleNav;
+  nextArticle: ArticleNav;
+} | null> {
+  const data = await sanityFetch<SanityArticleDetail>(pressArticleDetailQuery, {
+    slug,
+    locale,
+  });
+
+  if (!data || !data.title) return null;
+
+  return {
+    article: {
+      slug: data._id,
+      title: data.title,
+      date: formatDate(data.publishDate),
+      content: data.content || '',
+    },
+    prevArticle: data.prevArticle?.title
+      ? { slug: data.prevArticle._id || '', title: data.prevArticle.title }
+      : null,
+    nextArticle: data.nextArticle?.title
+      ? { slug: data.nextArticle._id || '', title: data.nextArticle.title }
+      : null,
+  };
+}
+
+export async function getBlogDetail(
+  slug: string,
+  locale: string,
+): Promise<{
+  article: ArticleDetail;
+  prevArticle: ArticleNav;
+  nextArticle: ArticleNav;
+} | null> {
+  const data = await sanityFetch<SanityArticleDetail>(blogPostDetailQuery, {
+    slug,
+    locale,
+  });
+
+  if (!data || !data.title) return null;
+
+  return {
+    article: {
+      slug: data.slug || data._id,
+      title: data.title,
+      date: formatDate(data.publishDate),
+      content: data.content || '',
+    },
+    prevArticle: data.prevArticle?.title
+      ? {
+          slug: data.prevArticle.slug || data.prevArticle._id || '',
+          title: data.prevArticle.title,
+        }
+      : null,
+    nextArticle: data.nextArticle?.title
+      ? {
+          slug: data.nextArticle.slug || data.nextArticle._id || '',
+          title: data.nextArticle.title,
+        }
+      : null,
+  };
+}
+
+export async function getNoticeDetail(
+  slug: string,
+  locale: string,
+): Promise<{
+  article: ArticleDetail;
+  prevArticle: ArticleNav;
+  nextArticle: ArticleNav;
+} | null> {
+  const data = await sanityFetch<SanityArticleDetail>(noticeDetailQuery, {
+    slug,
+    locale,
+  });
+
+  if (!data || !data.title) return null;
+
+  return {
+    article: {
+      slug: data._id,
+      title: data.title,
+      date: formatDate(data.publishDate),
+      content: data.content || '',
+    },
+    prevArticle: data.prevArticle?.title
+      ? { slug: data.prevArticle._id || '', title: data.prevArticle.title }
+      : null,
+    nextArticle: data.nextArticle?.title
+      ? { slug: data.nextArticle._id || '', title: data.nextArticle.title }
+      : null,
+  };
 }

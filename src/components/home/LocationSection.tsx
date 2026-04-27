@@ -1,8 +1,9 @@
 import { getTranslations } from 'next-intl/server';
 import { ImagePlaceholder } from '@/components/common/ImagePlaceholder';
+import type { ClinicInfo } from '@/components/brand/LocationInfo';
 
-/* Clinic info values are CMS content — not translated */
-const INFO_ROWS = [
+/* Fallback clinic info — used when CMS data is not provided */
+const FALLBACK_INFO_ROWS = [
   {
     key: 'locationAddress',
     value: '서울특별시 중구 명동길 74 5층',
@@ -22,7 +23,22 @@ const INFO_ROWS = [
   },
 ] as const;
 
-export async function LocationSection() {
+function clinicInfoToRows(info: ClinicInfo) {
+  return [
+    { key: 'locationAddress', value: info.address },
+    { key: 'locationSubway', value: info.subway },
+    { key: 'locationHours', value: info.hours },
+    { key: 'locationPhone', value: info.phone },
+  ];
+}
+
+interface LocationSectionProps {
+  clinicInfo?: ClinicInfo;
+}
+
+export async function LocationSection({
+  clinicInfo,
+}: LocationSectionProps = {}) {
   const t = await getTranslations('home');
 
   return (
@@ -39,25 +55,27 @@ export async function LocationSection() {
         <div className="flex h-auto flex-1 flex-col gap-6 md:h-[360px]">
           <h2 className="text-[24px] font-bold">{t('locationTitle')}</h2>
 
-          {INFO_ROWS.map((row) => (
-            <div key={row.key} className="flex gap-3">
-              {/* Icon circle */}
-              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#efe5d9]">
-                <span className="text-[11px] text-[#706263]">
-                  {t(row.key).charAt(0)}
-                </span>
+          {(clinicInfo ? clinicInfoToRows(clinicInfo) : FALLBACK_INFO_ROWS).map(
+            (row) => (
+              <div key={row.key} className="flex gap-3">
+                {/* Icon circle */}
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#efe5d9]">
+                  <span className="text-[11px] text-[#706263]">
+                    {t(row.key).charAt(0)}
+                  </span>
+                </div>
+                {/* Content */}
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[12px] font-medium text-[#d4c8bd]">
+                    {t(row.key)}
+                  </span>
+                  <p className="text-[14px] leading-[1.5] whitespace-pre-line text-[#2b2b2b]">
+                    {row.value}
+                  </p>
+                </div>
               </div>
-              {/* Content */}
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[12px] font-medium text-[#d4c8bd]">
-                  {t(row.key)}
-                </span>
-                <p className="text-[14px] leading-[1.5] whitespace-pre-line text-[#2b2b2b]">
-                  {row.value}
-                </p>
-              </div>
-            </div>
-          ))}
+            ),
+          )}
         </div>
       </div>
     </section>
