@@ -44,8 +44,42 @@ export default defineType({
       type: 'array',
       of: [
         defineArrayMember({
-          type: 'reference',
-          to: [{ type: 'treatment' }],
+          type: 'object',
+          preview: {
+            select: { name: 'name', pkg: 'packageLabel', qty: 'quantity' },
+            prepare({ name, pkg, qty }) {
+              return {
+                title: name || '',
+                subtitle: `${pkg || ''} × ${qty || 1}`,
+              };
+            },
+          },
+          fields: [
+            defineField({
+              name: 'treatment',
+              title: '시술',
+              type: 'reference',
+              to: [{ type: 'treatment' }],
+            }),
+            defineField({
+              name: 'name',
+              title: '시술명',
+              type: 'string',
+              readOnly: true,
+            }),
+            defineField({
+              name: 'packageLabel',
+              title: '패키지',
+              type: 'string',
+              readOnly: true,
+            }),
+            defineField({
+              name: 'quantity',
+              title: '수량',
+              type: 'number',
+              readOnly: true,
+            }),
+          ],
         }),
       ],
     }),
@@ -59,6 +93,31 @@ export default defineType({
           { title: '상담 모달', value: 'consult-modal' },
         ],
       },
+    }),
+    defineField({
+      name: 'status',
+      title: '상담 상태',
+      type: 'string',
+      options: {
+        list: [
+          { title: '대기', value: 'pending' },
+          { title: '상담중', value: 'in-progress' },
+          { title: '상담완료', value: 'completed' },
+          { title: '취소', value: 'cancelled' },
+        ],
+      },
+      initialValue: 'pending',
+    }),
+    defineField({
+      name: 'consultNote',
+      title: '상담 메모',
+      type: 'text',
+      rows: 3,
+    }),
+    defineField({
+      name: 'specialNote',
+      title: '특이사항',
+      type: 'string',
     }),
     defineField({
       name: 'createdAt',

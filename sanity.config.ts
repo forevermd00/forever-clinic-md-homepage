@@ -1,21 +1,57 @@
 import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
-import { visionTool } from '@sanity/vision';
+import {
+  DocumentsIcon,
+  UsersIcon,
+  TagIcon,
+  ImagesIcon,
+  HomeIcon,
+  CogIcon,
+  ComposeIcon,
+  BulbOutlineIcon,
+  BlockContentIcon,
+  DocumentTextIcon,
+  PlayIcon,
+  BellIcon,
+  EarthGlobeIcon,
+  StackCompactIcon,
+  ComponentIcon,
+  StarIcon,
+  ImageIcon,
+} from '@sanity/icons';
 import { schemaTypes } from './src/lib/sanity/schemas';
+import { consultationTool } from './sanity/plugins/consultation-tool';
 
 const singletonTypes = new Set([
   'clinicInfo',
-  'heroContent',
   'brandPhilosophy',
   'statsStrip',
+  'pageHero',
 ]);
+
+const PAGE_HEROES = [
+  { key: 'main', title: '메인' },
+  { key: 'before-after', title: 'Before & After' },
+  { key: 'treatments', title: '시술 안내' },
+  { key: 'brand', title: '브랜드' },
+  { key: 'promotions', title: '프로모션' },
+  { key: 'press', title: '보도자료' },
+  { key: 'video', title: '영상 콘텐츠' },
+  { key: 'blog', title: '블로그' },
+  { key: 'notice', title: '공지사항' },
+  { key: 'estimate', title: '견적' },
+  { key: 'contact', title: '예약/상담' },
+];
 
 export default defineConfig({
   name: 'forever-clinic',
   title: '포에버 클리닉 명동',
-  projectId: 'qypqbkyi',
+  projectId: 'ecoamz42',
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'develop',
   basePath: '/studio',
+  releases: { enabled: false },
+  scheduledPublishing: { enabled: false },
+  tools: (prev) => prev.filter((tool) => tool.name !== 'releases'),
   document: {
     newDocumentOptions: (prev, { creationContext }) => {
       if (creationContext.type === 'global') {
@@ -26,38 +62,61 @@ export default defineConfig({
       return prev;
     },
     actions: (prev, { schemaType }) => {
+      // 모든 문서에서 scheduled publishing 제거
+      let actions = prev.filter(
+        ({ action }) => action !== ('schedulePublish' as string),
+      );
       if (singletonTypes.has(schemaType)) {
-        return prev.filter(({ action }) => action !== 'duplicate');
+        actions = actions.filter(
+          ({ action }) => action !== 'duplicate' && action !== 'delete',
+        );
       }
-      return prev;
+      return actions;
     },
   },
   plugins: [
     structureTool({
+      title: '콘텐츠',
       structure: (S) =>
         S.list()
           .id('root')
-          .title('콘텐츠 관리')
+          .title('포에버 클리닉 관리')
           .items([
-            S.listItem()
-              .id('content')
-              .title('콘텐츠 관리')
-              .child(
-                S.list()
-                  .id('content-list')
-                  .title('콘텐츠 관리')
-                  .items([
-                    S.documentTypeListItem('treatment').title('시술 관리'),
-                    S.documentTypeListItem('doctor').title('의료진 관리'),
-                    S.documentTypeListItem('promotion').title(
-                      '프로모션/이벤트',
-                    ),
-                    S.documentTypeListItem('baCase').title('Before & After'),
-                  ]),
-              ),
+            // --- 자주 수정하는 항목 ---
+            S.documentTypeListItem('treatment')
+              .title('시술 관리')
+              .icon(DocumentsIcon),
+            S.documentTypeListItem('doctor')
+              .title('의료진 관리')
+              .icon(UsersIcon),
+            S.documentTypeListItem('promotion')
+              .title('프로모션/이벤트')
+              .icon(TagIcon),
+            S.documentTypeListItem('baCase')
+              .title('Before & After')
+              .icon(ImagesIcon),
+
+            S.divider(),
+
+            // --- 미디어 ---
+            S.documentTypeListItem('blogPost')
+              .title('블로그')
+              .icon(ComposeIcon),
+            S.documentTypeListItem('pressArticle')
+              .title('보도자료')
+              .icon(DocumentTextIcon),
+            S.documentTypeListItem('youtubeVideo')
+              .title('영상 콘텐츠')
+              .icon(PlayIcon),
+            S.documentTypeListItem('notice').title('공지사항').icon(BellIcon),
+
+            S.divider(),
+
+            // --- 병원 정보 ---
             S.listItem()
               .id('clinic')
               .title('병원 정보')
+              .icon(HomeIcon)
               .child(
                 S.list()
                   .id('clinic-list')
@@ -66,48 +125,61 @@ export default defineConfig({
                     S.listItem()
                       .id('clinicInfo')
                       .title('기본 정보')
+                      .icon(EarthGlobeIcon)
                       .child(
                         S.document()
                           .schemaType('clinicInfo')
                           .documentId('forever-myeongdong-clinic-info'),
                       ),
-                    S.documentTypeListItem('facility').title('시설 안내'),
-                    S.documentTypeListItem('equipment').title('장비 안내'),
+                    S.documentTypeListItem('facility')
+                      .title('시설 안내')
+                      .icon(HomeIcon),
+                    S.documentTypeListItem('equipment')
+                      .title('장비 안내')
+                      .icon(ComponentIcon),
                   ]),
               ),
+
+            // --- 히어로 배너 (페이지별 고정) ---
             S.listItem()
-              .id('media')
-              .title('미디어')
+              .id('heroes')
+              .title('히어로 배너')
+              .icon(ImageIcon)
               .child(
                 S.list()
-                  .id('media-list')
-                  .title('미디어')
-                  .items([
-                    S.documentTypeListItem('blogPost').title('블로그'),
-                    S.documentTypeListItem('pressArticle').title('보도자료'),
-                    S.documentTypeListItem('youtubeVideo').title('영상 콘텐츠'),
-                    S.documentTypeListItem('notice').title('공지사항'),
-                  ]),
+                  .id('heroes-list')
+                  .title('히어로 배너')
+                  .items(
+                    PAGE_HEROES.map((page) =>
+                      S.listItem()
+                        .id(`hero-${page.key}`)
+                        .title(page.title)
+                        .icon(ImageIcon)
+                        .child(
+                          S.document()
+                            .schemaType('pageHero')
+                            .documentId(`page-hero-${page.key}`)
+                            .title(`히어로 — ${page.title}`)
+                            .initialValueTemplate(`pageHero-${page.key}`),
+                        ),
+                    ),
+                  ),
               ),
+
+            // --- 사이트 설정 ---
             S.listItem()
               .id('settings')
               .title('사이트 설정')
+              .icon(CogIcon)
               .child(
                 S.list()
                   .id('settings-list')
                   .title('사이트 설정')
                   .items([
                     S.listItem()
-                      .id('heroContent')
-                      .title('히어로 배너')
-                      .child(
-                        S.document()
-                          .schemaType('heroContent')
-                          .documentId('forever-myeongdong-hero'),
-                      ),
-                    S.listItem()
                       .id('brandPhilosophy')
                       .title('브랜드 철학')
+                      .icon(BulbOutlineIcon)
                       .child(
                         S.document()
                           .schemaType('brandPhilosophy')
@@ -116,24 +188,37 @@ export default defineConfig({
                     S.listItem()
                       .id('statsStrip')
                       .title('통계 수치')
+                      .icon(BlockContentIcon)
                       .child(
                         S.document()
                           .schemaType('statsStrip')
                           .documentId('forever-myeongdong-stats'),
                       ),
-                    S.documentTypeListItem('quickEntryTab').title(
-                      '빠른 탐색 탭',
-                    ),
-                    S.documentTypeListItem('quickEntryCard').title(
-                      '빠른 탐색 카드',
-                    ),
-                    S.documentTypeListItem('eventPopup').title('이벤트 팝업'),
+                    S.documentTypeListItem('quickEntryTab')
+                      .title('빠른 탐색 탭')
+                      .icon(StackCompactIcon),
+                    S.documentTypeListItem('quickEntryCard')
+                      .title('빠른 탐색 카드')
+                      .icon(ComponentIcon),
+                    S.documentTypeListItem('eventPopup')
+                      .title('이벤트 팝업')
+                      .icon(StarIcon),
                   ]),
               ),
-            S.divider(),
           ]),
     }),
-    visionTool(),
+    consultationTool(),
   ],
-  schema: { types: schemaTypes },
+  schema: {
+    types: schemaTypes,
+    templates: (prev) => [
+      ...prev.filter((t) => t.schemaType !== 'pageHero'),
+      ...PAGE_HEROES.map((page) => ({
+        id: `pageHero-${page.key}`,
+        title: `히어로 — ${page.title}`,
+        schemaType: 'pageHero' as const,
+        value: { pageName: page.title },
+      })),
+    ],
+  },
 });

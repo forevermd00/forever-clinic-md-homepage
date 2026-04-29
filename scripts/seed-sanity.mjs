@@ -3,12 +3,11 @@ import { createClient } from '@sanity/client';
 // Use SANITY_WRITE_TOKEN env var if available, otherwise fall back to SANITY_API_TOKEN / hardcoded token
 const token =
   process.env.SANITY_WRITE_TOKEN ||
-  process.env.SANITY_API_TOKEN ||
-  'skNePYo3oNOZ7DQewASQHaJlEHAjri4XZwJCEoDyV72xxI6tkJXQWElpG6XV2H6y4VBxzEIgYXX7CUhnXpyhR5Jo0OOwXWoxKZgnLRrabmAHJ3OPmRWXxqqjikoHggWqwouzkMOdE8VtDlRjcHs6kYuZIXNv9aLyzx6BO85TroLYF6QUp7Dd';
+  process.env.SANITY_API_TOKEN;
 
 const client = createClient({
-  projectId: 'qypqbkyi',
-  dataset: 'develop',
+  projectId: 'ecoamz42',
+  dataset: 'production',
   token,
   apiVersion: '2024-01-01',
   useCdn: false,

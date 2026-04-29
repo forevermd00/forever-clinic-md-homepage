@@ -13,23 +13,30 @@ export const authConfig: NextAuthConfig = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        const email = credentials?.email;
+        const password = credentials?.password;
+        if (!email || !password) return null;
 
-        const [user] = await db
-          .select()
-          .from(users)
-          .where(eq(users.email, credentials.email as string));
+        try {
+          const [user] = await db
+            .select()
+            .from(users)
+            .where(eq(users.email, String(email)));
 
-        if (!user) return null;
+          if (!user) return null;
 
-        const valid = await bcrypt.compare(
-          credentials.password as string,
-          user.passwordHash,
-        );
+          const valid = await bcrypt.compare(
+            String(password),
+            user.passwordHash,
+          );
 
-        if (!valid) return null;
+          if (!valid) return null;
 
-        return { id: user.id, name: user.name, email: user.email };
+          return { id: user.id, name: user.name, email: user.email };
+        } catch (err) {
+          console.error('[AUTH] authorize error:', err);
+          return null;
+        }
       },
     }),
   ],

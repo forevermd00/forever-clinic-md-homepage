@@ -1,12 +1,4 @@
-import { getTranslations } from 'next-intl/server';
 import type { StatItem } from '@/lib/data/stats';
-
-const FALLBACK_STATS = [
-  { value: '15+', key: 'statsExperts' },
-  { value: '30,000+', key: 'statsCases' },
-  { value: '98%', key: 'statsSatisfaction' },
-  { value: '10+', key: 'statsEquipment' },
-] as const;
 
 interface StatsStripSectionProps {
   stats?: StatItem[];
@@ -15,13 +7,9 @@ interface StatsStripSectionProps {
 export async function StatsStripSection({
   stats,
 }: StatsStripSectionProps = {}) {
-  const t = await getTranslations('home');
+  if (!stats || stats.length === 0) return null;
 
-  /* When CMS stats are provided, label is the display text directly.
-     When using fallback, key is a translation key. */
-  const items = stats
-    ? stats.map((s) => ({ value: s.value, label: s.label }))
-    : FALLBACK_STATS.map((s) => ({ value: s.value, label: t(s.key) }));
+  const items = stats.map((s) => ({ value: s.value, label: s.label }));
 
   return (
     <section className="bg-white py-10">

@@ -1,0 +1,606 @@
+/* Consultation Tool — Sanity Studio theme-aware styles */
+
+:root {
+  --ct-badge-pending-bg: #eeedfe;
+  --ct-badge-pending-fg: #8f8aed;
+  --ct-badge-in-progress-bg: #faeeda;
+  --ct-badge-in-progress-fg: #c4880d;
+  --ct-badge-completed-bg: #e1f5ee;
+  --ct-badge-completed-fg: #2a7d5f;
+  --ct-badge-cancelled-bg: #fcebeb;
+  --ct-badge-cancelled-fg: #b94040;
+}
+
+[data-scheme='dark'],
+[data-ui='dark'] {
+  --ct-badge-pending-bg: rgba(143, 138, 237, 0.15);
+  --ct-badge-pending-fg: #b0abff;
+  --ct-badge-in-progress-bg: rgba(196, 136, 13, 0.15);
+  --ct-badge-in-progress-fg: #e4a832;
+  --ct-badge-completed-bg: rgba(42, 125, 95, 0.15);
+  --ct-badge-completed-fg: #5ec9a0;
+  --ct-badge-cancelled-bg: rgba(185, 64, 64, 0.15);
+  --ct-badge-cancelled-fg: #e87070;
+}
+
+/* ===== Layout ===== */
+.ct-container {
+  padding: 20px 24px;
+  font-size: 13px;
+  color: var(--card-fg-color);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ===== Stats Grid ===== */
+.ct-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 900px) {
+  .ct-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .ct-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.ct-stat-card {
+  background: var(--card-bg2-color, var(--card-bg-color));
+  border-radius: 6px;
+  padding: 10px 16px;
+  border: 1px solid var(--card-border-color);
+}
+
+.ct-stat-label {
+  font-size: 11px;
+  color: var(--card-muted-fg-color);
+  margin-bottom: 4px;
+}
+
+.ct-stat-val {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--card-fg-color);
+}
+
+.ct-stat-val-pending {
+  color: var(--ct-badge-pending-fg);
+}
+.ct-stat-val-in-progress {
+  color: var(--ct-badge-in-progress-fg);
+}
+.ct-stat-val-completed {
+  color: var(--ct-badge-completed-fg);
+}
+.ct-stat-val-cancelled {
+  color: var(--ct-badge-cancelled-fg);
+}
+
+/* ===== Toolbar ===== */
+.ct-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.ct-select,
+.ct-search {
+  height: 32px;
+  font-size: 12px;
+  padding: 0 10px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 4px;
+  background: var(--card-bg-color);
+  color: var(--card-fg-color);
+  outline: none;
+}
+
+.ct-select:focus,
+.ct-search:focus {
+  border-color: var(--card-focus-ring-color, var(--card-fg-color));
+  box-shadow: 0 0 0 1px var(--card-focus-ring-color, var(--card-fg-color));
+}
+
+.ct-search {
+  width: 220px;
+}
+
+.ct-btn {
+  height: 32px;
+  padding: 0 14px;
+  font-size: 12px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 4px;
+  background: var(--card-bg-color);
+  color: var(--card-fg-color);
+  cursor: pointer;
+}
+
+.ct-btn:hover {
+  background: var(--card-bg2-color, var(--card-bg-color));
+}
+
+.ct-btn-export {
+  margin-left: auto;
+}
+
+/* ===== Example banner ===== */
+.ct-example-banner {
+  padding: 8px 14px;
+  margin-bottom: 12px;
+  background: var(--ct-badge-in-progress-bg);
+  color: var(--ct-badge-in-progress-fg);
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ===== Table ===== */
+.ct-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--card-border-color);
+  border-radius: 6px;
+  width: 100%;
+}
+
+.ct-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+/* Sortable header */
+.ct-th-sortable {
+  background: var(--card-bg2-color, var(--card-bg-color));
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--card-muted-fg-color);
+  border-bottom: 1px solid var(--card-border-color);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.1s;
+}
+
+.ct-th-sortable:hover {
+  color: var(--card-fg-color);
+}
+
+.ct-sort-icon {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.ct-th-sortable[draggable] {
+  cursor: grab;
+}
+
+.ct-th-sortable[draggable]:active {
+  cursor: grabbing;
+}
+
+.ct-th-dragging {
+  opacity: 0.6;
+}
+
+.ct-th-sortable:hover {
+  background: var(--card-bg-color);
+}
+
+/* Rows */
+.ct-table tbody tr {
+  border-bottom: 1px solid
+    var(--card-hairline-soft-color, var(--card-border-color));
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.ct-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.ct-table tbody tr:hover {
+  background: var(--card-bg2-color, var(--card-bg-color));
+}
+
+.ct-row-example {
+  opacity: 0.7;
+  border-left: 3px solid var(--ct-badge-in-progress-fg);
+}
+
+.ct-table td {
+  padding: 10px 12px;
+  font-size: 12px;
+  vertical-align: middle;
+  color: var(--card-fg-color);
+}
+
+.ct-td-muted {
+  color: var(--card-muted-fg-color);
+}
+
+.ct-td-bold {
+  font-weight: 500;
+}
+
+.ct-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 0;
+}
+
+/* ===== Status Badge ===== */
+.ct-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.ct-badge-pending {
+  background: var(--ct-badge-pending-bg);
+  color: var(--ct-badge-pending-fg);
+}
+
+.ct-badge-in-progress {
+  background: var(--ct-badge-in-progress-bg);
+  color: var(--ct-badge-in-progress-fg);
+}
+
+.ct-badge-completed {
+  background: var(--ct-badge-completed-bg);
+  color: var(--ct-badge-completed-fg);
+}
+
+.ct-badge-cancelled {
+  background: var(--ct-badge-cancelled-bg);
+  color: var(--ct-badge-cancelled-fg);
+}
+
+/* ===== Footer ===== */
+.ct-hint {
+  font-size: 11px;
+  color: var(--card-muted-fg-color);
+  margin-top: 12px;
+  text-align: center;
+}
+
+.ct-empty {
+  padding: 40px;
+  text-align: center;
+  color: var(--card-muted-fg-color);
+}
+
+.ct-loading {
+  padding: 60px;
+  text-align: center;
+  color: var(--card-muted-fg-color);
+}
+
+/* ===== Modal ===== */
+.ct-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.ct-modal {
+  background: var(--card-bg-color);
+  border-radius: 8px;
+  width: 520px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--card-border-color);
+}
+
+.ct-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--card-border-color);
+  background: var(--card-bg2-color, var(--card-bg-color));
+}
+
+.ct-modal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ct-modal-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--card-fg-color);
+}
+
+.ct-close-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 4px;
+  background: var(--card-bg-color);
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--card-muted-fg-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ct-close-btn:hover {
+  background: var(--card-bg2-color, var(--card-bg-color));
+}
+
+.ct-modal-body {
+  padding: 20px;
+}
+
+.ct-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.ct-meta-item {
+  background: var(--card-bg2-color, var(--card-bg-color));
+  border-radius: 4px;
+  padding: 8px 12px;
+  border: 1px solid var(--card-border-color);
+}
+
+.ct-meta-label {
+  font-size: 10px;
+  color: var(--card-muted-fg-color);
+  margin-bottom: 3px;
+}
+
+.ct-meta-val {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--card-fg-color);
+}
+
+.ct-section {
+  margin-bottom: 16px;
+}
+
+.ct-section:last-child {
+  margin-bottom: 0;
+}
+
+.ct-section-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--card-muted-fg-color);
+  margin-bottom: 6px;
+}
+
+.ct-readonly-box {
+  font-size: 13px;
+  line-height: 1.6;
+  background: var(--card-bg2-color, var(--card-bg-color));
+  border-radius: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--card-border-color);
+  white-space: pre-wrap;
+  word-break: break-all;
+  min-height: 40px;
+  color: var(--card-fg-color);
+}
+
+.ct-status-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ct-status-btn {
+  padding: 6px 14px;
+  border-radius: 4px;
+  border: 1px solid var(--card-border-color);
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s;
+  background: var(--card-bg-color);
+  color: var(--card-muted-fg-color);
+}
+
+.ct-status-btn.active {
+  font-weight: 600;
+}
+
+.ct-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 13px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 4px;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+  outline: none;
+  box-sizing: border-box;
+  background: var(--card-bg-color);
+  color: var(--card-fg-color);
+}
+
+.ct-textarea:focus,
+.ct-input:focus {
+  border-color: var(--card-focus-ring-color, var(--card-fg-color));
+  box-shadow: 0 0 0 1px var(--card-focus-ring-color, var(--card-fg-color));
+}
+
+.ct-input {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 4px;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  background: var(--card-bg-color);
+  color: var(--card-fg-color);
+}
+
+.ct-save-btn {
+  width: 100%;
+  height: 40px;
+  background: var(--card-fg-color);
+  color: var(--card-bg-color);
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.ct-save-btn:hover {
+  opacity: 0.85;
+}
+
+.ct-save-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== Status Filter Checkboxes ===== */
+.ct-status-filters {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.ct-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.ct-checkbox-label input[type='checkbox'] {
+  accent-color: var(--card-fg-color);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+/* ===== Expand Toggle ===== */
+.ct-btn-expand {
+  font-size: 11px;
+  padding: 0 10px;
+}
+
+.ct-btn-expand.active {
+  background: var(--card-fg-color);
+  color: var(--card-bg-color);
+  border-color: var(--card-fg-color);
+}
+
+/* ===== Expanded Row ===== */
+.ct-row-expanded td {
+  white-space: normal;
+  vertical-align: top;
+}
+
+.ct-td-wrap {
+  white-space: pre-wrap !important;
+  word-break: break-word;
+  max-width: 0;
+}
+
+/* ===== Inline Memo Edit ===== */
+.ct-td-memo {
+  cursor: text;
+  position: relative;
+}
+
+.ct-memo-inline {
+  width: 100%;
+  min-height: 40px;
+  padding: 6px 8px;
+  font-size: 12px;
+  border: 1px solid var(--card-focus-ring-color, var(--card-fg-color));
+  border-radius: 3px;
+  background: var(--card-bg-color);
+  color: var(--card-fg-color);
+  font-family: inherit;
+  line-height: 1.4;
+  outline: none;
+  box-sizing: border-box;
+  resize: vertical;
+  box-shadow: 0 0 0 1px var(--card-focus-ring-color, var(--card-fg-color));
+}
+
+.ct-memo-text {
+  display: block;
+  font-size: 12px;
+  color: var(--card-fg-color);
+}
+
+.ct-ellipsis-inline {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== Delete Button ===== */
+.ct-modal-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ct-delete-btn {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--ct-badge-cancelled-fg);
+  border-radius: 4px;
+  background: var(--ct-badge-cancelled-bg);
+  color: var(--ct-badge-cancelled-fg);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.ct-delete-btn:hover {
+  opacity: 0.8;
+}
+
+.ct-example-modal-hint {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: var(--ct-badge-in-progress-bg);
+  color: var(--ct-badge-in-progress-fg);
+  border-radius: 4px;
+  font-size: 12px;
+  text-align: center;
+}

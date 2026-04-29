@@ -1,40 +1,62 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
+import Image from 'next/image';
 
-const channels = [
+const allChannels = [
   {
-    label: 'KakaoTalk',
-    initial: 'K',
-    href: '#kakao',
-    color: 'bg-[#FEE500] text-[#191919]',
-  },
-  {
-    label: 'LINE',
-    initial: 'L',
-    href: '#line',
-    color: 'bg-[#06C755] text-white',
-  },
-  {
+    id: 'wechat',
     label: 'WeChat',
-    initial: 'W',
     href: '#wechat',
-    color: 'bg-[#07C160] text-white',
+    bg: 'bg-[#07C160]',
+    icon: '/images/icons/wechat.svg',
   },
   {
-    label: 'WhatsApp',
-    initial: 'W',
-    href: '#whatsapp',
-    color: 'bg-[#25D366] text-white',
+    id: 'line',
+    label: 'LINE',
+    href: '#line',
+    bg: 'bg-[#06C755]',
+    icon: '/images/icons/line.svg',
   },
-] as const;
+  {
+    id: 'kakao',
+    label: 'KakaoTalk',
+    href: '#kakao',
+    bg: 'bg-[#FEE500]',
+    icon: '/images/icons/kakaotalk.svg',
+  },
+  {
+    id: 'whatsapp',
+    label: 'WhatsApp',
+    href: '#whatsapp',
+    bg: 'bg-[#25D366]',
+    icon: '/images/icons/whatsapp.svg',
+  },
+];
+
+// 언어별 우선 채널 (기획서 기준: ko→카카오, zh→WeChat, ja→LINE, en→WhatsApp)
+const localePriority: Record<string, string> = {
+  ko: 'kakao',
+  zh: 'wechat',
+  ja: 'line',
+  en: 'whatsapp',
+};
 
 export function FloatingCTA() {
   const t = useTranslations('floatingCta');
-  // Default: expanded. Click to collapse.
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1] || 'ko';
   const [isOpen, setIsOpen] = useState(true);
+
+  const channels = useMemo(() => {
+    const priorityId = localePriority[locale] || 'kakao';
+    const priority = allChannels.find((c) => c.id === priorityId)!;
+    const rest = allChannels.filter((c) => c.id !== priorityId);
+    return [...rest.reverse(), priority];
+  }, [locale]);
 
   return (
     <div
@@ -51,9 +73,9 @@ export function FloatingCTA() {
             : 'invisible translate-y-2.5 opacity-0',
         )}
       >
-        {channels.map(({ label, initial, href, color }, i) => (
+        {channels.map(({ id, label, href, bg, icon }, i) => (
           <a
-            key={label}
+            key={id}
             href={href}
             title={label}
             className="flex items-center gap-3 rounded-[8px] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.12)] transition-all duration-200 hover:shadow-[0_8px_24px_rgba(0,0,0,0.16)]"
@@ -61,11 +83,17 @@ export function FloatingCTA() {
           >
             <span
               className={cn(
-                'flex size-8 items-center justify-center rounded-full text-[14px] font-bold',
-                color,
+                'flex size-8 shrink-0 items-center justify-center rounded-full',
+                bg,
               )}
             >
-              {initial}
+              <Image
+                src={icon}
+                alt={label}
+                width={20}
+                height={20}
+                className="size-5"
+              />
             </span>
             <span className="text-[14px] font-medium whitespace-nowrap text-[#353535]">
               {label}
@@ -77,11 +105,7 @@ export function FloatingCTA() {
       {/* Main FAB button - click to toggle */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={cn(
-          'flex size-14 items-center justify-center rounded-full bg-[#840202] shadow-[0_8px_24px_rgba(0,0,0,0.16)] transition-transform duration-200 hover:scale-110',
-          !isOpen && 'rotate-0',
-          isOpen && 'rotate-0',
-        )}
+        className="flex size-14 items-center justify-center rounded-full bg-[#840202] shadow-[0_8px_24px_rgba(0,0,0,0.16)] transition-transform duration-200 hover:scale-110"
         aria-label={isOpen ? t('closeChat') : t('openChat')}
       >
         {isOpen ? (

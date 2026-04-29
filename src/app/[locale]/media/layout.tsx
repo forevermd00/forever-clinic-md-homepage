@@ -1,62 +1,56 @@
-'use client';
+import { getPageHero } from '@/lib/data/hero';
+import { urlFor } from '@/lib/sanity/image';
+import { MediaLayoutClient } from '@/components/media/MediaLayoutClient';
 
-import { useEffect } from 'react';
-import { usePathname } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { HeroBanner } from '@/components/common/HeroBanner';
-import { MediaSectionNav } from '@/components/media/MediaSectionNav';
-
-const heroKeys: Record<
-  string,
-  { titleKey: string; subtitleKey: string; imageSrc?: string }
-> = {
-  press: {
-    titleKey: 'press',
-    subtitleKey: 'pressSubtitle',
-    imageSrc: '/images/heroes/press-hero.png',
-  },
-  video: {
-    titleKey: 'video',
-    subtitleKey: 'videoSubtitle',
-    imageSrc: '/images/heroes/video-hero.png',
-  },
-  blog: {
-    titleKey: 'blog',
-    subtitleKey: 'blogSubtitle',
-    imageSrc: '/images/heroes/blog-hero.png',
-  },
-  notice: {
-    titleKey: 'notice',
-    subtitleKey: 'noticeSubtitle',
-    imageSrc: '/images/heroes/press-hero.png',
-  },
-};
-
-export default function MediaLayout({
+export default async function MediaLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }) {
-  const pathname = usePathname();
-  const t = useTranslations('media');
-  const segment = pathname.split('/media/')[1]?.split('/')[0] || 'press';
-  const hero = heroKeys[segment] || heroKeys.press;
+  const { locale } = await params;
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+  const [press, video, blog, notice] = await Promise.all([
+    getPageHero('press', locale),
+    getPageHero('video', locale),
+    getPageHero('blog', locale),
+    getPageHero('notice', locale),
+  ]);
 
-  return (
-    <>
-      <HeroBanner
-        variant={hero.imageSrc ? 'fullscreen' : 'page-title'}
-        title={t(hero.titleKey)}
-        subtitle={t(hero.subtitleKey)}
-        imageSrc={hero.imageSrc}
-        className={hero.imageSrc ? '!h-[280px] !max-h-[280px]' : ''}
-      />
-      <MediaSectionNav />
-      {children}
-    </>
-  );
+  const heroData: Record<
+    string,
+    { title?: string; subtitle?: string; imageSrc?: string }
+  > = {
+    press: {
+      title: press?.title,
+      subtitle: press?.subtitle,
+      imageSrc: press?.heroImage
+        ? urlFor(press.heroImage)?.width(1200).height(630).url() || undefined
+        : undefined,
+    },
+    video: {
+      title: video?.title,
+      subtitle: video?.subtitle,
+      imageSrc: video?.heroImage
+        ? urlFor(video.heroImage)?.width(1200).height(630).url() || undefined
+        : undefined,
+    },
+    blog: {
+      title: blog?.title,
+      subtitle: blog?.subtitle,
+      imageSrc: blog?.heroImage
+        ? urlFor(blog.heroImage)?.width(1200).height(630).url() || undefined
+        : undefined,
+    },
+    notice: {
+      title: notice?.title,
+      subtitle: notice?.subtitle,
+      imageSrc: notice?.heroImage
+        ? urlFor(notice.heroImage)?.width(1200).height(630).url() || undefined
+        : undefined,
+    },
+  };
+
+  return <MediaLayoutClient heroData={heroData}>{children}</MediaLayoutClient>;
 }

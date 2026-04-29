@@ -1,9 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { signIn } from 'next-auth/react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import {
+  registerUser,
+  sendPhoneVerificationCode,
+  verifyPhoneCode,
+} from '@/lib/auth/actions';
 
 const inputClass =
   'h-[48px] w-full rounded-[6px] border border-[#efe5d9] bg-white pl-4 pr-4 text-[15px] text-[#2b2b2b] placeholder:text-[#bbb] focus:border-[#a83c44] focus:outline-none transition-colors';
@@ -11,6 +17,9 @@ const inputClass =
 export default function SignupPage() {
   const pathname = usePathname();
   const locale = pathname.split('/')[1];
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl');
   const t = useTranslations('auth');
   const tCommon = useTranslations('common');
 
@@ -19,17 +28,102 @@ export default function SignupPage() {
     password: '',
     confirmPassword: '',
     name: '',
+    countryCode: '+82',
     phone: '',
   });
   const [privacyAgreed, setPrivacyAgreed] = useState(false);
   const [marketingAgreed, setMarketingAgreed] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState('');
+
+  // Phone verification state
+  const [phoneSent, setPhoneSent] = useState(false);
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [phoneCode, setPhoneCode] = useState('');
+  const [phoneTimer, setPhoneTimer] = useState(0);
+  const [phoneSending, setPhoneSending] = useState(false);
 
   const update =
     (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
-  const handleSignup = (e: React.FormEvent) => {
+  // Timer for phone verification
+  useEffect(() => {
+    if (phoneTimer <= 0) return;
+    const interval = setInterval(() => {
+      setPhoneTimer((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [phoneTimer]);
+
+  const formatTimer = useCallback((seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  }, []);
+
+  const handleSendCode = async () => {
+    if (!form.phone) {
+      setErrors((prev) => ({ ...prev, phone: t('errorPhoneRequired') }));
+      return;
+    }
+    setPhoneSending(true);
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next.phone;
+      delete next.phoneCode;
+      return next;
+    });
+
+    try {
+      const result = await sendPhoneVerificationCode(
+        `${form.countryCode} ${form.phone}`,
+      );
+      if (result.success) {
+        setPhoneSent(true);
+        setPhoneTimer(300); // 5분
+        setPhoneVerified(false);
+        setPhoneCode('');
+      }
+    } catch {
+      setErrors((prev) => ({ ...prev, phone: t('errorPhoneRequired') }));
+    } finally {
+      setPhoneSending(false);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    if (!phoneCode) {
+      setErrors((prev) => ({ ...prev, phoneCode: t('errorCodeRequired') }));
+      return;
+    }
+
+    try {
+      const result = await verifyPhoneCode(
+        `${form.countryCode} ${form.phone}`,
+        phoneCode,
+      );
+      if (result.success) {
+        setPhoneVerified(true);
+        setErrors((prev) => {
+          const next = { ...prev };
+          delete next.phoneCode;
+          return next;
+        });
+      } else if ('error' in result) {
+        if (result.error === 'expired') {
+          setErrors((prev) => ({ ...prev, phoneCode: t('codeExpired') }));
+        } else {
+          setErrors((prev) => ({ ...prev, phoneCode: t('codeInvalid') }));
+        }
+      }
+    } catch {
+      setErrors((prev) => ({ ...prev, phoneCode: t('codeInvalid') }));
+    }
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
@@ -40,12 +134,55 @@ export default function SignupPage() {
     if (form.password !== form.confirmPassword)
       newErrors.confirmPassword = t('errorPasswordMismatch');
     if (!form.name) newErrors.name = t('errorNameRequired');
+    if (!form.phone) newErrors.phone = t('errorPhoneRequired');
+    if (!phoneVerified) {
+      if (phoneSent) {
+        newErrors.phoneCode = t('errorCodeRequired');
+      } else {
+        newErrors.phone = t('errorPhoneRequired');
+      }
+    }
     if (!privacyAgreed) newErrors.privacy = t('errorPrivacyRequired');
 
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
 
-    // Demo - no actual auth
+    setLoading(true);
+    setServerError('');
+
+    try {
+      const fullPhone = `${form.countryCode} ${form.phone}`;
+      const result = await registerUser({
+        name: form.name,
+        email: form.email,
+        phone: fullPhone,
+        password: form.password,
+      });
+
+      if ('error' in result && result.error) {
+        setServerError(t('errorEmailExists'));
+        setLoading(false);
+        return;
+      }
+
+      // 가입 후 자동 로그인
+      const signInResult = await signIn('credentials', {
+        email: form.email,
+        password: form.password,
+        redirect: false,
+      });
+
+      if (signInResult?.error) {
+        router.push(`/${locale}/auth/login`);
+      } else {
+        router.push(callbackUrl || `/${locale}`);
+        router.refresh();
+      }
+    } catch {
+      setServerError(t('errorEmailExists'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -150,23 +287,110 @@ export default function SignupPage() {
             )}
           </div>
 
-          {/* Phone */}
+          {/* Phone with verification */}
           <div className="flex flex-col gap-1.5">
             <label
               htmlFor="signup-phone"
               className="text-[13px] font-medium text-[#2b2b2b]"
             >
-              {t('phone')}
+              {t('phone')} <span className="text-[#a83c44]">*</span>
             </label>
-            <input
-              id="signup-phone"
-              type="tel"
-              placeholder={t('phonePlaceholder')}
-              value={form.phone}
-              onChange={update('phone')}
-              className={inputClass}
-            />
+            <div className="flex gap-2">
+              <select
+                value={form.countryCode}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, countryCode: e.target.value }))
+                }
+                disabled={phoneVerified}
+                className={`h-[48px] w-[120px] shrink-0 rounded-[6px] border border-[#efe5d9] bg-white px-2 text-[14px] text-[#2b2b2b] focus:border-[#a83c44] focus:outline-none ${phoneVerified ? 'opacity-50' : ''}`}
+              >
+                <option value="+82">{'\u{1F1F0}\u{1F1F7}'} +82</option>
+                <option value="+81">{'\u{1F1EF}\u{1F1F5}'} +81</option>
+                <option value="+86">{'\u{1F1E8}\u{1F1F3}'} +86</option>
+                <option value="+1">{'\u{1F1FA}\u{1F1F8}'} +1</option>
+                <option value="+44">{'\u{1F1EC}\u{1F1E7}'} +44</option>
+                <option value="+61">{'\u{1F1E6}\u{1F1FA}'} +61</option>
+                <option value="+65">{'\u{1F1F8}\u{1F1EC}'} +65</option>
+                <option value="+852">{'\u{1F1ED}\u{1F1F0}'} +852</option>
+                <option value="+886">{'\u{1F1F9}\u{1F1FC}'} +886</option>
+                <option value="+66">{'\u{1F1F9}\u{1F1ED}'} +66</option>
+                <option value="+84">{'\u{1F1FB}\u{1F1F3}'} +84</option>
+              </select>
+              <input
+                id="signup-phone"
+                type="tel"
+                placeholder={t('phonePlaceholder')}
+                value={form.phone}
+                onChange={update('phone')}
+                disabled={phoneVerified}
+                className={`${inputClass} flex-1 ${phoneVerified ? 'opacity-50' : ''}`}
+              />
+              <button
+                type="button"
+                onClick={handleSendCode}
+                disabled={phoneVerified || phoneSending}
+                className="h-[48px] shrink-0 rounded-[6px] bg-[#a83c44] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#8c2e38] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {phoneSending
+                  ? '...'
+                  : phoneSent
+                    ? t('resendCode')
+                    : t('sendCode')}
+              </button>
+            </div>
+            {errors.phone && (
+              <p className="text-[13px] text-[#a83c44]">{errors.phone}</p>
+            )}
           </div>
+
+          {/* Verification code input */}
+          {phoneSent && (
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="signup-code"
+                  className="text-[13px] font-medium text-[#2b2b2b]"
+                >
+                  {t('verificationCode')}
+                  {phoneVerified && (
+                    <span className="ml-2 text-green-600">
+                      ✓ {t('codeVerified')}
+                    </span>
+                  )}
+                </label>
+                {!phoneVerified && phoneTimer > 0 && (
+                  <span className="text-[13px] text-[#a83c44]">
+                    {t('codeExpiry')} {formatTimer(phoneTimer)}
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  id="signup-code"
+                  type="text"
+                  maxLength={6}
+                  placeholder={t('verificationCodePlaceholder')}
+                  value={phoneCode}
+                  onChange={(e) =>
+                    setPhoneCode(e.target.value.replace(/\D/g, ''))
+                  }
+                  disabled={phoneVerified}
+                  className={`${inputClass} flex-1 ${phoneVerified ? 'opacity-50' : ''}`}
+                />
+                <button
+                  type="button"
+                  onClick={handleVerifyCode}
+                  disabled={phoneVerified}
+                  className="h-[48px] shrink-0 rounded-[6px] bg-[#a83c44] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#8c2e38] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {t('verify')}
+                </button>
+              </div>
+              {errors.phoneCode && (
+                <p className="text-[13px] text-[#a83c44]">{errors.phoneCode}</p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Terms */}
@@ -180,7 +404,7 @@ export default function SignupPage() {
             />
             <span className="text-[13px] text-[#2b2b2b]">
               <Link
-                href={`/${locale}/privacy`} /* TODO: /privacy 페이지 미구현 - 빌드 필요 */
+                href={`/${locale}/privacy`}
                 className="underline underline-offset-2"
               >
                 {t('privacyAgree')}
@@ -209,58 +433,27 @@ export default function SignupPage() {
           </label>
         </div>
 
+        {/* Server error */}
+        {serverError && (
+          <p className="mt-4 text-center text-[13px] text-[#a83c44]">
+            {serverError}
+          </p>
+        )}
+
         {/* Signup button */}
         <button
           type="submit"
-          className="mt-8 h-[52px] w-full cursor-pointer rounded-[6px] bg-[#a83c44] text-[16px] font-bold text-white transition-colors hover:bg-[#8c2e38]"
+          disabled={loading}
+          className="mt-8 h-[52px] w-full cursor-pointer rounded-[6px] bg-[#a83c44] text-[16px] font-bold text-white transition-colors hover:bg-[#8c2e38] disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {t('signupButton')}
-        </button>
-
-        {/* Divider */}
-        <div className="my-8 flex items-center gap-4">
-          <div className="h-px flex-1 bg-[#efe5d9]" />
-          <span className="text-[12px] text-[#999]">{tCommon('or')}</span>
-          <div className="h-px flex-1 bg-[#efe5d9]" />
-        </div>
-
-        {/* Google button */}
-        <button
-          type="button"
-          className="flex h-[52px] w-full cursor-pointer items-center justify-center gap-2.5 rounded-[6px] border border-[#efe5d9] bg-white text-[14px] text-[#2b2b2b] transition-colors hover:bg-[#faf8f5]"
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 18 18"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z"
-              fill="#4285F4"
-            />
-            <path
-              d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z"
-              fill="#34A853"
-            />
-            <path
-              d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.997 8.997 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z"
-              fill="#FBBC05"
-            />
-            <path
-              d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z"
-              fill="#EA4335"
-            />
-          </svg>
-          {t('googleSignup')}
+          {loading ? '...' : t('signupButton')}
         </button>
 
         {/* Footer link */}
         <p className="mt-8 text-center text-[13px] text-[#999]">
           {t('alreadyHaveAccount')}{' '}
           <Link
-            href={`/${locale}/auth/login`}
+            href={`/${locale}/auth/login${callbackUrl ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ''}`}
             className="font-medium text-[#a83c44] transition-colors hover:text-[#8c2e38]"
           >
             {tCommon('login')}

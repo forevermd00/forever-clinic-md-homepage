@@ -4,6 +4,8 @@ import { HeroBanner } from '@/components/common/HeroBanner';
 import { PromoCard } from '@/components/promotions/PromoCard';
 import { getPromotions } from '@/lib/data/promotions';
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
+import { getPageHero } from '@/lib/data/hero';
+import { urlFor } from '@/lib/sanity/image';
 
 const titles: Record<string, string> = {
   ko: '이벤트 & 프로모션',
@@ -47,15 +49,21 @@ export default async function PromotionsPage({
   const { locale } = await params;
   const t = await getTranslations('promotions');
 
-  const promos = await getPromotions(locale);
+  const [promos, hero] = await Promise.all([
+    getPromotions(locale),
+    getPageHero('promotions', locale),
+  ]);
+  const heroImageUrl = hero?.heroImage
+    ? urlFor(hero.heroImage)?.width(1200).height(630).url() || undefined
+    : undefined;
 
   return (
     <>
       <HeroBanner
         variant="fullscreen"
-        title={t('heroTitle')}
-        subtitle={t('heroSubtitle')}
-        imageSrc="/images/heroes/promo-hero.png"
+        title={hero?.title || t('heroTitle')}
+        subtitle={hero?.subtitle || t('heroSubtitle')}
+        imageSrc={heroImageUrl}
         className="!h-[280px] !max-h-[280px]"
       />
 

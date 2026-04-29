@@ -19,12 +19,12 @@ export function getMedicalBusinessJsonLd(locale: string) {
       '@type': 'PostalAddress',
       streetAddress:
         locale === 'ko'
-          ? '명동길 14, 포에버빌딩 3층'
+          ? '남대문로 78, 타임워크빌딩 1-2층'
           : locale === 'zh'
-            ? '明洞路14号 永恒大厦3层'
+            ? '南大门路78号 Timework大厦1-2层'
             : locale === 'ja'
-              ? '明洞ギル14、フォーエバービル3階'
-              : '14 Myeongdong-gil, Forever Bldg. 3F',
+              ? '南大門路78、タイムワークビル1-2階'
+              : '78 Namdaemun-ro, 1-2F Timework Building',
       addressLocality:
         locale === 'ko'
           ? '중구'
@@ -41,26 +41,26 @@ export function getMedicalBusinessJsonLd(locale: string) {
             : locale === 'ja'
               ? 'ソウル特別市'
               : 'Seoul',
-      postalCode: '04536',
+      postalCode: '04533',
       addressCountry: 'KR',
     },
     geo: {
       '@type': 'GeoCoordinates',
-      latitude: 37.5636,
-      longitude: 126.9869,
+      latitude: 37.5606,
+      longitude: 126.9782,
     },
     openingHoursSpecification: [
       {
         '@type': 'OpeningHoursSpecification',
         dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
         opens: '10:00',
-        closes: '19:00',
+        closes: '20:30',
       },
       {
         '@type': 'OpeningHoursSpecification',
-        dayOfWeek: 'Saturday',
+        dayOfWeek: ['Saturday', 'Sunday'],
         opens: '10:00',
-        closes: '16:00',
+        closes: '18:30',
       },
     ],
     medicalSpecialty: 'Dermatology',

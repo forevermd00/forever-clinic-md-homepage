@@ -65,12 +65,11 @@ export interface Doctor {
   careers: string[];
 }
 
-export interface HeroContent {
-  mainVideo?: { asset: { _ref: string } };
-  mainFallbackImage: SanityImage;
-  mainTitle: string;
-  mainSubtitle: string;
-  pageHeroes: { pageKey: string; title: string; subtitle: string }[];
+export interface PageHero {
+  title: string;
+  subtitle: string;
+  heroImage?: SanityImage;
+  heroVideo?: { asset: { _ref: string } };
 }
 
 export interface ClinicInfo {

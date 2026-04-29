@@ -200,6 +200,7 @@ export function Header() {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const megaTimeout = useRef<ReturnType<typeof setTimeout>>(null);
   const prevPathname = useRef(pathname);
+  const langRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 100);
@@ -212,6 +213,18 @@ export function Header() {
       window.removeEventListener('resize', onResize);
     };
   }, []);
+
+  // 언어 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    if (!isLangOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setIsLangOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isLangOpen]);
 
   useEffect(() => {
     if (prevPathname.current !== pathname) {
@@ -282,7 +295,7 @@ export function Header() {
             </nav>
 
             <div className="flex items-center gap-4">
-              <div className="relative">
+              <div className="relative" ref={langRef}>
                 <button
                   onClick={() => setIsLangOpen(!isLangOpen)}
                   className="flex items-center gap-1.5 text-[13px] font-medium text-[#2b2b2b]"
@@ -292,7 +305,7 @@ export function Header() {
                   <span className="text-[10px]">▾</span>
                 </button>
                 {isLangOpen && (
-                  <div className="absolute top-full right-0 mt-1 overflow-hidden rounded-[4px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.12)]">
+                  <div className="absolute top-full right-0 mt-1 min-w-[100px] overflow-hidden rounded-[4px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.12)]">
                     {locales.map((locale) => (
                       <button
                         key={locale}

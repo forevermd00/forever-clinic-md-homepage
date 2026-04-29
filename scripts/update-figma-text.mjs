@@ -1,9 +1,9 @@
 import { createClient } from '@sanity/client';
 
 const client = createClient({
-  projectId: 'qypqbkyi',
-  dataset: 'develop',
-  token: 'sk5z8JCFHATETASe2rw2tRX3njspcWcSlW8CVXMDCqLeMgMHuIWWhQs1rBMqNdR5evfq1qU8f7gM3lt6GH8ReJahgu7kUTqGvhXQCq5IirBNcZKj8MEP3RbEM8nRnKSzVB9apkjBrQjLwRROWckxcOrLdPFo5nWR089XHSwi7Ek2iQSnQsRU',
+  projectId: 'ecoamz42',
+  dataset: 'production',
+  token: process.env.SANITY_API_TOKEN,
   apiVersion: '2024-01-01',
   useCdn: false,
 });
@@ -458,7 +458,7 @@ function printQuickEntryReminder() {
 // ════════════════════════════════════════════════════════════════════════════
 async function main() {
   console.log('=== Figma Text Update Script ===');
-  console.log('Target: Sanity project qypqbkyi / dataset: develop\n');
+  console.log('Target: Sanity project ecoamz42 / dataset: production\n');
 
   try {
     await updateHero();

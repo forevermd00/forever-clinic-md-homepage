@@ -1,5 +1,5 @@
 // === Home Page ===
-export const homeHeroQuery = `*[_type == "heroContent"][0]`;
+export const homeHeroQuery = `*[_type == "pageHero" && _id == "page-hero-main"][0]`;
 
 export const homeQuickEntryQuery = `*[_type == "quickEntryCard" && isVisible == true] | order(sortOrder asc)`;
 
@@ -70,15 +70,14 @@ export const promotionsQuery = `
 
 // === Hero ===
 export const heroContentQuery = `
-  *[_type == "heroContent"][0] {
-    mainVideo, mainFallbackImage,
-    "mainTitle": mainTitle[$locale], "mainSubtitle": mainSubtitle[$locale],
-    "pageHeroes": pageHeroes[] { pageKey, "title": title[$locale], "subtitle": subtitle[$locale], heroImage }
+  *[_type == "pageHero" && _id == "page-hero-main"][0] {
+    heroVideo, heroImage,
+    "title": title[$locale], "subtitle": subtitle[$locale]
   }
 `;
 
-export const heroContentByPageQuery = `
-  *[_type == "heroContent"][0].pageHeroes[pageKey == $pageKey][0] {
+export const pageHeroQuery = `
+  *[_type == "pageHero" && _id == $docId][0] {
     "title": title[$locale], "subtitle": subtitle[$locale], heroImage
   }
 `;

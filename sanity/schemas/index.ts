@@ -15,7 +15,7 @@ import baCase from './documents/ba-case';
 import quickEntryCard from './documents/quick-entry-card';
 import brandPhilosophy from './documents/brand-philosophy';
 import clinicInfo from './documents/clinic-info';
-import heroContent from './documents/hero-content';
+
 import statsStrip from './documents/stats-strip';
 import facility from './documents/facility';
 import equipment from './documents/equipment';
@@ -43,7 +43,6 @@ export const schemaTypes = [
   quickEntryCard,
   brandPhilosophy,
   clinicInfo,
-  heroContent,
   statsStrip,
   facility,
   equipment,

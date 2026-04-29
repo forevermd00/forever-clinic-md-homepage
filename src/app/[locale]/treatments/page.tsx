@@ -5,6 +5,8 @@ import { HeroBanner } from '@/components/common/HeroBanner';
 import { CategorySection } from '@/components/treatments/CategorySection';
 import { TREATMENT_CATEGORIES } from '@/components/treatments/treatmentData';
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
+import { getPageHero } from '@/lib/data/hero';
+import { urlFor } from '@/lib/sanity/image';
 
 const titles: Record<string, string> = {
   ko: '시술 안내',
@@ -78,15 +80,19 @@ export default async function TreatmentsHubPage({
   const { locale } = await params;
   const t = await getTranslations('treatments');
   const tc = await getTranslations('common');
+  const hero = await getPageHero('treatments', locale);
+  const heroImageUrl = hero?.heroImage
+    ? urlFor(hero.heroImage)?.width(1200).height(630).url() || undefined
+    : undefined;
 
   return (
     <>
       {/* Hero */}
       <HeroBanner
         variant="fullscreen"
-        title={t('title')}
-        subtitle={t('heroSubtitle')}
-        imageSrc="/images/treatments/lifting.png"
+        title={hero?.title || t('title')}
+        subtitle={hero?.subtitle || t('heroSubtitle')}
+        imageSrc={heroImageUrl}
         className="!h-[280px] !max-h-[280px]"
       />
 

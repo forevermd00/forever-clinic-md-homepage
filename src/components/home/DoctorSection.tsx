@@ -2,35 +2,13 @@ import { getTranslations } from 'next-intl/server';
 import { ImagePlaceholder } from '@/components/common/ImagePlaceholder';
 import type { Doctor } from '@/components/brand/DoctorCard';
 
-/* Fallback doctor data - used when CMS data is not provided */
-const FALLBACK_DOCTORS: Doctor[] = [
-  {
-    name: '김포에버 원장',
-    specialty: '리프팅 · 피부케어 전문',
-    bio: '서울대학교 의과대학 졸업\n피부과 전문의 15년 경력',
-  },
-  {
-    name: '이포에버 원장',
-    specialty: '토닝 · 색소 전문',
-    bio: '연세대학교 의과대학 졸업\n레이저 치료 전문의 12년 경력',
-  },
-  {
-    name: '박포에버 원장',
-    specialty: '보톡스 · 필러 전문',
-    bio: '고려대학교 의과대학 졸업\n성형외과 전문의 10년 경력',
-  },
-  {
-    name: '최포에버 원장',
-    specialty: '스킨케어 · 재생 전문',
-    bio: '서울대학교 의과대학 졸업\n피부과 전문의 8년 경력',
-  },
-];
-
 interface DoctorSectionProps {
   doctors?: Doctor[];
 }
 
 export async function DoctorSection({ doctors }: DoctorSectionProps = {}) {
+  if (!doctors || doctors.length === 0) return null;
+
   const t = await getTranslations('home');
 
   return (
@@ -45,7 +23,7 @@ export async function DoctorSection({ doctors }: DoctorSectionProps = {}) {
 
         {/* Doctor cards - fixed width, wrap */}
         <div className="flex flex-wrap justify-center gap-6">
-          {(doctors ?? FALLBACK_DOCTORS).map((doctor) => (
+          {doctors.map((doctor) => (
             <div
               key={doctor.name}
               className="w-[270px] overflow-hidden rounded-[8px] bg-white"

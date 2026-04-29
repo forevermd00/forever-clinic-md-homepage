@@ -13,6 +13,29 @@ export default defineType({
 
   fields: [
     defineField({
+      name: 'items',
+      title: '통계 항목 (구버전)',
+      type: 'array',
+      hidden: true,
+      of: [
+        defineArrayMember({
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'label',
+              title: '항목명',
+              type: 'localizedString',
+            }),
+            defineField({
+              name: 'value',
+              title: '값',
+              type: 'localizedString',
+            }),
+          ],
+        }),
+      ],
+    }),
+    defineField({
       name: 'stats',
       title: '통계 항목',
       type: 'array',

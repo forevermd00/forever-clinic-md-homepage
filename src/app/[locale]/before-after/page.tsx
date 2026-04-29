@@ -5,6 +5,8 @@ import { BAGrid } from '@/components/ba/BAGrid';
 import { type BACase } from '@/components/ba/BACard';
 import { getBACases } from '@/lib/data/ba';
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
+import { getPageHero } from '@/lib/data/hero';
+import { urlFor } from '@/lib/sanity/image';
 
 const titles: Record<string, string> = {
   ko: '비포 & 애프터',
@@ -38,56 +40,6 @@ export async function generateMetadata({
   };
 }
 
-const FALLBACK_BA_CASES: BACase[] = [
-  {
-    id: '1',
-    treatmentName: '울쎄라 리프팅',
-    sessionCount: 3,
-    category: 'lifting',
-  },
-  {
-    id: '2',
-    treatmentName: '써마지 FLX',
-    sessionCount: 1,
-    category: 'lifting',
-  },
-  { id: '3', treatmentName: '피코토닝', sessionCount: 5, category: 'toning' },
-  { id: '4', treatmentName: '아쿠아필', sessionCount: 2, category: 'skincare' },
-  {
-    id: '5',
-    treatmentName: '보톡스 이마',
-    sessionCount: 1,
-    category: 'botox-filler',
-  },
-  { id: '6', treatmentName: '실리프팅', sessionCount: 4, category: 'lifting' },
-  { id: '7', treatmentName: '레이저토닝', sessionCount: 8, category: 'toning' },
-  {
-    id: '8',
-    treatmentName: '히알루론산 필러',
-    sessionCount: 1,
-    category: 'botox-filler',
-  },
-  { id: '9', treatmentName: 'LDM 관리', sessionCount: 3, category: 'skincare' },
-  {
-    id: '10',
-    treatmentName: '인모드 리프팅',
-    sessionCount: 2,
-    category: 'lifting',
-  },
-  {
-    id: '11',
-    treatmentName: '제네시스 토닝',
-    sessionCount: 6,
-    category: 'toning',
-  },
-  {
-    id: '12',
-    treatmentName: '스킨보톡스',
-    sessionCount: 2,
-    category: 'botox-filler',
-  },
-];
-
 function mapCmsCases(
   cmsCases: Awaited<ReturnType<typeof getBACases>>,
 ): BACase[] {
@@ -114,16 +66,22 @@ export default async function BeforeAfterPage({
   const activeCategory = cat || 'all';
   const t = await getTranslations('ba');
 
-  const cmsCases = await getBACases(locale, activeCategory);
-  const cases = cmsCases.length > 0 ? mapCmsCases(cmsCases) : FALLBACK_BA_CASES;
+  const [cmsCases, hero] = await Promise.all([
+    getBACases(locale, activeCategory),
+    getPageHero('before-after', locale),
+  ]);
+  const cases = mapCmsCases(cmsCases);
+  const heroImageUrl = hero?.heroImage
+    ? urlFor(hero.heroImage)?.width(1200).height(630).url() || undefined
+    : undefined;
 
   return (
     <>
       <HeroBanner
         variant="fullscreen"
-        title={t('title')}
-        subtitle={t('heroSubtitle')}
-        imageSrc="/images/heroes/ba-hero.png"
+        title={hero?.title || t('title')}
+        subtitle={hero?.subtitle || t('heroSubtitle')}
+        imageSrc={heroImageUrl}
         className="!h-[280px] !max-h-[280px]"
       />
       <BAGrid

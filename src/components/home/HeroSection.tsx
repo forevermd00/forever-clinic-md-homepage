@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import type { HeroData } from '@/lib/data/hero';
+import { urlFor } from '@/lib/sanity/image';
 
 interface HeroSectionProps {
   hero?: HeroData | null;
@@ -8,17 +9,22 @@ interface HeroSectionProps {
 export async function HeroSection({ hero }: HeroSectionProps = {}) {
   const t = await getTranslations('home');
 
-  const title = hero?.mainTitle || t('heroTitle');
-  const subtitle = hero?.mainSubtitle || t('heroSubtitle');
+  const title = hero?.title || t('heroTitle');
+  const subtitle = hero?.subtitle || t('heroSubtitle');
+  const heroImageUrl = hero?.heroImage
+    ? urlFor(hero.heroImage)?.width(1920).height(1080).url() || null
+    : null;
 
   return (
     <section className="relative flex min-h-[calc(100dvh-4rem)] w-full items-center justify-center overflow-hidden bg-[#c4b7a9]">
-      {/* Background image */}
-      <img
-        src="/images/home/hero-1.png"
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover"
-      />
+      {/* Background image from CMS */}
+      {heroImageUrl && (
+        <img
+          src={heroImageUrl}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      )}
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/30" />
 

@@ -35,11 +35,18 @@ const snsIcons = [
   { label: 'B', title: 'Blog' },
 ];
 
-interface FooterProps {
-  locale?: string;
+interface FooterClinicInfo {
+  address?: string;
+  phone?: string;
+  email?: string;
 }
 
-export function Footer({ locale = 'ko' }: FooterProps) {
+interface FooterProps {
+  locale?: string;
+  clinicInfo?: FooterClinicInfo;
+}
+
+export function Footer({ locale = 'ko', clinicInfo }: FooterProps) {
   const t = useTranslations('footer');
 
   return (
@@ -53,11 +60,10 @@ export function Footer({ locale = 'ko' }: FooterProps) {
               <p>FOREVER CLINIC</p>
               <p>MYEONGDONG</p>
             </div>
-            {/* TODO: Clinic info should come from CMS (clinicInfo) */}
             <div className="flex flex-col gap-0.5 text-[13px] leading-[22px] text-[#706263]">
-              <p>{t('clinicAddress')}</p>
-              <p>{t('clinicPhone')}</p>
-              <p>{t('clinicEmail')}</p>
+              <p>{clinicInfo?.address || t('clinicAddress')}</p>
+              <p>{clinicInfo?.phone || t('clinicPhone')}</p>
+              <p>{clinicInfo?.email || t('clinicEmail')}</p>
             </div>
           </div>
 

@@ -1,5 +1,6 @@
 import { sanityFetch } from '@/lib/sanity/fetch';
 import { brandPhilosophyQuery } from '@/lib/sanity/queries';
+import { urlFor } from '@/lib/sanity/image';
 
 /* ─── Sanity raw shape ─── */
 
@@ -30,13 +31,10 @@ export type BrandValue = {
 export type BrandPhilosophy = {
   title?: string;
   subtitle?: string;
+  backgroundImage?: string;
   content?: string;
   values: BrandValue[];
 };
-
-/* ─── Fallback ─── */
-
-const FALLBACK_VALUES: BrandValue[] = [];
 
 /* ─── Fetch Function ─── */
 
@@ -52,6 +50,9 @@ export async function getBrandPhilosophy(
   return {
     title: data.title,
     subtitle: data.subtitle,
+    backgroundImage: data.backgroundImage
+      ? urlFor(data.backgroundImage)?.width(1920).height(800).url() || undefined
+      : undefined,
     content: data.content,
     values:
       data.values?.map((v) => ({
@@ -59,7 +60,9 @@ export async function getBrandPhilosophy(
         titleKo: v.titleKo || '',
         titleEn: v.titleEn || '',
         description: v.description || '',
-        image: undefined, // Sanity image requires URL builder; leave for now
-      })) ?? FALLBACK_VALUES,
+        image: v.image
+          ? urlFor(v.image)?.width(600).height(400).url() || undefined
+          : undefined,
+      })) ?? [],
   };
 }

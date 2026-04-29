@@ -8,6 +8,8 @@ import { BrandSectionNav } from '@/components/brand/BrandSectionNav';
 import { getDoctors } from '@/lib/data/doctors';
 import { getClinicInfo, getFacilities, getEquipment } from '@/lib/data/clinic';
 import { getBrandPhilosophy } from '@/lib/data/brand';
+import { getPageHero } from '@/lib/data/hero';
+import { urlFor } from '@/lib/sanity/image';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getMedicalBusinessJsonLd } from '@/lib/seo/jsonld';
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
@@ -57,14 +59,18 @@ export default async function BrandPage({
   const t = await getTranslations('brand');
   const th = await getTranslations('home');
 
-  const [doctors, facilities, equipment, clinicInfo, brandPhilosophy] =
+  const [doctors, facilities, equipment, clinicInfo, brandPhilosophy, hero] =
     await Promise.all([
       getDoctors(locale),
       getFacilities(locale),
       getEquipment(locale),
       getClinicInfo(locale),
       getBrandPhilosophy(locale),
+      getPageHero('brand', locale),
     ]);
+  const heroImageUrl = hero?.heroImage
+    ? urlFor(hero.heroImage)?.width(1200).height(630).url() || undefined
+    : undefined;
 
   // Map CMS brand values to page structure (key order: honesty, precision, expertise, dignity)
   const valueKeyMap: Record<string, { tKey: string; imgFallback: string }> = {
@@ -126,9 +132,9 @@ export default async function BrandPage({
       {/* Hero */}
       <HeroBanner
         variant="fullscreen"
-        title={th('heroTitle')}
-        subtitle={th('heroSubtitle')}
-        imageSrc="/images/heroes/brand-hero.png"
+        title={hero?.title || th('heroTitle')}
+        subtitle={hero?.subtitle || th('heroSubtitle')}
+        imageSrc={heroImageUrl}
         className="!h-[280px] !max-h-[280px]"
       />
 

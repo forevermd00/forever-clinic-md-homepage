@@ -16,88 +16,6 @@ type QuickEntryCard = {
   linkUrl?: string;
 };
 
-/* Fallback card content - used when CMS data is not provided */
-const FALLBACK_CARDS_BY_TAB: Record<string, QuickEntryCard[]> = {
-  treatment: [
-    {
-      id: 't1',
-      title: '리프팅',
-      description: '처진 피부를 끌어올려 탄력을 되찾아 드립니다',
-      image: '/images/home/qe-lifting.png',
-    },
-    {
-      id: 't2',
-      title: '피부케어',
-      description: '건강한 피부 본연의 광채를 되살리는 케어',
-      image: '/images/home/qe-skincare.png',
-    },
-    {
-      id: 't3',
-      title: '토닝·색소',
-      description: '균일한 피부톤으로 맑은 인상을 완성합니다',
-      image: '/images/home/qe-toning.png',
-    },
-    {
-      id: 't4',
-      title: '보톡스·필러',
-      description: '자연스러운 볼륨과 라인으로 아름다움을',
-      image: '/images/home/qe-botox.jpg',
-    },
-  ],
-  concern: [
-    {
-      id: 'c1',
-      title: '주름·처짐',
-      description: '나이 들어 보이는 주름과 처진 피부 개선',
-      image: '/images/home/qe-concern-wrinkle.png',
-    },
-    {
-      id: 'c2',
-      title: '색소·잡티',
-      description: '기미, 주근깨 등 고르지 못한 피부톤 해결',
-      image: '/images/home/qe-concern-pigment.png',
-    },
-    {
-      id: 'c3',
-      title: '모공·피부결',
-      description: '넓은 모공과 거친 피부결 매끈하게',
-      image: '/images/home/qe-concern-pore.png',
-    },
-    {
-      id: 'c4',
-      title: '볼륨·윤곽',
-      description: '꺼진 볼륨과 윤곽선을 자연스럽게 회복',
-      image: '/images/home/qe-concern-volume.png',
-    },
-  ],
-  situation: [
-    {
-      id: 's1',
-      title: '특별한 날 준비',
-      description: '웨딩 D-day를 위한 맞춤 피부 관리 플랜',
-      image: '/images/home/qe-situation-special.png',
-    },
-    {
-      id: 's2',
-      title: '정기 관리',
-      description: '지속적인 피부 컨디션 유지 관리',
-      image: '/images/home/qe-situation-regular.png',
-    },
-    {
-      id: 's3',
-      title: '빠른 시술',
-      description: '바쁜 일정 속 빠르게 효과를 보는 시술',
-      image: '/images/home/qe-situation-quick.png',
-    },
-    {
-      id: 's4',
-      title: '처음 방문',
-      description: '피부과가 처음이신 분을 위한 가이드',
-      image: '/images/home/qe-situation-first.png',
-    },
-  ],
-};
-
 const TAB_KEYS: Record<string, string> = {
   treatment: 'tabTreatment',
   concern: 'tabConcern',
@@ -113,7 +31,7 @@ export function QuickEntrySection({ cardsByTab }: QuickEntrySectionProps = {}) {
   const locale = pathname.split('/')[1] || 'ko';
   const t = useTranslations('home');
   const [activeTab, setActiveTab] = useState('treatment');
-  const allCards = cardsByTab ?? FALLBACK_CARDS_BY_TAB;
+  const allCards = cardsByTab ?? {};
   const cards = allCards[activeTab] ?? [];
 
   return (

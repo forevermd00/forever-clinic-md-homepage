@@ -70,6 +70,7 @@ function HeroBanner({
       className={cn(
         'relative flex items-center justify-center overflow-hidden',
         'h-[60vh] max-h-[600px] md:h-[70vh] lg:h-[80vh]',
+        !imageSrc && !videoSrc && 'bg-forever-beige',
         className,
       )}
     >
@@ -92,15 +93,31 @@ function HeroBanner({
         />
       ) : null}
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/30" />
+      {/* Overlay - only when media is present */}
+      {(imageSrc || videoSrc) && (
+        <div className="absolute inset-0 bg-black/30" />
+      )}
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center gap-4 px-6 text-center text-white">
+      <div
+        className={cn(
+          'relative z-10 flex flex-col items-center gap-4 px-6 text-center',
+          imageSrc || videoSrc ? 'text-white' : 'text-forever-charcoal',
+        )}
+      >
         <h1 className="text-[28px] font-bold whitespace-pre-line md:text-[36px] lg:text-[40px]">
           {title}
         </h1>
-        {subtitle && <p className="text-[18px] text-white/90">{subtitle}</p>}
+        {subtitle && (
+          <p
+            className={cn(
+              'text-[18px]',
+              imageSrc || videoSrc ? 'text-white/90' : 'text-[#706263]',
+            )}
+          >
+            {subtitle}
+          </p>
+        )}
         {ctaText && ctaHref && (
           <a
             href={ctaHref}

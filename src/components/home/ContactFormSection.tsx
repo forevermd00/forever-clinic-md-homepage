@@ -22,9 +22,10 @@ export function ContactFormSection() {
     () => false,
   );
   const [name, setName] = useState('');
+  const [countryCode, setCountryCode] = useState('+82');
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
-  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
+  const [checkedIds, setCheckedIds] = useState<Set<string> | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -32,34 +33,57 @@ export function ContactFormSection() {
     if (isSubmitting || !name || !phone) return;
     setIsSubmitting(true);
     try {
-      // TODO: Resend 이메일 발송 API 연동 예정
-      // const treatments = activeCartItems
-      //   .filter((i) => checkedIds.has(i.id))
-      //   .map((i) => `${i.treatmentName} (${i.packageLabel} × ${i.quantity})`);
-      // await fetch('/api/contact', { method: 'POST', body: JSON.stringify({ name, phone, treatments, message }) });
+      const selectedTreatments = activeCartItems
+        .filter((i) => effectiveCheckedIds.has(i.id))
+        .map((i) => ({
+          treatmentSlug: i.treatmentSlug,
+          treatmentName: i.treatmentName,
+          packageLabel: i.packageLabel,
+          quantity: i.quantity,
+        }));
 
-      setIsSuccess(true);
-      setName('');
-      setPhone('');
-      setMessage('');
-      setCheckedIds(new Set());
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          phone: `${countryCode} ${phone}`,
+          message,
+          treatments:
+            selectedTreatments.length > 0 ? selectedTreatments : undefined,
+          source: 'contact-form',
+        }),
+      });
+
+      if (res.ok) {
+        setIsSuccess(true);
+        setName('');
+        setPhone('');
+        setMessage('');
+        setCheckedIds(null);
+      }
+    } catch {
+      // silent fail
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const toggleCheck = (id: string) => {
-    setCheckedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+    const current = effectiveCheckedIds;
+    const next = new Set(current);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setCheckedIds(next);
   };
 
   const activeCartItems = mounted
     ? cartItems.filter((i) => i.quantity > 0)
     : [];
+
+  // 기본 전체 선택: checkedIds가 null이면 모든 항목 선택
+  const effectiveCheckedIds =
+    checkedIds ?? new Set(activeCartItems.map((i) => i.id));
 
   return (
     <section className="bg-[#faf8f5]">
@@ -87,13 +111,32 @@ export function ContactFormSection() {
                 <label className="text-[13px] font-medium text-[#2b2b2b]">
                   {t('formPhone')}
                 </label>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="010-0000-0000"
-                  className="h-[44px] rounded-[6px] border border-[#d9d9d9] bg-white px-3 py-2.5 text-[14px] placeholder:text-[#b3b3b3]"
-                />
+                <div className="flex gap-2">
+                  <select
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    className="h-[44px] w-[110px] shrink-0 rounded-[6px] border border-[#d9d9d9] bg-white px-2 text-[13px] text-[#2b2b2b]"
+                  >
+                    <option value="+82">{'\u{1F1F0}\u{1F1F7}'} +82</option>
+                    <option value="+81">{'\u{1F1EF}\u{1F1F5}'} +81</option>
+                    <option value="+86">{'\u{1F1E8}\u{1F1F3}'} +86</option>
+                    <option value="+1">{'\u{1F1FA}\u{1F1F8}'} +1</option>
+                    <option value="+44">{'\u{1F1EC}\u{1F1E7}'} +44</option>
+                    <option value="+61">{'\u{1F1E6}\u{1F1FA}'} +61</option>
+                    <option value="+65">{'\u{1F1F8}\u{1F1EC}'} +65</option>
+                    <option value="+852">{'\u{1F1ED}\u{1F1F0}'} +852</option>
+                    <option value="+886">{'\u{1F1F9}\u{1F1FC}'} +886</option>
+                    <option value="+66">{'\u{1F1F9}\u{1F1ED}'} +66</option>
+                    <option value="+84">{'\u{1F1FB}\u{1F1F3}'} +84</option>
+                  </select>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="010-0000-0000"
+                    className="h-[44px] flex-1 rounded-[6px] border border-[#d9d9d9] bg-white px-3 py-2.5 text-[14px] placeholder:text-[#b3b3b3]"
+                  />
+                </div>
               </div>
             </div>
 
@@ -105,7 +148,7 @@ export function ContactFormSection() {
               <div className="overflow-hidden rounded-[6px] border border-[#efe5d9] bg-white">
                 {activeCartItems.length > 0 ? (
                   activeCartItems.map((item) => {
-                    const isChecked = checkedIds.has(item.id);
+                    const isChecked = effectiveCheckedIds.has(item.id);
                     return (
                       <div
                         key={item.id}

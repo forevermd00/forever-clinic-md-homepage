@@ -23,6 +23,11 @@ export default defineType({
       type: 'localizedString',
     }),
     defineField({
+      name: 'slogan',
+      title: '슬로건',
+      type: 'localizedString',
+    }),
+    defineField({
       name: 'backgroundImage',
       title: '배경 이미지',
       type: 'image',
@@ -43,19 +48,14 @@ export default defineType({
           type: 'object',
           fields: [
             defineField({
-              name: 'titleKo',
-              title: '가치 (한글)',
-              type: 'string',
-            }),
-            defineField({
-              name: 'titleEn',
-              title: '가치 (영문)',
-              type: 'string',
+              name: 'title',
+              title: '가치명',
+              type: 'localizedString',
             }),
             defineField({
               name: 'description',
               title: '설명',
-              type: 'localizedText',
+              type: 'localizedString',
             }),
             defineField({
               name: 'image',
@@ -65,7 +65,7 @@ export default defineType({
             }),
           ],
           preview: {
-            select: { title: 'titleKo', subtitle: 'titleEn' },
+            select: { title: 'title.ko', subtitle: 'title.en' },
           },
         }),
       ],

@@ -16,13 +16,6 @@ const FILTER_KEYS = [
   { id: 'botox', key: 'filterBotox' },
 ] as const;
 
-/* Fallback BA cards - used when CMS data is not provided */
-const FALLBACK_BA_CARDS = [
-  { id: 1, treatment: '울쎄라 리프팅', sessions: '3회 시술' },
-  { id: 2, treatment: '피코레이저 토닝', sessions: '5회 시술' },
-  { id: 3, treatment: '보톡스 턱라인', sessions: '1회 시술' },
-];
-
 interface BAPreviewSectionProps {
   cases?: BACase[];
 }
@@ -33,6 +26,8 @@ export function BAPreviewSection({ cases }: BAPreviewSectionProps = {}) {
   const t = useTranslations('ba');
   const tc = useTranslations('common');
   const [activeFilter, setActiveFilter] = useState('all');
+
+  if (!cases || cases.length === 0) return null;
 
   return (
     <section className="bg-white">
@@ -59,23 +54,15 @@ export function BAPreviewSection({ cases }: BAPreviewSectionProps = {}) {
 
         {/* Cards */}
         <div className="flex flex-wrap justify-center gap-5">
-          {(cases && cases.length > 0
-            ? cases.map((c) => ({
-                id: c._id,
-                treatment: c.treatment?.name || '',
-                sessions: c.sessions || '',
-                beforeImage: c.beforeImage,
-                afterImage: c.afterImage,
-                category: c.treatment?.category,
-              }))
-            : FALLBACK_BA_CARDS.map((c) => ({
-                ...c,
-                id: String(c.id),
-                beforeImage: undefined as string | undefined,
-                afterImage: undefined as string | undefined,
-                category: undefined as string | undefined,
-              }))
-          )
+          {cases
+            .map((c) => ({
+              id: c._id,
+              treatment: c.treatment?.name || '',
+              sessions: c.sessions || '',
+              beforeImage: c.beforeImage,
+              afterImage: c.afterImage,
+              category: c.treatment?.category,
+            }))
             .filter(
               (card) =>
                 activeFilter === 'all' || card.category === activeFilter,

@@ -2,6 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
 
@@ -17,10 +18,10 @@ export function BALockOverlay({
   children,
 }: BALockOverlayProps) {
   const t = useTranslations('ba');
+  const pathname = usePathname();
   const { data: session } = useSession();
-  const isKorean = locale === 'ko';
   const isLoggedIn = !!session?.user;
-  const locked = isKorean && !isLoggedIn;
+  const locked = !isLoggedIn;
 
   if (!locked) {
     return <>{children}</>;
@@ -47,7 +48,7 @@ export function BALockOverlay({
         <path d="M7 11V7a5 5 0 0 1 10 0v4" />
       </svg>
       <Link
-        href={`/${locale}/auth/login`}
+        href={`/${locale}/auth/login?callbackUrl=${encodeURIComponent(pathname)}`}
         className="rounded-[4px] bg-[#a83c44] px-3 py-1.5 text-[11px] font-medium text-white"
         onClick={(e) => e.stopPropagation()}
       >

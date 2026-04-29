@@ -9,6 +9,8 @@ import { FloatingCTA } from '@/components/layout/FloatingCTA';
 import { SessionProvider } from 'next-auth/react';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getMedicalBusinessJsonLd } from '@/lib/seo/jsonld';
+import { sanityFetch } from '@/lib/sanity/fetch';
+import { clinicInfoQuery } from '@/lib/sanity/queries';
 import {
   getKeywords,
   siteNames,
@@ -54,6 +56,11 @@ export default async function LocaleLayout({
   }
 
   const messages = await getMessages();
+  const clinicInfo = await sanityFetch<{
+    address?: string;
+    phone?: string;
+    email?: string;
+  } | null>(clinicInfoQuery, { locale });
 
   return (
     <html lang={locale}>
@@ -63,7 +70,7 @@ export default async function LocaleLayout({
           <NextIntlClientProvider messages={messages}>
             <Header />
             <main>{children}</main>
-            <Footer locale={locale} />
+            <Footer locale={locale} clinicInfo={clinicInfo ?? undefined} />
             <FloatingCTA />
           </NextIntlClientProvider>
         </SessionProvider>

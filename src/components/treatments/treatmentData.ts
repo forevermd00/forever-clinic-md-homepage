@@ -1,3 +1,8 @@
+// TODO: Sanity 전환 필요 — 현재 이 파일은 Sanity 데이터가 없을 때의 fallback으로 사용됨.
+// Sanity에 카테고리 메타 정보(label, description, bgColor)가 추가되면
+// 이 파일의 정적 데이터를 제거하고 타입 정의만 유지할 것.
+// 참조: src/lib/data/treatments.ts (Sanity fetch + fallback 로직)
+
 export interface Treatment {
   name: string;
   slug: string;

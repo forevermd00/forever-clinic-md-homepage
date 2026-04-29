@@ -2,7 +2,7 @@
 
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
-import { useState, useSyncExternalStore } from 'react';
+import { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import { useTranslations } from 'next-intl';
 
 interface UserMenuProps {
@@ -20,6 +20,18 @@ export function UserMenu({ locale, mobile }: UserMenuProps) {
   const t = useTranslations('common');
   const tAuth = useTranslations('auth');
   const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
 
   if (!mounted) return null;
 
@@ -33,12 +45,20 @@ export function UserMenu({ locale, mobile }: UserMenuProps) {
           <span className="text-[14px] font-medium text-[#2b2b2b]">
             {session.user.name || session.user.email}
           </span>
-          <button
-            onClick={() => signOut()}
-            className="text-[13px] text-[#706263]"
-          >
-            {tAuth('logout')}
-          </button>
+          <div className="flex items-center gap-3">
+            <Link
+              href={`/${locale}/auth/account`}
+              className="text-[13px] text-[#706263]"
+            >
+              {tAuth('accountSettings')}
+            </Link>
+            <button
+              onClick={() => signOut()}
+              className="text-[13px] text-[#706263]"
+            >
+              {tAuth('logout')}
+            </button>
+          </div>
         </div>
       );
     }
@@ -55,7 +75,7 @@ export function UserMenu({ locale, mobile }: UserMenuProps) {
   // Desktop layout
   if (isLoggedIn) {
     return (
-      <div className="relative hidden md:block">
+      <div className="relative hidden md:block" ref={menuRef}>
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="flex items-center text-[13px] font-medium text-[#2b2b2b]"
@@ -81,6 +101,13 @@ export function UserMenu({ locale, mobile }: UserMenuProps) {
                 {session.user.name || session.user.email}
               </p>
             </div>
+            <Link
+              href={`/${locale}/auth/account`}
+              onClick={() => setIsOpen(false)}
+              className="block w-full px-4 py-2.5 text-left text-[13px] text-[#706263] transition-colors hover:bg-neutral-50"
+            >
+              {tAuth('accountSettings')}
+            </Link>
             <button
               onClick={() => {
                 signOut();

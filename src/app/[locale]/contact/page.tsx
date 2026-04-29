@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { ContactFormSection } from '@/components/home/ContactFormSection';
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
+import { getClinicInfo } from '@/lib/data/clinic';
 
 const titles: Record<string, string> = {
   ko: '예약 및 상담',
@@ -39,8 +40,14 @@ export async function generateMetadata({
    Hero -> Online consultation form -> Directions
    ---------------------------------------------------------------- */
 
-export default async function ContactPage() {
+export default async function ContactPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
   const t = await getTranslations('contact');
+  const clinic = await getClinicInfo(locale);
 
   return (
     <>
@@ -77,7 +84,7 @@ export default async function ContactPage() {
                     {t('address')}
                   </p>
                   <p className="text-[14px] leading-[1.5] text-[#2b2b2b]">
-                    {t('clinicAddress')}
+                    {clinic.address}
                   </p>
                 </div>
               </div>
@@ -87,9 +94,7 @@ export default async function ContactPage() {
                   <p className="text-[12px] font-medium text-[#d4c8bd]">
                     {t('phone')}
                   </p>
-                  <p className="text-[14px] text-[#2b2b2b]">
-                    {t('clinicPhone')}
-                  </p>
+                  <p className="text-[14px] text-[#2b2b2b]">{clinic.phone}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -99,7 +104,18 @@ export default async function ContactPage() {
                     {t('hours')}
                   </p>
                   <p className="text-[14px] leading-[1.5] whitespace-pre-line text-[#2b2b2b]">
-                    {t('clinicHours')}
+                    {clinic.hours}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="size-8 shrink-0 rounded-full bg-[#efe5d9]" />
+                <div>
+                  <p className="text-[12px] font-medium text-[#d4c8bd]">
+                    {t('subway') ?? '지하철'}
+                  </p>
+                  <p className="text-[14px] leading-[1.5] whitespace-pre-line text-[#2b2b2b]">
+                    {clinic.subway}
                   </p>
                 </div>
               </div>

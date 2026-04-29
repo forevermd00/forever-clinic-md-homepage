@@ -18,21 +18,12 @@ interface SanityStatsStrip {
   }[];
 }
 
-/* ─── Fallback Data ─── */
-
-const FALLBACK_STATS: StatItem[] = [
-  { value: '15+', label: 'statsExperts' },
-  { value: '30,000+', label: 'statsCases' },
-  { value: '98%', label: 'statsSatisfaction' },
-  { value: '10+', label: 'statsEquipment' },
-];
-
 /* ─── Fetch Function ─── */
 
 export async function getStats(locale: string): Promise<StatItem[]> {
   const data = await sanityFetch<SanityStatsStrip>(statsStripQuery, { locale });
 
-  if (!data?.stats || data.stats.length === 0) return FALLBACK_STATS;
+  if (!data?.stats || data.stats.length === 0) return [];
 
   return data.stats.map((s) => {
     const label =
