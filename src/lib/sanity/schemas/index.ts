@@ -1,6 +1,7 @@
 // Object types
 import localizedString from './objects/localizedString';
 import localizedText from './objects/localizedText';
+import localizedBlockContent from './objects/localizedBlockContent';
 import priceOption from './objects/priceOption';
 import faqItem from './objects/faqItem';
 import businessHours from './objects/businessHours';
@@ -15,7 +16,7 @@ import quickEntryTab from './documents/quickEntryTab';
 import quickEntryCard from './documents/quickEntryCard';
 import brandPhilosophy from './documents/brandPhilosophy';
 import clinicInfo from './documents/clinicInfo';
-import heroContent from './documents/heroContent';
+
 import statsStrip from './documents/statsStrip';
 import eventPopup from './documents/eventPopup';
 import facility from './documents/facility';
@@ -25,11 +26,13 @@ import youtubeVideo from './documents/youtubeVideo';
 import blogPost from './documents/blogPost';
 import notice from './documents/notice';
 import contactInquiry from './documents/contactInquiry';
+import pageHero from './documents/pageHero';
 
 export const schemaTypes = [
   // Objects (must be registered before documents that reference them)
   localizedString,
   localizedText,
+  localizedBlockContent,
   priceOption,
   faqItem,
   businessHours,
@@ -44,7 +47,6 @@ export const schemaTypes = [
   quickEntryCard,
   brandPhilosophy,
   clinicInfo,
-  heroContent,
   statsStrip,
   eventPopup,
   facility,
@@ -54,4 +56,5 @@ export const schemaTypes = [
   blogPost,
   notice,
   contactInquiry,
+  pageHero,
 ];

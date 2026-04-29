@@ -31,7 +31,7 @@ export default defineType({
     defineField({
       name: 'content',
       title: '본문',
-      type: 'localizedText',
+      type: 'localizedBlockContent',
     }),
     defineField({
       name: 'publishDate',
