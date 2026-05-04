@@ -171,7 +171,7 @@ export const brandPhilosophyQuery = `
     "values": values[] {
       _key, titleKo, titleEn,
       "description": description[$locale],
-      image
+      "image": backgroundImage
     }
   }
 `;

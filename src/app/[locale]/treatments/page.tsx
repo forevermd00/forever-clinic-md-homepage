@@ -8,6 +8,16 @@ import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
 import { getPageHero } from '@/lib/data/hero';
 import { urlFor } from '@/lib/sanity/image';
 
+function toImageUrl(
+  heroImage: unknown,
+  w: number,
+  h: number,
+): string | undefined {
+  return heroImage
+    ? urlFor(heroImage)?.width(w).height(h).url() || undefined
+    : undefined;
+}
+
 const titles: Record<string, string> = {
   ko: '시술 안내',
   en: 'Treatments',
@@ -65,13 +75,6 @@ export async function generateMetadata({
   };
 }
 
-const categoryImages: Record<string, string> = {
-  lifting: '/images/treatments/lifting.png',
-  skincare: '/images/treatments/skincare.png',
-  toning: '/images/treatments/toning.png',
-  'botox-filler': '/images/treatments/botox-filler.jpg',
-};
-
 export default async function TreatmentsHubPage({
   params,
 }: {
@@ -80,10 +83,23 @@ export default async function TreatmentsHubPage({
   const { locale } = await params;
   const t = await getTranslations('treatments');
   const tc = await getTranslations('common');
-  const hero = await getPageHero('treatments', locale);
-  const heroImageUrl = hero?.heroImage
-    ? urlFor(hero.heroImage)?.width(1200).height(630).url() || undefined
-    : undefined;
+
+  const [hero, promoHero, ...categoryHeroes] = await Promise.all([
+    getPageHero('treatments', locale),
+    getPageHero('promotions', locale),
+    ...TREATMENT_CATEGORIES.map((c) =>
+      getPageHero(`category-thumb-${c.slug}`, locale),
+    ),
+  ]);
+  const heroImageUrl = toImageUrl(hero?.heroImage, 1200, 630);
+  const promoImageUrl = toImageUrl(promoHero?.heroImage, 800, 600);
+  const categoryImageUrls: Record<string, string | undefined> =
+    Object.fromEntries(
+      TREATMENT_CATEGORIES.map((c, i) => [
+        c.slug,
+        toImageUrl(categoryHeroes[i]?.heroImage, 800, 600),
+      ]),
+    );
 
   return (
     <>
@@ -105,7 +121,7 @@ export default async function TreatmentsHubPage({
         ctaText={tc('viewEvents')}
         bgColor="bg-[#faf5f0]"
         imagePosition="right"
-        imageSrc="/images/heroes/promo-hero.png"
+        imageSrc={promoImageUrl}
         isEvent
       />
 
@@ -125,7 +141,7 @@ export default async function TreatmentsHubPage({
             ctaText={tc('viewTreatments')}
             bgColor={bgColor}
             imagePosition={imagePosition}
-            imageSrc={categoryImages[category.slug]}
+            imageSrc={categoryImageUrls[category.slug]}
           />
         );
       })}

@@ -8,6 +8,8 @@ import { CTABanner } from '@/components/common/CTABanner';
 import { TreatmentCard } from '@/components/treatments/TreatmentCard';
 import { TREATMENT_CATEGORIES } from '@/components/treatments/treatmentData';
 import { getTreatmentsByCategory } from '@/lib/data/treatments';
+import { getPageHero } from '@/lib/data/hero';
+import { urlFor } from '@/lib/sanity/image';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getItemListJsonLd } from '@/lib/seo/jsonld';
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
@@ -37,20 +39,19 @@ export function generateStaticParams() {
   return TREATMENT_CATEGORIES.map((c) => ({ category: c.slug }));
 }
 
-const heroImages: Record<string, string> = {
-  lifting: '/images/heroes/lifting-hero.png',
-  skincare: '/images/heroes/skincare-hero.png',
-  toning: '/images/heroes/toning-hero.png',
-  'botox-filler': '/images/heroes/botox-hero.png',
-};
-
 export default async function TreatmentCategoryPage({
   params,
 }: {
   params: Promise<{ locale: string; category: string }>;
 }) {
   const { locale, category: categorySlug } = await params;
-  const category = await getTreatmentsByCategory(categorySlug, locale);
+  const [category, hero] = await Promise.all([
+    getTreatmentsByCategory(categorySlug, locale),
+    getPageHero(`category-${categorySlug}`, locale),
+  ]);
+  const heroImageUrl = hero?.heroImage
+    ? urlFor(hero.heroImage)?.width(1920).height(600).url() || undefined
+    : undefined;
   const tc = await getTranslations('common');
 
   if (!category) {
@@ -74,7 +75,7 @@ export default async function TreatmentCategoryPage({
         variant="fullscreen"
         title={category.label}
         subtitle={category.description}
-        imageSrc={heroImages[categorySlug]}
+        imageSrc={heroImageUrl}
         className="!h-[280px] !max-h-[280px]"
       />
 
