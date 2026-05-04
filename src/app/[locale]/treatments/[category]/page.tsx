@@ -14,6 +14,8 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { getItemListJsonLd } from '@/lib/seo/jsonld';
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({
   params,
 }: {

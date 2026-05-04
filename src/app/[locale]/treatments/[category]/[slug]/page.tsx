@@ -80,6 +80,8 @@ export async function generateMetadata({
   };
 }
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() {
   return TREATMENT_CATEGORIES.flatMap((c) =>
     c.treatments.map((t) => ({ category: c.slug, slug: t.slug })),
