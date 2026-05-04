@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@sanity/client';
 
-const sanityWriteClient = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'develop',
-  apiVersion: '2026-04-25',
-  token: process.env.SANITY_API_TOKEN!,
-  useCdn: false,
-});
+function getSanityClient() {
+  return createClient({
+    projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
+    dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
+    apiVersion: '2026-04-25',
+    token: process.env.SANITY_API_TOKEN!,
+    useCdn: false,
+  });
+}
 
 interface InquiryBody {
   name: string;
@@ -23,6 +25,7 @@ interface InquiryBody {
 }
 
 export async function POST(req: NextRequest) {
+  const sanityWriteClient = getSanityClient();
   try {
     const body: InquiryBody = await req.json();
 
