@@ -19,7 +19,7 @@ import { getPromotions } from '@/lib/data/promotions';
 import { getHomeBACases } from '@/lib/data/ba';
 import { getStats } from '@/lib/data/stats';
 import { getDoctors } from '@/lib/data/doctors';
-import { getClinicInfo } from '@/lib/data/clinic';
+import { getClinicInfo, getContactSectionConfig } from '@/lib/data/clinic';
 
 export async function generateMetadata({
   params,
@@ -58,6 +58,7 @@ export default async function HomePage({
     stats,
     doctors,
     clinicInfo,
+    contactConfig,
   ] = await Promise.all([
     getHeroContent(locale),
     getQuickEntryCards('treatment', locale),
@@ -68,6 +69,7 @@ export default async function HomePage({
     getStats(locale),
     getDoctors(locale),
     getClinicInfo(locale),
+    getContactSectionConfig(locale),
   ]);
 
   const cardsByTab = {
@@ -85,7 +87,7 @@ export default async function HomePage({
       <StatsStripSection stats={stats} />
       <DoctorSection doctors={doctors} />
       <LocationSection clinicInfo={clinicInfo} />
-      <ContactFormSection />
+      <ContactFormSection config={contactConfig} />
     </>
   );
 }

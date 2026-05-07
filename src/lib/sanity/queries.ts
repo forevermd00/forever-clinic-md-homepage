@@ -110,6 +110,15 @@ export const clinicInfoQuery = `
   }
 `;
 
+export const contactSectionConfigQuery = `
+  *[_type == "clinicInfo"][0] {
+    "title": contactHeaderTitle[$locale],
+    "subtitle": contactHeaderSubtitle[$locale],
+    "headerBgColor": contactHeaderBgColor,
+    "accentColor": contactAccentColor
+  }
+`;
+
 // === QuickEntry ===
 export const quickEntryCardsQuery = `
   *[_type == "quickEntryCard" && tab == $tab] | order(sortOrder asc) {

@@ -3,11 +3,10 @@ import { createClient } from '@sanity/client';
 import nodemailer from 'nodemailer';
 
 /* ================================================================
-   이메일 발송 유틸 — Gmail SMTP 직접 발송 (nodemailer)
+   이메일 발송 유틸 — Gmail OAuth2 (nodemailer)
    환경변수:
-     GMAIL_APP_PASSWORD — Gmail 앱 비밀번호 (2단계 인증 → 앱 비밀번호)
+     GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN, GMAIL_USER
    설정 없으면 발송 건너뜀 (개발 환경 안전)
-   수신·발신 모두 forevermd00@gmail.com
 ================================================================ */
 async function sendInquiryEmail(params: {
   name: string;
@@ -19,50 +18,141 @@ async function sendInquiryEmail(params: {
     quantity: number;
   }[];
 }): Promise<void> {
-  const appPassword = process.env.GMAIL_APP_PASSWORD;
-  if (!appPassword) {
+  const clientId = process.env.GMAIL_CLIENT_ID;
+  const clientSecret = process.env.GMAIL_CLIENT_SECRET;
+  const refreshToken = process.env.GMAIL_REFRESH_TOKEN;
+  const user = process.env.GMAIL_USER;
+
+  if (!clientId || !clientSecret || !refreshToken || !user) {
     console.warn(
-      '[email] GMAIL_APP_PASSWORD not set — skipping email notification',
+      '[email] Gmail OAuth2 env vars not set — skipping email notification',
     );
     return;
   }
 
-  const CLINIC_EMAIL = 'forevermd00@gmail.com';
+  const now = new Date().toLocaleString('ko-KR', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
-  const treatmentLines =
-    params.treatments && params.treatments.length > 0
-      ? params.treatments
-          .map(
-            (t) => `  - ${t.treatmentName} / ${t.packageLabel} × ${t.quantity}`,
-          )
-          .join('\n')
-      : '  (없음)';
+  const hasTreatments = params.treatments && params.treatments.length > 0;
 
-  const textBody = `
-포에버의원 명동점 — 새 상담 문의가 접수되었습니다.
+  const treatmentRowsHtml = hasTreatments
+    ? params
+        .treatments!.map(
+          (t) => `
+        <tr>
+          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;">${t.treatmentName}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;">${t.packageLabel}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;text-align:center;">${t.quantity}</td>
+        </tr>`,
+        )
+        .join('')
+    : `<tr><td colspan="3" style="padding:8px 12px;color:#999;">선택된 시술 없음</td></tr>`;
 
-이름: ${params.name}
-연락처: ${params.phone}
-관심 시술:
-${treatmentLines}
-문의 내용: ${params.message || '(없음)'}
+  const htmlBody = `
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f5f5f5;font-family:'Apple SD Gothic Neo',Malgun Gothic,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;padding:32px 0;">
+    <tr><td align="center">
+      <table width="580" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
 
-※ 이 메일은 자동 발송입니다.
-`.trim();
+        <!-- 헤더 -->
+        <tr>
+          <td style="background:#1a1a1a;padding:24px 32px;">
+            <p style="margin:0;color:#c9a96e;font-size:11px;letter-spacing:2px;text-transform:uppercase;">Forever Clinic Myeongdong</p>
+            <h1 style="margin:6px 0 0;color:#fff;font-size:18px;font-weight:600;">새 상담 문의가 접수되었습니다</h1>
+          </td>
+        </tr>
+
+        <!-- 접수 정보 -->
+        <tr>
+          <td style="padding:28px 32px 0;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#fafafa;border-radius:6px;border:1px solid #eee;">
+              <tr>
+                <td style="padding:14px 16px;width:80px;color:#888;font-size:13px;border-bottom:1px solid #eee;">이름</td>
+                <td style="padding:14px 16px;font-size:14px;font-weight:600;border-bottom:1px solid #eee;">${params.name}</td>
+              </tr>
+              <tr>
+                <td style="padding:14px 16px;color:#888;font-size:13px;border-bottom:1px solid #eee;">연락처</td>
+                <td style="padding:14px 16px;font-size:14px;font-weight:600;border-bottom:1px solid #eee;">
+                  <a href="tel:${params.phone}" style="color:#1a1a1a;text-decoration:none;">${params.phone}</a>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:14px 16px;color:#888;font-size:13px;">접수 시각</td>
+                <td style="padding:14px 16px;font-size:13px;">${now}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- 관심 시술 -->
+        <tr>
+          <td style="padding:24px 32px 0;">
+            <p style="margin:0 0 10px;font-size:13px;font-weight:600;color:#444;text-transform:uppercase;letter-spacing:1px;">관심 시술</p>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eee;border-radius:6px;overflow:hidden;">
+              <thead>
+                <tr style="background:#f5f5f5;">
+                  <th style="padding:9px 12px;text-align:left;font-size:12px;color:#888;font-weight:500;">시술명</th>
+                  <th style="padding:9px 12px;text-align:left;font-size:12px;color:#888;font-weight:500;">패키지</th>
+                  <th style="padding:9px 12px;text-align:center;font-size:12px;color:#888;font-weight:500;">수량</th>
+                </tr>
+              </thead>
+              <tbody>${treatmentRowsHtml}</tbody>
+            </table>
+          </td>
+        </tr>
+
+        <!-- 문의 내용 -->
+        <tr>
+          <td style="padding:24px 32px 0;">
+            <p style="margin:0 0 10px;font-size:13px;font-weight:600;color:#444;text-transform:uppercase;letter-spacing:1px;">문의 내용</p>
+            <div style="background:#fafafa;border:1px solid #eee;border-radius:6px;padding:14px 16px;font-size:14px;color:${params.message ? '#1a1a1a' : '#aaa'};line-height:1.7;min-height:48px;">
+              ${params.message ? params.message.replace(/\n/g, '<br>') : '(없음)'}
+            </div>
+          </td>
+        </tr>
+
+        <!-- 푸터 -->
+        <tr>
+          <td style="padding:28px 32px;border-top:1px solid #f0f0f0;margin-top:28px;">
+            <p style="margin:0;font-size:12px;color:#bbb;text-align:center;">이 메일은 포에버의원 명동점 홈페이지에서 자동 발송됩니다.</p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`.trim();
+
+  const treatmentSummary = hasTreatments
+    ? params.treatments!.map((t) => t.treatmentName).join(', ')
+    : '시술 미선택';
 
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: CLINIC_EMAIL,
-      pass: appPassword,
+      type: 'OAuth2',
+      user,
+      clientId,
+      clientSecret,
+      refreshToken,
     },
   });
 
   await transporter.sendMail({
-    from: `포에버의원 명동점 <${CLINIC_EMAIL}>`,
-    to: CLINIC_EMAIL,
-    subject: `[상담문의] ${params.name} / ${params.phone}`,
-    text: textBody,
+    from: `포에버의원 명동점 <${user}>`,
+    to: user,
+    subject: `[상담문의] ${params.name} · ${params.phone} — ${treatmentSummary}`,
+    html: htmlBody,
   });
 }
 

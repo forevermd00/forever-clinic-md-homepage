@@ -1,6 +1,7 @@
 import { sanityFetch } from '@/lib/sanity/fetch';
 import {
   clinicInfoQuery,
+  contactSectionConfigQuery,
   facilitiesQuery,
   equipmentQuery,
 } from '@/lib/sanity/queries';
@@ -151,6 +152,60 @@ export async function getClinicInfo(locale: string): Promise<ClinicInfo> {
   if (!data) return FALLBACK_CLINIC_INFO[locale] ?? FALLBACK_CLINIC_INFO.ko;
 
   return mapClinicInfo(data);
+}
+
+export type ContactSectionConfig = {
+  title: string;
+  subtitle: string;
+  headerBgColor: string;
+  accentColor: string;
+};
+
+const FALLBACK_CONTACT_CONFIG: Record<string, ContactSectionConfig> = {
+  ko: {
+    title: '상담 문의',
+    subtitle: '궁금하신 점이 있으시면 편하게 문의해 주세요',
+    headerBgColor: '#1a1a1a',
+    accentColor: '#a83c44',
+  },
+  en: {
+    title: 'Consultation',
+    subtitle: 'Feel free to reach out with any questions.',
+    headerBgColor: '#1a1a1a',
+    accentColor: '#a83c44',
+  },
+  zh: {
+    title: '咨询预约',
+    subtitle: '如有任何疑问，请随时联系我们。',
+    headerBgColor: '#1a1a1a',
+    accentColor: '#a83c44',
+  },
+  ja: {
+    title: 'ご相談・予約',
+    subtitle: 'お気軽にお問い合わせください。',
+    headerBgColor: '#1a1a1a',
+    accentColor: '#a83c44',
+  },
+};
+
+export async function getContactSectionConfig(
+  locale: string,
+): Promise<ContactSectionConfig> {
+  const data = await sanityFetch<{
+    title?: string;
+    subtitle?: string;
+    headerBgColor?: string;
+    accentColor?: string;
+  }>(contactSectionConfigQuery, { locale });
+  const fallback =
+    FALLBACK_CONTACT_CONFIG[locale] ?? FALLBACK_CONTACT_CONFIG.ko;
+  if (!data) return fallback;
+  return {
+    title: data.title || fallback.title,
+    subtitle: data.subtitle || fallback.subtitle,
+    headerBgColor: data.headerBgColor || fallback.headerBgColor,
+    accentColor: data.accentColor || fallback.accentColor,
+  };
 }
 
 export async function getFacilities(locale: string): Promise<GalleryItem[]> {

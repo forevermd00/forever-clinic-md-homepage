@@ -61,5 +61,31 @@ export default defineType({
       type: 'array',
       of: [defineArrayMember({ type: 'snsLink' })],
     }),
+
+    // ── 상담 섹션 설정 ──────────────────────────────────────────
+    defineField({
+      name: 'contactHeaderTitle',
+      title: '상담 섹션 — 제목',
+      description: '예: 상담 문의',
+      type: 'localizedString',
+    }),
+    defineField({
+      name: 'contactHeaderSubtitle',
+      title: '상담 섹션 — 부제목',
+      description: '예: 궁금하신 점이 있으시면 편하게 문의해 주세요',
+      type: 'localizedString',
+    }),
+    defineField({
+      name: 'contactHeaderBgColor',
+      title: '상담 헤더 배경색',
+      description: 'HEX 코드 (예: #1a1a1a)',
+      type: 'string',
+    }),
+    defineField({
+      name: 'contactAccentColor',
+      title: '상담 섹션 강조색',
+      description: 'HEX 코드 (예: #a83c44) — 체크박스, 링크 색상',
+      type: 'string',
+    }),
   ],
 });

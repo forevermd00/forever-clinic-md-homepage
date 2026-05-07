@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { ContactFormSection } from '@/components/home/ContactFormSection';
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
-import { getClinicInfo } from '@/lib/data/clinic';
+import { getClinicInfo, getContactSectionConfig } from '@/lib/data/clinic';
 
 const titles: Record<string, string> = {
   ko: '예약 및 상담',
@@ -47,22 +47,15 @@ export default async function ContactPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations('contact');
-  const clinic = await getClinicInfo(locale);
+  const [clinic, contactConfig] = await Promise.all([
+    getClinicInfo(locale),
+    getContactSectionConfig(locale),
+  ]);
 
   return (
     <>
-      {/* Hero */}
-      <section className="flex h-[280px] flex-col items-center justify-center gap-3 bg-[#faf8f5] px-4">
-        <h1 className="text-[28px] font-bold text-[#2b2b2b] lg:text-[36px]">
-          {t('heroTitle')}
-        </h1>
-        <p className="text-[14px] text-[#706263] lg:text-[16px]">
-          {t('heroSubtitle')}
-        </p>
-      </section>
-
-      {/* Contact Form (same as homepage) */}
-      <ContactFormSection />
+      {/* Contact Form with header */}
+      <ContactFormSection config={contactConfig} />
 
       {/* Location Info */}
       <section className="bg-[#faf8f5] px-5 py-12 md:px-10 lg:px-[120px] lg:py-16">
