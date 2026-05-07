@@ -67,7 +67,13 @@ export function QuickEntrySection({ cardsByTab }: QuickEntrySectionProps = {}) {
           {cards.map((card) => (
             <Link
               key={card.id}
-              href={`/${locale}${card.linkUrl || '/treatments'}`}
+              href={(() => {
+                const base = `/${locale}${card.linkUrl || '/treatments'}`;
+                if (card.description && card.linkUrl?.includes('slugs=')) {
+                  return `${base}&desc=${encodeURIComponent(card.description)}`;
+                }
+                return base;
+              })()}
               className="w-[270px] overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)] transition-shadow hover:drop-shadow-[0_4px_8px_rgba(0,0,0,0.12)]"
             >
               {/* Image */}

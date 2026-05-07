@@ -85,6 +85,7 @@ export function TreatmentsTabGrid({
     [slugsParam],
   );
   const labelParam = searchParams.get('label') ?? '';
+  const descParam = searchParams.get('desc') ?? '';
 
   // slug 필터가 있을 때 가상 카테고리 생성
   const filteredCategory = useMemo<TreatmentCategory | null>(() => {
@@ -98,11 +99,11 @@ export function TreatmentsTabGrid({
       slug: '__filtered__',
       label: labelParam || '추천 시술',
       labelEn: 'RECOMMENDED',
-      description: '',
+      description: descParam,
       bgColor: 'bg-white',
       treatments: matched,
     };
-  }, [slugFilter, labelParam, categories]);
+  }, [slugFilter, labelParam, descParam, categories]);
 
   // searchParams에서 직접 파생 — useEffect + setState 패턴 제거
   const activeCategory = filteredCategory
