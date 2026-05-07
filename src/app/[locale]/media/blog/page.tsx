@@ -48,14 +48,9 @@ export default async function BlogPage({
 
   const blogPosts = await getBlogPosts(locale);
 
-  const total = blogPosts.length;
-
   return (
     <section className="bg-[#faf8f5] px-5 py-12 md:px-10 lg:px-[120px] lg:py-16">
       <div className="mx-auto max-w-[1272px]">
-        <div className="mb-4 flex justify-end text-[13px] text-[#999]">
-          {total}/{total}
-        </div>
         <div
           className="grid justify-center gap-6"
           style={{ gridTemplateColumns: 'repeat(auto-fill, 300px)' }}

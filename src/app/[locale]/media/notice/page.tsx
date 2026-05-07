@@ -48,14 +48,9 @@ export default async function NoticePage({
 
   const notices = await getNotices(locale);
 
-  const total = notices.length;
-
   return (
     <section className="bg-[#faf8f5] px-5 py-12 md:px-10 lg:px-[120px] lg:py-16">
       <div className="mx-auto max-w-[var(--container-max)]">
-        <div className="mb-4 flex justify-end text-[13px] text-[#999]">
-          {total}/{total}
-        </div>
         <NoticeTable notices={notices} locale={locale} />
         <Pagination
           currentPage={currentPage}
