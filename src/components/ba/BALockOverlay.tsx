@@ -1,8 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
 
@@ -19,6 +18,7 @@ export function BALockOverlay({
 }: BALockOverlayProps) {
   const t = useTranslations('ba');
   const pathname = usePathname();
+  const router = useRouter();
   const { data: session } = useSession();
   const isLoggedIn = !!session?.user;
   const locked = !isLoggedIn;
@@ -47,13 +47,19 @@ export function BALockOverlay({
         <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
         <path d="M7 11V7a5 5 0 0 1 10 0v4" />
       </svg>
-      <Link
-        href={`/${locale}/auth/login?callbackUrl=${encodeURIComponent(pathname)}`}
+      <button
+        type="button"
         className="rounded-[4px] bg-[#a83c44] px-3 py-1.5 text-[11px] font-medium text-white"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          router.push(
+            `/${locale}/auth/login?callbackUrl=${encodeURIComponent(pathname)}`,
+          );
+        }}
       >
         {t('loginToView')}
-      </Link>
+      </button>
     </div>
   );
 }
