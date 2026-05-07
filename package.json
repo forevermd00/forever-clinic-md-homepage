@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "prepare": "husky || true"
+    "prepare": "[ -d .git ] && husky || true"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.2",
