@@ -19,6 +19,8 @@ export default async function NoticeDetailPage({
       nextArticle={cmsResult.nextArticle}
       basePath={`/${locale}/media/notice`}
       locale={locale}
+      position={cmsResult.position}
+      total={cmsResult.total}
     />
   );
 }

@@ -1,5 +1,9 @@
 import { sanityFetch } from '@/lib/sanity/fetch';
-import { baCasesFilteredQuery, baCaseDetailQuery } from '@/lib/sanity/queries';
+import {
+  baCasesFilteredQuery,
+  baCaseDetailQuery,
+  homeBACasesQuery,
+} from '@/lib/sanity/queries';
 import { urlFor } from '@/lib/sanity/image';
 
 /* ─── Sanity raw shapes ─── */
@@ -62,6 +66,11 @@ function mapBACase(raw: SanityBACase): BACase {
 }
 
 /* ─── Fetch Functions ─── */
+
+export async function getHomeBACases(locale: string): Promise<BACase[]> {
+  const data = await sanityFetch<SanityBACase[]>(homeBACasesQuery, { locale });
+  return data?.map(mapBACase) ?? [];
+}
 
 export async function getBACases(
   locale: string,

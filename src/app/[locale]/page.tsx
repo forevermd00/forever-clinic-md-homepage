@@ -16,7 +16,7 @@ import {
 import { getHeroContent } from '@/lib/data/hero';
 import { getQuickEntryCards } from '@/lib/data/quickEntry';
 import { getPromotions } from '@/lib/data/promotions';
-import { getBACases } from '@/lib/data/ba';
+import { getHomeBACases } from '@/lib/data/ba';
 import { getStats } from '@/lib/data/stats';
 import { getDoctors } from '@/lib/data/doctors';
 import { getClinicInfo } from '@/lib/data/clinic';
@@ -64,7 +64,7 @@ export default async function HomePage({
     getQuickEntryCards('concern', locale),
     getQuickEntryCards('situation', locale),
     getPromotions(locale),
-    getBACases(locale),
+    getHomeBACases(locale),
     getStats(locale),
     getDoctors(locale),
     getClinicInfo(locale),

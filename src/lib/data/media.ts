@@ -188,6 +188,8 @@ interface SanityArticleDetail {
   source?: string;
   prevArticle?: { _id?: string; slug?: string; title?: string };
   nextArticle?: { _id?: string; slug?: string; title?: string };
+  position?: number;
+  total?: number;
 }
 
 /* ─── Detail Fetch Functions ─── */
@@ -199,6 +201,8 @@ export async function getPressDetail(
   article: ArticleDetail;
   prevArticle: ArticleNav;
   nextArticle: ArticleNav;
+  position?: number;
+  total?: number;
 } | null> {
   const data = await sanityFetch<SanityArticleDetail>(pressArticleDetailQuery, {
     slug,
@@ -220,6 +224,8 @@ export async function getPressDetail(
     nextArticle: data.nextArticle?.title
       ? { slug: data.nextArticle._id || '', title: data.nextArticle.title }
       : null,
+    position: data.position,
+    total: data.total,
   };
 }
 
@@ -232,6 +238,8 @@ export type BlogDetailResult = {
   };
   prevArticle: ArticleNav;
   nextArticle: ArticleNav;
+  position?: number;
+  total?: number;
 };
 
 interface SanityBlogDetail {
@@ -242,6 +250,8 @@ interface SanityBlogDetail {
   publishDate?: string;
   prevArticle?: { slug?: string; _id?: string; title?: string };
   nextArticle?: { slug?: string; _id?: string; title?: string };
+  position?: number;
+  total?: number;
 }
 
 export async function getBlogDetail(
@@ -274,6 +284,8 @@ export async function getBlogDetail(
           title: data.nextArticle.title,
         }
       : null,
+    position: data.position,
+    total: data.total,
   };
 }
 
@@ -284,6 +296,8 @@ export async function getNoticeDetail(
   article: ArticleDetail;
   prevArticle: ArticleNav;
   nextArticle: ArticleNav;
+  position?: number;
+  total?: number;
 } | null> {
   const data = await sanityFetch<SanityArticleDetail>(noticeDetailQuery, {
     slug,
@@ -305,5 +319,7 @@ export async function getNoticeDetail(
     nextArticle: data.nextArticle?.title
       ? { slug: data.nextArticle._id || '', title: data.nextArticle.title }
       : null,
+    position: data.position,
+    total: data.total,
   };
 }

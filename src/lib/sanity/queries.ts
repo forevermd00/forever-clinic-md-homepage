@@ -5,7 +5,11 @@ export const homeQuickEntryQuery = `*[_type == "quickEntryCard" && isVisible == 
 
 export const homePromoQuery = `*[_type == "promotion" && showOnMain == true] | order(sortOrder asc)[0...3]`;
 
-export const homeBACasesQuery = `*[_type == "baCase" && showOnMain == true && isVisible == true] | order(sortOrder asc)[0...5]`;
+export const homeBACasesQuery = `*[_type == "baCase" && showOnMain == true && isVisible == true] | order(_createdAt desc)[0...3] {
+  _id, beforeImage, afterImage,
+  "treatment": treatment-> { _id, "name": name[$locale], "slug": slug.current, category },
+  "sessions": sessions[$locale], "elapsed": elapsed[$locale]
+}`;
 
 export const homeBrandQuery = `*[_type == "brandPhilosophy"][0]`;
 
@@ -152,7 +156,9 @@ export const pressArticleDetailQuery = `
     _id, "title": title[$locale], source, url, thumbnail, publishDate,
     "content": content[$locale],
     "prevArticle": *[_type == "pressArticle" && publishDate > ^.publishDate] | order(publishDate asc)[0] { _id, "title": title[$locale] },
-    "nextArticle": *[_type == "pressArticle" && publishDate < ^.publishDate] | order(publishDate desc)[0] { _id, "title": title[$locale] }
+    "nextArticle": *[_type == "pressArticle" && publishDate < ^.publishDate] | order(publishDate desc)[0] { _id, "title": title[$locale] },
+    "position": count(*[_type == "pressArticle" && publishDate > ^.publishDate]) + 1,
+    "total": count(*[_type == "pressArticle"])
   }
 `;
 
@@ -161,7 +167,9 @@ export const blogPostDetailQuery = `
     _id, "title": title[$locale], "slug": slug.current, thumbnail, category, publishDate,
     "content": content[$locale],
     "prevArticle": *[_type == "blogPost" && publishDate > ^.publishDate] | order(publishDate asc)[0] { "slug": slug.current, "title": title[$locale] },
-    "nextArticle": *[_type == "blogPost" && publishDate < ^.publishDate] | order(publishDate desc)[0] { "slug": slug.current, "title": title[$locale] }
+    "nextArticle": *[_type == "blogPost" && publishDate < ^.publishDate] | order(publishDate desc)[0] { "slug": slug.current, "title": title[$locale] },
+    "position": count(*[_type == "blogPost" && publishDate > ^.publishDate]) + 1,
+    "total": count(*[_type == "blogPost"])
   }
 `;
 
@@ -170,7 +178,12 @@ export const noticeDetailQuery = `
     _id, "title": title[$locale], publishDate, isPinned,
     "content": content[$locale],
     "prevArticle": *[_type == "notice" && (isPinned == true && ^.isPinned == false) || (isPinned == ^.isPinned && publishDate > ^.publishDate)] | order(isPinned desc, publishDate asc)[0] { _id, "title": title[$locale] },
-    "nextArticle": *[_type == "notice" && (isPinned == false && ^.isPinned == true) || (isPinned == ^.isPinned && publishDate < ^.publishDate)] | order(isPinned desc, publishDate desc)[0] { _id, "title": title[$locale] }
+    "nextArticle": *[_type == "notice" && (isPinned == false && ^.isPinned == true) || (isPinned == ^.isPinned && publishDate < ^.publishDate)] | order(isPinned desc, publishDate desc)[0] { _id, "title": title[$locale] },
+    "position": count(*[_type == "notice" && (
+      (isPinned == true && ^.isPinned == false) ||
+      (isPinned == ^.isPinned && publishDate > ^.publishDate)
+    )]) + 1,
+    "total": count(*[_type == "notice"])
   }
 `;
 

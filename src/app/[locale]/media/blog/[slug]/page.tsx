@@ -38,9 +38,17 @@ export default async function BlogDetailPage({
         <div className="mx-auto max-w-[800px]">
           {/* Title area */}
           <div className="border-b border-[#efe5d9] pb-6">
-            <h1 className="text-[24px] font-bold text-[#2b2b2b] lg:text-[28px]">
-              {article.title}
-            </h1>
+            <div className="flex items-start justify-between gap-4">
+              <h1 className="text-[24px] font-bold text-[#2b2b2b] lg:text-[28px]">
+                {article.title}
+              </h1>
+              {cmsResult.position !== undefined &&
+                cmsResult.total !== undefined && (
+                  <span className="shrink-0 pt-1 text-[13px] text-[#999]">
+                    {cmsResult.position}/{cmsResult.total}
+                  </span>
+                )}
+            </div>
             <div className="mt-3 flex items-center gap-4 text-[13px] text-[#999]">
               <span>{article.date}</span>
             </div>

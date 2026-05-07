@@ -32,6 +32,8 @@ export default async function PressDetailPage({
         nextArticle={cmsResult.nextArticle}
         basePath={`/${locale}/media/press`}
         locale={locale}
+        position={cmsResult.position}
+        total={cmsResult.total}
       />
     </>
   );
