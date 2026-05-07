@@ -6,8 +6,6 @@ interface ContentCardProps {
   date: string;
   title: string;
   description: string;
-  position?: number;
-  total?: number;
   views?: number;
 }
 
@@ -17,8 +15,6 @@ function ContentCard({
   date,
   title,
   description,
-  position,
-  total,
   views,
 }: ContentCardProps) {
   return (
@@ -46,16 +42,11 @@ function ContentCard({
           <p className="mt-1.5 line-clamp-2 text-[13px] text-[#808080]">
             {description}
           </p>
-          <div className="mt-2 flex items-center justify-between text-[11px] text-[#b0b0b0]">
-            <span>
-              {views !== undefined ? `${views.toLocaleString()} views` : ''}
-            </span>
-            {position !== undefined && total !== undefined && (
-              <span>
-                {position}/{total}
-              </span>
-            )}
-          </div>
+          {views !== undefined && (
+            <div className="mt-2 text-[11px] text-[#b0b0b0]">
+              {views.toLocaleString()} views
+            </div>
+          )}
         </div>
       </article>
     </Link>
