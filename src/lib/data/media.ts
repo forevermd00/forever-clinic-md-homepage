@@ -120,8 +120,9 @@ function mapYoutubeVideos(raw: SanityYoutubeVideo[]): YoutubeVideo[] {
 }
 
 function mapNotices(raw: SanityNotice[]): NoticeItem[] {
+  const total = raw.length;
   return raw.map((n, i) => ({
-    id: i + 1,
+    id: total - i,
     slug: n._id,
     title: n.title || '',
     date: formatDate(n.publishDate),
