@@ -25,6 +25,7 @@ import pressArticle from './documents/press-article';
 import youtubeVideo from './documents/youtube-video';
 import blogPost from './documents/blog-post';
 import notice from './documents/notice';
+import pageHero from './documents/page-hero';
 
 export const schemaTypes = [
   // Objects
@@ -52,4 +53,5 @@ export const schemaTypes = [
   youtubeVideo,
   blogPost,
   notice,
+  pageHero,
 ];

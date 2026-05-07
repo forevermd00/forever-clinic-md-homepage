@@ -29,10 +29,12 @@ export default defineType({
       type: 'string',
       options: {
         list: [
-          { title: '리프팅', value: 'lifting' },
-          { title: '피부케어', value: 'skincare' },
-          { title: '토닝/색소', value: 'toning' },
-          { title: '보톡스/필러', value: 'botox-filler' },
+          { title: '리프팅·레이저', value: 'lifting-laser' },
+          { title: '쁘띠 & 실리프팅', value: 'petit-lifting' },
+          { title: '스킨케어', value: 'skincare' },
+          { title: '스킨부스터', value: 'skin-booster' },
+          { title: '제모클리닉', value: 'hair-removal' },
+          { title: '마취클리닉', value: 'anesthesia' },
         ],
       },
       validation: (rule) => rule.required(),

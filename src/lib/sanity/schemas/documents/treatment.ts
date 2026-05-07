@@ -9,9 +9,11 @@ export default defineType({
     prepare({ title, subtitle, media }) {
       const categoryLabels: Record<string, string> = {
         lifting: '리프팅',
+        'thread-lifting': '실 리프팅',
         skincare: '피부케어',
         toning: '토닝/색소',
         'botox-filler': '보톡스/필러',
+        'acne-scar': '여드름/흉터',
       };
       return {
         title: title || '(시술명 미입력)',
@@ -45,9 +47,11 @@ export default defineType({
       options: {
         list: [
           { title: '리프팅', value: 'lifting' },
+          { title: '실 리프팅', value: 'thread-lifting' },
           { title: '피부케어', value: 'skincare' },
           { title: '토닝/색소', value: 'toning' },
           { title: '보톡스/필러', value: 'botox-filler' },
+          { title: '여드름/흉터', value: 'acne-scar' },
         ],
       },
     }),

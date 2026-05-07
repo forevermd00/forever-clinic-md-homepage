@@ -42,10 +42,10 @@
   --color-info: #42a5f5;
 
   /* Typography */
-  --font-heading-ko: 'Sandoll', serif;
-  --font-heading-en: 'Minion3', serif;
-  --font-heading-zh: 'TT SongTi', serif;
-  --font-heading-ja: 'Kozuka Mincho Pro', serif;
+  --font-heading-ko: 'sandoll-myeongjoneo1', serif;
+  --font-heading-en: 'minion-3', serif;
+  --font-heading-zh: 'tt-songti-chs-variable', serif;
+  --font-heading-ja: 'kozuka-mincho-pro-b', serif;
   --font-body:
     'Noto Sans KR', 'Noto Sans', 'Noto Sans SC', 'Noto Sans JP', sans-serif;
 
@@ -73,9 +73,70 @@
 }
 
 body {
-  font-family: var(--font-body);
   color: var(--color-forever-charcoal);
   background-color: var(--color-forever-ivory);
+}
+
+/* ================================================================
+   언어별 전체 폰트 적용 (Adobe Fonts / Typekit kit: uac7ujz)
+   html[lang] 기준으로 페이지 내 모든 텍스트에 적용
+   헤딩: font-weight 700, 본문: font-weight 400
+================================================================ */
+
+html:lang(ko),
+html:lang(ko) * {
+  font-family: 'sandoll-myeongjoneo1', serif;
+  font-weight: 400;
+}
+html:lang(ko) h1,
+html:lang(ko) h2,
+html:lang(ko) h3,
+html:lang(ko) h4,
+html:lang(ko) h5,
+html:lang(ko) h6 {
+  font-weight: 700;
+}
+
+html:lang(en),
+html:lang(en) * {
+  font-family: 'minion-3', serif;
+  font-weight: 400;
+}
+html:lang(en) h1,
+html:lang(en) h2,
+html:lang(en) h3,
+html:lang(en) h4,
+html:lang(en) h5,
+html:lang(en) h6 {
+  font-weight: 700;
+}
+
+html:lang(zh),
+html:lang(zh) * {
+  font-family: 'tt-songti-chs-variable', serif;
+  font-weight: 400;
+}
+html:lang(zh) h1,
+html:lang(zh) h2,
+html:lang(zh) h3,
+html:lang(zh) h4,
+html:lang(zh) h5,
+html:lang(zh) h6 {
+  font-weight: 700;
+}
+
+html:lang(ja),
+html:lang(ja) * {
+  font-family: 'kozuka-mincho-pro-b', serif;
+  font-weight: 400;
+}
+html:lang(ja) h1,
+html:lang(ja) h2,
+html:lang(ja) h3,
+html:lang(ja) h4,
+html:lang(ja) h5,
+html:lang(ja) h6 {
+  font-weight: 700;
 }
 
 *:focus-visible {
