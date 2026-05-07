@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
 import { TreatmentsTabGrid } from '@/components/treatments/TreatmentsTabGrid';
-import { TREATMENT_CATEGORIES } from '@/components/treatments/treatmentData';
+import { getAllCategories } from '@/lib/data/treatments';
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
 import { getPageHero } from '@/lib/data/hero';
 import { urlFor } from '@/lib/sanity/image';
@@ -86,7 +86,10 @@ export default async function TreatmentsPage({
   const { locale } = await params;
   const t = await getTranslations('treatments');
 
-  const hero = await getPageHero('treatments', locale);
+  const [hero, categories] = await Promise.all([
+    getPageHero('treatments', locale),
+    getAllCategories(locale),
+  ]);
   const heroImageUrl = toImageUrl(hero?.heroImage, 1920, 400);
 
   return (
@@ -103,7 +106,7 @@ export default async function TreatmentsPage({
       <Suspense
         fallback={<div className="h-96 animate-pulse bg-neutral-100" />}
       >
-        <TreatmentsTabGrid locale={locale} categories={TREATMENT_CATEGORIES} />
+        <TreatmentsTabGrid locale={locale} categories={categories} />
       </Suspense>
     </>
   );

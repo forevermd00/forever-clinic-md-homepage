@@ -20,6 +20,10 @@ export const homeEventPopupQuery = `*[_type == "eventPopup" && dateTime(now()) >
 // === Treatment ===
 export const treatmentsByCategoryQuery = `*[_type == "treatment" && isVisible == true && category == $category] | order(sortOrder asc)`;
 
+export const allTreatmentsGroupedQuery = `*[_type == "treatment" && isVisible == true] | order(sortOrder asc) {
+  _id, name, slug, category, tagline, priceOptions, isEvent, downtime, treatmentTime, duration
+}`;
+
 export const treatmentsByQuickEntryQuery = `
   *[_type == "quickEntryCard" && _id == $cardId][0].linkedTreatments[]-> {
     _id, "name": name[$locale], "tagline": tagline[$locale], category,
