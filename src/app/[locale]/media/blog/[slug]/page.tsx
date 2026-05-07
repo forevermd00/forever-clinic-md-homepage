@@ -53,6 +53,11 @@ export default async function BlogDetailPage({
             </div>
             <div className="mt-3 flex items-center gap-4 text-[13px] text-[#999]">
               <span>{article.date}</span>
+              {article.views !== undefined && (
+                <span>
+                  {t('views')} {article.views.toLocaleString()}
+                </span>
+              )}
             </div>
           </div>
 

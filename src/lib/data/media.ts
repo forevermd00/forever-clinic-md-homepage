@@ -179,7 +179,7 @@ export type ArticleDetail = {
   title: string;
   date: string;
   content: string;
-  views?: number;
+  views: number;
 };
 
 export type ArticleNav = {
@@ -194,6 +194,7 @@ interface SanityArticleDetail {
   content?: string;
   publishDate?: string;
   source?: string;
+  views?: number;
   prevArticle?: { _id?: string; slug?: string; title?: string };
   nextArticle?: { _id?: string; slug?: string; title?: string };
   position?: number;
@@ -225,6 +226,7 @@ export async function getPressDetail(
       title: data.title,
       date: formatDate(data.publishDate),
       content: data.content || '',
+      views: data.views ?? 0,
     },
     prevArticle: data.prevArticle?.title
       ? { slug: data.prevArticle._id || '', title: data.prevArticle.title }
@@ -244,6 +246,7 @@ export type BlogDetailResult = {
     title: string;
     date: string;
     content: PortableTextBlock[];
+    views: number;
   };
   prevArticle: ArticleNav;
   nextArticle: ArticleNav;
@@ -257,6 +260,7 @@ interface SanityBlogDetail {
   slug?: string;
   content?: PortableTextBlock[];
   publishDate?: string;
+  views?: number;
   prevArticle?: { slug?: string; _id?: string; title?: string };
   nextArticle?: { slug?: string; _id?: string; title?: string };
   position?: number;
@@ -281,6 +285,7 @@ export async function getBlogDetail(
       title: data.title,
       date: formatDate(data.publishDate),
       content: data.content || [],
+      views: data.views ?? 0,
     },
     prevArticle: data.prevArticle?.title
       ? {
@@ -322,6 +327,7 @@ export async function getNoticeDetail(
       title: data.title,
       date: formatDate(data.publishDate),
       content: data.content || '',
+      views: data.views ?? 0,
     },
     prevArticle: data.prevArticle?.title
       ? { slug: data.prevArticle._id || '', title: data.prevArticle.title }
