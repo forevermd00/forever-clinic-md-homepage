@@ -3,12 +3,14 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
-/* Treatment links - i18n keys */
+/* Treatment links - i18n keys (6개 카테고리, 2026-05-07 기준) */
 const treatmentLinkKeys = [
-  { key: 'lifting', href: '/treatments/lifting' },
-  { key: 'skincare', href: '/treatments/skincare' },
-  { key: 'toningSkin', href: '/treatments/toning' },
-  { key: 'botoxFiller', href: '/treatments/botox-filler' },
+  { key: 'liftingLaser', href: '/treatments?cat=lifting-laser' },
+  { key: 'petitLifting', href: '/treatments?cat=petit-lifting' },
+  { key: 'skincareCat', href: '/treatments?cat=skincare' },
+  { key: 'skinBooster', href: '/treatments?cat=skin-booster' },
+  { key: 'hairRemoval', href: '/treatments?cat=hair-removal' },
+  { key: 'anesthesia', href: '/treatments?cat=anesthesia' },
 ] as const;
 
 /* Brand links use i18n keys */
@@ -50,15 +52,15 @@ export function Footer({ locale = 'ko', clinicInfo }: FooterProps) {
   const t = useTranslations('footer');
 
   return (
-    <footer className="bg-[#2b2b2b]">
+    <footer className="bg-[#181818]">
       <div className="mx-auto max-w-[1440px] px-6 pt-16 pb-8 md:px-12">
         {/* 4-column flex layout matching Figma */}
         <div className="flex flex-col gap-10 md:flex-row md:gap-12">
           {/* Column 1: Clinic Info */}
           <div className="flex min-w-0 flex-1 flex-col gap-3">
             <div className="text-[16px] leading-normal font-bold tracking-[1.5px] text-white">
-              <p>FOREVER CLINIC</p>
-              <p>MYEONGDONG</p>
+              <p>{t('clinicNameLine1')}</p>
+              <p>{t('clinicNameLine2')}</p>
             </div>
             <div className="flex flex-col gap-0.5 text-[13px] leading-[22px] text-[#706263]">
               <p>{clinicInfo?.address || t('clinicAddress')}</p>

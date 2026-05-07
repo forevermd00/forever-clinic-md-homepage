@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
-import { CategorySection } from '@/components/treatments/CategorySection';
+import { TreatmentsTabGrid } from '@/components/treatments/TreatmentsTabGrid';
 import { TREATMENT_CATEGORIES } from '@/components/treatments/treatmentData';
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
 import { getPageHero } from '@/lib/data/hero';
@@ -25,10 +25,10 @@ const titles: Record<string, string> = {
   ja: '施術案内',
 };
 const descriptions: Record<string, string> = {
-  ko: '포에버 클리닉 명동 시술 안내. 리프팅, 피부케어, 토닝/색소, 보톡스/필러 전체 시술 정보.',
-  en: 'All treatments at Forever Clinic Myeongdong. Lifting, Skincare, Toning & Pigment, Botox & Filler.',
-  zh: '永恒诊所明洞全部治疗项目。提升、皮肤管理、色素管理、肉毒素与玻尿酸。',
-  ja: 'フォーエバークリニック明洞の施術一覧。リフティング、スキンケア、トーニング、ボトックス＆フィラー。',
+  ko: '포에버 클리닉 명동 시술 안내. 리프팅, 실 리프팅, 피부케어, 토닝/색소, 보톡스/필러, 여드름/흉터 전체 시술 정보.',
+  en: 'All treatments at Forever Clinic Myeongdong. Lifting, Thread Lifting, Skincare, Toning & Pigment, Botox & Filler, Acne & Scar.',
+  zh: '永恒诊所明洞全部治疗项目。提升、线提升、皮肤管理、色素管理、肉毒素与玻尿酸、痤疮与疤痕。',
+  ja: 'フォーエバークリニック明洞の施術一覧。リフティング、スレッドリフト、スキンケア、トーニング、ボトックス＆フィラー、ニキビ・瘢痕。',
 };
 
 export async function generateMetadata({
@@ -50,6 +50,8 @@ export async function generateMetadata({
             '피코토닝',
             '리프팅',
             '피부관리',
+            '실리프팅',
+            '여드름치료',
           ]
         : []),
       ...(locale === 'en'
@@ -59,6 +61,7 @@ export async function generateMetadata({
             'botox',
             'filler',
             'skin lifting',
+            'thread lifting',
             'skincare',
           ]
         : []),
@@ -75,89 +78,33 @@ export async function generateMetadata({
   };
 }
 
-export default async function TreatmentsHubPage({
+export default async function TreatmentsPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
   const t = await getTranslations('treatments');
-  const tc = await getTranslations('common');
 
-  const [hero, promoHero, ...categoryHeroes] = await Promise.all([
-    getPageHero('treatments', locale),
-    getPageHero('promotions', locale),
-    ...TREATMENT_CATEGORIES.map((c) =>
-      getPageHero(`category-thumb-${c.slug}`, locale),
-    ),
-  ]);
-  const heroImageUrl = toImageUrl(hero?.heroImage, 1200, 630);
-  const promoImageUrl = toImageUrl(promoHero?.heroImage, 800, 600);
-  const categoryImageUrls: Record<string, string | undefined> =
-    Object.fromEntries(
-      TREATMENT_CATEGORIES.map((c, i) => [
-        c.slug,
-        toImageUrl(categoryHeroes[i]?.heroImage, 800, 600),
-      ]),
-    );
+  const hero = await getPageHero('treatments', locale);
+  const heroImageUrl = toImageUrl(hero?.heroImage, 1920, 400);
 
   return (
     <>
       {/* Hero */}
       <HeroBanner
-        variant="fullscreen"
+        variant="page-title"
         title={hero?.title || t('title')}
         subtitle={hero?.subtitle || t('heroSubtitle')}
         imageSrc={heroImageUrl}
-        className="!h-[280px] !max-h-[280px]"
       />
 
-      {/* Event Section */}
-      <CategorySection
-        labelEn="Event"
-        label={t('eventLabel')}
-        description={t('eventDescription')}
-        href={`/${locale}/promotions`}
-        ctaText={tc('viewEvents')}
-        bgColor="bg-[#faf5f0]"
-        imagePosition="right"
-        imageSrc={promoImageUrl}
-        isEvent
-      />
-
-      {/* Category Sections - alternating layout */}
-      {TREATMENT_CATEGORIES.map((category, index) => {
-        // Event is text-left/image-right, so lifting (index 0) starts image-left/text-right
-        const imagePosition = index % 2 === 0 ? 'left' : 'right';
-        const bgColor = index % 2 === 0 ? 'bg-white' : 'bg-[#f9f6f3]';
-
-        return (
-          <CategorySection
-            key={category.slug}
-            labelEn={category.labelEn}
-            label={category.label}
-            description={category.description}
-            href={`/${locale}/treatments/${category.slug}`}
-            ctaText={tc('viewTreatments')}
-            bgColor={bgColor}
-            imagePosition={imagePosition}
-            imageSrc={categoryImageUrls[category.slug]}
-          />
-        );
-      })}
-
-      {/* Bottom CTA */}
-      <section className="bg-[#2b2b2b] py-12 text-center">
-        <h2 className="text-[24px] font-bold text-white lg:text-[28px]">
-          {tc('startConsultation')}
-        </h2>
-        <Link
-          href={`/${locale}/contact`}
-          className="mt-6 inline-flex items-center justify-center rounded-[var(--radius-button)] border-[1.5px] border-white px-8 py-3 font-semibold text-white transition-colors hover:bg-white/10"
-        >
-          {tc('consultationReservation')}
-        </Link>
-      </section>
+      {/* 탭 그리드 — useSearchParams 사용으로 Suspense 필요 */}
+      <Suspense
+        fallback={<div className="h-96 animate-pulse bg-neutral-100" />}
+      >
+        <TreatmentsTabGrid locale={locale} categories={TREATMENT_CATEGORIES} />
+      </Suspense>
     </>
   );
 }

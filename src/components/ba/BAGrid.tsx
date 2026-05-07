@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { Pagination } from '@/components/common/Pagination';
-import { CardGrid } from '@/components/common/CardGrid';
 import { BACard, type BACase } from './BACard';
 import { cn } from '@/lib/utils/cn';
 
@@ -79,12 +78,17 @@ async function BAGrid({
           </div>
         </div>
 
-        {/* Card grid */}
-        <CardGrid columns={{ mobile: 2, tablet: 2, desktop: 4 }} gap="md">
-          {filtered.map((baCase) => (
-            <BACard key={baCase.id} baCase={baCase} locale={locale} />
-          ))}
-        </CardGrid>
+        {/* Card grid — 고정 너비 카드, vw에 따라 열 수 자동 조정 (최대 4열) */}
+        <div className="mx-auto max-w-[1272px]">
+          <div
+            className="grid justify-center gap-4"
+            style={{ gridTemplateColumns: 'repeat(auto-fill, 300px)' }}
+          >
+            {filtered.map((baCase) => (
+              <BACard key={baCase.id} baCase={baCase} locale={locale} />
+            ))}
+          </div>
+        </div>
 
         {/* Pagination */}
         <Pagination

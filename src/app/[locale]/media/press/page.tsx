@@ -50,23 +50,28 @@ export default async function PressPage({
 
   return (
     <section className="bg-[#faf8f5] px-5 py-12 md:px-10 lg:px-[120px] lg:py-16">
-      <div className="mx-auto grid max-w-[var(--container-max)] grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {pressArticles.map((article) => (
-          <ContentCard
-            key={article.slug}
-            href={`/${locale}/media/press/${article.slug}`}
-            date={article.date}
-            title={article.title}
-            description={article.description}
-          />
-        ))}
+      <div className="mx-auto max-w-[1272px]">
+        <div
+          className="grid justify-center gap-6"
+          style={{ gridTemplateColumns: 'repeat(auto-fill, 300px)' }}
+        >
+          {pressArticles.map((article) => (
+            <ContentCard
+              key={article.slug}
+              href={`/${locale}/media/press/${article.slug}`}
+              date={article.date}
+              title={article.title}
+              description={article.description}
+            />
+          ))}
+        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={5}
+          basePath={`/${locale}/media/press`}
+          className="mt-8"
+        />
       </div>
-      <Pagination
-        currentPage={currentPage}
-        totalPages={5}
-        basePath={`/${locale}/media/press`}
-        className="mt-8"
-      />
     </section>
   );
 }

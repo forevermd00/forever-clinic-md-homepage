@@ -50,22 +50,27 @@ export default async function VideoPage({
 
   return (
     <section className="bg-[#faf8f5] px-5 py-12 md:px-10 lg:px-[120px] lg:py-16">
-      <div className="mx-auto grid max-w-[var(--container-max)] grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {videos.map((video) => (
-          <VideoCard
-            key={video.slug}
-            href={`/${locale}/media/video/${video.slug}`}
-            title={video.title}
-            views={video.views}
-          />
-        ))}
+      <div className="mx-auto max-w-[1272px]">
+        <div
+          className="grid justify-center gap-6"
+          style={{ gridTemplateColumns: 'repeat(auto-fill, 300px)' }}
+        >
+          {videos.map((video) => (
+            <VideoCard
+              key={video.slug}
+              href={`/${locale}/media/video/${video.slug}`}
+              title={video.title}
+              views={video.views}
+            />
+          ))}
+        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={5}
+          basePath={`/${locale}/media/video`}
+          className="mt-8"
+        />
       </div>
-      <Pagination
-        currentPage={currentPage}
-        totalPages={5}
-        basePath={`/${locale}/media/video`}
-        className="mt-8"
-      />
     </section>
   );
 }

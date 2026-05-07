@@ -28,7 +28,7 @@ function TreatmentCard({
     <Link
       href={`/${locale}/treatments/${category}/${slug}`}
       className={cn(
-        'group block overflow-hidden rounded-[8px] border border-[#efe5d9] bg-white shadow-[0px_2px_2px_rgba(0,0,0,0.08)] transition-shadow hover:shadow-[0px_4px_8px_rgba(0,0,0,0.12)]',
+        'group block w-[300px] overflow-hidden rounded-[8px] border border-[#efe5d9] bg-white shadow-[0px_2px_2px_rgba(0,0,0,0.08)] transition-shadow hover:shadow-[0px_4px_8px_rgba(0,0,0,0.12)]',
         className,
       )}
     >

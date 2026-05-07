@@ -40,6 +40,9 @@ export function QuickEntrySection({ cardsByTab }: QuickEntrySectionProps = {}) {
         <h2 className="text-center text-[36px] font-bold text-[#2b2b2b]">
           {t('quickEntryTitle')}
         </h2>
+        <p className="mt-2 text-center text-[14px] text-[#706263]">
+          {t('quickEntrySubtitle')}
+        </p>
 
         {/* Tabs - square, no border-radius */}
         <div className="flex flex-wrap justify-center gap-0">

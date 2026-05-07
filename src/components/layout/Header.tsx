@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
@@ -39,70 +40,96 @@ const allColumns: MegaColumn[] = [
     ],
     dividerAfter: true,
   },
-  // TODO: Treatment names are CMS content - replace with dynamic data when CMS is ready
+  // Treatment categories (6개) — Notion 시술 DB 기준 (2026-05-06)
+  // 탭 그리드 연동: href에 ?cat= 파라미터 사용
   {
     group: 'treatments',
-    titleKey: 'lifting',
+    titleKey: 'liftingLaser',
     titleNs: 'footer',
-    href: '/treatments/lifting',
+    href: '/treatments?cat=lifting-laser',
     items: [
-      { tKey: 'liftingUlthera', href: '/treatments/lifting/ulthera' },
-      { tKey: 'liftingThermage', href: '/treatments/lifting/thermage' },
-      { tKey: 'liftingThread', href: '/treatments/lifting/thread' },
-      { tKey: 'liftingHifu', href: '/treatments/lifting/hifu' },
-      { tKey: 'liftingShrink', href: '/treatments/lifting/shrink' },
+      {
+        tKey: 'liftingUltherapy',
+        href: '/treatments/lifting-laser/ultherapy-prime',
+      },
+      {
+        tKey: 'liftingThermage',
+        href: '/treatments/lifting-laser/thermage-flx',
+      },
+      {
+        tKey: 'liftingShrink',
+        href: '/treatments/lifting-laser/shrink-universe',
+      },
+      { tKey: 'liftingTitanium', href: '/treatments/lifting-laser/titanium' },
+      { tKey: 'liftingOnda', href: '/treatments/lifting-laser/onda-lifting' },
+      { tKey: 'liftingPotenza', href: '/treatments/lifting-laser/potenza' },
     ],
   },
   {
     group: 'treatments',
-    titleKey: 'skincare',
+    titleKey: 'petitLifting',
     titleNs: 'footer',
-    href: '/treatments/skincare',
+    href: '/treatments?cat=petit-lifting',
     items: [
-      { tKey: 'skincareMulkwang', href: '/treatments/skincare/mulkwang' },
-      { tKey: 'skincareBooster', href: '/treatments/skincare/booster' },
-      { tKey: 'skincareExosome', href: '/treatments/skincare/exosome' },
-      { tKey: 'skincareRejuran', href: '/treatments/skincare/rejuran' },
-      { tKey: 'skincarePrp', href: '/treatments/skincare/prp' },
+      { tKey: 'petitBotox', href: '/treatments/petit-lifting/botox' },
+      { tKey: 'petitThread', href: '/treatments/petit-lifting/thread-lifting' },
+      { tKey: 'petitFiller', href: '/treatments/petit-lifting/filler' },
+      {
+        tKey: 'petitFatDissolving',
+        href: '/treatments/petit-lifting/fat-dissolving',
+      },
+      { tKey: 'petitSkinBotox', href: '/treatments/petit-lifting/skin-botox' },
     ],
   },
   {
     group: 'treatments',
-    titleKey: 'toningSkin',
+    titleKey: 'skincareCat',
     titleNs: 'footer',
-    href: '/treatments/toning',
+    href: '/treatments?cat=skincare',
     items: [
-      { tKey: 'toningPico', href: '/treatments/toning/pico' },
-      { tKey: 'toningIpl', href: '/treatments/toning/ipl' },
-      { tKey: 'toningPigment', href: '/treatments/toning/pigment' },
-      { tKey: 'toningAcne', href: '/treatments/toning/acne' },
-      { tKey: 'toningScar', href: '/treatments/toning/scar' },
+      { tKey: 'skincareHydrofacial', href: '/treatments/skincare/hydrofacial' },
+      {
+        tKey: 'skincareIntenseUltra',
+        href: '/treatments/skincare/intense-ultra',
+      },
+      { tKey: 'skincareAquapeel', href: '/treatments/skincare/aquapeel' },
     ],
   },
   {
     group: 'treatments',
-    titleKey: 'botoxFiller',
+    titleKey: 'skinBooster',
     titleNs: 'footer',
-    href: '/treatments/botox-filler',
+    href: '/treatments?cat=skin-booster',
     items: [
-      { tKey: 'botoxBotox', href: '/treatments/botox-filler/botox' },
-      { tKey: 'botoxFiller', href: '/treatments/botox-filler/filler' },
-      { tKey: 'botoxSkin', href: '/treatments/botox-filler/skin-botox' },
-      { tKey: 'botoxJaw', href: '/treatments/botox-filler/jaw' },
-      { tKey: 'botoxNose', href: '/treatments/botox-filler/nose' },
+      { tKey: 'boosterGouri', href: '/treatments/skin-booster/gouri' },
+      { tKey: 'boosterSculptra', href: '/treatments/skin-booster/sculptra' },
+      { tKey: 'boosterRadiesse', href: '/treatments/skin-booster/radiesse' },
+      { tKey: 'boosterMetacell', href: '/treatments/skin-booster/metacell' },
     ],
   },
-  // TODO: Event/promo names are CMS content - replace with dynamic data when CMS is ready
   {
     group: 'treatments',
-    titleKey: 'events',
+    titleKey: 'hairRemoval',
     titleNs: 'footer',
-    href: '/promotions',
+    href: '/treatments?cat=hair-removal',
     items: [
-      { tKey: 'promoSpringLifting', href: '/promotions' },
-      { tKey: 'promoNewBotox', href: '/promotions' },
-      { tKey: 'promoUltheraCombo', href: '/promotions' },
-      { tKey: 'promoMonthlySkincare', href: '/promotions' },
+      {
+        tKey: 'hairGentleMax',
+        href: '/treatments/hair-removal/gentle-max-pro-plus',
+      },
+    ],
+  },
+  {
+    group: 'treatments',
+    titleKey: 'anesthesia',
+    titleNs: 'footer',
+    href: '/treatments?cat=anesthesia',
+    items: [
+      {
+        tKey: 'anesthesiaSleep',
+        href: '/treatments/anesthesia/sleep-anesthesia',
+      },
+      { tKey: 'anesthesiaAirknox', href: '/treatments/anesthesia/airknox' },
     ],
     dividerAfter: true,
   },
@@ -244,6 +271,13 @@ export function Header() {
     megaTimeout.current = setTimeout(() => setHoveredGroup(null), 200);
   };
 
+  const localeFonts: Record<string, string> = {
+    ko: 'sandoll-myeongjoneo1, serif',
+    en: 'minion-3, serif',
+    zh: 'tt-songti-chs-variable, serif',
+    ja: 'kozuka-mincho-pro-b, serif',
+  };
+
   const switchLocale = (locale: Locale) => {
     const segments = pathname.split('/');
     segments[1] = locale;
@@ -269,9 +303,17 @@ export function Header() {
           <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-6 md:px-12">
             <Link
               href={`/${currentLocale}`}
-              className="text-[18px] font-bold tracking-[2px] text-[#2b2b2b]"
+              className="flex items-center"
+              aria-label="Forever Clinic Myeongdong"
             >
-              FOREVER CLINIC
+              <Image
+                src="/images/logo-horizontal.svg"
+                alt="Forever Clinic Myeongdong"
+                width={160}
+                height={75}
+                priority
+                className="h-14 w-auto"
+              />
             </Link>
 
             <nav
@@ -298,11 +340,17 @@ export function Header() {
               <div className="relative" ref={langRef}>
                 <button
                   onClick={() => setIsLangOpen(!isLangOpen)}
+                  style={{ fontFamily: localeFonts[currentLocale] }}
                   className="flex items-center gap-1.5 text-[13px] font-medium text-[#2b2b2b]"
                   aria-label="Change language"
                 >
                   {localeNames[currentLocale]}{' '}
-                  <span className="text-[10px]">▾</span>
+                  <span
+                    className="text-[10px]"
+                    style={{ fontFamily: 'inherit' }}
+                  >
+                    ▾
+                  </span>
                 </button>
                 {isLangOpen && (
                   <div className="absolute top-full right-0 mt-1 min-w-[100px] overflow-hidden rounded-[4px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.12)]">
@@ -310,8 +358,9 @@ export function Header() {
                       <button
                         key={locale}
                         onClick={() => switchLocale(locale)}
+                        style={{ fontFamily: localeFonts[locale] }}
                         className={cn(
-                          'block w-full px-4 py-2 text-left text-[13px] transition-colors hover:bg-neutral-100',
+                          'block w-full px-4 py-2 text-center text-[13px] transition-colors hover:bg-neutral-100',
                           locale === currentLocale
                             ? 'font-semibold text-[#a83c44]'
                             : 'text-[#2b2b2b]',
@@ -395,7 +444,7 @@ export function Header() {
             }}
             onMouseLeave={closeMega}
           >
-            <div className="mx-auto flex max-w-[1440px] items-start justify-center overflow-x-auto px-8 py-9 lg:px-16">
+            <div className="flex justify-center px-8 py-9 lg:px-16">
               {(isLg ? allColumns : filteredColumns).map((col, i, arr) => (
                 <div
                   key={col.titleKey + col.group}
@@ -669,6 +718,27 @@ export function Header() {
 
             {/* Divider */}
             <div className="my-4 h-px bg-[#efe5d9]" />
+
+            {/* Language Selector */}
+            <div className="mb-4 flex justify-center gap-3">
+              {locales.map((locale) => (
+                <button
+                  key={locale}
+                  onClick={() => {
+                    switchLocale(locale);
+                  }}
+                  style={{ fontFamily: localeFonts[locale] }}
+                  className={cn(
+                    'px-3 py-1.5 text-[14px] transition-colors',
+                    locale === currentLocale
+                      ? 'font-semibold text-[#a83c44]'
+                      : 'text-[#2b2b2b]',
+                  )}
+                >
+                  {localeNames[locale]}
+                </button>
+              ))}
+            </div>
 
             {/* User */}
             <UserMenu locale={currentLocale} mobile />

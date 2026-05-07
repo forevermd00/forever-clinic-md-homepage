@@ -25,7 +25,7 @@ async function BACard({ baCase, locale, className }: BACardProps) {
     <Link
       href={`/${locale}/before-after/${baCase.id}`}
       className={cn(
-        'block overflow-hidden rounded-[8px] border border-[#efe5d9] shadow-[0px_1px_2px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-md',
+        'block w-[300px] overflow-hidden rounded-[8px] border border-[#efe5d9] shadow-[0px_1px_2px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-md',
         className,
       )}
     >

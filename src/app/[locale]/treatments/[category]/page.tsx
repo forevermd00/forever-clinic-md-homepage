@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
 import { SectionLayout } from '@/components/common/SectionLayout';
-import { CardGrid } from '@/components/common/CardGrid';
 import { CTABanner } from '@/components/common/CTABanner';
 import { TreatmentCard } from '@/components/treatments/TreatmentCard';
 import { TREATMENT_CATEGORIES } from '@/components/treatments/treatmentData';
@@ -86,20 +85,25 @@ export default async function TreatmentCategoryPage({
         padding="lg"
         className="!px-5 md:!px-10 lg:!px-12"
       >
-        <CardGrid columns={{ mobile: 2, tablet: 2, desktop: 4 }} gap="lg">
-          {category.treatments.map((treatment) => (
-            <TreatmentCard
-              key={treatment.slug}
-              name={treatment.name}
-              slug={treatment.slug}
-              category={category.slug}
-              categoryLabel={category.label}
-              price={treatment.price}
-              hasEvent={treatment.hasEvent}
-              locale={locale}
-            />
-          ))}
-        </CardGrid>
+        <div className="mx-auto max-w-[1272px]">
+          <div
+            className="grid justify-center gap-4"
+            style={{ gridTemplateColumns: 'repeat(auto-fill, 300px)' }}
+          >
+            {category.treatments.map((treatment) => (
+              <TreatmentCard
+                key={treatment.slug}
+                name={treatment.name}
+                slug={treatment.slug}
+                category={category.slug}
+                categoryLabel={category.label}
+                price={treatment.price}
+                hasEvent={treatment.hasEvent}
+                locale={locale}
+              />
+            ))}
+          </div>
+        </div>
       </SectionLayout>
 
       <CTABanner

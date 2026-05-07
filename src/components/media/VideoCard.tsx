@@ -9,7 +9,7 @@ interface VideoCardProps {
 
 function VideoCard({ href, thumbnailUrl, title, views }: VideoCardProps) {
   return (
-    <Link href={href} className="group block">
+    <Link href={href} className="group block w-[300px]">
       <article className="overflow-hidden rounded-[8px] bg-white shadow-[0px_2px_2px_rgba(43,43,43,0.08)]">
         {/* Thumbnail with play button */}
         <div className="bg-forever-ivory relative h-[220px] w-full overflow-hidden">
