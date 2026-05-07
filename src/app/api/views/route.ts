@@ -14,7 +14,10 @@ export async function POST(req: NextRequest) {
   if (!id) return NextResponse.json({ error: 'missing id' }, { status: 400 });
   try {
     await writeClient.patch(id).inc({ views: 1 }).commit();
-    return NextResponse.json({ ok: true });
+    return NextResponse.json(
+      { ok: true },
+      { headers: { 'Cache-Control': 'no-store' } },
+    );
   } catch {
     return NextResponse.json({ error: 'failed' }, { status: 500 });
   }
