@@ -251,7 +251,7 @@ export function TreatmentsTabGrid({
                     : currentCategory.label;
                   return (
                     <TreatmentCard
-                      key={treatment.slug}
+                      key={treatment.slug || treatment.name}
                       name={treatment.name}
                       slug={treatment.slug}
                       category={cardCategory}

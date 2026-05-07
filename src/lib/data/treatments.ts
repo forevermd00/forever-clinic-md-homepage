@@ -48,23 +48,21 @@ export async function getTreatmentsByCategory(
     labelEn: categoryMeta?.labelEn || category,
     description: categoryMeta?.description || '',
     bgColor: categoryMeta?.bgColor || 'bg-white',
-    treatments: treatments
-      .filter((t) => t.slug?.current)
-      .map((t) => ({
-        name: t.name?.[locale] || t.name?.ko || '',
-        slug: t.slug!.current,
-        category,
-        price: t.priceOptions?.[0]
-          ? `₩${t.priceOptions[0].price?.toLocaleString()}~`
-          : '',
-        priceNumeric: t.priceOptions?.[0]?.price || 0,
-        hasEvent: t.isEvent || false,
-        description: t.tagline?.[locale] || t.tagline?.ko || '',
-        duration: t.treatmentTime || '',
-        anesthesia: '',
-        recovery: t.downtime || '',
-        recommended: t.duration || '',
-      })),
+    treatments: treatments.map((t) => ({
+      name: t.name?.[locale] || t.name?.ko || '',
+      slug: t.slug?.current || '',
+      category,
+      price: t.priceOptions?.[0]
+        ? `₩${t.priceOptions[0].price?.toLocaleString()}~`
+        : '',
+      priceNumeric: t.priceOptions?.[0]?.price || 0,
+      hasEvent: t.isEvent || false,
+      description: t.tagline?.[locale] || t.tagline?.ko || '',
+      duration: t.treatmentTime || '',
+      anesthesia: '',
+      recovery: t.downtime || '',
+      recommended: t.duration || '',
+    })),
   };
 }
 
@@ -96,23 +94,21 @@ export async function getAllCategories(
 
     return {
       ...catMeta,
-      treatments: items
-        .filter((t) => t.slug?.current)
-        .map((t) => ({
-          name: t.name?.[locale] || t.name?.ko || '',
-          slug: t.slug!.current,
-          category: catMeta.slug,
-          price: t.priceOptions?.[0]
-            ? `₩${t.priceOptions[0].price?.toLocaleString()}~`
-            : '',
-          priceNumeric: t.priceOptions?.[0]?.price || 0,
-          hasEvent: t.isEvent || false,
-          description: t.tagline?.[locale] || t.tagline?.ko || '',
-          duration: t.treatmentTime || '',
-          anesthesia: '',
-          recovery: t.downtime || '',
-          recommended: t.duration || '',
-        })),
+      treatments: items.map((t) => ({
+        name: t.name?.[locale] || t.name?.ko || '',
+        slug: t.slug?.current || '',
+        category: catMeta.slug,
+        price: t.priceOptions?.[0]
+          ? `₩${t.priceOptions[0].price?.toLocaleString()}~`
+          : '',
+        priceNumeric: t.priceOptions?.[0]?.price || 0,
+        hasEvent: t.isEvent || false,
+        description: t.tagline?.[locale] || t.tagline?.ko || '',
+        duration: t.treatmentTime || '',
+        anesthesia: '',
+        recovery: t.downtime || '',
+        recommended: t.duration || '',
+      })),
     };
   });
 }
