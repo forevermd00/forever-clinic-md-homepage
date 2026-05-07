@@ -21,6 +21,7 @@ interface SanityPressArticle {
   url?: string;
   thumbnail?: unknown;
   publishDate?: string;
+  views?: number;
 }
 
 interface SanityBlogPost {
@@ -30,6 +31,7 @@ interface SanityBlogPost {
   thumbnail?: unknown;
   category?: string;
   publishDate?: string;
+  views?: number;
 }
 
 interface SanityYoutubeVideo {
@@ -46,6 +48,7 @@ interface SanityNotice {
   title?: string;
   publishDate?: string;
   isPinned?: boolean;
+  views?: number;
 }
 
 /* ─── Page types ─── */
@@ -56,6 +59,7 @@ export type PressArticle = {
   title: string;
   description: string;
   thumbnail?: string;
+  views?: number;
 };
 
 export type BlogPost = {
@@ -64,6 +68,7 @@ export type BlogPost = {
   title: string;
   description: string;
   thumbnail?: string;
+  views?: number;
 };
 
 export type YoutubeVideo = {
@@ -89,6 +94,7 @@ function mapPressArticles(raw: SanityPressArticle[]): PressArticle[] {
     thumbnail: a.thumbnail
       ? urlFor(a.thumbnail)?.width(600).height(400).url() || undefined
       : undefined,
+    views: a.views ?? 0,
   }));
 }
 
@@ -101,6 +107,7 @@ function mapBlogPosts(raw: SanityBlogPost[]): BlogPost[] {
     thumbnail: p.thumbnail
       ? urlFor(p.thumbnail)?.width(600).height(400).url() || undefined
       : undefined,
+    views: p.views ?? 0,
   }));
 }
 
@@ -118,7 +125,7 @@ function mapNotices(raw: SanityNotice[]): NoticeItem[] {
     slug: n._id,
     title: n.title || '',
     date: formatDate(n.publishDate),
-    views: 0,
+    views: n.views ?? 0,
   }));
 }
 
@@ -231,6 +238,7 @@ export async function getPressDetail(
 
 export type BlogDetailResult = {
   article: {
+    _id: string;
     slug: string;
     title: string;
     date: string;
@@ -267,6 +275,7 @@ export async function getBlogDetail(
 
   return {
     article: {
+      _id: data._id,
       slug: data.slug || data._id,
       title: data.title,
       date: formatDate(data.publishDate),

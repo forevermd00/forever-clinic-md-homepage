@@ -3,6 +3,7 @@ import { ArticleDetail } from '@/components/media/ArticleDetail';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getArticleJsonLd } from '@/lib/seo/jsonld';
 import { getPressDetail } from '@/lib/data/media';
+import { ViewTracker } from '@/components/media/ViewTracker';
 
 export default async function PressDetailPage({
   params,
@@ -18,6 +19,7 @@ export default async function PressDetailPage({
 
   return (
     <>
+      <ViewTracker id={cmsResult.article.slug} />
       <JsonLd
         data={getArticleJsonLd({
           title: cmsResult.article.title,

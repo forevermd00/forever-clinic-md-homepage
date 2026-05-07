@@ -6,6 +6,9 @@ interface ContentCardProps {
   date: string;
   title: string;
   description: string;
+  position?: number;
+  total?: number;
+  views?: number;
 }
 
 function ContentCard({
@@ -14,6 +17,9 @@ function ContentCard({
   date,
   title,
   description,
+  position,
+  total,
+  views,
 }: ContentCardProps) {
   return (
     <Link href={href} className="group block w-[300px]">
@@ -40,6 +46,16 @@ function ContentCard({
           <p className="mt-1.5 line-clamp-2 text-[13px] text-[#808080]">
             {description}
           </p>
+          <div className="mt-2 flex items-center justify-between text-[11px] text-[#b0b0b0]">
+            <span>
+              {views !== undefined ? `${views.toLocaleString()} views` : ''}
+            </span>
+            {position !== undefined && total !== undefined && (
+              <span>
+                {position}/{total}
+              </span>
+            )}
+          </div>
         </div>
       </article>
     </Link>

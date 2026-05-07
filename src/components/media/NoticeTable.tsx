@@ -12,13 +12,15 @@ export interface NoticeItem {
 interface NoticeTableProps {
   notices: NoticeItem[];
   locale: string;
+  total?: number;
 }
 
 function formatViews(views: number): string {
   return views.toLocaleString();
 }
 
-async function NoticeTable({ notices, locale }: NoticeTableProps) {
+async function NoticeTable({ notices, locale, total }: NoticeTableProps) {
+  const noticeTotal = total ?? notices.length;
   const t = await getTranslations('noticeTable');
 
   return (
@@ -46,7 +48,7 @@ async function NoticeTable({ notices, locale }: NoticeTableProps) {
           >
             {/* Number - desktop only */}
             <div className="hidden w-[80px] text-center text-[14px] text-[#999] md:block">
-              {notice.id}
+              {notice.id}/{noticeTotal}
             </div>
 
             {/* Title */}

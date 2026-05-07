@@ -34,5 +34,12 @@ export default defineType({
       type: 'boolean',
       initialValue: true,
     }),
+    defineField({
+      name: 'views',
+      title: '조회수',
+      type: 'number',
+      initialValue: 0,
+      readOnly: true,
+    }),
   ],
 });

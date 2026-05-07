@@ -128,7 +128,7 @@ export const quickEntryCardsQuery = `
 // === Media ===
 export const pressArticlesQuery = `
   *[_type == "pressArticle"] | order(publishDate desc) {
-    _id, "title": title[$locale], source, url, thumbnail, publishDate
+    _id, "title": title[$locale], source, url, thumbnail, publishDate, views
   }
 `;
 
@@ -140,13 +140,13 @@ export const youtubeVideosQuery = `
 
 export const blogPostsQuery = `
   *[_type == "blogPost"] | order(publishDate desc) {
-    _id, "title": title[$locale], "slug": slug.current, thumbnail, category, publishDate
+    _id, "title": title[$locale], "slug": slug.current, thumbnail, category, publishDate, views
   }
 `;
 
 export const noticesQuery = `
   *[_type == "notice"] | order(isPinned desc, publishDate desc) {
-    _id, "title": title[$locale], publishDate, isPinned
+    _id, "title": title[$locale], publishDate, isPinned, views
   }
 `;
 

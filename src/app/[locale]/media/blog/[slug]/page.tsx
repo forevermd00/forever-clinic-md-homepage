@@ -6,6 +6,7 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { getArticleJsonLd } from '@/lib/seo/jsonld';
 import { getBlogDetail } from '@/lib/data/media';
 import { BlogContent } from '@/components/media/BlogContent';
+import { ViewTracker } from '@/components/media/ViewTracker';
 
 export default async function BlogDetailPage({
   params,
@@ -26,6 +27,7 @@ export default async function BlogDetailPage({
 
   return (
     <>
+      <ViewTracker id={article._id} />
       <JsonLd
         data={getArticleJsonLd({
           title: article.title,

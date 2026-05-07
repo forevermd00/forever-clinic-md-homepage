@@ -55,13 +55,16 @@ export default async function PressPage({
           className="grid justify-center gap-6"
           style={{ gridTemplateColumns: 'repeat(auto-fill, 300px)' }}
         >
-          {pressArticles.map((article) => (
+          {pressArticles.map((article, idx) => (
             <ContentCard
               key={article.slug}
               href={`/${locale}/media/press/${article.slug}`}
               date={article.date}
               title={article.title}
               description={article.description}
+              position={idx + 1}
+              total={pressArticles.length}
+              views={article.views}
             />
           ))}
         </div>

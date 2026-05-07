@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { ArticleDetail } from '@/components/media/ArticleDetail';
 import { getNoticeDetail } from '@/lib/data/media';
+import { ViewTracker } from '@/components/media/ViewTracker';
 
 export default async function NoticeDetailPage({
   params,
@@ -13,14 +14,17 @@ export default async function NoticeDetailPage({
   if (!cmsResult) notFound();
 
   return (
-    <ArticleDetail
-      article={cmsResult.article}
-      prevArticle={cmsResult.prevArticle}
-      nextArticle={cmsResult.nextArticle}
-      basePath={`/${locale}/media/notice`}
-      locale={locale}
-      position={cmsResult.position}
-      total={cmsResult.total}
-    />
+    <>
+      <ViewTracker id={cmsResult.article.slug} />
+      <ArticleDetail
+        article={cmsResult.article}
+        prevArticle={cmsResult.prevArticle}
+        nextArticle={cmsResult.nextArticle}
+        basePath={`/${locale}/media/notice`}
+        locale={locale}
+        position={cmsResult.position}
+        total={cmsResult.total}
+      />
+    </>
   );
 }

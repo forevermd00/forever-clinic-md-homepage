@@ -55,13 +55,16 @@ export default async function BlogPage({
           className="grid justify-center gap-6"
           style={{ gridTemplateColumns: 'repeat(auto-fill, 300px)' }}
         >
-          {blogPosts.map((post) => (
+          {blogPosts.map((post, idx) => (
             <ContentCard
               key={post.slug}
               href={`/${locale}/media/blog/${post.slug}`}
               date={post.date}
               title={post.title}
               description={post.description}
+              position={idx + 1}
+              total={blogPosts.length}
+              views={post.views}
             />
           ))}
         </div>
