@@ -65,19 +65,22 @@ function mapClinicInfo(raw: SanityClinicInfo): ClinicInfo {
     raw.businessHours
       ?.map((h) => {
         const day = h.day || '';
-        const time = h.open && h.close ? `${h.open}-${h.close}` : '';
+        const time = h.open && h.close ? `${h.open}–${h.close}` : '';
         const note = h.note ? ` (${h.note})` : '';
         return `${day} ${time}${note}`.trim();
       })
-      .join(' / ') || '';
+      .join('\n') || '';
+
+  const hoursWithNotice = raw.closedDayNotice
+    ? `${hours}\n${raw.closedDayNotice}`.trim()
+    : hours;
 
   return {
     address: raw.address || '',
     subway: raw.walkingGuide || '',
-    hours:
-      hours ||
-      (raw.closedDayNotice ? `${hours} ${raw.closedDayNotice}`.trim() : ''),
+    hours: hoursWithNotice,
     phone: raw.phone || '',
+    googleMapsEmbedUrl: raw.googleMapsEmbedUrl || '',
   };
 }
 

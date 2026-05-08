@@ -60,10 +60,23 @@ export default async function ContactPage({
       {/* Location Info */}
       <section className="bg-[#faf8f5] px-5 py-12 md:px-10 lg:px-[120px] lg:py-16">
         <div className="mx-auto flex max-w-[var(--container-max)] flex-col gap-8 lg:flex-row lg:gap-12">
-          <div className="flex-1 rounded-[12px] bg-[#efe5d9] lg:h-[360px]">
-            <div className="flex h-[240px] items-center justify-center text-[14px] text-[#d4c8bd] lg:h-full">
-              {t('mapPlaceholder')}
-            </div>
+          <div className="flex-1 overflow-hidden rounded-[12px] bg-[#efe5d9] lg:h-[360px]">
+            {clinic.googleMapsEmbedUrl ? (
+              <iframe
+                src={clinic.googleMapsEmbedUrl}
+                width="100%"
+                height="100%"
+                className="h-[240px] lg:h-full"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            ) : (
+              <div className="flex h-[240px] items-center justify-center text-[14px] text-[#d4c8bd] lg:h-full">
+                {t('mapPlaceholder')}
+              </div>
+            )}
           </div>
           <div className="flex flex-1 flex-col gap-6">
             <h3 className="text-[20px] font-bold text-[#2b2b2b]">
