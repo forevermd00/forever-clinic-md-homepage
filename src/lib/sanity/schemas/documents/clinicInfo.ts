@@ -1,5 +1,5 @@
 import { defineType, defineField, defineArrayMember } from 'sanity';
-import { LocationInput } from '../../../../sanity/components/LocationInput';
+import { LocationInput } from '@/lib/sanity/components/LocationInput';
 
 export default defineType({
   name: 'clinicInfo',
