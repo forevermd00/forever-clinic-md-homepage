@@ -111,16 +111,28 @@ export function ContactFormSection({ config }: Props) {
     <section>
       {/* 헤더 */}
       <div
-        className="flex flex-col items-center justify-center gap-3 px-5 py-14 text-center"
-        style={{ backgroundColor: headerBgColor }}
+        className="relative flex flex-col items-center justify-center gap-3 px-5 py-20 text-center"
+        style={{
+          backgroundImage: 'url(/images/contact-banner.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center 40%',
+        }}
       >
-        <p className="text-[11px] font-medium tracking-[3px] text-white/40 uppercase">
-          Reservation &amp; Consultation
-        </p>
-        <h2 className="text-[26px] font-bold text-white lg:text-[32px]">
-          {headerTitle}
-        </h2>
-        <p className="text-[14px] text-white/60">{headerSubtitle}</p>
+        {/* 오버레이 */}
+        <div
+          className="absolute inset-0"
+          style={{ backgroundColor: headerBgColor, opacity: 0.55 }}
+        />
+        {/* 콘텐츠 */}
+        <div className="relative z-10 flex flex-col items-center gap-3">
+          <p className="text-[11px] font-medium tracking-[3px] text-white/50 uppercase">
+            Reservation &amp; Consultation
+          </p>
+          <h2 className="text-[26px] font-bold text-white lg:text-[32px]">
+            {headerTitle}
+          </h2>
+          <p className="text-[14px] text-white/70">{headerSubtitle}</p>
+        </div>
       </div>
 
       {/* 폼 */}
