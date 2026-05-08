@@ -61,9 +61,9 @@ export default async function ContactPage({
       <section className="bg-[#faf8f5] px-5 py-12 md:px-10 lg:px-[120px] lg:py-16">
         <div className="mx-auto flex max-w-[var(--container-max)] flex-col gap-8 lg:flex-row lg:gap-12">
           <div className="flex-1 overflow-hidden rounded-[12px] bg-[#efe5d9] lg:h-[360px]">
-            {clinic.googleMapsEmbedUrl ? (
+            {clinic.latitude && clinic.longitude ? (
               <iframe
-                src={clinic.googleMapsEmbedUrl}
+                src={`https://maps.google.com/maps?q=${clinic.latitude},${clinic.longitude}&t=&z=17&ie=UTF8&iwloc=&output=embed`}
                 width="100%"
                 height="100%"
                 className="h-[240px] lg:h-full"

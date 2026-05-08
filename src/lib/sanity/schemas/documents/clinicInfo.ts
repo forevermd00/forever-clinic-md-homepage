@@ -1,4 +1,5 @@
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import { LocationInput } from '../../../../sanity/components/LocationInput';
 
 export default defineType({
   name: 'clinicInfo',
@@ -60,6 +61,24 @@ export default defineType({
       title: '메신저 링크',
       type: 'array',
       of: [defineArrayMember({ type: 'snsLink' })],
+    }),
+
+    // ── 위치 좌표 ──────────────────────────────────────────────
+    defineField({
+      name: 'locationCoordinates',
+      title: '위치 좌표',
+      description: '주소 검색 버튼으로 자동 입력',
+      type: 'object',
+      components: { input: LocationInput },
+      fields: [
+        defineField({
+          name: 'searchAddress',
+          title: '검색 주소',
+          type: 'string',
+        }),
+        defineField({ name: 'latitude', title: '위도', type: 'number' }),
+        defineField({ name: 'longitude', title: '경도', type: 'number' }),
+      ],
     }),
 
     // ── 상담 섹션 설정 ──────────────────────────────────────────

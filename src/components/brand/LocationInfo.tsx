@@ -6,6 +6,8 @@ interface ClinicInfo {
   hours: string;
   phone: string;
   googleMapsEmbedUrl?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 interface LocationInfoProps {

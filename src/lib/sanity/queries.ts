@@ -106,7 +106,9 @@ export const clinicInfoQuery = `
     "businessHours": businessHours[] { "day": day[$locale], open, close, "note": note[$locale] },
     "closedDayNotice": closedDayNotice[$locale],
     googleMapsEmbedUrl, "walkingGuide": walkingGuide[$locale],
-    snsLinks, messengerLinks
+    snsLinks, messengerLinks,
+    "latitude": locationCoordinates.latitude,
+    "longitude": locationCoordinates.longitude
   }
 `;
 
