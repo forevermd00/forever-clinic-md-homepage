@@ -13,12 +13,7 @@ export default defineType({
   },
 
   fields: [
-    defineField({
-      name: 'address',
-      title: '주소',
-      type: 'localizedString',
-    }),
-    // ── 위치 좌표 (주소 바로 아래) ────────────────────────────
+    // ── 위치 좌표 (주소 검색) ──────────────────────────────────
     defineField({
       name: 'locationCoordinates',
       title: '위치 좌표',
@@ -34,6 +29,11 @@ export default defineType({
         defineField({ name: 'latitude', title: '위도', type: 'number' }),
         defineField({ name: 'longitude', title: '경도', type: 'number' }),
       ],
+    }),
+    defineField({
+      name: 'address',
+      title: '주소',
+      type: 'localizedString',
     }),
     defineField({
       name: 'phone',
@@ -72,32 +72,6 @@ export default defineType({
       title: '메신저 링크',
       type: 'array',
       of: [defineArrayMember({ type: 'snsLink' })],
-    }),
-
-    // ── 상담 섹션 설정 ──────────────────────────────────────────
-    defineField({
-      name: 'contactHeaderTitle',
-      title: '상담 섹션 — 제목',
-      description: '예: 상담 문의',
-      type: 'localizedString',
-    }),
-    defineField({
-      name: 'contactHeaderSubtitle',
-      title: '상담 섹션 — 부제목',
-      description: '예: 궁금하신 점이 있으시면 편하게 문의해 주세요',
-      type: 'localizedString',
-    }),
-    defineField({
-      name: 'contactHeaderBgColor',
-      title: '상담 헤더 배경색',
-      description: 'HEX 코드 (예: #1a1a1a)',
-      type: 'string',
-    }),
-    defineField({
-      name: 'contactAccentColor',
-      title: '상담 섹션 강조색',
-      description: 'HEX 코드 (예: #a83c44) — 체크박스, 링크 색상',
-      type: 'string',
     }),
   ],
 });

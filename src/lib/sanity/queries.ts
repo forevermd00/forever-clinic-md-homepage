@@ -113,11 +113,11 @@ export const clinicInfoQuery = `
 `;
 
 export const contactSectionConfigQuery = `
-  *[_type == "clinicInfo"][0] {
-    "title": contactHeaderTitle[$locale],
-    "subtitle": contactHeaderSubtitle[$locale],
-    "headerBgColor": contactHeaderBgColor,
-    "accentColor": contactAccentColor
+  *[_type == "pageHero" && _id == "page-hero-contact"][0] {
+    "title": title[$locale],
+    "subtitle": subtitle[$locale],
+    "headerBgColor": bgColor,
+    "accentColor": accentColor
   }
 `;
 
