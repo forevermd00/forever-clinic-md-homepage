@@ -5,7 +5,6 @@ interface ClinicInfo {
   subway: string;
   hours: string;
   phone: string;
-  googleMapsEmbedUrl?: string;
   latitude?: number;
   longitude?: number;
 }

@@ -22,7 +22,6 @@ interface SanityClinicInfo {
   }[];
   closedDayNotice?: string;
   walkingGuide?: string;
-  googleMapsEmbedUrl?: string;
   latitude?: number;
   longitude?: number;
   snsLinks?: unknown;
@@ -82,7 +81,6 @@ function mapClinicInfo(raw: SanityClinicInfo): ClinicInfo {
     subway: raw.walkingGuide || '',
     hours: hoursWithNotice,
     phone: raw.phone || '',
-    googleMapsEmbedUrl: raw.googleMapsEmbedUrl || '',
     latitude: raw.latitude,
     longitude: raw.longitude,
   };

@@ -105,7 +105,7 @@ export const clinicInfoQuery = `
     "address": address[$locale], phone, email,
     "businessHours": businessHours[] { "day": day[$locale], open, close, "note": note[$locale] },
     "closedDayNotice": closedDayNotice[$locale],
-    googleMapsEmbedUrl, "walkingGuide": walkingGuide[$locale],
+    "walkingGuide": walkingGuide[$locale],
     snsLinks, messengerLinks,
     "latitude": locationCoordinates.latitude,
     "longitude": locationCoordinates.longitude

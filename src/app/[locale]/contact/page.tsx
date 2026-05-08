@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import Link from 'next/link';
 import { ContactFormSection } from '@/components/home/ContactFormSection';
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
 import { getClinicInfo, getContactSectionConfig } from '@/lib/data/clinic';
@@ -89,9 +90,20 @@ export default async function ContactPage({
                   <p className="text-[12px] font-medium text-[#d4c8bd]">
                     {t('address')}
                   </p>
-                  <p className="text-[14px] leading-[1.5] text-[#2b2b2b]">
-                    {clinic.address}
-                  </p>
+                  {clinic.latitude && clinic.longitude ? (
+                    <Link
+                      href={`https://maps.google.com/maps?q=${clinic.latitude},${clinic.longitude}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[14px] leading-[1.5] text-[#2b2b2b] underline-offset-2 hover:underline"
+                    >
+                      {clinic.address}
+                    </Link>
+                  ) : (
+                    <p className="text-[14px] leading-[1.5] text-[#2b2b2b]">
+                      {clinic.address}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex items-start gap-3">
