@@ -177,8 +177,8 @@
     "brandStory": "ブランドストーリー",
     "facilities": "施設案内",
     "philosophy": "理念",
-    "smartBoutiquePhilosophy": "Smart-Boutique 理念",
-    "philosophyDescription": "データに基づく精密な施術とプレミアムサービスの融合",
+    "smartBoutiquePhilosophy": "施術の細部が結果の差を生む",
+    "philosophyDescription": "Precision. Science. Perfection.",
     "honesty": "誠実",
     "honestyDesc": "透明な施術情報の公開と定量基準の遵守で患者との信頼を構築します",
     "honestyDescDesktop": "透明な施術情報の公開と定量基準の遵守で\n患者との信頼を構築します",
@@ -255,8 +255,8 @@
     "baSubtitle": "実際の施術前後の変化をご確認ください"
   },
   "home": {
-    "heroTitle": "精密に設計された\n信頼のプレミアム",
-    "heroSubtitle": "Smart-Boutiqueポジショニング - フォーエバークリニック明洞",
+    "heroTitle": "施術の細部が\n結果の差を生む",
+    "heroSubtitle": "Precision. Science. Perfection. - フォーエバークリニック明洞",
     "quickEntryTitle": "ご希望の施術をお選びください",
     "quickEntrySubtitle": "悩み・施術・シーン別で最適な施術を見つけましょう",
     "tabTreatment": "施術で探す",
@@ -286,7 +286,10 @@
     "emptyCartNote": "見積もりに追加された施術がありません",
     "treatmentOptionalNote": "関心のある施術を選択せずに、お問い合わせ内容にご記入いただいても構いません",
     "submitSuccess": "お問い合わせが正常に送信されました。早急にご連絡いたします。",
-    "submitting": "送信中..."
+    "submitting": "送信中...",
+    "signatureLabel": "SIGNATURE PROGRAM",
+    "signatureTitle": "シグニチャープログラム",
+    "signatureCtaAll": "全プログラムのカウンセリングを申し込む"
   },
   "contact": {
     "heroTitle": "ご予約・お問い合わせ",

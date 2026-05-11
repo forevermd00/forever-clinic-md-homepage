@@ -8,6 +8,7 @@ export default defineType({
     select: { title: 'name.ko', subtitle: 'category', media: 'thumbnail' },
     prepare({ title, subtitle, media }) {
       const categoryLabels: Record<string, string> = {
+        signature: '시그니처 프로그램',
         lifting: '리프팅',
         'thread-lifting': '실 리프팅',
         skincare: '피부케어',
@@ -46,6 +47,7 @@ export default defineType({
       type: 'string',
       options: {
         list: [
+          { title: '시그니처 프로그램', value: 'signature' },
           { title: '리프팅', value: 'lifting' },
           { title: '실 리프팅', value: 'thread-lifting' },
           { title: '피부케어', value: 'skincare' },
@@ -121,6 +123,32 @@ export default defineType({
           to: [{ type: 'treatment' }],
         }),
       ],
+    }),
+    defineField({
+      name: 'keywords',
+      title: '타깃 키워드',
+      description:
+        '시그니처 프로그램에서 사용하는 키워드 (예: 강한 리프팅 · 턱라인)',
+      type: 'localizedString',
+    }),
+    defineField({
+      name: 'description',
+      title: '상세 설명',
+      description: '시그니처 프로그램 상세 설명 (일반 시술은 tagline 사용)',
+      type: 'localizedText',
+    }),
+    defineField({
+      name: 'composition',
+      title: '구성 시술',
+      description: '시그니처 프로그램 구성 시술 목록',
+      type: 'localizedText',
+    }),
+    defineField({
+      name: 'isSignature',
+      title: '시그니처 프로그램',
+      description: '홈 시그니처 섹션에 표시합니다',
+      type: 'boolean',
+      initialValue: false,
     }),
     defineField({
       name: 'isEvent',

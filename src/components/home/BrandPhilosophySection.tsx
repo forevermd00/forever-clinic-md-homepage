@@ -26,7 +26,7 @@ export function BrandPhilosophySection({ locale = 'ko' }: { locale?: string }) {
       {/* Header */}
       <div className="mb-8 flex flex-col items-center gap-3 px-5 text-center md:px-10 lg:px-12">
         <span className="text-[12px] font-medium tracking-[3px] text-[#706263]">
-          BRAND PHILOSOPHY
+          BRAND PHILOSOPHY · Since 2009
         </span>
         <h2 className="text-[28px] font-bold text-[#2b2b2b]">
           {t('smartBoutiquePhilosophy')}

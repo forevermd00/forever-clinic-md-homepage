@@ -146,7 +146,7 @@ export default async function BrandPage({
         {/* Section Header */}
         <div className="flex flex-col items-center gap-3 px-4 pt-16 pb-8 lg:pt-20 lg:pb-12">
           <span className="text-[12px] font-medium tracking-[2px] text-[#d4c8bd]">
-            BRAND PHILOSOPHY
+            BRAND PHILOSOPHY · Since 2009
           </span>
           <h2 className="text-[28px] font-bold text-[#2b2b2b]">
             {t('smartBoutiquePhilosophy')}

@@ -177,8 +177,8 @@
     "brandStory": "品牌故事",
     "facilities": "设施介绍",
     "philosophy": "理念",
-    "smartBoutiquePhilosophy": "Smart-Boutique 理念",
-    "philosophyDescription": "数据驱动的精准诊疗与高端服务的结合",
+    "smartBoutiquePhilosophy": "施术细节，成就卓越效果",
+    "philosophyDescription": "Precision. Science. Perfection.",
     "honesty": "诚信",
     "honestyDesc": "通过透明的诊疗信息公开和定量标准执行，建立患者信任",
     "honestyDescDesktop": "通过透明的诊疗信息公开和定量标准执行\n建立患者信任",
@@ -255,8 +255,8 @@
     "baSubtitle": "查看真实的诊疗前后变化"
   },
   "home": {
-    "heroTitle": "精心设计的\n信赖之高端",
-    "heroSubtitle": "Smart-Boutique定位 - 永恒诊所明洞店",
+    "heroTitle": "施术细节\n成就卓越效果",
+    "heroSubtitle": "Precision. Science. Perfection. - 永恒诊所 明洞",
     "quickEntryTitle": "选择您的诊疗项目",
     "quickEntrySubtitle": "按烦恼、项目或场合找到适合您的疗程",
     "tabTreatment": "按项目查找",
@@ -286,7 +286,10 @@
     "emptyCartNote": "报价单中没有项目",
     "treatmentOptionalNote": "您也可以不选择项目，直接在咨询内容中描述",
     "submitSuccess": "咨询已成功提交，我们会尽快与您联系。",
-    "submitting": "提交中..."
+    "submitting": "提交中...",
+    "signatureLabel": "SIGNATURE PROGRAM",
+    "signatureTitle": "招牌项目",
+    "signatureCtaAll": "咨询全部项目"
   },
   "contact": {
     "heroTitle": "预约与咨询",

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useSyncExternalStore } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { cn } from '@/lib/utils/cn';
@@ -22,8 +22,12 @@ type Props = {
 export function ContactFormSection({ config }: Props) {
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'ko';
+  const searchParams = useSearchParams();
   const t = useTranslations('home');
   const tc = useTranslations('common');
+
+  const programSlug = searchParams.get('program');
+  const programName = searchParams.get('programName');
 
   const cartItems = useCartStore((s) => s.items);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
@@ -36,13 +40,15 @@ export function ContactFormSection({ config }: Props) {
   const [name, setName] = useState('');
   const [countryCode, setCountryCode] = useState('+82');
   const [phoneDigits, setPhoneDigits] = useState('');
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState(() =>
+    programName ? `시그니처 프로그램 ${programName}에 대해 문의드립니다.` : '',
+  );
   const [checkedIds, setCheckedIds] = useState<Set<string> | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const headerBgColor = config?.headerBgColor ?? '#1a1a1a';
-  const accentColor = config?.accentColor ?? '#a83c44';
+  const headerBgColor = '#1a1a1a';
+  const accentColor = '#a83c44';
   const headerTitle = config?.title ?? t('contactTitle');
   const headerSubtitle = config?.subtitle ?? t('contactSubtitle');
 
@@ -139,6 +145,14 @@ export function ContactFormSection({ config }: Props) {
       <div className="bg-[#faf8f5]">
         <div className="mx-auto max-w-[1280px] px-5 py-16 md:px-10 lg:px-12">
           <div className="mx-auto flex max-w-[840px] flex-col items-center gap-6">
+            {/* 프로그램 배너 */}
+            {programSlug && programName && (
+              <div className="w-full rounded-[6px] border border-[#a83c44]/40 bg-[#a83c44]/5 px-4 py-3">
+                <p className="text-[13px] font-medium text-[#a83c44]">
+                  {programName} 상담을 신청합니다
+                </p>
+              </div>
+            )}
             <div className="flex w-full flex-col gap-5">
               {/* Row 1: Name + Phone */}
               <div className="flex flex-col gap-5 md:flex-row">

@@ -1,5 +1,6 @@
 export { HeroSection } from './HeroSection';
 export { QuickEntrySection } from './QuickEntrySection';
+export { SignatureProgramSection } from './SignatureProgramSection';
 export { PromoSection } from './PromoSection';
 export { BAPreviewSection } from './BAPreviewSection';
 export { BrandPhilosophySection } from './BrandPhilosophySection';

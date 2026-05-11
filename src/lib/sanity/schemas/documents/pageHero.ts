@@ -44,17 +44,5 @@ export default defineType({
       type: 'file',
       options: { accept: 'video/mp4' },
     }),
-    defineField({
-      name: 'bgColor',
-      title: '배경색',
-      description: 'HEX 코드 (예: #1a1a1a) — 예약/상담 페이지 헤더 전용',
-      type: 'string',
-    }),
-    defineField({
-      name: 'accentColor',
-      title: '강조색',
-      description: 'HEX 코드 (예: #a83c44) — 체크박스, 링크 색상',
-      type: 'string',
-    }),
   ],
 });

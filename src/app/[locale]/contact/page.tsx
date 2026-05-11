@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { ContactFormSection } from '@/components/home/ContactFormSection';
@@ -56,7 +57,9 @@ export default async function ContactPage({
   return (
     <>
       {/* Contact Form with header */}
-      <ContactFormSection config={contactConfig} />
+      <Suspense fallback={<div className="h-[600px] bg-[#faf8f5]" />}>
+        <ContactFormSection config={contactConfig} />
+      </Suspense>
 
       {/* Location Info */}
       <section className="bg-[#faf8f5] px-5 py-12 md:px-10 lg:px-[120px] lg:py-16">

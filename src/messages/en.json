@@ -177,8 +177,8 @@
     "brandStory": "Our Story",
     "facilities": "Facilities",
     "philosophy": "Philosophy",
-    "smartBoutiquePhilosophy": "Smart-Boutique Philosophy",
-    "philosophyDescription": "Combining data-driven precision treatments with premium service",
+    "smartBoutiquePhilosophy": "The Detail in Treatment Makes All the Difference.",
+    "philosophyDescription": "Precision. Science. Perfection.",
     "honesty": "Honesty",
     "honestyDesc": "We build trust through transparent treatment information and strict quality standards",
     "honestyDescDesktop": "We build trust through transparent treatment\ninformation and strict quality standards",
@@ -255,8 +255,8 @@
     "baSubtitle": "See real treatment results"
   },
   "home": {
-    "heroTitle": "Precisely Designed\nPremium of Trust",
-    "heroSubtitle": "Smart-Boutique Positioning - Forever Clinic Myeongdong",
+    "heroTitle": "The Detail in Treatment\nMakes All the Difference.",
+    "heroSubtitle": "Precision. Science. Perfection. - Forever Clinic Myeongdong",
     "quickEntryTitle": "Choose Your Treatment",
     "quickEntrySubtitle": "Find the right treatment by concern, category, or situation",
     "tabTreatment": "By Treatment",
@@ -286,7 +286,10 @@
     "emptyCartNote": "No treatments in your estimate",
     "treatmentOptionalNote": "You can also describe your interest in the message field instead",
     "submitSuccess": "Your inquiry has been submitted successfully. We will contact you shortly.",
-    "submitting": "Submitting..."
+    "submitting": "Submitting...",
+    "signatureLabel": "SIGNATURE PROGRAM",
+    "signatureTitle": "Signature Programs",
+    "signatureCtaAll": "Book a Consultation for All Programs"
   },
   "contact": {
     "heroTitle": "Reservations & Consultations",

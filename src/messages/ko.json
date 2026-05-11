@@ -62,7 +62,7 @@
     "events": "이벤트",
     "consultationBooking": "예약 상담",
     "clinicNameLine1": "포에버 의원",
-    "clinicNameLine2": "명동점",
+    "clinicNameLine2": "명동",
     "clinicAddress": "서울 중구 남대문로 78 타임워크빌딩 1-2층",
     "clinicPhone": "02-000-0000 [임시]",
     "clinicEmail": "forevermd00@gmail.com",
@@ -177,8 +177,8 @@
     "brandStory": "브랜드 스토리",
     "facilities": "시설 안내",
     "philosophy": "철학",
-    "smartBoutiquePhilosophy": "Smart-Boutique 철학",
-    "philosophyDescription": "데이터 기반의 정밀한 시술과 프리미엄 서비스의 결합",
+    "smartBoutiquePhilosophy": "시술의 디테일이 결과의 차이를 만듭니다.",
+    "philosophyDescription": "Precision. Science. Perfection.",
     "honesty": "정직",
     "honestyDesc": "투명한 시술 정보 공개와 정량 기준 준수로 환자와의 신뢰를 구축합니다",
     "honestyDescDesktop": "투명한 시술 정보 공개와 정량 기준 준수로\n환자와의 신뢰를 구축합니다",
@@ -255,8 +255,8 @@
     "baSubtitle": "실제 시술 전후 변화를 확인하세요"
   },
   "home": {
-    "heroTitle": "정교하게 설계된\n신뢰의 프리미엄",
-    "heroSubtitle": "Smart-Boutique 포지셔닝 - 포에버 의원 명동점",
+    "heroTitle": "시술의 디테일이\n결과의 차이를 만듭니다.",
+    "heroSubtitle": "Precision. Science. Perfection. - 포에버 의원 명동",
     "quickEntryTitle": "원하는 시술을 선택하세요",
     "quickEntrySubtitle": "고민·시술·상황으로 내게 맞는 시술을 찾아보세요",
     "tabTreatment": "시술로 찾기",
@@ -286,7 +286,10 @@
     "emptyCartNote": "견적에 담긴 시술이 없습니다",
     "treatmentOptionalNote": "관심시술로 선택하지 않고, 문의 내용에 적어주셔도 됩니다",
     "submitSuccess": "문의가 성공적으로 접수되었습니다. 빠른 시일 내에 연락드리겠습니다.",
-    "submitting": "접수 중..."
+    "submitting": "접수 중...",
+    "signatureLabel": "SIGNATURE PROGRAM",
+    "signatureTitle": "시그니처 프로그램",
+    "signatureCtaAll": "전체 프로그램 상담 신청"
   },
   "contact": {
     "heroTitle": "예약 및 상담",
