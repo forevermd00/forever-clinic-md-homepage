@@ -19,6 +19,18 @@ import {
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+// Sanity에서 string 또는 localizedString 객체 모두 처리
+function extractLocale(field: unknown, locale: string): string {
+  if (!field) return '';
+  if (typeof field === 'string') return field;
+  if (typeof field === 'object' && field !== null) {
+    const f = field as Record<string, unknown>;
+    return String(f[locale] ?? f['ko'] ?? '');
+  }
+  return '';
+}
+
 function mapCmsTreatment(
   raw: any,
   locale: string,
@@ -32,20 +44,32 @@ function mapCmsTreatment(
 
   const name = raw.name?.[locale] || raw.name?.ko || '';
   const tagline = raw.tagline?.[locale] || raw.tagline?.ko || '';
+  const description =
+    raw.description?.[locale] || raw.description?.ko || tagline;
   const firstPrice = raw.priceOptions?.[0];
+  const effectivePrice = firstPrice?.discountPrice ?? firstPrice?.price;
 
   const treatment: Treatment = {
     name,
     slug: raw.slug?.current || '',
     category: categorySlug,
-    price: firstPrice ? `₩${firstPrice.price?.toLocaleString()}~` : '',
-    priceNumeric: firstPrice?.price || 0,
+    price: effectivePrice ? `₩${effectivePrice.toLocaleString()}` : '',
+    priceNumeric: effectivePrice || 0,
     hasEvent: raw.isEvent || false,
-    description: tagline,
-    duration: raw.treatmentTime || '',
+    hasSignature: raw.isSignature || false,
+    originalPriceNumeric: firstPrice?.price || 0,
+    discountRate:
+      firstPrice?.price && firstPrice?.discountPrice
+        ? Math.round((1 - firstPrice.discountPrice / firstPrice.price) * 100)
+        : 0,
+    keywords: raw.keywords?.[locale] || raw.keywords?.ko || '',
+    composition: raw.composition?.[locale] || raw.composition?.ko || '',
+    description,
+    duration: extractLocale(raw.treatmentTime, locale),
     anesthesia: raw.anesthesia?.[locale] || raw.anesthesia?.ko || '',
-    recovery: raw.downtime || '',
+    recovery: extractLocale(raw.downtime, locale),
     recommended: raw.duration || '',
+    imageUrl: raw.imageUrl || undefined,
   };
 
   return { category: categoryMeta, treatment };
@@ -149,11 +173,21 @@ export default async function TreatmentDetailPage({
       <section className="bg-[#faf8f5]">
         <div className="mx-auto flex max-w-[var(--container-max)] flex-col gap-8 p-5 lg:flex-row lg:gap-12 lg:px-[120px] lg:py-16">
           {/* Left - Image */}
-          <ImagePlaceholder
-            label={treatment.name}
-            variant="neutral"
-            className="h-[260px] w-full shrink-0 rounded-[8px] lg:h-[500px] lg:flex-1"
-          />
+          {treatment.imageUrl ? (
+            <div className="h-[260px] w-full shrink-0 overflow-hidden rounded-[8px] lg:h-[500px] lg:flex-1">
+              <img
+                src={treatment.imageUrl}
+                alt={treatment.name}
+                className="h-full w-full object-cover"
+              />
+            </div>
+          ) : (
+            <ImagePlaceholder
+              label={treatment.name}
+              variant="neutral"
+              className="h-[260px] w-full shrink-0 rounded-[8px] lg:h-[500px] lg:flex-1"
+            />
+          )}
 
           {/* Right - Details */}
           <div className="flex flex-col lg:flex-1">
@@ -167,7 +201,7 @@ export default async function TreatmentDetailPage({
               </Link>
               <span>/</span>
               <Link
-                href={`/${locale}/treatments/${category.slug}`}
+                href={`/${locale}/treatments?cat=${category.slug}`}
                 className="transition-colors hover:text-[#a83c44]"
               >
                 {category.label}
@@ -176,43 +210,82 @@ export default async function TreatmentDetailPage({
               <span className="text-[#a83c44]">{treatment.name}</span>
             </nav>
 
-            {/* Category */}
-            <span className="mt-4 inline-flex self-start rounded-[4px] bg-[#faf8f5] px-1.5 py-0.5 text-[12px] font-medium text-[#a83c44]">
-              {category.label}
-            </span>
+            {/* Category + Signature badge */}
+            <div className="mt-4 flex items-center gap-2">
+              <span className="inline-flex self-start rounded-[4px] bg-[#faf8f5] px-1.5 py-0.5 text-[12px] font-medium text-[#a83c44]">
+                {category.label}
+              </span>
+              {treatment.hasSignature && (treatment.discountRate ?? 0) > 0 && (
+                <span className="inline-flex rounded-[4px] bg-[#a83c44] px-1.5 py-0.5 text-[12px] font-bold text-white">
+                  {treatment.discountRate}% OFF
+                </span>
+              )}
+            </div>
 
             {/* Name */}
             <h1 className="mt-3 text-[24px] font-bold text-[#2b2b2b] lg:text-[28px]">
               {treatment.name}
             </h1>
 
+            {/* Keywords (signature only) */}
+            {treatment.hasSignature && treatment.keywords && (
+              <p className="mt-2 text-[13px] text-[#999]">
+                {treatment.keywords}
+              </p>
+            )}
+
             {/* Description */}
             <p className="mt-4 text-[14px] leading-[1.7] text-[#666]">
               {treatment.description}
             </p>
 
-            {/* Info Rows */}
-            <div className="mt-8 space-y-0">
-              {INFO_ROW_KEYS.map((row) => (
-                <div
-                  key={row.key}
-                  className="flex items-center border-b border-[#e6e6e6] py-3"
-                >
-                  <span className="w-[100px] shrink-0 text-[13px] text-[#808080]">
-                    {t(row.tKey)}
-                  </span>
-                  <span className="text-forever-charcoal text-[14px]">
-                    {treatment[row.key]}
-                  </span>
-                </div>
-              ))}
-            </div>
+            {/* Composition (signature only) */}
+            {treatment.hasSignature && treatment.composition && (
+              <div className="mt-6 rounded-[8px] border border-[#efe5d9] bg-white p-4">
+                <p className="mb-1.5 text-[11px] font-semibold tracking-[0.15em] text-[#a83c44] uppercase">
+                  Composition
+                </p>
+                <p className="text-[13px] leading-[1.8] text-[#2b2b2b]">
+                  {treatment.composition}
+                </p>
+              </div>
+            )}
+
+            {/* Info Rows (일반 시술만) */}
+            {!treatment.hasSignature && (
+              <div className="mt-8 space-y-0">
+                {INFO_ROW_KEYS.map((row) => (
+                  <div
+                    key={row.key}
+                    className="flex items-center border-b border-[#e6e6e6] py-3"
+                  >
+                    <span className="w-[100px] shrink-0 text-[13px] text-[#808080]">
+                      {t(row.tKey)}
+                    </span>
+                    <span className="text-forever-charcoal text-[14px]">
+                      {treatment[row.key]}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Price + CTA */}
             <div className="mt-8 flex items-center justify-between">
-              <span className="text-forever-charcoal text-[20px] font-bold lg:text-[24px]">
-                {treatment.price}
-              </span>
+              {treatment.hasSignature && (treatment.discountRate ?? 0) > 0 ? (
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[13px] text-[#999] line-through">
+                    ₩{treatment.originalPriceNumeric?.toLocaleString()}
+                  </span>
+                  <span className="text-[22px] font-bold text-[#a83c44] lg:text-[26px]">
+                    {treatment.price}
+                  </span>
+                </div>
+              ) : (
+                <span className="text-forever-charcoal text-[20px] font-bold lg:text-[24px]">
+                  {treatment.price}
+                </span>
+              )}
               <AddToCartButton
                 treatmentSlug={treatment.slug}
                 treatmentName={treatment.name}

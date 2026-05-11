@@ -1,9 +1,47 @@
+// === Signature Programs (treatment 타입, isSignature == true) ===
+export const signatureProgramsQuery = `
+  *[_type == "treatment" && isSignature == true && isVisible == true] | order(sortOrder asc) {
+    _id,
+    "slug": slug.current,
+    "name": name[$locale],
+    "keywords": keywords[$locale],
+    "position": tagline[$locale],
+    "originalPrice": priceOptions[0].price,
+    "discountedPrice": coalesce(priceOptions[0].discountPrice, priceOptions[0].price),
+    "discountRate": round((1 - coalesce(priceOptions[0].discountPrice, priceOptions[0].price) / priceOptions[0].price) * 100),
+    category
+  }
+`;
+
+export const signatureProgramBySlugQuery = `
+  *[_type == "treatment" && slug.current == $slug && isSignature == true && isVisible == true][0] {
+    _id,
+    "slug": slug.current,
+    "name": name[$locale],
+    "keywords": keywords[$locale],
+    "position": tagline[$locale],
+    "description": description[$locale],
+    "composition": composition[$locale],
+    "originalPrice": priceOptions[0].price,
+    "discountedPrice": coalesce(priceOptions[0].discountPrice, priceOptions[0].price),
+    "discountRate": round((1 - coalesce(priceOptions[0].discountPrice, priceOptions[0].price) / priceOptions[0].price) * 100),
+    category
+  }
+`;
+
 // === Home Page ===
 export const homeHeroQuery = `*[_type == "pageHero" && _id == "page-hero-main"][0]`;
 
 export const homeQuickEntryQuery = `*[_type == "quickEntryCard" && isVisible == true] | order(sortOrder asc)`;
 
 export const homePromoQuery = `*[_type == "promotion" && showOnMain == true] | order(sortOrder asc)[0...3]`;
+
+export const homeEventTreatmentsQuery = `
+  *[_type == "treatment" && isVisible == true && isEvent == true] | order(sortOrder asc)[0...3] {
+    _id, name, slug, category, tagline, priceOptions, isEvent,
+    "imageUrl": thumbnail.asset->url
+  }
+`;
 
 export const homeBACasesQuery = `*[_type == "baCase" && showOnMain == true && isVisible == true] | order(_createdAt desc)[0...3] {
   _id, beforeImage, afterImage,
@@ -22,10 +60,13 @@ export const homeClinicInfoQuery = `*[_type == "clinicInfo"][0]`;
 export const homeEventPopupQuery = `*[_type == "eventPopup" && dateTime(now()) >= dateTime(startDate) && dateTime(now()) <= dateTime(endDate)][0]`;
 
 // === Treatment ===
-export const treatmentsByCategoryQuery = `*[_type == "treatment" && isVisible == true && category == $category] | order(sortOrder asc)`;
+export const treatmentsByCategoryQuery = `*[_type == "treatment" && isVisible == true && category == $category] | order(sortOrder asc) {
+  ..., "imageUrl": thumbnail.asset->url
+}`;
 
 export const allTreatmentsGroupedQuery = `*[_type == "treatment" && isVisible == true] | order(sortOrder asc) {
-  _id, name, slug, category, tagline, priceOptions, isEvent, downtime, treatmentTime, duration
+  _id, name, slug, category, tagline, keywords, description, composition, priceOptions, isEvent, isSignature, downtime, treatmentTime, duration,
+  "imageUrl": thumbnail.asset->url
 }`;
 
 export const treatmentsByQuickEntryQuery = `
@@ -35,7 +76,7 @@ export const treatmentsByQuickEntryQuery = `
   } | order(sortOrder asc)
 `;
 
-export const treatmentDetailQuery = `*[_type == "treatment" && slug.current == $slug][0]{ ..., relatedTreatments[]-> }`;
+export const treatmentDetailQuery = `*[_type == "treatment" && slug.current == $slug][0]{ ..., "imageUrl": thumbnail.asset->url, relatedTreatments[]-> }`;
 
 export const allTreatmentsForCartQuery = `
   *[_type == "treatment" && isVisible == true] | order(sortOrder asc) {
@@ -72,7 +113,7 @@ export const promotionsQuery = `
   *[_type == "promotion" && endDate >= now()] | order(sortOrder asc) {
     _id, "title": title[$locale], image, "description": description[$locale],
     eventPrice, startDate, endDate, showOnMain,
-    "treatment": treatment-> { "name": name[$locale], "slug": slug.current, priceOptions }
+    "treatment": treatment-> { "name": name[$locale], "slug": slug.current, category, priceOptions }
   }
 `;
 
@@ -115,9 +156,7 @@ export const clinicInfoQuery = `
 export const contactSectionConfigQuery = `
   *[_type == "pageHero" && _id == "page-hero-contact"][0] {
     "title": title[$locale],
-    "subtitle": subtitle[$locale],
-    "headerBgColor": bgColor,
-    "accentColor": accentColor
+    "subtitle": subtitle[$locale]
   }
 `;
 

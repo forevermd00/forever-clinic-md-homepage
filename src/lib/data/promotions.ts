@@ -16,6 +16,7 @@ interface SanityPromotion {
   treatment?: {
     name?: string;
     slug?: string;
+    category?: string;
     priceOptions?: { label?: string; price?: number; discountPrice?: number }[];
   };
 }
@@ -25,6 +26,7 @@ interface SanityPromotion {
 export type Promotion = {
   id: string;
   slug: string;
+  category: string;
   image?: { src: string; alt: string };
   badge: string;
   title: string;
@@ -53,6 +55,7 @@ function mapPromotions(raw: SanityPromotion[]): Promotion[] {
     return {
       id: p._id,
       slug: p.treatment?.slug || p._id,
+      category: p.treatment?.category || 'event',
       image: p.image
         ? {
             src: urlFor(p.image)?.width(800).height(400).url() || '',

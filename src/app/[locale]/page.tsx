@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { HeroSection } from '@/components/home/HeroSection';
 import { QuickEntrySection } from '@/components/home/QuickEntrySection';
+import { SignatureProgramSection } from '@/components/home/SignatureProgramSection';
 import { PromoSection } from '@/components/home/PromoSection';
 import { BAPreviewSection } from '@/components/home/BAPreviewSection';
 import { StatsStripSection } from '@/components/home/StatsStripSection';
@@ -15,11 +17,12 @@ import {
 } from '@/lib/seo/keywords';
 import { getHeroContent } from '@/lib/data/hero';
 import { getQuickEntryCards } from '@/lib/data/quickEntry';
-import { getPromotions } from '@/lib/data/promotions';
+import { getEventTreatments } from '@/lib/data/treatments';
 import { getHomeBACases } from '@/lib/data/ba';
 import { getStats } from '@/lib/data/stats';
 import { getDoctors } from '@/lib/data/doctors';
 import { getClinicInfo, getContactSectionConfig } from '@/lib/data/clinic';
+import { getSignaturePrograms } from '@/lib/data/signaturePrograms';
 
 export async function generateMetadata({
   params,
@@ -53,7 +56,8 @@ export default async function HomePage({
     qeTreatment,
     qeConcern,
     qeSituation,
-    promotions,
+    signaturePrograms,
+    eventTreatments,
     baCases,
     stats,
     doctors,
@@ -64,7 +68,8 @@ export default async function HomePage({
     getQuickEntryCards('treatment', locale),
     getQuickEntryCards('concern', locale),
     getQuickEntryCards('situation', locale),
-    getPromotions(locale),
+    getSignaturePrograms(locale),
+    getEventTreatments(locale),
     getHomeBACases(locale),
     getStats(locale),
     getDoctors(locale),
@@ -82,12 +87,15 @@ export default async function HomePage({
     <>
       <HeroSection hero={hero} />
       <QuickEntrySection cardsByTab={cardsByTab} />
-      <PromoSection locale={locale} promotions={promotions} />
+      <SignatureProgramSection locale={locale} programs={signaturePrograms} />
+      <PromoSection locale={locale} events={eventTreatments} />
       <BAPreviewSection cases={baCases} />
       <StatsStripSection stats={stats} />
       <DoctorSection doctors={doctors} />
       <LocationSection clinicInfo={clinicInfo} />
-      <ContactFormSection config={contactConfig} />
+      <Suspense fallback={<div className="h-[600px] bg-[#faf8f5]" />}>
+        <ContactFormSection config={contactConfig} />
+      </Suspense>
     </>
   );
 }

@@ -10,11 +10,17 @@ export interface Treatment {
   price: string;
   priceNumeric: number;
   hasEvent?: boolean;
+  hasSignature?: boolean;
+  originalPriceNumeric?: number;
+  discountRate?: number;
+  keywords?: string;
+  composition?: string;
   description: string;
   duration: string;
   anesthesia: string;
   recovery: string;
   recommended: string;
+  imageUrl?: string;
 }
 
 export interface TreatmentCategory {
@@ -27,6 +33,14 @@ export interface TreatmentCategory {
 }
 
 export const TREATMENT_CATEGORIES: TreatmentCategory[] = [
+  {
+    slug: 'signature',
+    label: '시그니처',
+    labelEn: 'Signature',
+    description: '복수 시술을 결합한 포에버 시그니처 패키지 프로그램',
+    bgColor: 'bg-[#1a1a1a]',
+    treatments: [],
+  },
   {
     slug: 'lifting-laser',
     label: '리프팅·레이저',
