@@ -244,10 +244,22 @@ export default async function TreatmentDetailPage({
 
           {/* Right - Content */}
           <div className="mt-8 flex flex-col border-t border-[#e6e6e6] pt-8 lg:mt-0 lg:flex-1 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-12">
-            {/* Description */}
-            <p className="text-[14px] leading-[1.7] text-[#666]">
-              {treatment.description}
-            </p>
+            {/* Description + CTA */}
+            <div className="flex items-start justify-between gap-4">
+              <p className="flex-1 text-[14px] leading-[1.7] text-[#666]">
+                {treatment.description}
+              </p>
+              <div className="shrink-0">
+                <AddToCartButton
+                  treatmentSlug={treatment.slug}
+                  treatmentName={treatment.name}
+                  packageLabel={treatment.price}
+                  unitPrice={treatment.priceNumeric}
+                  category={category.slug}
+                  label={tc('addToEstimate')}
+                />
+              </div>
+            </div>
 
             {/* Composition (signature only) */}
             {treatment.hasSignature && treatment.composition && (
@@ -279,18 +291,6 @@ export default async function TreatmentDetailPage({
                 ))}
               </div>
             )}
-
-            {/* CTA */}
-            <div className="mt-8 flex items-center justify-end border-t border-[#e6e6e6] pt-6 lg:mt-auto">
-              <AddToCartButton
-                treatmentSlug={treatment.slug}
-                treatmentName={treatment.name}
-                packageLabel={treatment.price}
-                unitPrice={treatment.priceNumeric}
-                category={category.slug}
-                label={tc('addToEstimate')}
-              />
-            </div>
           </div>
         </div>
       </section>
