@@ -252,90 +252,46 @@ export function TreatmentsTabGrid({
           role="tabpanel"
           aria-label={currentCategory.label}
         >
-          {/* 시그니처 탭 전용 레이아웃 */}
+          {/* 시그니처 탭 — 일반 카테고리와 동일한 레이아웃 */}
           {currentCategory.slug === SIGNATURE_SLUG ? (
-            <div className="bg-[#1a1a1a]">
-              {/* 헤더 */}
-              <div className="border-b border-white/10 px-5 py-10 md:px-10 lg:px-12">
+            <>
+              <div className="border-b border-[#e8ded6] bg-[#faf8f5] px-5 py-8 md:px-10 lg:px-12">
                 <div className="mx-auto max-w-[var(--container-max)]">
-                  <p className="text-[11px] font-semibold tracking-[0.2em] text-[#a83c44] uppercase">
+                  <p className="text-[12px] font-medium tracking-widest text-[#a83c44] uppercase">
                     SIGNATURE PROGRAMS
                   </p>
-                  <h2 className="mt-1 text-[22px] font-bold text-white md:text-[26px]">
+                  <h2 className="mt-1 text-[22px] font-bold text-[#2b2b2b] md:text-[26px]">
                     {currentCategory.label}
                   </h2>
                   {currentCategory.description && (
-                    <p className="mt-2 text-[14px] leading-[1.6] text-white/50">
+                    <p className="mt-2 text-[14px] leading-[1.6] text-[#706263]">
                       {currentCategory.description}
                     </p>
                   )}
                 </div>
               </div>
-
-              {/* 시그니처 카드 그리드 */}
-              <div className="px-5 py-10 md:px-10 lg:px-12">
-                <div className="mx-auto max-w-[var(--container-max)]">
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="bg-white px-5 py-10 md:px-10 lg:px-12">
+                <div className="mx-auto max-w-[1272px]">
+                  <div
+                    className="grid justify-center gap-4"
+                    style={{ gridTemplateColumns: 'repeat(auto-fill, 300px)' }}
+                  >
                     {currentCategory.treatments.map((treatment) => (
-                      <Link
+                      <TreatmentCard
                         key={treatment.slug || treatment.name}
-                        href={`/${locale}/treatments/signature/${treatment.slug}`}
-                        className="group flex flex-col gap-3 overflow-hidden rounded-[10px] border border-white/10 bg-white/5 transition-all duration-200 hover:border-white/30 hover:bg-white/10"
-                      >
-                        {/* 썸네일 */}
-                        {treatment.imageUrl && (
-                          <div className="h-[200px] w-full overflow-hidden">
-                            <img
-                              src={treatment.imageUrl}
-                              alt={treatment.name}
-                              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                            />
-                          </div>
-                        )}
-                        <div className="flex flex-col gap-3 p-5">
-                          {/* 할인 뱃지 */}
-                          {(treatment.discountRate ?? 0) > 0 && (
-                            <span className="w-fit rounded-[4px] bg-[#a83c44] px-2 py-1 text-[11px] font-bold text-white">
-                              {treatment.discountRate}% OFF
-                            </span>
-                          )}
-                          {/* 프로그램명 */}
-                          <h3 className="text-[15px] leading-snug font-bold text-white">
-                            {treatment.name}
-                          </h3>
-                          {/* 포지션 */}
-                          <p className="text-[12px] text-white/60">
-                            {treatment.description}
-                          </p>
-                          {/* 키워드 */}
-                          {treatment.keywords && (
-                            <p className="text-[12px] leading-relaxed text-white/40">
-                              {treatment.keywords}
-                            </p>
-                          )}
-                          {/* 가격 */}
-                          <div className="mt-auto flex flex-col gap-0.5 pt-2">
-                            {(treatment.discountRate ?? 0) > 0 && (
-                              <span className="text-[12px] text-white/30 line-through">
-                                ₩
-                                {treatment.originalPriceNumeric?.toLocaleString()}
-                              </span>
-                            )}
-                            <span className="text-[16px] font-bold text-[#a83c44]">
-                              {treatment.price}
-                            </span>
-                          </div>
-                          {/* 자세히 보기 */}
-                          <p className="mt-1 text-[12px] font-medium text-white/30 transition-colors group-hover:text-white/60">
-                            자세히 보기 &rarr;
-                          </p>
-                        </div>
-                      </Link>
+                        name={treatment.name}
+                        slug={treatment.slug}
+                        category={SIGNATURE_SLUG}
+                        categoryLabel={currentCategory.label}
+                        price={treatment.price}
+                        hasEvent={treatment.hasEvent}
+                        locale={locale}
+                      />
                     ))}
                   </div>
                 </div>
               </div>
-            </div>
+            </>
           ) : (
             <>
               {/* 일반 카테고리 설명 헤더 */}

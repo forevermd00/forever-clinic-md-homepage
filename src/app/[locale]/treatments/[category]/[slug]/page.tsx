@@ -222,8 +222,8 @@ export default async function TreatmentDetailPage({
               </p>
             )}
 
-            {/* Price + CTA (sticky to bottom on desktop) */}
-            <div className="mt-8 flex items-center justify-between lg:mt-auto lg:pt-8">
+            {/* Price */}
+            <div className="mt-8 lg:mt-auto lg:pt-8">
               {(treatment.hasSignature || treatment.hasEvent) &&
               (treatment.discountRate ?? 0) > 0 ? (
                 <div className="flex flex-col gap-0.5">
@@ -239,14 +239,6 @@ export default async function TreatmentDetailPage({
                   {treatment.price}
                 </span>
               )}
-              <AddToCartButton
-                treatmentSlug={treatment.slug}
-                treatmentName={treatment.name}
-                packageLabel={treatment.price}
-                unitPrice={treatment.priceNumeric}
-                category={category.slug}
-                label={tc('addToEstimate')}
-              />
             </div>
           </div>
 
@@ -287,6 +279,18 @@ export default async function TreatmentDetailPage({
                 ))}
               </div>
             )}
+
+            {/* CTA */}
+            <div className="mt-8 flex items-center justify-end border-t border-[#e6e6e6] pt-6 lg:mt-auto">
+              <AddToCartButton
+                treatmentSlug={treatment.slug}
+                treatmentName={treatment.name}
+                packageLabel={treatment.price}
+                unitPrice={treatment.priceNumeric}
+                category={category.slug}
+                label={tc('addToEstimate')}
+              />
+            </div>
           </div>
         </div>
       </section>
