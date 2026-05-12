@@ -386,7 +386,6 @@ export function TreatmentsTabGrid({
                           categoryLabel={cardCategoryLabel}
                           price={treatment.price}
                           hasEvent={treatment.hasEvent}
-                          imageSrc={treatment.imageUrl}
                           locale={locale}
                         />
                       );

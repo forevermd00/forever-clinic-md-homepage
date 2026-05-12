@@ -6,7 +6,7 @@ import './consultation-tool.css';
 
 const QUERY = `*[_type == "contactInquiry"] | order(createdAt desc) {
   _id, _createdAt, name, phone, email, message, source,
-  status, consultNote, createdAt,
+  status, consultNote, createdAt, preferredDate, preferredTime,
   "treatments": selectedTreatments[]{ name, packageLabel, quantity }
 }`;
 
@@ -18,20 +18,22 @@ type SortKey =
   | 'treatments'
   | 'message'
   | 'source'
-  | 'consultNote';
+  | 'consultNote'
+  | 'preferredDate';
 type SortDir = 'asc' | 'desc';
 
 type Column = { key: SortKey; label: string; width: string };
 
 const DEFAULT_COLUMNS: Column[] = [
   { key: 'status', label: '상태', width: '7%' },
-  { key: 'createdAt', label: '문의일시', width: '11%' },
+  { key: 'createdAt', label: '문의일시', width: '10%' },
   { key: 'name', label: '이름', width: '7%' },
   { key: 'phone', label: '연락처', width: '10%' },
-  { key: 'source', label: '출처', width: '7%' },
-  { key: 'treatments', label: '관심 시술', width: '14%' },
-  { key: 'message', label: '문의 내용', width: '20%' },
-  { key: 'consultNote', label: '상담 메모', width: '24%' },
+  { key: 'source', label: '출처', width: '6%' },
+  { key: 'preferredDate', label: '희망 예약일', width: '10%' },
+  { key: 'treatments', label: '관심 시술', width: '13%' },
+  { key: 'message', label: '문의 내용', width: '17%' },
+  { key: 'consultNote', label: '상담 메모', width: '20%' },
 ];
 
 const STORAGE_KEY = 'ct-column-order';
@@ -65,6 +67,10 @@ function getSortValue(doc: ConsultationDoc, key: SortKey): string {
       return formatTreatments(doc);
     case 'source':
       return SOURCE_LABELS[doc.source || ''] || doc.source || '';
+    case 'preferredDate':
+      return doc.preferredDate
+        ? `${doc.preferredDate}${doc.preferredTime ? ' ' + doc.preferredTime : ''}`
+        : '';
     default:
       return String((doc as unknown as Record<string, unknown>)[key] || '');
   }
@@ -435,6 +441,17 @@ function CellRenderer({
     case 'source':
       return (
         <td onClick={onSelect}>{SOURCE_LABELS[doc.source || ''] || '-'}</td>
+      );
+    case 'preferredDate':
+      return (
+        <td
+          onClick={onSelect}
+          className={doc.preferredDate ? 'ct-td-bold' : 'ct-td-muted'}
+        >
+          {doc.preferredDate
+            ? `${doc.preferredDate}${doc.preferredTime ? ' ' + doc.preferredTime : ''}`
+            : '-'}
+        </td>
       );
     case 'treatments':
       return (

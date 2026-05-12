@@ -10,6 +10,8 @@ export interface ConsultationDoc {
   status: string;
   consultNote?: string;
   createdAt?: string;
+  preferredDate?: string;
+  preferredTime?: string;
 }
 
 export const STATUS_OPTIONS = [

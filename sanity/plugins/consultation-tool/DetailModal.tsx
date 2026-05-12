@@ -70,6 +70,14 @@ export function DetailModal({
               value={formatDate(doc.createdAt || doc._createdAt)}
             />
             <MetaItem label="연락처" value={doc.phone} />
+            <MetaItem
+              label="희망 예약일"
+              value={
+                doc.preferredDate
+                  ? `${doc.preferredDate}${doc.preferredTime ? ' ' + doc.preferredTime : ''}`
+                  : '-'
+              }
+            />
             <MetaItem label="이메일" value={doc.email || '-'} />
             <MetaItem label="관심 시술" value={formatTreatments(doc)} />
             <MetaItem

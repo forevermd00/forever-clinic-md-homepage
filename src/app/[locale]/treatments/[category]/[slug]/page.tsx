@@ -9,7 +9,6 @@ import {
   type TreatmentCategory,
 } from '@/components/treatments/treatmentData';
 import { getTreatmentDetail } from '@/lib/data/treatments';
-import { ImagePlaceholder } from '@/components/common/ImagePlaceholder';
 import { AddToCartButton } from '@/components/treatments/AddToCartButton';
 import { JsonLd } from '@/components/seo/JsonLd';
 import {
@@ -171,26 +170,9 @@ export default async function TreatmentDetailPage({
         ])}
       />
       <section className="bg-[#faf8f5]">
-        <div className="mx-auto flex max-w-[var(--container-max)] flex-col gap-8 p-5 lg:flex-row lg:gap-12 lg:px-[120px] lg:py-16">
-          {/* Left - Image */}
-          {treatment.imageUrl ? (
-            <div className="h-[260px] w-full shrink-0 overflow-hidden rounded-[8px] lg:h-[500px] lg:flex-1">
-              <img
-                src={treatment.imageUrl}
-                alt={treatment.name}
-                className="h-full w-full object-cover"
-              />
-            </div>
-          ) : (
-            <ImagePlaceholder
-              label={treatment.name}
-              variant="neutral"
-              className="h-[260px] w-full shrink-0 rounded-[8px] lg:h-[500px] lg:flex-1"
-            />
-          )}
-
-          {/* Right - Details */}
-          <div className="flex flex-col lg:flex-1">
+        <div className="mx-auto flex max-w-[var(--container-max)] flex-col gap-0 p-5 lg:flex-row lg:px-[120px] lg:py-16">
+          {/* Left - Title */}
+          <div className="flex flex-col lg:w-[340px] lg:shrink-0 lg:pr-12">
             {/* Breadcrumb */}
             <nav className="flex items-center gap-1.5 text-[12px] text-[#d4c8bd]">
               <Link
@@ -212,7 +194,7 @@ export default async function TreatmentDetailPage({
 
             {/* Category + badges */}
             <div className="mt-4 flex flex-wrap items-center gap-2">
-              <span className="inline-flex self-start rounded-[4px] bg-[#faf8f5] px-1.5 py-0.5 text-[12px] font-medium text-[#a83c44]">
+              <span className="inline-flex self-start rounded-[4px] bg-white px-1.5 py-0.5 text-[12px] font-medium text-[#a83c44]">
                 {category.label}
               </span>
               {treatment.hasEvent && (
@@ -240,44 +222,8 @@ export default async function TreatmentDetailPage({
               </p>
             )}
 
-            {/* Description */}
-            <p className="mt-4 text-[14px] leading-[1.7] text-[#666]">
-              {treatment.description}
-            </p>
-
-            {/* Composition (signature only) */}
-            {treatment.hasSignature && treatment.composition && (
-              <div className="mt-6 rounded-[8px] border border-[#efe5d9] bg-white p-4">
-                <p className="mb-1.5 text-[11px] font-semibold tracking-[0.15em] text-[#a83c44] uppercase">
-                  Composition
-                </p>
-                <p className="text-[13px] leading-[1.8] text-[#2b2b2b]">
-                  {treatment.composition}
-                </p>
-              </div>
-            )}
-
-            {/* Info Rows (일반 시술만) */}
-            {!treatment.hasSignature && (
-              <div className="mt-8 space-y-0">
-                {INFO_ROW_KEYS.map((row) => (
-                  <div
-                    key={row.key}
-                    className="flex items-center border-b border-[#e6e6e6] py-3"
-                  >
-                    <span className="w-[100px] shrink-0 text-[13px] text-[#808080]">
-                      {t(row.tKey)}
-                    </span>
-                    <span className="text-forever-charcoal text-[14px]">
-                      {treatment[row.key]}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Price + CTA */}
-            <div className="mt-8 flex items-center justify-between">
+            {/* Price + CTA (sticky to bottom on desktop) */}
+            <div className="mt-8 flex items-center justify-between lg:mt-auto lg:pt-8">
               {(treatment.hasSignature || treatment.hasEvent) &&
               (treatment.discountRate ?? 0) > 0 ? (
                 <div className="flex flex-col gap-0.5">
@@ -302,6 +248,45 @@ export default async function TreatmentDetailPage({
                 label={tc('addToEstimate')}
               />
             </div>
+          </div>
+
+          {/* Right - Content */}
+          <div className="mt-8 flex flex-col border-t border-[#e6e6e6] pt-8 lg:mt-0 lg:flex-1 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-12">
+            {/* Description */}
+            <p className="text-[14px] leading-[1.7] text-[#666]">
+              {treatment.description}
+            </p>
+
+            {/* Composition (signature only) */}
+            {treatment.hasSignature && treatment.composition && (
+              <div className="mt-6 rounded-[8px] border border-[#efe5d9] bg-white p-4">
+                <p className="mb-1.5 text-[11px] font-semibold tracking-[0.15em] text-[#a83c44] uppercase">
+                  Composition
+                </p>
+                <p className="text-[13px] leading-[1.8] text-[#2b2b2b]">
+                  {treatment.composition}
+                </p>
+              </div>
+            )}
+
+            {/* Info Rows (일반 시술만) */}
+            {!treatment.hasSignature && (
+              <div className="mt-6 space-y-0">
+                {INFO_ROW_KEYS.map((row) => (
+                  <div
+                    key={row.key}
+                    className="flex items-center border-b border-[#e6e6e6] py-3"
+                  >
+                    <span className="w-[100px] shrink-0 text-[13px] text-[#808080]">
+                      {t(row.tKey)}
+                    </span>
+                    <span className="text-forever-charcoal text-[14px]">
+                      {treatment[row.key]}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
