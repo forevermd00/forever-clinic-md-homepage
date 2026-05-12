@@ -273,24 +273,22 @@ export default async function TreatmentDetailPage({
               </div>
             )}
 
-            {/* Info Rows (일반 시술만) */}
-            {!treatment.hasSignature && (
-              <div className="mt-6 space-y-0">
-                {INFO_ROW_KEYS.map((row) => (
-                  <div
-                    key={row.key}
-                    className="flex items-center border-b border-[#e6e6e6] py-3"
-                  >
-                    <span className="w-[100px] shrink-0 text-[13px] text-[#808080]">
-                      {t(row.tKey)}
-                    </span>
-                    <span className="text-forever-charcoal text-[14px]">
-                      {treatment[row.key]}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
+            {/* Info Rows */}
+            <div className="mt-6 space-y-0">
+              {INFO_ROW_KEYS.map((row) => (
+                <div
+                  key={row.key}
+                  className="flex items-center border-b border-[#e6e6e6] py-3"
+                >
+                  <span className="w-[100px] shrink-0 text-[13px] text-[#808080]">
+                    {t(row.tKey)}
+                  </span>
+                  <span className="text-forever-charcoal text-[14px]">
+                    {treatment[row.key]}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
