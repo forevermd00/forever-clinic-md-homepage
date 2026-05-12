@@ -339,7 +339,7 @@ export default async function BrandPage({
               )}
             </div>
             {/* Clinic Info */}
-            <div className="flex-1">
+            <div className="flex flex-1 items-center">
               <LocationInfo clinicInfo={clinicInfo} />
             </div>
           </div>
