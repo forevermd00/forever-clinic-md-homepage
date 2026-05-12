@@ -252,25 +252,25 @@ export function TreatmentsTabGrid({
           role="tabpanel"
           aria-label={currentCategory.label}
         >
-          {/* 시그니처 탭 — 일반 카테고리와 동일한 레이아웃 */}
+          {/* 시그니처 탭 — 다크 테마 유지, 카드만 통일 */}
           {currentCategory.slug === SIGNATURE_SLUG ? (
-            <>
-              <div className="border-b border-[#e8ded6] bg-[#faf8f5] px-5 py-8 md:px-10 lg:px-12">
+            <div className="bg-[#1a1a1a]">
+              <div className="border-b border-white/10 px-5 py-10 md:px-10 lg:px-12">
                 <div className="mx-auto max-w-[var(--container-max)]">
-                  <p className="text-[12px] font-medium tracking-widest text-[#a83c44] uppercase">
+                  <p className="text-[11px] font-semibold tracking-[0.2em] text-[#a83c44] uppercase">
                     SIGNATURE PROGRAMS
                   </p>
-                  <h2 className="mt-1 text-[22px] font-bold text-[#2b2b2b] md:text-[26px]">
+                  <h2 className="mt-1 text-[22px] font-bold text-white md:text-[26px]">
                     {currentCategory.label}
                   </h2>
                   {currentCategory.description && (
-                    <p className="mt-2 text-[14px] leading-[1.6] text-[#706263]">
+                    <p className="mt-2 text-[14px] leading-[1.6] text-white/50">
                       {currentCategory.description}
                     </p>
                   )}
                 </div>
               </div>
-              <div className="bg-white px-5 py-10 md:px-10 lg:px-12">
+              <div className="px-5 py-10 md:px-10 lg:px-12">
                 <div className="mx-auto max-w-[1272px]">
                   <div
                     className="grid justify-center gap-4"
@@ -291,7 +291,7 @@ export function TreatmentsTabGrid({
                   </div>
                 </div>
               </div>
-            </>
+            </div>
           ) : (
             <>
               {/* 일반 카테고리 설명 헤더 */}
