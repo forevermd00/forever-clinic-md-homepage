@@ -1,7 +1,8 @@
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import type { ClinicInfo } from '@/components/brand/LocationInfo';
-import { buildStaticMapUrl, buildGoogleMapsUrl } from '@/lib/utils/map';
+import { buildGoogleMapsUrl } from '@/lib/utils/map';
+import { GoogleMap } from '@/components/common/GoogleMap';
 
 function clinicInfoToRows(info: ClinicInfo) {
   return [
@@ -28,13 +29,10 @@ export async function LocationSection({
         <div className="relative h-[240px] flex-1 overflow-hidden rounded-[12px] bg-[#efe5d9] lg:h-[360px]">
           {clinicInfo?.latitude && clinicInfo?.longitude ? (
             <>
-              <img
-                src={buildStaticMapUrl(
-                  clinicInfo.latitude,
-                  clinicInfo.longitude,
-                )}
-                alt="포에버의원 명동 위치"
-                className="h-full w-full object-cover"
+              <GoogleMap
+                lat={clinicInfo.latitude}
+                lng={clinicInfo.longitude}
+                className="h-full w-full"
               />
               <Link
                 href={buildGoogleMapsUrl(

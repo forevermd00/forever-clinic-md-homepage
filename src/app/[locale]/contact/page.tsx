@@ -9,7 +9,8 @@ import {
   getContactSectionConfig,
   getBusinessHours,
 } from '@/lib/data/clinic';
-import { buildStaticMapUrl, buildGoogleMapsUrl } from '@/lib/utils/map';
+import { buildGoogleMapsUrl } from '@/lib/utils/map';
+import { GoogleMap } from '@/components/common/GoogleMap';
 
 const titles: Record<string, string> = {
   ko: '예약 및 상담',
@@ -78,10 +79,10 @@ export default async function ContactPage({
           <div className="relative h-[240px] flex-1 overflow-hidden rounded-[12px] bg-[#efe5d9] lg:h-[360px]">
             {clinic.latitude && clinic.longitude ? (
               <>
-                <img
-                  src={buildStaticMapUrl(clinic.latitude, clinic.longitude)}
-                  alt="포에버의원 명동 위치"
-                  className="h-full w-full object-cover"
+                <GoogleMap
+                  lat={clinic.latitude}
+                  lng={clinic.longitude}
+                  className="h-full w-full"
                 />
                 <Link
                   href={buildGoogleMapsUrl(clinic.latitude, clinic.longitude)}
