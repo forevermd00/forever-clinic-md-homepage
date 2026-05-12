@@ -48,6 +48,18 @@ export default function SignupPage() {
     (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\D/g, '').slice(0, 11);
+    setForm((prev) => ({ ...prev, phone: raw }));
+  };
+
+  const formatPhone = (digits: string) => {
+    const d = digits.slice(0, 11);
+    if (d.length <= 3) return d;
+    if (d.length <= 7) return `${d.slice(0, 3)}-${d.slice(3)}`;
+    return `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7)}`;
+  };
+
   // Timer for phone verification
   useEffect(() => {
     if (phoneTimer <= 0) return;
@@ -87,7 +99,7 @@ export default function SignupPage() {
         setPhoneCode('');
       }
     } catch {
-      setErrors((prev) => ({ ...prev, phone: t('errorPhoneRequired') }));
+      setErrors((prev) => ({ ...prev, phone: t('errorSmsFailed') }));
     } finally {
       setPhoneSending(false);
     }
@@ -319,9 +331,10 @@ export default function SignupPage() {
               <input
                 id="signup-phone"
                 type="tel"
+                inputMode="numeric"
                 placeholder={t('phonePlaceholder')}
-                value={form.phone}
-                onChange={update('phone')}
+                value={formatPhone(form.phone)}
+                onChange={handlePhoneChange}
                 disabled={phoneVerified}
                 className={`${inputClass} flex-1 ${phoneVerified ? 'opacity-50' : ''}`}
               />

@@ -5,15 +5,24 @@ export default defineType({
   title: '상담 문의',
   type: 'document',
   preview: {
-    select: { title: 'name', subtitle: 'createdAt', source: 'source' },
-    prepare({ title, subtitle, source }) {
+    select: {
+      title: 'name',
+      subtitle: 'createdAt',
+      source: 'source',
+      preferredDate: 'preferredDate',
+      preferredTime: 'preferredTime',
+    },
+    prepare({ title, subtitle, source, preferredDate, preferredTime }) {
       const sourceLabels: Record<string, string> = {
         'contact-form': '문의 폼',
         'consult-modal': '상담 모달',
       };
+      const dateStr = preferredDate
+        ? ` · 예약희망 ${preferredDate}${preferredTime ? ' ' + preferredTime : ''}`
+        : '';
       return {
         title: title || '(이름 없음)',
-        subtitle: `${sourceLabels[source] || source || ''} ${subtitle ? `| ${subtitle}` : ''}`,
+        subtitle: `${sourceLabels[source] || source || ''} ${subtitle ? `| ${subtitle}` : ''}${dateStr}`,
       };
     },
   },

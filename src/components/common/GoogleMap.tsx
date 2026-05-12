@@ -83,7 +83,6 @@ export function GoogleMap({ lat, lng, zoom = 17, className }: GoogleMapProps) {
       <Script
         src={`https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initForeverMap&loading=async`}
         strategy="lazyOnload"
-        onLoad={initMap}
       />
       <div
         ref={mapRef}

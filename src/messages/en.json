@@ -133,6 +133,7 @@
     "codeInvalid": "Invalid verification code",
     "codeExpired": "Code has expired. Please resend.",
     "errorPhoneRequired": "Please enter your phone number.",
+    "errorSmsFailed": "Failed to send verification code.",
     "errorCodeRequired": "Please enter the verification code.",
     "accountSettings": "Account Settings",
     "myAccount": "My Account",

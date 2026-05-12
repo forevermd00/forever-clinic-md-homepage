@@ -133,6 +133,7 @@
     "codeInvalid": "인증번호가 올바르지 않습니다",
     "codeExpired": "인증번호가 만료되었습니다. 재발송해주세요.",
     "errorPhoneRequired": "전화번호를 입력해주세요.",
+    "errorSmsFailed": "인증번호 발송에 실패했습니다.",
     "errorCodeRequired": "인증번호를 입력해주세요.",
     "accountSettings": "계정 설정",
     "myAccount": "마이페이지",
