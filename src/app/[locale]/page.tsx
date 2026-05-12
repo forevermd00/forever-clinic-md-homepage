@@ -21,7 +21,11 @@ import { getEventTreatments } from '@/lib/data/treatments';
 import { getHomeBACases } from '@/lib/data/ba';
 import { getStats } from '@/lib/data/stats';
 import { getDoctors } from '@/lib/data/doctors';
-import { getClinicInfo, getContactSectionConfig } from '@/lib/data/clinic';
+import {
+  getClinicInfo,
+  getContactSectionConfig,
+  getBusinessHours,
+} from '@/lib/data/clinic';
 import { getSignaturePrograms } from '@/lib/data/signaturePrograms';
 
 export async function generateMetadata({
@@ -44,6 +48,8 @@ export async function generateMetadata({
   };
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage({
   params,
 }: {
@@ -63,6 +69,7 @@ export default async function HomePage({
     doctors,
     clinicInfo,
     contactConfig,
+    businessHours,
   ] = await Promise.all([
     getHeroContent(locale),
     getQuickEntryCards('treatment', locale),
@@ -75,6 +82,7 @@ export default async function HomePage({
     getDoctors(locale),
     getClinicInfo(locale),
     getContactSectionConfig(locale),
+    getBusinessHours(),
   ]);
 
   const cardsByTab = {
@@ -94,7 +102,10 @@ export default async function HomePage({
       <DoctorSection doctors={doctors} />
       <LocationSection clinicInfo={clinicInfo} />
       <Suspense fallback={<div className="h-[600px] bg-[#faf8f5]" />}>
-        <ContactFormSection config={contactConfig} />
+        <ContactFormSection
+          config={contactConfig}
+          businessHours={businessHours}
+        />
       </Suspense>
     </>
   );

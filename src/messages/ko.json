@@ -275,6 +275,9 @@
     "formNamePlaceholder": "성함을 입력해 주세요",
     "formPhone": "연락처",
     "formTreatmentInterest": "관심 시술",
+    "formPreferredDatetime": "희망 예약 일시",
+    "selectDateFirst": "날짜를 선택해 주세요",
+    "clinicClosedOnDate": "해당 날짜는 휴진입니다",
     "formMessage": "문의 내용",
     "formMessagePlaceholder": "문의하실 내용을 입력해 주세요",
     "formOptionalNote": "※ 성함, 연락처 외 모든 항목은 선택사항입니다",
@@ -302,7 +305,7 @@
     "mapPlaceholder": "지도 영역 (Google Maps)",
     "clinicAddress": "서울 중구 남대문로 78 타임워크빌딩 1-2층",
     "clinicPhone": "02-000-0000 [임시]",
-    "clinicHours": "월~금 10:00~20:30 (접수마감 19:30)\n토·일 10:00~18:30 (접수마감 17:30)\n연중무휴 (중요 명절 1일 휴무) / 점심시간 없음"
+    "clinicHours": "월-금 10:00-20:30 (접수마감 19:30)\n토-일 10:00-18:30 (접수마감 17:30)\n연중무휴 (중요 명절 1일 휴무) / 점심시간 없음"
   },
   "promotions": {
     "heroTitle": "이벤트 & 프로모션",

@@ -27,7 +27,11 @@ export async function PromoSection({
           {events.map((event) => (
             <Link
               key={event._id}
-              href={`/${locale}/treatments?cat=event`}
+              href={
+                event.slug && event.category
+                  ? `/${locale}/treatments/${event.category}/${event.slug}`
+                  : `/${locale}/treatments?cat=event`
+              }
               className="group w-[370px] overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)] transition-shadow hover:drop-shadow-[0_4px_8px_rgba(0,0,0,0.14)]"
             >
               <div className="relative h-[198px] overflow-hidden">

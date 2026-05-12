@@ -17,6 +17,8 @@ async function sendInquiryEmail(params: {
     packageLabel: string;
     quantity: number;
   }[];
+  preferredDate?: string;
+  preferredTime?: string;
 }): Promise<void> {
   const clientId = process.env.GMAIL_CLIENT_ID;
   const clientSecret = process.env.GMAIL_CLIENT_SECRET;
@@ -40,6 +42,15 @@ async function sendInquiryEmail(params: {
   });
 
   const hasTreatments = params.treatments && params.treatments.length > 0;
+
+  const preferredDatetimeDisplay =
+    params.preferredDate && params.preferredTime
+      ? `${params.preferredDate} ${params.preferredTime}`
+      : params.preferredDate
+        ? params.preferredDate
+        : params.preferredTime
+          ? params.preferredTime
+          : null;
 
   const treatmentRowsHtml = hasTreatments
     ? params
@@ -86,8 +97,14 @@ async function sendInquiryEmail(params: {
                 </td>
               </tr>
               <tr>
-                <td style="padding:14px 16px;color:#888;font-size:13px;">접수 시각</td>
-                <td style="padding:14px 16px;font-size:13px;">${now}</td>
+                <td style="padding:14px 16px;color:#888;font-size:13px;border-bottom:1px solid #eee;">접수 시각</td>
+                <td style="padding:14px 16px;font-size:13px;border-bottom:1px solid #eee;">${now}</td>
+              </tr>
+              <tr>
+                <td style="padding:14px 16px;color:#888;font-size:13px;">희망 예약일시</td>
+                <td style="padding:14px 16px;font-size:14px;font-weight:600;${preferredDatetimeDisplay ? 'color:#a83c44;' : 'color:#bbb;'}">
+                  ${preferredDatetimeDisplay ?? '미선택'}
+                </td>
               </tr>
             </table>
           </td>
@@ -148,10 +165,14 @@ async function sendInquiryEmail(params: {
     },
   });
 
+  const subjectDatetime = preferredDatetimeDisplay
+    ? ` · 예약희망 ${preferredDatetimeDisplay}`
+    : '';
+
   await transporter.sendMail({
     from: `포에버의원 명동점 <${user}>`,
     to: user,
-    subject: `[상담문의] ${params.name} · ${params.phone} — ${treatmentSummary}`,
+    subject: `[상담문의] ${params.name} · ${params.phone}${subjectDatetime} — ${treatmentSummary}`,
     html: htmlBody,
   });
 }
@@ -176,6 +197,8 @@ interface InquiryBody {
     packageLabel: string;
     quantity: number;
   }[];
+  preferredDate?: string;
+  preferredTime?: string;
   source?: string;
 }
 
@@ -231,6 +254,8 @@ export async function POST(req: NextRequest) {
       message: body.message || undefined,
       selectedTreatments:
         selectedTreatments.length > 0 ? selectedTreatments : undefined,
+      preferredDate: body.preferredDate || undefined,
+      preferredTime: body.preferredTime || undefined,
       source: body.source || 'contact-form',
       status: 'pending',
       createdAt: new Date().toISOString(),
@@ -244,6 +269,8 @@ export async function POST(req: NextRequest) {
       phone: body.phone,
       message: body.message,
       treatments: body.treatments,
+      preferredDate: body.preferredDate,
+      preferredTime: body.preferredTime,
     }).catch((emailErr) => {
       // 이메일 발송 실패가 상담 접수에 영향을 주지 않도록 에러만 로깅
       console.error('[email] Failed to send inquiry notification:', emailErr);

@@ -38,7 +38,7 @@ export const homePromoQuery = `*[_type == "promotion" && showOnMain == true] | o
 
 export const homeEventTreatmentsQuery = `
   *[_type == "treatment" && isVisible == true && isEvent == true] | order(sortOrder asc)[0...3] {
-    _id, name, slug, category, tagline, priceOptions, isEvent,
+    _id, name, "slug": slug.current, category, tagline, priceOptions, isEvent,
     "imageUrl": thumbnail.asset->url
   }
 `;
@@ -144,12 +144,11 @@ export const doctorsQuery = `
 export const clinicInfoQuery = `
   *[_type == "clinicInfo"][0] {
     "address": address[$locale], phone, email,
-    "businessHours": businessHours[] { "day": day[$locale], open, close, "note": note[$locale] },
+    "businessHours": businessHours[] { dayOfWeek, "day": day[$locale], open, close, "note": note[$locale] },
     "closedDayNotice": closedDayNotice[$locale],
     "walkingGuide": walkingGuide[$locale],
     snsLinks, messengerLinks,
-    "latitude": locationCoordinates.latitude,
-    "longitude": locationCoordinates.longitude
+    locationCoordinates
   }
 `;
 

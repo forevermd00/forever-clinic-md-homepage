@@ -6,7 +6,50 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { cn } from '@/lib/utils/cn';
 import { useCartStore } from '@/lib/store/cart';
-import type { ContactSectionConfig } from '@/lib/data/clinic';
+import type {
+  ContactSectionConfig,
+  BusinessHoursEntry,
+} from '@/lib/data/clinic';
+import { FALLBACK_BUSINESS_HOURS } from '@/lib/data/clinic';
+
+/* Sanity 영업시간 기반 시간 슬롯 생성 (30분 단위) */
+function getTimeSlots(dateStr: string, hours: BusinessHoursEntry[]): string[] {
+  if (!dateStr) return [];
+  const date = new Date(dateStr + 'T00:00:00');
+  const dow = date.getDay();
+  const entry = hours.find((h) => h.dayOfWeek.includes(dow));
+  if (!entry) return []; // 해당 요일 영업 없음
+
+  const [openH, openM] = entry.open.split(':').map(Number);
+  const [closeH, closeM] = entry.close.split(':').map(Number);
+  const openTotal = openH * 60 + openM;
+  const closeTotal = closeH * 60 + closeM;
+
+  const slots: string[] = [];
+  for (let t = openTotal; t <= closeTotal; t += 30) {
+    slots.push(
+      `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`,
+    );
+  }
+  return slots;
+}
+
+/* 오늘 날짜이면 현재 시각 + 30분 이후 슬롯만 활성화 */
+function isSlotAvailable(dateStr: string, slot: string): boolean {
+  if (!dateStr) return true;
+  const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+  if (dateStr !== today) return true;
+  const now = new Date();
+  const [h, m] = slot.split(':').map(Number);
+  const slotMinutes = h * 60 + m;
+  const nowMinutes = now.getHours() * 60 + now.getMinutes() + 30; // +30분 버퍼
+  return slotMinutes >= nowMinutes;
+}
+
+/* 날짜 선택 최솟값 (오늘) */
+function getTodayStr(): string {
+  return new Date().toLocaleDateString('en-CA');
+}
 
 function formatPhone(digits: string): string {
   const d = digits.slice(0, 11);
@@ -17,9 +60,11 @@ function formatPhone(digits: string): string {
 
 type Props = {
   config?: ContactSectionConfig;
+  businessHours?: BusinessHoursEntry[];
 };
 
-export function ContactFormSection({ config }: Props) {
+export function ContactFormSection({ config, businessHours }: Props) {
+  const hours = businessHours ?? FALLBACK_BUSINESS_HOURS;
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'ko';
   const searchParams = useSearchParams();
@@ -44,6 +89,8 @@ export function ContactFormSection({ config }: Props) {
     programName ? `시그니처 프로그램 ${programName}에 대해 문의드립니다.` : '',
   );
   const [checkedIds, setCheckedIds] = useState<Set<string> | null>(null);
+  const [preferredDate, setPreferredDate] = useState('');
+  const [preferredTime, setPreferredTime] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -79,6 +126,8 @@ export function ContactFormSection({ config }: Props) {
           message,
           treatments:
             selectedTreatments.length > 0 ? selectedTreatments : undefined,
+          preferredDate: preferredDate || undefined,
+          preferredTime: preferredTime || undefined,
           source: 'contact-form',
         }),
       });
@@ -89,6 +138,8 @@ export function ContactFormSection({ config }: Props) {
         setPhoneDigits('');
         setMessage('');
         setCheckedIds(null);
+        setPreferredDate('');
+        setPreferredTime('');
       }
     } catch {
       // silent fail
@@ -312,7 +363,88 @@ export function ContactFormSection({ config }: Props) {
                 </p>
               </div>
 
-              {/* Row 3: Message */}
+              {/* Row 3: Preferred Date & Time — 좌: 날짜, 우: 시간 */}
+              <div className="flex flex-col gap-2">
+                <label className="text-[13px] font-medium text-[#2b2b2b]">
+                  {t('formPreferredDatetime')}
+                  <span className="ml-1.5 text-[11px] font-normal text-[#999]">
+                    ({tc('optional')})
+                  </span>
+                </label>
+                <div className="flex min-h-[80px] gap-5">
+                  {/* 좌: 날짜 선택 */}
+                  <div className="flex w-[180px] shrink-0 flex-col gap-1.5">
+                    <input
+                      type="date"
+                      value={preferredDate}
+                      min={getTodayStr()}
+                      onChange={(e) => {
+                        setPreferredDate(e.target.value);
+                        setPreferredTime('');
+                      }}
+                      className="h-[44px] w-full rounded-[6px] border border-[#d9d9d9] bg-white px-3 py-2.5 text-[14px] text-[#2b2b2b]"
+                    />
+                  </div>
+                  {/* 우: 시간 슬롯 */}
+                  <div className="flex flex-1 flex-wrap content-start gap-1.5">
+                    {(() => {
+                      if (!preferredDate) {
+                        return (
+                          <div className="flex h-[44px] items-center">
+                            <p className="text-[13px] text-[#ccc]">
+                              {t('selectDateFirst')}
+                            </p>
+                          </div>
+                        );
+                      }
+                      const slots = getTimeSlots(preferredDate, hours);
+                      if (slots.length === 0) {
+                        return (
+                          <div className="flex h-[44px] items-center">
+                            <p className="text-[13px] text-[#ccc]">
+                              {t('clinicClosedOnDate')}
+                            </p>
+                          </div>
+                        );
+                      }
+                      return slots.map((slot) => {
+                        const available = isSlotAvailable(preferredDate, slot);
+                        const selected = preferredTime === slot;
+                        return (
+                          <button
+                            key={slot}
+                            type="button"
+                            disabled={!available}
+                            onClick={() =>
+                              setPreferredTime(selected ? '' : slot)
+                            }
+                            className={cn(
+                              'h-[44px] rounded-[6px] border px-3 text-[13px] font-medium transition-colors',
+                              selected
+                                ? 'border-transparent text-white'
+                                : available
+                                  ? 'border-[#d9d9d9] bg-white text-[#2b2b2b] hover:border-[#a83c44] hover:text-[#a83c44]'
+                                  : 'cursor-not-allowed border-[#eee] bg-white text-[#ccc]',
+                            )}
+                            style={
+                              selected
+                                ? {
+                                    backgroundColor: accentColor,
+                                    borderColor: accentColor,
+                                  }
+                                : undefined
+                            }
+                          >
+                            {slot}
+                          </button>
+                        );
+                      });
+                    })()}
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 4: Message */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-[13px] font-medium text-[#2b2b2b]">
                   {t('formMessage')}

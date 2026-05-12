@@ -120,6 +120,19 @@ export default defineType({
       type: 'string',
     }),
     defineField({
+      name: 'preferredDate',
+      title: '희망 예약일',
+      type: 'date',
+      options: {
+        dateFormat: 'YYYY-MM-DD',
+      },
+    }),
+    defineField({
+      name: 'preferredTime',
+      title: '희망 예약시간',
+      type: 'string',
+    }),
+    defineField({
       name: 'createdAt',
       title: '문의일시',
       type: 'datetime',

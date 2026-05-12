@@ -95,6 +95,8 @@ export async function getTreatmentDetail(slug: string, locale: string) {
 
 export type EventTreatment = {
   _id: string;
+  slug: string;
+  category: string;
   name: string;
   tagline: string;
   price: string;
@@ -107,6 +109,8 @@ export async function getEventTreatments(
   const raw = await sanityFetch<
     {
       _id: string;
+      slug?: string;
+      category?: string;
       name?: Record<string, string>;
       tagline?: Record<string, string>;
       priceOptions?: { price?: number; discountPrice?: number }[];
@@ -121,6 +125,8 @@ export async function getEventTreatments(
     const effectivePrice = firstPrice?.discountPrice ?? firstPrice?.price;
     return {
       _id: t._id,
+      slug: t.slug || '',
+      category: t.category || '',
       name: t.name?.[locale] || t.name?.ko || '',
       tagline: t.tagline?.[locale] || t.tagline?.ko || '',
       price: effectivePrice ? `₩${effectivePrice.toLocaleString()}` : '',

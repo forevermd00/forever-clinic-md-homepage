@@ -210,16 +210,22 @@ export default async function TreatmentDetailPage({
               <span className="text-[#a83c44]">{treatment.name}</span>
             </nav>
 
-            {/* Category + Signature badge */}
-            <div className="mt-4 flex items-center gap-2">
+            {/* Category + badges */}
+            <div className="mt-4 flex flex-wrap items-center gap-2">
               <span className="inline-flex self-start rounded-[4px] bg-[#faf8f5] px-1.5 py-0.5 text-[12px] font-medium text-[#a83c44]">
                 {category.label}
               </span>
-              {treatment.hasSignature && (treatment.discountRate ?? 0) > 0 && (
-                <span className="inline-flex rounded-[4px] bg-[#a83c44] px-1.5 py-0.5 text-[12px] font-bold text-white">
-                  {treatment.discountRate}% OFF
+              {treatment.hasEvent && (
+                <span className="inline-flex items-center gap-1 rounded-[4px] bg-[#a83c44] px-1.5 py-0.5 text-[12px] font-bold text-white">
+                  EVENT
                 </span>
               )}
+              {(treatment.hasSignature || treatment.hasEvent) &&
+                (treatment.discountRate ?? 0) > 0 && (
+                  <span className="inline-flex rounded-[4px] bg-[#2b2b2b] px-1.5 py-0.5 text-[12px] font-bold text-white">
+                    {treatment.discountRate}% OFF
+                  </span>
+                )}
             </div>
 
             {/* Name */}
@@ -272,7 +278,8 @@ export default async function TreatmentDetailPage({
 
             {/* Price + CTA */}
             <div className="mt-8 flex items-center justify-between">
-              {treatment.hasSignature && (treatment.discountRate ?? 0) > 0 ? (
+              {(treatment.hasSignature || treatment.hasEvent) &&
+              (treatment.discountRate ?? 0) > 0 ? (
                 <div className="flex flex-col gap-0.5">
                   <span className="text-[13px] text-[#999] line-through">
                     ₩{treatment.originalPriceNumeric?.toLocaleString()}
