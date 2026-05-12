@@ -9,6 +9,7 @@ interface TreatmentCardProps {
   price: string;
   hasEvent?: boolean;
   locale: string;
+  dark?: boolean;
   className?: string;
 }
 
@@ -20,19 +21,28 @@ function TreatmentCard({
   price,
   hasEvent,
   locale,
+  dark,
   className,
 }: TreatmentCardProps) {
   return (
     <Link
       href={`/${locale}/treatments/${category}/${slug}`}
       className={cn(
-        'group block w-[300px] overflow-hidden rounded-[8px] border border-[#efe5d9] bg-white shadow-[0px_2px_2px_rgba(0,0,0,0.08)] transition-shadow hover:shadow-[0px_4px_8px_rgba(0,0,0,0.12)]',
+        'group block w-[300px] overflow-hidden rounded-[8px] transition-all',
+        dark
+          ? 'border border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10'
+          : 'border border-[#efe5d9] bg-white shadow-[0px_2px_2px_rgba(0,0,0,0.08)] hover:shadow-[0px_4px_8px_rgba(0,0,0,0.12)]',
         className,
       )}
     >
       <div className="px-4 pt-4 pb-4">
         <div className="flex items-center gap-2">
-          <span className="inline-block rounded-[4px] bg-[#faf8f5] px-1.5 py-0.5 text-[11px] font-medium text-[#a83c44]">
+          <span
+            className={cn(
+              'inline-block rounded-[4px] px-1.5 py-0.5 text-[11px] font-medium text-[#a83c44]',
+              dark ? 'bg-white/10' : 'bg-[#faf8f5]',
+            )}
+          >
             {categoryLabel}
           </span>
           {hasEvent && (
@@ -41,7 +51,14 @@ function TreatmentCard({
             </span>
           )}
         </div>
-        <h3 className="mt-2 text-[16px] font-bold text-[#2b2b2b]">{name}</h3>
+        <h3
+          className={cn(
+            'mt-2 text-[16px] font-bold',
+            dark ? 'text-white' : 'text-[#2b2b2b]',
+          )}
+        >
+          {name}
+        </h3>
         <p className="mt-1 text-[14px] font-medium text-[#a83c44]">{price}</p>
       </div>
     </Link>

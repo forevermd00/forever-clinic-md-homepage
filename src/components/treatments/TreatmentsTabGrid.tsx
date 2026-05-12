@@ -286,6 +286,7 @@ export function TreatmentsTabGrid({
                         price={treatment.price}
                         hasEvent={treatment.hasEvent}
                         locale={locale}
+                        dark
                       />
                     ))}
                   </div>
