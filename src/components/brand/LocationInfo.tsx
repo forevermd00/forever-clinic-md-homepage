@@ -100,9 +100,6 @@ async function LocationInfo({ clinicInfo }: LocationInfoProps) {
 
   return (
     <div className="flex h-auto flex-col gap-6">
-      <h2 className="text-[24px] font-bold text-[#2b2b2b]">
-        {t('locationTitle')}
-      </h2>
       {rows.map((row) => (
         <div key={row.key} className="flex gap-3">
           <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#efe5d9]">
