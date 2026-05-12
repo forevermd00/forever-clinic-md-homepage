@@ -16,27 +16,108 @@ interface LocationInfoProps {
 async function LocationInfo({ clinicInfo }: LocationInfoProps) {
   const t = await getTranslations('home');
 
-  return (
-    <div className="flex flex-col gap-5">
-      <InfoItem label={t('locationAddress')} value={clinicInfo.address} />
-      <InfoItem label={t('locationSubway')} value={clinicInfo.subway} />
-      <InfoItem label={t('locationHours')} value={clinicInfo.hours} />
-      <InfoItem label={t('locationPhone')} value={clinicInfo.phone} />
-    </div>
-  );
-}
+  const rows = [
+    {
+      key: 'locationAddress',
+      value: clinicInfo.address,
+      icon: (
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#706263"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+      ),
+    },
+    {
+      key: 'locationSubway',
+      value: clinicInfo.subway,
+      icon: (
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#706263"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect x="4" y="3" width="16" height="16" rx="4" />
+          <path d="M4 11h16" />
+          <path d="M8 19l-2 2" />
+          <path d="M16 19l2 2" />
+          <path d="M9 7h1" />
+          <path d="M14 7h1" />
+        </svg>
+      ),
+    },
+    {
+      key: 'locationHours',
+      value: clinicInfo.hours,
+      icon: (
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#706263"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+      ),
+    },
+    {
+      key: 'locationPhone',
+      value: clinicInfo.phone,
+      icon: (
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#706263"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.51 2 2 0 0 1 3.6 1.32h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z" />
+        </svg>
+      ),
+    },
+  ].filter((row) => row.value);
 
-function InfoItem({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-start gap-3">
-      {/* Icon placeholder */}
-      <div className="size-8 shrink-0 rounded-full bg-[#efe5d9]" />
-      <div>
-        <p className="text-[13px] font-medium text-[#2b2b2b]">{label}</p>
-        <p className="mt-0.5 text-[13px] leading-relaxed text-[#706263]">
-          {value}
-        </p>
-      </div>
+    <div className="flex h-auto flex-col gap-6">
+      <h2 className="text-[24px] font-bold text-[#2b2b2b]">
+        {t('locationTitle')}
+      </h2>
+      {rows.map((row) => (
+        <div key={row.key} className="flex gap-3">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#efe5d9]">
+            {row.icon}
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[12px] font-medium text-[#d4c8bd]">
+              {t(row.key)}
+            </span>
+            <p className="text-[14px] leading-[1.5] whitespace-pre-line text-[#2b2b2b]">
+              {row.value}
+            </p>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
