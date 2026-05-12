@@ -275,7 +275,7 @@ export default async function TreatmentDetailPage({
 
             {/* Info Rows */}
             <div className="mt-6 space-y-0">
-              {INFO_ROW_KEYS.map((row) => (
+              {INFO_ROW_KEYS.filter((row) => treatment[row.key]).map((row) => (
                 <div
                   key={row.key}
                   className="flex items-center border-b border-[#e6e6e6] py-3"
