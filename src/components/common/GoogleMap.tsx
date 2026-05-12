@@ -42,17 +42,20 @@ export function GoogleMap({ lat, lng, zoom = 17, className }: GoogleMapProps) {
       fullscreenControl: true,
     });
 
-    // 브랜드 레드 마커
+    const pinSvg = encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="44" viewBox="0 0 32 44">` +
+        `<path d="M16 0C7.163 0 0 7.163 0 16c0 11 16 28 16 28S32 27 32 16C32 7.163 24.837 0 16 0z" fill="#a83c44"/>` +
+        `<circle cx="16" cy="16" r="6" fill="white"/>` +
+        `</svg>`,
+    );
+
     new window.google!.maps.Marker({
       position: { lat, lng },
       map,
       icon: {
-        path: window.google!.maps.SymbolPath.CIRCLE,
-        fillColor: '#a83c44',
-        fillOpacity: 1,
-        strokeColor: '#ffffff',
-        strokeWeight: 2,
-        scale: 10,
+        url: `data:image/svg+xml;charset=UTF-8,${pinSvg}`,
+        scaledSize: new window.google!.maps.Size(32, 44),
+        anchor: new window.google!.maps.Point(16, 44),
       },
     });
 
