@@ -1,5 +1,4 @@
 import { getTranslations } from 'next-intl/server';
-import { ImagePlaceholder } from '@/components/common/ImagePlaceholder';
 import type { Doctor } from '@/components/brand/DoctorCard';
 
 interface DoctorSectionProps {
@@ -28,11 +27,15 @@ export async function DoctorSection({ doctors }: DoctorSectionProps = {}) {
               key={doctor.name}
               className="w-[270px] overflow-hidden rounded-[8px] bg-white"
             >
-              <ImagePlaceholder
-                label={doctor.name}
-                variant="cool"
-                className="h-[220px]"
-              />
+              {doctor.photo ? (
+                <img
+                  src={doctor.photo.src}
+                  alt={doctor.photo.alt}
+                  className="h-[220px] w-full object-cover"
+                />
+              ) : (
+                <div className="h-[220px] w-full bg-[#efe5d9]" />
+              )}
               <div className="flex flex-col gap-2 p-5">
                 <h3 className="text-[18px] font-bold">{doctor.name}</h3>
                 <span className="text-[13px] font-medium text-[#d4c8bd]">

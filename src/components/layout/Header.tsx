@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -10,13 +10,13 @@ import { locales, localeNames, type Locale } from '@/lib/i18n/config';
 import { CartBadge } from '@/components/layout/CartBadge';
 import { UserMenu } from '@/components/layout/UserMenu';
 import type { SectionVisibility } from '@/lib/data/visibility';
+import type { NavTreatment } from '@/lib/sanity/queries';
 
 /* ----------------------------------------------------------------
-   Megamenu data - full sitemap columns
-   i18n keys used for UI text; CMS content (treatment names) uses
-   tKey for translation lookup via "megamenu" namespace.
+   Megamenu types & static columns (BA / Brand / Media)
+   Treatment columns are built dynamically from Sanity navTreatments.
    ---------------------------------------------------------------- */
-type MegaItem = { tKey: string; href: string };
+type MegaItem = { tKey?: string; directName?: string; href: string };
 type MegaColumn = {
   group: string;
   titleKey: string;
@@ -26,141 +26,66 @@ type MegaColumn = {
   dividerAfter?: boolean;
 };
 
-const allColumns: MegaColumn[] = [
-  {
-    group: 'ba',
-    titleKey: 'beforeAfter',
-    titleNs: 'nav',
-    href: '/before-after',
-    items: [
-      { tKey: 'baAll', href: '/before-after' },
-      { tKey: 'baLifting', href: '/before-after?cat=lifting' },
-      { tKey: 'baSkincare', href: '/before-after?cat=skincare' },
-      { tKey: 'baToning', href: '/before-after?cat=toning' },
-      { tKey: 'baBotox', href: '/before-after?cat=botox' },
-    ],
-    dividerAfter: true,
-  },
-  // Treatment categories (6개) — Notion 시술 DB 기준 (2026-05-06)
-  // 탭 그리드 연동: href에 ?cat= 파라미터 사용
-  {
-    group: 'treatments',
-    titleKey: 'liftingLaser',
-    titleNs: 'footer',
-    href: '/treatments?cat=lifting-laser',
-    items: [
-      {
-        tKey: 'liftingUltherapy',
-        href: '/treatments/lifting-laser/ultherapy-prime',
-      },
-      {
-        tKey: 'liftingThermage',
-        href: '/treatments/lifting-laser/thermage-flx',
-      },
-      {
-        tKey: 'liftingShrink',
-        href: '/treatments/lifting-laser/shrink-universe',
-      },
-      { tKey: 'liftingTitanium', href: '/treatments/lifting-laser/titanium' },
-      { tKey: 'liftingOnda', href: '/treatments/lifting-laser/onda-lifting' },
-      { tKey: 'liftingPotenza', href: '/treatments/lifting-laser/potenza' },
-    ],
-  },
-  {
-    group: 'treatments',
-    titleKey: 'petitLifting',
-    titleNs: 'footer',
-    href: '/treatments?cat=petit-lifting',
-    items: [
-      { tKey: 'petitBotox', href: '/treatments/petit-lifting/botox' },
-      { tKey: 'petitThread', href: '/treatments/petit-lifting/thread-lifting' },
-      { tKey: 'petitFiller', href: '/treatments/petit-lifting/filler' },
-      {
-        tKey: 'petitFatDissolving',
-        href: '/treatments/petit-lifting/fat-dissolving',
-      },
-      { tKey: 'petitSkinBotox', href: '/treatments/petit-lifting/skin-botox' },
-    ],
-  },
-  {
-    group: 'treatments',
-    titleKey: 'skincareCat',
-    titleNs: 'footer',
-    href: '/treatments?cat=skincare',
-    items: [
-      { tKey: 'skincareHydrofacial', href: '/treatments/skincare/hydrofacial' },
-      {
-        tKey: 'skincareIntenseUltra',
-        href: '/treatments/skincare/intense-ultra',
-      },
-      { tKey: 'skincareAquapeel', href: '/treatments/skincare/aquapeel' },
-    ],
-  },
-  {
-    group: 'treatments',
-    titleKey: 'skinBooster',
-    titleNs: 'footer',
-    href: '/treatments?cat=skin-booster',
-    items: [
-      { tKey: 'boosterGouri', href: '/treatments/skin-booster/gouri' },
-      { tKey: 'boosterSculptra', href: '/treatments/skin-booster/sculptra' },
-      { tKey: 'boosterRadiesse', href: '/treatments/skin-booster/radiesse' },
-      { tKey: 'boosterMetacell', href: '/treatments/skin-booster/metacell' },
-    ],
-  },
-  {
-    group: 'treatments',
-    titleKey: 'hairRemoval',
-    titleNs: 'footer',
-    href: '/treatments?cat=hair-removal',
-    items: [
-      {
-        tKey: 'hairGentleMax',
-        href: '/treatments/hair-removal/gentle-max-pro-plus',
-      },
-    ],
-  },
-  {
-    group: 'treatments',
-    titleKey: 'anesthesia',
-    titleNs: 'footer',
-    href: '/treatments?cat=anesthesia',
-    items: [
-      {
-        tKey: 'anesthesiaSleep',
-        href: '/treatments/anesthesia/sleep-anesthesia',
-      },
-      { tKey: 'anesthesiaAirknox', href: '/treatments/anesthesia/airknox' },
-    ],
-    dividerAfter: true,
-  },
-  {
-    group: 'brand',
-    titleKey: 'brand',
-    titleNs: 'footer',
-    href: '/brand',
-    items: [
-      { tKey: 'brandPhilosophy', href: '/brand#philosophy' },
-      { tKey: 'doctors', href: '/brand#doctors' },
-      { tKey: 'facilities', href: '/brand#facilities' },
-      { tKey: 'equipment', href: '/brand#equipment' },
-      { tKey: 'location', href: '/brand#location' },
-    ],
-    dividerAfter: true,
-  },
-  {
-    group: 'media',
-    titleKey: 'media',
-    titleNs: 'footer',
-    href: '/media',
-    items: [
-      { tKey: 'press', href: '/media/press' },
-      { tKey: 'video', href: '/media/video' },
-      { tKey: 'blog', href: '/media/blog' },
-      { tKey: 'notice', href: '/media/notice' },
-    ],
-  },
+const STATIC_BA_COLUMN: MegaColumn = {
+  group: 'ba',
+  titleKey: 'beforeAfter',
+  titleNs: 'nav',
+  href: '/before-after',
+  items: [
+    { tKey: 'baAll', href: '/before-after' },
+    { tKey: 'baLifting', href: '/before-after?cat=lifting' },
+    { tKey: 'baSkincare', href: '/before-after?cat=skincare' },
+    { tKey: 'baToning', href: '/before-after?cat=toning' },
+    { tKey: 'baBotox', href: '/before-after?cat=botox' },
+  ],
+  dividerAfter: true,
+};
+
+const STATIC_BRAND_COLUMN: MegaColumn = {
+  group: 'brand',
+  titleKey: 'brand',
+  titleNs: 'footer',
+  href: '/brand',
+  items: [
+    { tKey: 'brandPhilosophy', href: '/brand#philosophy' },
+    { tKey: 'doctors', href: '/brand#doctors' },
+    { tKey: 'facilities', href: '/brand#facilities' },
+    { tKey: 'equipment', href: '/brand#equipment' },
+    { tKey: 'location', href: '/brand#location' },
+  ],
+  dividerAfter: true,
+};
+
+const STATIC_MEDIA_COLUMN: MegaColumn = {
+  group: 'media',
+  titleKey: 'media',
+  titleNs: 'footer',
+  href: '/media',
+  items: [
+    { tKey: 'press', href: '/media/press' },
+    { tKey: 'video', href: '/media/video' },
+    { tKey: 'blog', href: '/media/blog' },
+    { tKey: 'notice', href: '/media/notice' },
+  ],
+};
+
+const CATEGORY_ORDER = [
+  'lifting-laser',
+  'petit-lifting',
+  'skincare',
+  'skin-booster',
+  'hair-removal',
+  'anesthesia',
 ];
+
+const CATEGORY_TITLE_KEYS: Record<string, string> = {
+  'lifting-laser': 'liftingLaser',
+  'petit-lifting': 'petitLifting',
+  skincare: 'skincareCat',
+  'skin-booster': 'skinBooster',
+  'hair-removal': 'hairRemoval',
+  anesthesia: 'anesthesia',
+};
 
 /* Nav items with group mapping - label is a translation key under "nav" namespace */
 const ALL_NAV_ITEMS = [
@@ -218,12 +143,12 @@ function MegaColumn({
       <div className="mb-2 h-px w-[120px] bg-[#d9cfc5]" />
       {col.items.map((item) => (
         <Link
-          key={item.tKey}
+          key={item.href}
           href={`/${locale}${item.href}`}
           scroll={true}
           className="py-[5px] text-[13px] text-[#555] transition-colors hover:text-[#a83c44]"
         >
-          {tMega(item.tKey)}
+          {item.directName ?? (item.tKey ? tMega(item.tKey) : '')}
         </Link>
       ))}
     </div>
@@ -232,9 +157,13 @@ function MegaColumn({
 
 interface HeaderProps {
   navVisibility?: SectionVisibility['nav'];
+  navTreatments?: NavTreatment[];
 }
 
-export function Header({ navVisibility }: HeaderProps = {}) {
+export function Header({
+  navVisibility,
+  navTreatments = [],
+}: HeaderProps = {}) {
   const pathname = usePathname();
   const currentLocale = pathname.split('/')[1] as Locale;
   const router = useRouter();
@@ -242,6 +171,38 @@ export function Header({ navVisibility }: HeaderProps = {}) {
   const tCommon = useTranslations('common');
   const tFooter = useTranslations('footer');
   const tMega = useTranslations('megamenu');
+
+  const treatmentColumns = useMemo<MegaColumn[]>(() => {
+    if (!navTreatments.length) return [];
+    const grouped = new Map<string, NavTreatment[]>();
+    for (const t of navTreatments) {
+      if (!grouped.has(t.category)) grouped.set(t.category, []);
+      grouped.get(t.category)!.push(t);
+    }
+    const cats = CATEGORY_ORDER.filter((cat) => grouped.has(cat));
+    return cats.map((cat, idx) => ({
+      group: 'treatments',
+      titleKey: CATEGORY_TITLE_KEYS[cat] || cat,
+      titleNs: 'footer' as const,
+      href: `/treatments?cat=${cat}`,
+      items: (grouped.get(cat) ?? []).map((t) => ({
+        directName:
+          t.name[currentLocale as keyof typeof t.name] ?? t.name.ko ?? '',
+        href: `/treatments/${t.category}/${t.slug}`,
+      })),
+      dividerAfter: idx === cats.length - 1,
+    }));
+  }, [navTreatments, currentLocale]);
+
+  const allColumns = useMemo<MegaColumn[]>(
+    () => [
+      STATIC_BA_COLUMN,
+      ...treatmentColumns,
+      STATIC_BRAND_COLUMN,
+      STATIC_MEDIA_COLUMN,
+    ],
+    [treatmentColumns],
+  );
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -467,7 +428,7 @@ export function Header({ navVisibility }: HeaderProps = {}) {
         {/* Mega Menu */}
         {isMegaOpen && (
           <div
-            className="hidden bg-[#faf8f5] md:block"
+            className="hidden border-b border-[#d9cfc5] bg-[#faf8f5] md:block"
             onMouseEnter={() => {
               if (megaTimeout.current) clearTimeout(megaTimeout.current);
             }}
@@ -550,7 +511,8 @@ export function Header({ navVisibility }: HeaderProps = {}) {
                           onClick={() => setIsMobileMenuOpen(false)}
                           className="block py-2 text-[13px] text-[#706263]"
                         >
-                          {tMega(item.tKey)}
+                          {item.directName ??
+                            (item.tKey ? tMega(item.tKey) : '')}
                         </Link>
                       ))}
                   </div>
@@ -646,7 +608,8 @@ export function Header({ navVisibility }: HeaderProps = {}) {
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     className="block py-2 text-[13px] text-[#706263]"
                                   >
-                                    {tMega(item.tKey)}
+                                    {item.directName ??
+                                      (item.tKey ? tMega(item.tKey) : '')}
                                   </Link>
                                 ))}
                               </div>
@@ -706,7 +669,8 @@ export function Header({ navVisibility }: HeaderProps = {}) {
                           onClick={() => setIsMobileMenuOpen(false)}
                           className="block py-2 text-[13px] text-[#706263]"
                         >
-                          {tMega(item.tKey)}
+                          {item.directName ??
+                            (item.tKey ? tMega(item.tKey) : '')}
                         </Link>
                       ))}
                   </div>
@@ -761,7 +725,8 @@ export function Header({ navVisibility }: HeaderProps = {}) {
                           onClick={() => setIsMobileMenuOpen(false)}
                           className="block py-2 text-[13px] text-[#706263]"
                         >
-                          {tMega(item.tKey)}
+                          {item.directName ??
+                            (item.tKey ? tMega(item.tKey) : '')}
                         </Link>
                       ))}
                   </div>

@@ -197,7 +197,7 @@ export const contactSectionConfigQuery = `
 
 // === QuickEntry ===
 export const quickEntryCardsQuery = `
-  *[_type == "quickEntryCard" && tab == $tab] | order(sortOrder asc) {
+  *[_type == "quickEntryCard" && tab->key == $tab] | order(sortOrder asc) {
     _id,
     "title": title[$locale],
     "description": description[$locale],
@@ -276,11 +276,14 @@ export const noticeDetailQuery = `
 export const brandPhilosophyQuery = `
   *[_type == "brandPhilosophy"][0] {
     "title": title[$locale], "subtitle": subtitle[$locale],
+    "slogan": slogan[$locale],
     backgroundImage, "content": content[$locale],
     "values": values[] {
-      _key, titleKo, titleEn,
+      _key,
+      "titleKo": title.ko,
+      "titleEn": title.en,
       "description": description[$locale],
-      "image": backgroundImage
+      "image": image
     }
   }
 `;
@@ -306,5 +309,20 @@ export const facilitiesQuery = `
 export const equipmentQuery = `
   *[_type == "equipment"] | order(orderRank asc) {
     _id, "name": name[$locale], image, "description": description[$locale], manufacturer
+  }
+`;
+
+// === Nav Menu Treatments ===
+export interface NavTreatment {
+  slug: string;
+  category: string;
+  name: { ko?: string; en?: string; zh?: string; ja?: string };
+}
+
+export const navTreatmentsQuery = `
+  *[_type == "treatment" && showInMenu == true && isVisible == true] | order(category asc, sortOrder asc) {
+    "slug": slug.current,
+    category,
+    "name": { "ko": name.ko, "en": name.en, "zh": name.zh, "ja": name.ja }
   }
 `;

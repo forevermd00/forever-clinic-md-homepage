@@ -1345,7 +1345,7 @@ function BrandSection() {
         <div className="ht-detail-body">
           {imageRef && (
             <img
-              src={sanityImageUrl('ecoamz42', 'develop', imageRef)}
+              src={sanityImageUrl('ecoamz42', 'production', imageRef)}
               alt="bg"
               className="ht-thumb-preview"
             />
@@ -1460,7 +1460,11 @@ function BrandSection() {
                     <label className="ht-detail-label">이미지</label>
                     {valImageRef && (
                       <img
-                        src={sanityImageUrl('ecoamz42', 'develop', valImageRef)}
+                        src={sanityImageUrl(
+                          'ecoamz42',
+                          'production',
+                          valImageRef,
+                        )}
                         alt="value"
                         className="ht-thumb-preview"
                       />

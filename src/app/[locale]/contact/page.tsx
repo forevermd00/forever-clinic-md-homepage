@@ -10,7 +10,11 @@ import {
   getBusinessHours,
 } from '@/lib/data/clinic';
 import { getSectionVisibility } from '@/lib/data/visibility';
-import { buildGoogleMapsUrl } from '@/lib/utils/map';
+import {
+  buildGoogleMapsUrl,
+  buildGoogleMapsUrlFromAddress,
+  buildMapEmbedUrl,
+} from '@/lib/utils/map';
 import { GoogleMap } from '@/components/common/GoogleMap';
 
 const titles: Record<string, string> = {
@@ -79,8 +83,8 @@ export default async function ContactPage({
       {/* Location Info */}
       <section className="bg-[#faf8f5] py-12 lg:py-16">
         <div className="mx-auto max-w-[1280px] px-5 md:px-10 lg:px-12">
-          <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
-            <div className="relative h-[240px] flex-1 overflow-hidden rounded-[12px] bg-[#efe5d9] lg:h-[360px]">
+          <div className="mx-auto flex max-w-[840px] flex-col gap-8 lg:max-w-none lg:flex-row lg:gap-12">
+            <div className="relative h-[320px] w-full overflow-hidden rounded-[12px] bg-[#efe5d9] lg:h-[480px] lg:flex-1">
               {clinic.latitude && clinic.longitude ? (
                 <>
                   <GoogleMap
@@ -111,8 +115,41 @@ export default async function ContactPage({
                     지도에서 열기
                   </Link>
                 </>
+              ) : clinic.address ? (
+                <>
+                  <iframe
+                    src={buildMapEmbedUrl(clinic.address)}
+                    className="h-full w-full border-0"
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="지도"
+                  />
+                  <Link
+                    href={buildGoogleMapsUrlFromAddress(clinic.address)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-[6px] bg-white/90 px-3 py-1.5 text-[12px] font-medium text-[#2b2b2b] shadow-sm backdrop-blur-sm hover:bg-white"
+                  >
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                      <polyline points="15 3 21 3 21 9" />
+                      <line x1="10" y1="14" x2="21" y2="3" />
+                    </svg>
+                    지도에서 열기
+                  </Link>
+                </>
               ) : (
-                <div className="flex h-full items-center justify-center text-[14px] text-[#d4c8bd]">
+                <div className="flex h-full items-center justify-center text-[14px] text-[#9c8e87]">
                   {t('mapPlaceholder')}
                 </div>
               )}

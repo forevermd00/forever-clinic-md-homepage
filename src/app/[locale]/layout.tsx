@@ -11,7 +11,11 @@ import { SessionProvider } from 'next-auth/react';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getMedicalBusinessJsonLd } from '@/lib/seo/jsonld';
 import { sanityFetch } from '@/lib/sanity/fetch';
-import { clinicInfoQuery } from '@/lib/sanity/queries';
+import {
+  clinicInfoQuery,
+  navTreatmentsQuery,
+  type NavTreatment,
+} from '@/lib/sanity/queries';
 import { getSectionVisibility } from '@/lib/data/visibility';
 import {
   getKeywords,
@@ -58,13 +62,14 @@ export default async function LocaleLayout({
   }
 
   const messages = await getMessages();
-  const [clinicInfo, visibility] = await Promise.all([
+  const [clinicInfo, visibility, navTreatments] = await Promise.all([
     sanityFetch<{
       address?: string;
       phone?: string;
       email?: string;
     } | null>(clinicInfoQuery, { locale }),
     getSectionVisibility(),
+    sanityFetch<NavTreatment[]>(navTreatmentsQuery),
   ]);
 
   return (
@@ -81,7 +86,10 @@ export default async function LocaleLayout({
         <JsonLd data={getMedicalBusinessJsonLd(locale)} />
         <SessionProvider>
           <NextIntlClientProvider messages={messages}>
-            <Header navVisibility={visibility.nav} />
+            <Header
+              navVisibility={visibility.nav}
+              navTreatments={navTreatments ?? []}
+            />
             <main>{children}</main>
             <Footer locale={locale} clinicInfo={clinicInfo ?? undefined} />
             <FloatingCTA />

@@ -203,6 +203,13 @@ export default defineType({
       initialValue: true,
     }),
     defineField({
+      name: 'showInMenu',
+      title: '메뉴 노출',
+      description: '상단 네비게이션 메뉴에 표시합니다',
+      type: 'boolean',
+      initialValue: false,
+    }),
+    defineField({
       name: 'sortOrder',
       title: '정렬 순서',
       description: '숫자가 작을수록 앞에 표시됩니다',

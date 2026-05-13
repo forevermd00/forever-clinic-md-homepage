@@ -56,7 +56,7 @@ const ALL_TREATMENTS_QUERY = `*[_type == "treatment"] | order(sortOrder asc) {
 
 function sanityImageUrl(ref: string): string {
   const id = ref.replace('image-', '').replace(/-(\w+)$/, '.$1');
-  return `https://cdn.sanity.io/images/ecoamz42/develop/${id}`;
+  return `https://cdn.sanity.io/images/ecoamz42/production/${id}`;
 }
 
 async function uploadImage(client: SanityClient, file: File) {
@@ -410,9 +410,9 @@ export function QuickCardDetail({
         </div>
       </div>
 
-      {/* ─── 아이콘 ─── */}
+      {/* ─── 썸네일 이미지 ─── */}
       <div className="ht-detail-section">
-        <div className="ht-detail-section-title">아이콘</div>
+        <div className="ht-detail-section-title">썸네일 이미지</div>
         <div className="ht-detail-body">
           {iconRef && (
             <img
