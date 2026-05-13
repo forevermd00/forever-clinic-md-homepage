@@ -61,9 +61,14 @@ function formatPhone(digits: string): string {
 type Props = {
   config?: ContactSectionConfig;
   businessHours?: BusinessHoursEntry[];
+  showPreferredDatetime?: boolean;
 };
 
-export function ContactFormSection({ config, businessHours }: Props) {
+export function ContactFormSection({
+  config,
+  businessHours,
+  showPreferredDatetime = true,
+}: Props) {
   const hours = businessHours ?? FALLBACK_BUSINESS_HOURS;
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'ko';
@@ -100,7 +105,7 @@ export function ContactFormSection({ config, businessHours }: Props) {
   const accentColor = '#a83c44';
   const headerTitle = config?.title ?? t('contactTitle');
   const headerSubtitle = config?.subtitle ?? t('contactSubtitle');
-  const showDatetime = config?.showPreferredDatetime ?? true;
+  const showDatetime = showPreferredDatetime;
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/\D/g, '').slice(0, 11);

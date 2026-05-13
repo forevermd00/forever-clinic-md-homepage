@@ -34,6 +34,9 @@ export interface SectionVisibility {
   treatments: {
     detail: boolean;
   };
+  contact: {
+    showPreferredDatetime: boolean;
+  };
 }
 
 export const DEFAULT_VISIBILITY: SectionVisibility = {
@@ -58,6 +61,7 @@ export const DEFAULT_VISIBILITY: SectionVisibility = {
   },
   media: { press: true, blog: true, notice: true, video: true },
   treatments: { detail: true },
+  contact: { showPreferredDatetime: true },
 };
 
 const QUERY = `*[_type == "sectionVisibility" && _id == "sectionVisibility"][0]{
@@ -65,7 +69,8 @@ const QUERY = `*[_type == "sectionVisibility" && _id == "sectionVisibility"][0]{
   home,
   brand,
   media,
-  treatments
+  treatments,
+  contact
 }`;
 
 type RawVisibility = {
@@ -74,6 +79,7 @@ type RawVisibility = {
   brand?: Partial<SectionVisibility['brand']> | null;
   media?: Partial<SectionVisibility['media']> | null;
   treatments?: Partial<SectionVisibility['treatments']> | null;
+  contact?: Partial<SectionVisibility['contact']> | null;
 };
 
 export async function getSectionVisibility(): Promise<SectionVisibility> {
@@ -116,6 +122,9 @@ export async function getSectionVisibility(): Promise<SectionVisibility> {
     },
     treatments: {
       detail: raw.treatments?.detail ?? true,
+    },
+    contact: {
+      showPreferredDatetime: raw.contact?.showPreferredDatetime ?? true,
     },
   };
 }
