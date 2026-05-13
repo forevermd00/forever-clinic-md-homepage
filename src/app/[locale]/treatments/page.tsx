@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
+import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
 import { TreatmentsTabGrid } from '@/components/treatments/TreatmentsTabGrid';
@@ -7,6 +8,7 @@ import { getAllCategories } from '@/lib/data/treatments';
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
 import { getPageHero } from '@/lib/data/hero';
 import { urlFor } from '@/lib/sanity/image';
+import { getSectionVisibility } from '@/lib/data/visibility';
 
 function toImageUrl(
   heroImage: unknown,
@@ -84,6 +86,12 @@ export default async function TreatmentsPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+
+  const visibility = await getSectionVisibility();
+  if (!visibility.nav.treatments) {
+    redirect(`/${locale}`);
+  }
+
   const t = await getTranslations('treatments');
 
   const [hero, categories] = await Promise.all([

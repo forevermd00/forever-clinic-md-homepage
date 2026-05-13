@@ -9,6 +9,9 @@ interface PageProps {
 export default async function MediaPage({ params }: PageProps) {
   const { locale } = await params;
   const visibility = await getSectionVisibility();
+  if (!visibility.nav.media) {
+    redirect(`/${locale}`);
+  }
   const firstTab = getFirstVisibleMediaTab(visibility.media);
   redirect(`/${locale}/media/${firstTab ?? 'press'}`);
 }

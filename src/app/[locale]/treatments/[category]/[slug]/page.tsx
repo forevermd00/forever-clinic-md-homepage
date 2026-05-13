@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import {
   TREATMENT_CATEGORIES,
@@ -17,6 +17,7 @@ import {
   getBreadcrumbJsonLd,
 } from '@/lib/seo/jsonld';
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
+import { getSectionVisibility } from '@/lib/data/visibility';
 
 const CLINIC_NAMES: Record<string, string> = {
   ko: '포에버의원',
@@ -156,6 +157,11 @@ export default async function TreatmentDetailPage({
   params: Promise<{ locale: string; category: string; slug: string }>;
 }) {
   const { locale, category: categorySlug, slug } = await params;
+
+  const visibility = await getSectionVisibility();
+  if (!visibility.nav.treatments) {
+    redirect(`/${locale}`);
+  }
 
   const cmsData = (await getTreatmentDetail(slug, locale)) as any;
   const cmsResult = mapCmsTreatment(cmsData, locale, categorySlug);

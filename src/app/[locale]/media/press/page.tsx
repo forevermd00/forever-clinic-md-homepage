@@ -50,6 +50,9 @@ export default async function PressPage({
   const currentPage = Number(page) || 1;
 
   const visibility = await getSectionVisibility();
+  if (!visibility.nav.media) {
+    redirect(`/${locale}`);
+  }
   if (!visibility.media.press) {
     const firstTab = getFirstVisibleMediaTab(visibility.media);
     redirect(`/${locale}/media/${firstTab ?? 'press'}`);

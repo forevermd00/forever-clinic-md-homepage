@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
 import { DoctorCard } from '@/components/brand/DoctorCard';
@@ -60,10 +61,14 @@ export default async function BrandPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations('brand');
-  const th = await getTranslations('home');
 
   const visibility = await getSectionVisibility();
+  if (!visibility.nav.brand) {
+    redirect(`/${locale}`);
+  }
+
+  const t = await getTranslations('brand');
+  const th = await getTranslations('home');
   const bv = visibility.brand;
 
   const [doctors, facilities, equipment, clinicInfo, brandPhilosophy, hero] =

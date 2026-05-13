@@ -50,6 +50,9 @@ export default async function BlogPage({
   const currentPage = Number(page) || 1;
 
   const visibility = await getSectionVisibility();
+  if (!visibility.nav.media) {
+    redirect(`/${locale}`);
+  }
   if (!visibility.media.blog) {
     const firstTab = getFirstVisibleMediaTab(visibility.media);
     redirect(`/${locale}/media/${firstTab ?? 'press'}`);

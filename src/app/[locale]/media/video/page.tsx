@@ -50,6 +50,9 @@ export default async function VideoPage({
   const currentPage = Number(page) || 1;
 
   const visibility = await getSectionVisibility();
+  if (!visibility.nav.media) {
+    redirect(`/${locale}`);
+  }
   if (!visibility.media.video) {
     const firstTab = getFirstVisibleMediaTab(visibility.media);
     redirect(`/${locale}/media/${firstTab ?? 'press'}`);

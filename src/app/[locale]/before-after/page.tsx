@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
 import { BAGrid } from '@/components/ba/BAGrid';
@@ -7,6 +8,7 @@ import { getBACases } from '@/lib/data/ba';
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
 import { getPageHero } from '@/lib/data/hero';
 import { urlFor } from '@/lib/sanity/image';
+import { getSectionVisibility } from '@/lib/data/visibility';
 
 const titles: Record<string, string> = {
   ko: '비포 & 애프터',
@@ -61,6 +63,12 @@ export default async function BeforeAfterPage({
   searchParams: Promise<{ page?: string; cat?: string }>;
 }) {
   const { locale } = await params;
+
+  const visibility = await getSectionVisibility();
+  if (!visibility.nav.bnA) {
+    redirect(`/${locale}`);
+  }
+
   const { page, cat } = await searchParams;
   const currentPage = Number(page) || 1;
   const activeCategory = cat || 'all';

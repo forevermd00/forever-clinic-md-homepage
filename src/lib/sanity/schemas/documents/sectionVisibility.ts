@@ -146,6 +146,12 @@ export const sectionVisibility = defineType({
           initialValue: true,
         }),
         defineField({
+          name: 'video',
+          title: '영상',
+          type: 'boolean',
+          initialValue: true,
+        }),
+        defineField({
           name: 'blog',
           title: '블로그',
           type: 'boolean',
@@ -154,12 +160,6 @@ export const sectionVisibility = defineType({
         defineField({
           name: 'notice',
           title: '공지사항',
-          type: 'boolean',
-          initialValue: true,
-        }),
-        defineField({
-          name: 'video',
-          title: '영상',
           type: 'boolean',
           initialValue: true,
         }),
