@@ -314,6 +314,7 @@
 .tt-detail-container {
   max-width: 900px;
   margin: 0 auto;
+  touch-action: pan-y;
 }
 .tt-detail-header {
   margin-bottom: 24px;
@@ -330,6 +331,17 @@
 }
 .tt-back-btn:hover {
   color: var(--card-fg-color);
+}
+
+.tt-back-hint {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 5px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 3px;
+  font-size: 10px;
+  opacity: 0.5;
+  font-family: inherit;
 }
 .tt-detail-title-row {
   display: flex;

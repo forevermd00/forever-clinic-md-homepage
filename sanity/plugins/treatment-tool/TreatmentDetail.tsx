@@ -98,6 +98,34 @@ export function TreatmentDetail({
   const [saving, setSaving] = useState(false);
   const saved = useRef(false);
 
+  // ESC key and swipe-right to go back
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onBack();
+    };
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    };
+    const onTouchEnd = (e: TouchEvent) => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
+      if (dx > 60 && dy < 40) onBack();
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchend', onTouchEnd, { passive: true });
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [onBack]);
+
   useEffect(() => {
     client.fetch(FULL_QUERY, { id }).then((data: FullDoc) => {
       setDoc(data);
@@ -144,6 +172,7 @@ export function TreatmentDetail({
       <div className="tt-detail-header">
         <button className="tt-back-btn" onClick={onBack}>
           ← 목록으로
+          <span className="tt-back-hint">ESC</span>
         </button>
         <div className="tt-detail-title-row">
           <h2 className="tt-detail-title">{nameKo}</h2>
