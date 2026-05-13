@@ -26,11 +26,11 @@ interface HeroRow {
 }
 
 interface ClinicInfoDoc {
-  address?: { ko?: string; en?: string };
+  address?: { ko?: string; en?: string; zh?: string; ja?: string };
   phone?: string;
   email?: string;
-  closedDayNotice?: { ko?: string; en?: string };
-  walkingGuide?: { ko?: string };
+  closedDayNotice?: { ko?: string; en?: string; zh?: string; ja?: string };
+  walkingGuide?: { ko?: string; en?: string; zh?: string; ja?: string };
 }
 
 interface BrandValue {
@@ -51,7 +51,7 @@ interface BrandDoc {
 
 interface StatsItem {
   _key: string;
-  label?: { ko?: string };
+  label?: { ko?: string; en?: string; zh?: string; ja?: string };
   number?: number;
   unit?: string;
 }
@@ -62,7 +62,7 @@ interface StatsDoc {
 
 interface EventPopupDoc {
   _id: string;
-  title?: { ko?: string };
+  title?: { ko?: string; en?: string; zh?: string; ja?: string };
   linkUrl?: string;
   startDate?: string;
   endDate?: string;
@@ -164,6 +164,13 @@ const QCARDS_QUERY = `*[_type == "quickEntryCard"] | order(sortOrder asc) {
 const SV_QUERY = `*[_type == "sectionVisibility" && _id == "sectionVisibility"][0]`;
 
 // ─── Helpers ──────────────────────────────────────────────
+
+const CLINIC_LOCALES: { key: 'ko' | 'en' | 'zh' | 'ja'; label: string }[] = [
+  { key: 'ko', label: '한국어' },
+  { key: 'en', label: 'English' },
+  { key: 'zh', label: '中文' },
+  { key: 'ja', label: '日本語' },
+];
 
 function newKey(): string {
   return Math.random().toString(36).slice(2, 10);
@@ -311,12 +318,10 @@ function ClinicInfoPanel() {
       <div className="ht-detail-section">
         <div className="ht-detail-section-title">주소</div>
         <div className="ht-detail-body">
-          <div className="ht-detail-grid2">
-            {(['ko', 'en'] as const).map((key) => (
+          <div className="ht-detail-grid4">
+            {CLINIC_LOCALES.map(({ key, label }) => (
               <div key={key} className="ht-detail-field">
-                <label className="ht-detail-label">
-                  {key === 'ko' ? '한국어' : 'English'}
-                </label>
+                <label className="ht-detail-label">{label}</label>
                 <input
                   type="text"
                   className="ht-text-input"
@@ -358,12 +363,10 @@ function ClinicInfoPanel() {
       <div className="ht-detail-section">
         <div className="ht-detail-section-title">휴진일 안내</div>
         <div className="ht-detail-body">
-          <div className="ht-detail-grid2">
-            {(['ko', 'en'] as const).map((key) => (
+          <div className="ht-detail-grid4">
+            {CLINIC_LOCALES.map(({ key, label }) => (
               <div key={key} className="ht-detail-field">
-                <label className="ht-detail-label">
-                  {key === 'ko' ? '한국어' : 'English'}
-                </label>
+                <label className="ht-detail-label">{label}</label>
                 <input
                   type="text"
                   className="ht-text-input"
@@ -379,15 +382,22 @@ function ClinicInfoPanel() {
       </div>
 
       <div className="ht-detail-section">
-        <div className="ht-detail-section-title">도보 안내 (한국어)</div>
+        <div className="ht-detail-section-title">도보 안내</div>
         <div className="ht-detail-body">
-          <div className="ht-detail-field">
-            <textarea
-              className="ht-text-input ht-textarea"
-              defaultValue={doc.walkingGuide?.ko ?? ''}
-              rows={4}
-              onBlur={(e) => patch({ 'walkingGuide.ko': e.target.value })}
-            />
+          <div className="ht-detail-grid4">
+            {CLINIC_LOCALES.map(({ key, label }) => (
+              <div key={key} className="ht-detail-field">
+                <label className="ht-detail-label">{label}</label>
+                <textarea
+                  className="ht-text-input ht-textarea"
+                  defaultValue={doc.walkingGuide?.[key] ?? ''}
+                  rows={4}
+                  onBlur={(e) =>
+                    patch({ [`walkingGuide.${key}`]: e.target.value })
+                  }
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -866,36 +876,51 @@ function StatsSection() {
     setSaving(false);
   };
 
-  const update = (
+  const updateLabel = (
     i: number,
-    field: 'label.ko' | 'number' | 'unit',
-    val: string | number,
+    locale: 'ko' | 'en' | 'zh' | 'ja',
+    val: string,
+  ) => {
+    setItems((prev) =>
+      prev.map((it, idx) =>
+        idx === i ? { ...it, label: { ...it.label, [locale]: val } } : it,
+      ),
+    );
+  };
+
+  const saveLabelBlur = (
+    i: number,
+    locale: 'ko' | 'en' | 'zh' | 'ja',
+    val: string,
   ) => {
     setItems((prev) => {
-      const updated = prev.map((it, idx) => {
-        if (idx !== i) return it;
-        if (field === 'label.ko') {
-          return { ...it, label: { ...it.label, ko: val as string } };
-        }
-        return { ...it, [field]: val };
-      });
+      const updated = prev.map((it, idx) =>
+        idx === i ? { ...it, label: { ...it.label, [locale]: val } } : it,
+      );
+      save(updated);
       return updated;
     });
   };
 
+  const update = (
+    i: number,
+    field: 'number' | 'unit',
+    val: string | number,
+  ) => {
+    setItems((prev) =>
+      prev.map((it, idx) => (idx === i ? { ...it, [field]: val } : it)),
+    );
+  };
+
   const saveBlur = (
     i: number,
-    field: 'label.ko' | 'number' | 'unit',
+    field: 'number' | 'unit',
     val: string | number,
   ) => {
     setItems((prev) => {
-      const updated = prev.map((it, idx) => {
-        if (idx !== i) return it;
-        if (field === 'label.ko') {
-          return { ...it, label: { ...it.label, ko: val as string } };
-        }
-        return { ...it, [field]: val };
-      });
+      const updated = prev.map((it, idx) =>
+        idx === i ? { ...it, [field]: val } : it,
+      );
       save(updated);
       return updated;
     });
@@ -937,17 +962,21 @@ function StatsSection() {
                 ✕
               </button>
             </div>
+            <div className="ht-detail-grid4" style={{ marginBottom: 8 }}>
+              {CLINIC_LOCALES.map(({ key, label }) => (
+                <div key={key} className="ht-detail-field">
+                  <label className="ht-detail-label">항목명 ({label})</label>
+                  <input
+                    type="text"
+                    className="ht-text-input"
+                    value={item.label?.[key] ?? ''}
+                    onChange={(e) => updateLabel(i, key, e.target.value)}
+                    onBlur={(e) => saveLabelBlur(i, key, e.target.value)}
+                  />
+                </div>
+              ))}
+            </div>
             <div className="ht-detail-row">
-              <div className="ht-detail-field">
-                <label className="ht-detail-label">항목명 (ko)</label>
-                <input
-                  type="text"
-                  className="ht-text-input"
-                  value={item.label?.ko ?? ''}
-                  onChange={(e) => update(i, 'label.ko', e.target.value)}
-                  onBlur={(e) => saveBlur(i, 'label.ko', e.target.value)}
-                />
-              </div>
               <div className="ht-detail-field">
                 <label className="ht-detail-label">숫자</label>
                 <input
@@ -1053,16 +1082,20 @@ function PopupsSection() {
             </div>
             {expandedId === doc._id && (
               <div className="ht-popup-body">
-                <div className="ht-detail-field" style={{ marginBottom: 10 }}>
-                  <label className="ht-detail-label">제목 (ko)</label>
-                  <input
-                    type="text"
-                    className="ht-text-input"
-                    defaultValue={doc.title?.ko ?? ''}
-                    onBlur={(e) =>
-                      patch(doc._id, { 'title.ko': e.target.value })
-                    }
-                  />
+                <div className="ht-detail-grid4" style={{ marginBottom: 10 }}>
+                  {CLINIC_LOCALES.map(({ key, label }) => (
+                    <div key={key} className="ht-detail-field">
+                      <label className="ht-detail-label">제목 ({label})</label>
+                      <input
+                        type="text"
+                        className="ht-text-input"
+                        defaultValue={doc.title?.[key] ?? ''}
+                        onBlur={(e) =>
+                          patch(doc._id, { [`title.${key}`]: e.target.value })
+                        }
+                      />
+                    </div>
+                  ))}
                 </div>
                 <div className="ht-detail-field" style={{ marginBottom: 10 }}>
                   <label className="ht-detail-label">링크 URL</label>

@@ -5,6 +5,8 @@ import type { SanityClient } from 'sanity';
 interface LocalizedStr {
   ko?: string;
   en?: string;
+  zh?: string;
+  ja?: string;
 }
 
 interface LocalizedItem {
@@ -12,7 +14,16 @@ interface LocalizedItem {
   _type?: string;
   ko?: string;
   en?: string;
+  zh?: string;
+  ja?: string;
 }
+
+const LOCALES: { key: 'ko' | 'en' | 'zh' | 'ja'; label: string }[] = [
+  { key: 'ko', label: '한국어' },
+  { key: 'en', label: 'English' },
+  { key: 'zh', label: '中文' },
+  { key: 'ja', label: '日本語' },
+];
 
 interface DoctorDoc {
   _id: string;
@@ -51,7 +62,7 @@ function newKey(): string {
 
 const QUERY = `*[_type == "doctor" && _id == $id][0] {
   _id, name, position, profileImage { asset { _ref } },
-  philosophy, specialties[] { _key, _type, ko, en },
+  philosophy, specialties[] { _key, _type, ko, en, zh, ja },
   licenseNumber, isVisible, sortOrder
 }`;
 
@@ -72,13 +83,21 @@ function LocalizedArrayEditor({
     }
   }, [initialItems]);
 
-  const updateLocale = (i: number, locale: 'ko' | 'en', val: string) => {
+  const updateLocale = (
+    i: number,
+    locale: 'ko' | 'en' | 'zh' | 'ja',
+    val: string,
+  ) => {
     setItems((prev) =>
       prev.map((it, idx) => (idx === i ? { ...it, [locale]: val } : it)),
     );
   };
 
-  const saveBlur = (i: number, locale: 'ko' | 'en', val: string) => {
+  const saveBlur = (
+    i: number,
+    locale: 'ko' | 'en' | 'zh' | 'ja',
+    val: string,
+  ) => {
     setItems((prev) => {
       const updated = prev.map((it, idx) =>
         idx === i ? { ...it, [locale]: val } : it,
@@ -100,7 +119,14 @@ function LocalizedArrayEditor({
     setItems((prev) => {
       const updated = [
         ...prev,
-        { _key: newKey(), _type: 'localizedString', ko: '', en: '' },
+        {
+          _key: newKey(),
+          _type: 'localizedString',
+          ko: '',
+          en: '',
+          zh: '',
+          ja: '',
+        },
       ];
       onSave(updated);
       return updated;
@@ -117,12 +143,10 @@ function LocalizedArrayEditor({
               ✕
             </button>
           </div>
-          <div className="ht-detail-grid2">
-            {(['ko', 'en'] as const).map((key) => (
+          <div className="ht-detail-grid4">
+            {LOCALES.map(({ key, label }) => (
               <div key={key} className="ht-detail-field">
-                <label className="ht-detail-label">
-                  {key === 'ko' ? '한국어' : 'English'}
-                </label>
+                <label className="ht-detail-label">{label}</label>
                 <input
                   type="text"
                   className="ht-text-input"
@@ -245,12 +269,10 @@ export function DoctorDetail({
       <div className="ht-detail-section">
         <div className="ht-detail-section-title">이름</div>
         <div className="ht-detail-body">
-          <div className="ht-detail-grid2">
-            {(['ko', 'en'] as const).map((key) => (
+          <div className="ht-detail-grid4">
+            {LOCALES.map(({ key, label }) => (
               <div key={key} className="ht-detail-field">
-                <label className="ht-detail-label">
-                  {key === 'ko' ? '한국어' : 'English'}
-                </label>
+                <label className="ht-detail-label">{label}</label>
                 <input
                   type="text"
                   className="ht-text-input"
@@ -266,12 +288,10 @@ export function DoctorDetail({
       <div className="ht-detail-section">
         <div className="ht-detail-section-title">직위</div>
         <div className="ht-detail-body">
-          <div className="ht-detail-grid2">
-            {(['ko', 'en'] as const).map((key) => (
+          <div className="ht-detail-grid4">
+            {LOCALES.map(({ key, label }) => (
               <div key={key} className="ht-detail-field">
-                <label className="ht-detail-label">
-                  {key === 'ko' ? '한국어' : 'English'}
-                </label>
+                <label className="ht-detail-label">{label}</label>
                 <input
                   type="text"
                   className="ht-text-input"
@@ -287,12 +307,10 @@ export function DoctorDetail({
       <div className="ht-detail-section">
         <div className="ht-detail-section-title">진료 철학</div>
         <div className="ht-detail-body">
-          <div className="ht-detail-grid2">
-            {(['ko', 'en'] as const).map((key) => (
+          <div className="ht-detail-grid4">
+            {LOCALES.map(({ key, label }) => (
               <div key={key} className="ht-detail-field">
-                <label className="ht-detail-label">
-                  {key === 'ko' ? '한국어' : 'English'}
-                </label>
+                <label className="ht-detail-label">{label}</label>
                 <textarea
                   className="ht-text-input ht-textarea"
                   defaultValue={doc.philosophy?.[key] ?? ''}

@@ -6,11 +6,18 @@ import { PAGE_HEROES } from '../../../sanity.config';
 interface HeroDoc {
   _id?: string;
   pageName?: string;
-  title?: { ko?: string; en?: string };
-  subtitle?: { ko?: string; en?: string };
+  title?: { ko?: string; en?: string; zh?: string; ja?: string };
+  subtitle?: { ko?: string; en?: string; zh?: string; ja?: string };
   heroImage?: { asset?: { _ref: string } };
   heroVideo?: { asset?: { _ref: string }; _type?: string };
 }
+
+const LOCALES: { key: 'ko' | 'en' | 'zh' | 'ja'; label: string }[] = [
+  { key: 'ko', label: '한국어' },
+  { key: 'en', label: 'English' },
+  { key: 'zh', label: '中文' },
+  { key: 'ja', label: '日本語' },
+];
 
 function sanityImageUrl(
   projectId: string,
@@ -157,12 +164,10 @@ export function HeroDetail({
       <div className="ht-detail-section">
         <div className="ht-detail-section-title">제목</div>
         <div className="ht-detail-body">
-          <div className="ht-detail-grid2">
-            {(['ko', 'en'] as const).map((key) => (
+          <div className="ht-detail-grid4">
+            {LOCALES.map(({ key, label }) => (
               <div key={key} className="ht-detail-field">
-                <label className="ht-detail-label">
-                  {key === 'ko' ? '한국어' : 'English'}
-                </label>
+                <label className="ht-detail-label">{label}</label>
                 <textarea
                   className="ht-text-input ht-textarea"
                   defaultValue={doc.title?.[key] ?? ''}
@@ -178,12 +183,10 @@ export function HeroDetail({
       <div className="ht-detail-section">
         <div className="ht-detail-section-title">부제목</div>
         <div className="ht-detail-body">
-          <div className="ht-detail-grid2">
-            {(['ko', 'en'] as const).map((key) => (
+          <div className="ht-detail-grid4">
+            {LOCALES.map(({ key, label }) => (
               <div key={key} className="ht-detail-field">
-                <label className="ht-detail-label">
-                  {key === 'ko' ? '한국어' : 'English'}
-                </label>
+                <label className="ht-detail-label">{label}</label>
                 <input
                   type="text"
                   className="ht-text-input"
