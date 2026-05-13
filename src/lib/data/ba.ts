@@ -74,13 +74,24 @@ export async function getHomeBACases(locale: string): Promise<BACase[]> {
 
 export async function getBACases(
   locale: string,
-  category?: string,
-): Promise<BACase[]> {
+  category = 'all',
+  page = 1,
+): Promise<{ items: BACase[]; total: number; totalPages: number }> {
   const data = await sanityFetch<SanityBACase[]>(baCasesFilteredQuery, {
     locale,
-    category: category ?? 'all',
+    category,
   });
-  return data?.map(mapBACase) ?? [];
+  const all = data?.map(mapBACase) ?? [];
+  const total = all.length;
+  const pageSize = 12;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+  const start = (safePage - 1) * pageSize;
+  return {
+    items: all.slice(start, start + pageSize),
+    total,
+    totalPages,
+  };
 }
 
 export async function getBADetail(

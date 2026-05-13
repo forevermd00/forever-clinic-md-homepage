@@ -58,7 +58,7 @@ export default async function NoticePage({
     redirect(`/${locale}/media/${firstTab ?? 'press'}`);
   }
 
-  const notices = await getNotices(locale);
+  const { items: notices, totalPages } = await getNotices(locale, currentPage);
 
   return (
     <section className="bg-[#faf8f5] px-5 py-12 md:px-10 lg:px-[120px] lg:py-16">
@@ -66,7 +66,7 @@ export default async function NoticePage({
         <NoticeTable notices={notices} locale={locale} />
         <Pagination
           currentPage={currentPage}
-          totalPages={5}
+          totalPages={totalPages}
           basePath={`/${locale}/media/notice`}
           className="mt-8"
         />

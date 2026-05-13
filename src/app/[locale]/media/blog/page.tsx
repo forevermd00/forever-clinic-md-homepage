@@ -58,7 +58,10 @@ export default async function BlogPage({
     redirect(`/${locale}/media/${firstTab ?? 'press'}`);
   }
 
-  const blogPosts = await getBlogPosts(locale);
+  const { items: blogPosts, totalPages } = await getBlogPosts(
+    locale,
+    currentPage,
+  );
 
   return (
     <section className="bg-[#faf8f5] px-5 py-12 md:px-10 lg:px-[120px] lg:py-16">
@@ -80,7 +83,7 @@ export default async function BlogPage({
         </div>
         <Pagination
           currentPage={currentPage}
-          totalPages={5}
+          totalPages={totalPages}
           basePath={`/${locale}/media/blog`}
           className="mt-8"
         />

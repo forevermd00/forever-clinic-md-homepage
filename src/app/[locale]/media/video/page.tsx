@@ -58,7 +58,10 @@ export default async function VideoPage({
     redirect(`/${locale}/media/${firstTab ?? 'press'}`);
   }
 
-  const videos = await getYoutubeVideos(locale);
+  const { items: videos, totalPages } = await getYoutubeVideos(
+    locale,
+    currentPage,
+  );
 
   return (
     <section className="bg-[#faf8f5] px-5 py-12 md:px-10 lg:px-[120px] lg:py-16">
@@ -78,7 +81,7 @@ export default async function VideoPage({
         </div>
         <Pagination
           currentPage={currentPage}
-          totalPages={5}
+          totalPages={totalPages}
           basePath={`/${locale}/media/video`}
           className="mt-8"
         />

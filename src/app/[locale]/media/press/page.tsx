@@ -58,7 +58,10 @@ export default async function PressPage({
     redirect(`/${locale}/media/${firstTab ?? 'press'}`);
   }
 
-  const pressArticles = await getPressArticles(locale);
+  const { items: pressArticles, totalPages } = await getPressArticles(
+    locale,
+    currentPage,
+  );
 
   return (
     <section className="bg-[#faf8f5] px-5 py-12 md:px-10 lg:px-[120px] lg:py-16">
@@ -80,7 +83,7 @@ export default async function PressPage({
         </div>
         <Pagination
           currentPage={currentPage}
-          totalPages={5}
+          totalPages={totalPages}
           basePath={`/${locale}/media/press`}
           className="mt-8"
         />

@@ -43,7 +43,7 @@ export async function generateMetadata({
 }
 
 function mapCmsCases(
-  cmsCases: Awaited<ReturnType<typeof getBACases>>,
+  cmsCases: Awaited<ReturnType<typeof getBACases>>['items'],
 ): BACase[] {
   return cmsCases.map((c) => ({
     id: c._id,
@@ -74,11 +74,11 @@ export default async function BeforeAfterPage({
   const activeCategory = cat || 'all';
   const t = await getTranslations('ba');
 
-  const [cmsCases, hero] = await Promise.all([
-    getBACases(locale, activeCategory),
+  const [{ items: baCaseItems, totalPages }, hero] = await Promise.all([
+    getBACases(locale, activeCategory, currentPage),
     getPageHero('before-after', locale),
   ]);
-  const cases = mapCmsCases(cmsCases);
+  const cases = mapCmsCases(baCaseItems);
   const heroImageUrl = hero?.heroImage
     ? urlFor(hero.heroImage)?.width(1200).height(630).url() || undefined
     : undefined;
@@ -96,6 +96,7 @@ export default async function BeforeAfterPage({
         cases={cases}
         locale={locale}
         currentPage={currentPage}
+        totalPages={totalPages}
         activeCategory={activeCategory}
       />
     </>

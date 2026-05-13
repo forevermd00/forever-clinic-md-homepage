@@ -34,15 +34,10 @@ async function BAGrid({
   cases,
   locale,
   currentPage = 1,
-  totalPages = 3,
+  totalPages = 1,
   activeCategory = 'all',
 }: BAGridProps) {
   const t = await getTranslations('ba');
-
-  const filtered =
-    activeCategory === 'all'
-      ? cases
-      : cases.filter((c) => c.category === activeCategory);
 
   return (
     <section className="bg-white px-5 py-12 md:px-10 lg:px-[120px] lg:py-16">
@@ -84,7 +79,7 @@ async function BAGrid({
             className="grid justify-center gap-4"
             style={{ gridTemplateColumns: 'repeat(auto-fill, 300px)' }}
           >
-            {filtered.map((baCase) => (
+            {cases.map((baCase) => (
               <BACard key={baCase.id} baCase={baCase} locale={locale} />
             ))}
           </div>

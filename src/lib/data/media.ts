@@ -119,10 +119,14 @@ function mapYoutubeVideos(raw: SanityYoutubeVideo[]): YoutubeVideo[] {
   }));
 }
 
-function mapNotices(raw: SanityNotice[]): NoticeItem[] {
-  const total = raw.length;
+function mapNotices(
+  raw: SanityNotice[],
+  startOffset = 0,
+  total?: number,
+): NoticeItem[] {
+  const effectiveTotal = total ?? raw.length;
   return raw.map((n, i) => ({
-    id: total - i,
+    id: effectiveTotal - startOffset - i,
     slug: n._id,
     title: n.title || '',
     date: formatDate(n.publishDate),
@@ -130,46 +134,87 @@ function mapNotices(raw: SanityNotice[]): NoticeItem[] {
   }));
 }
 
+/* ─── Pagination helpers ─── */
+
+const PAGE_SIZES = {
+  press: 12,
+  blog: 12,
+  video: 12,
+  notice: 20,
+} as const;
+
+function paginate<T>(
+  items: T[],
+  page: number,
+  pageSize: number,
+): { items: T[]; total: number; totalPages: number } {
+  const total = items.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+  const start = (safePage - 1) * pageSize;
+  return { items: items.slice(start, start + pageSize), total, totalPages };
+}
+
 /* ─── Fetch Functions ─── */
 
 export async function getPressArticles(
   locale: string,
-): Promise<PressArticle[]> {
+  page = 1,
+): Promise<{ items: PressArticle[]; total: number; totalPages: number }> {
   const data = await sanityFetch<SanityPressArticle[]>(pressArticlesQuery, {
     locale,
   });
 
-  if (!data || data.length === 0) return [];
+  if (!data || data.length === 0) return { items: [], total: 0, totalPages: 1 };
 
-  return mapPressArticles(data);
+  return paginate(mapPressArticles(data), page, PAGE_SIZES.press);
 }
 
-export async function getBlogPosts(locale: string): Promise<BlogPost[]> {
+export async function getBlogPosts(
+  locale: string,
+  page = 1,
+): Promise<{ items: BlogPost[]; total: number; totalPages: number }> {
   const data = await sanityFetch<SanityBlogPost[]>(blogPostsQuery, { locale });
 
-  if (!data || data.length === 0) return [];
+  if (!data || data.length === 0) return { items: [], total: 0, totalPages: 1 };
 
-  return mapBlogPosts(data);
+  return paginate(mapBlogPosts(data), page, PAGE_SIZES.blog);
 }
 
 export async function getYoutubeVideos(
   locale: string,
-): Promise<YoutubeVideo[]> {
+  page = 1,
+): Promise<{ items: YoutubeVideo[]; total: number; totalPages: number }> {
   const data = await sanityFetch<SanityYoutubeVideo[]>(youtubeVideosQuery, {
     locale,
   });
 
-  if (!data || data.length === 0) return [];
+  if (!data || data.length === 0) return { items: [], total: 0, totalPages: 1 };
 
-  return mapYoutubeVideos(data);
+  return paginate(mapYoutubeVideos(data), page, PAGE_SIZES.video);
 }
 
-export async function getNotices(locale: string): Promise<NoticeItem[]> {
+export async function getNotices(
+  locale: string,
+  page = 1,
+): Promise<{ items: NoticeItem[]; total: number; totalPages: number }> {
   const data = await sanityFetch<SanityNotice[]>(noticesQuery, { locale });
 
-  if (!data || data.length === 0) return [];
+  if (!data || data.length === 0) return { items: [], total: 0, totalPages: 1 };
 
-  return mapNotices(data);
+  const total = data.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZES.notice));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+  const start = (safePage - 1) * PAGE_SIZES.notice;
+  return {
+    items: mapNotices(
+      data.slice(start, start + PAGE_SIZES.notice),
+      start,
+      total,
+    ),
+    total,
+    totalPages,
+  };
 }
 
 /* ─── Detail Types ─── */
