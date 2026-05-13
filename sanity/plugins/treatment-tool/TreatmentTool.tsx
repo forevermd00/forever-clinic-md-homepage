@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useClient } from 'sanity';
+import { useRouter, useRouterState } from 'sanity/router';
 import {
   TreatmentDoc,
   CATEGORIES,
@@ -29,6 +30,10 @@ type SortDir = 'asc' | 'desc';
 
 export function TreatmentTool() {
   const client = useClient({ apiVersion: '2026-05-13' });
+  const router = useRouter();
+  const routerState = useRouterState() as { selectedId?: string } | null;
+  const selectedId = routerState?.selectedId ?? null;
+
   const [docs, setDocs] = useState<TreatmentDoc[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
@@ -36,7 +41,6 @@ export function TreatmentTool() {
   const [sortKey, setSortKey] = useState<SortKey>('sortOrder');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [saving, setSaving] = useState<Set<string>>(new Set());
-  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -162,7 +166,7 @@ export function TreatmentTool() {
 
   if (selectedId) {
     return (
-      <TreatmentDetail id={selectedId} onBack={() => setSelectedId(null)} />
+      <TreatmentDetail id={selectedId} onBack={() => router.navigate({})} />
     );
   }
 
@@ -204,23 +208,19 @@ export function TreatmentTool() {
         <div className="tt-table-wrap">
           <table className="tt-table">
             <colgroup>
-              <col style={{ width: '36px' }} />
-              <col style={{ width: '52px' }} />
+              <col style={{ width: '32px' }} />
+              <col style={{ width: '44px' }} />
               <col style={{ width: '26%' }} />
               <col style={{ width: '17%' }} />
               <col style={{ width: '60px' }} />
               <col style={{ width: '60px' }} />
               <col style={{ width: '60px' }} />
-              <col style={{ width: '16%' }} />
-              <col style={{ width: '80px' }} />
+              <col />
             </colgroup>
             <thead>
               <tr>
-                <th>⠿</th>
-                <th onClick={() => handleSort('sortOrder')}>
-                  순서
-                  <span className="tt-sort-icon">{sortIcon('sortOrder')}</span>
-                </th>
+                <th style={{ cursor: 'default' }}>⠿</th>
+                <th style={{ cursor: 'default' }}>No.</th>
                 <th onClick={() => handleSort('name')}>
                   시술명
                   <span className="tt-sort-icon">{sortIcon('name')}</span>
@@ -229,17 +229,16 @@ export function TreatmentTool() {
                   카테고리
                   <span className="tt-sort-icon">{sortIcon('category')}</span>
                 </th>
-                <th>이벤트</th>
-                <th>시그니처</th>
-                <th>노출</th>
-                <th>가격</th>
-                <th>편집</th>
+                <th style={{ cursor: 'default' }}>이벤트</th>
+                <th style={{ cursor: 'default' }}>시그니처</th>
+                <th style={{ cursor: 'default' }}>노출</th>
+                <th style={{ cursor: 'default' }}>가격</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="tt-empty">
+                  <td colSpan={8} className="tt-empty">
                     시술이 없습니다
                   </td>
                 </tr>
@@ -248,9 +247,10 @@ export function TreatmentTool() {
                   <TreatmentRow
                     key={doc._id}
                     doc={doc}
+                    rowNum={idx + 1}
                     saving={saving.has(doc._id)}
                     onPatch={patch}
-                    onEdit={() => setSelectedId(doc._id)}
+                    onEdit={() => router.navigate({ selectedId: doc._id })}
                     onDragStart={(e) => handleDragStart(e, idx)}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => handleDrop(e, idx)}
@@ -267,6 +267,7 @@ export function TreatmentTool() {
 
 function TreatmentRow({
   doc,
+  rowNum,
   saving,
   onPatch,
   onEdit,
@@ -275,6 +276,7 @@ function TreatmentRow({
   onDrop,
 }: {
   doc: TreatmentDoc;
+  rowNum: number;
   saving: boolean;
   onPatch: (id: string, fields: Record<string, unknown>) => Promise<void>;
   onEdit: () => void;
@@ -282,51 +284,51 @@ function TreatmentRow({
   onDragOver: (e: React.DragEvent) => void;
   onDrop: (e: React.DragEvent) => void;
 }) {
+  const isDragging = useRef(false);
   const firstPrice = doc.priceOptions?.[0];
   const price = firstPrice?.price;
   const discountPrice = firstPrice?.discountPrice;
 
   return (
     <tr
+      className="tt-row-clickable"
       style={{ opacity: saving ? 0.5 : 1 }}
       draggable
-      onDragStart={onDragStart}
+      onDragStart={(e) => {
+        isDragging.current = true;
+        onDragStart(e);
+      }}
+      onDragEnd={() => {
+        setTimeout(() => {
+          isDragging.current = false;
+        }, 50);
+      }}
       onDragOver={onDragOver}
       onDrop={onDrop}
+      onClick={() => {
+        if (!isDragging.current) onEdit();
+      }}
     >
       <td
         className="tt-drag-handle"
         style={{ textAlign: 'center', cursor: 'grab' }}
+        onClick={(e) => e.stopPropagation()}
       >
         ⠿
       </td>
 
-      <td>
-        <input
-          className="tt-order-input"
-          type="number"
-          defaultValue={doc.sortOrder ?? 0}
-          onBlur={(e) => {
-            const v = parseInt(e.target.value, 10);
-            if (!isNaN(v) && v !== doc.sortOrder) {
-              onPatch(doc._id, { sortOrder: v });
-            }
-          }}
-          onClick={(e) => e.stopPropagation()}
-        />
-      </td>
+      <td className="tt-row-num">{rowNum}</td>
 
       <td>
         <span className="tt-name-link">{doc.name || '(미입력)'}</span>
         <div className="tt-name-slug">{doc.slug}</div>
       </td>
 
-      <td>
+      <td onClick={(e) => e.stopPropagation()}>
         <select
           className="tt-category-select"
           value={doc.category || ''}
           onChange={(e) => onPatch(doc._id, { category: e.target.value })}
-          onClick={(e) => e.stopPropagation()}
         >
           <option value="">—</option>
           {EDITABLE_CATEGORIES.map((c) => (
@@ -337,7 +339,7 @@ function TreatmentRow({
         </select>
       </td>
 
-      <td style={{ textAlign: 'center' }}>
+      <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
         <input
           type="checkbox"
           className="tt-toggle tt-toggle-event"
@@ -346,7 +348,7 @@ function TreatmentRow({
         />
       </td>
 
-      <td style={{ textAlign: 'center' }}>
+      <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
         <input
           type="checkbox"
           className="tt-toggle tt-toggle-sig"
@@ -355,7 +357,7 @@ function TreatmentRow({
         />
       </td>
 
-      <td style={{ textAlign: 'center' }}>
+      <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
         <input
           type="checkbox"
           className="tt-toggle"
@@ -379,12 +381,6 @@ function TreatmentRow({
         ) : (
           <span style={{ color: 'var(--card-muted-fg-color)' }}>—</span>
         )}
-      </td>
-
-      <td>
-        <button className="tt-edit-btn" onClick={onEdit}>
-          편집
-        </button>
       </td>
     </tr>
   );
