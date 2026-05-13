@@ -114,7 +114,11 @@ export default async function TreatmentsPage({
       <Suspense
         fallback={<div className="h-96 animate-pulse bg-neutral-100" />}
       >
-        <TreatmentsTabGrid locale={locale} categories={categories} />
+        <TreatmentsTabGrid
+          locale={locale}
+          categories={categories}
+          showDetail={visibility.treatments.detail}
+        />
       </Suspense>
     </>
   );

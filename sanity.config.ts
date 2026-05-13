@@ -1,5 +1,6 @@
 import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
+import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list';
 import {
   DocumentsIcon,
   UsersIcon,
@@ -79,7 +80,7 @@ export default defineConfig({
   plugins: [
     structureTool({
       title: '콘텐츠',
-      structure: (S) =>
+      structure: (S, context) =>
         S.list()
           .id('root')
           .title('포에버 클리닉 관리')
@@ -88,9 +89,13 @@ export default defineConfig({
             S.documentTypeListItem('treatment')
               .title('시술 관리')
               .icon(DocumentsIcon),
-            S.documentTypeListItem('doctor')
-              .title('의료진 관리')
-              .icon(UsersIcon),
+            orderableDocumentListDeskItem({
+              type: 'doctor',
+              title: '의료진 관리',
+              icon: UsersIcon,
+              S,
+              context,
+            }),
             S.documentTypeListItem('promotion')
               .title('프로모션/이벤트')
               .icon(TagIcon),

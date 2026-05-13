@@ -13,7 +13,7 @@ const client = createClient({
   useCdn: false,
 });
 
-const IMG_DIR = '/Users/kay/hyperbasak/clients/forever-clinic/homepage/images/desinged-images/P01/2_시술 카테고리';
+const IMG_DIR = '/Users/kay/Downloads/2_시술 카테고리 - 채도down베이지';
 
 const MAPPING = [
   { docId: 'quick-entry-lifting',  file: '1_1. 리프팅_레이저.png' },

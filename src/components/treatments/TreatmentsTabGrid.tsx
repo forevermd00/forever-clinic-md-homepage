@@ -37,11 +37,13 @@ const LOCALE_FONTS: Record<string, string> = {
 interface TreatmentsTabGridProps {
   locale: string;
   categories?: TreatmentCategory[];
+  showDetail?: boolean;
 }
 
 export function TreatmentsTabGrid({
   locale,
   categories = TREATMENT_CATEGORIES,
+  showDetail = true,
 }: TreatmentsTabGridProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -287,6 +289,7 @@ export function TreatmentsTabGrid({
                         hasEvent={treatment.hasEvent}
                         locale={locale}
                         dark
+                        showDetail={showDetail}
                       />
                     ))}
                   </div>
@@ -344,6 +347,7 @@ export function TreatmentsTabGrid({
                           price={treatment.price}
                           hasEvent={treatment.hasEvent}
                           locale={locale}
+                          showDetail={showDetail}
                         />
                       );
                     })}

@@ -53,7 +53,7 @@ export const homeBrandQuery = `*[_type == "brandPhilosophy"][0]`;
 
 export const homeStatsQuery = `*[_type == "statsStrip"][0]`;
 
-export const homeDoctorsQuery = `*[_type == "doctor" && isVisible == true] | order(sortOrder asc)`;
+export const homeDoctorsQuery = `*[_type == "doctor" && isVisible == true] | order(orderRank asc)`;
 
 export const homeClinicInfoQuery = `*[_type == "clinicInfo"][0]`;
 
@@ -76,7 +76,43 @@ export const treatmentsByQuickEntryQuery = `
   } | order(sortOrder asc)
 `;
 
-export const treatmentDetailQuery = `*[_type == "treatment" && slug.current == $slug][0]{ ..., "imageUrl": thumbnail.asset->url, relatedTreatments[]-> }`;
+export const treatmentDetailQuery = `
+  *[_type == "treatment" && slug.current == $slug][0] {
+    _id,
+    "slug": slug.current,
+    "name": name[$locale],
+    "tagline": tagline[$locale],
+    "keywords": keywords[$locale],
+    "description": description[$locale],
+    "composition": composition[$locale],
+    category,
+    isEvent,
+    isSignature,
+    isVisible,
+    duration,
+    downtime,
+    treatmentTime,
+    "imageUrl": thumbnail.asset->url,
+    priceOptions[] { price, discountPrice },
+    "effects": effects[][$locale],
+    "features": features[][$locale],
+    "recommendedFor": recommendedFor[][$locale],
+    "procedure": procedure[][$locale],
+    "precautions": precautions[][$locale],
+    "faq": faq[] {
+      "question": question[$locale],
+      "answer": answer[$locale]
+    },
+    "relatedTreatments": relatedTreatments[]-> {
+      _id,
+      "slug": slug.current,
+      "name": name[$locale],
+      category,
+      priceOptions[0] { price, discountPrice },
+      isEvent
+    }
+  }
+`;
 
 export const allTreatmentsForCartQuery = `
   *[_type == "treatment" && isVisible == true] | order(sortOrder asc) {
@@ -133,7 +169,7 @@ export const pageHeroQuery = `
 
 // === Doctor ===
 export const doctorsQuery = `
-  *[_type == "doctor" && isVisible == true] | order(sortOrder asc) {
+  *[_type == "doctor" && isVisible == true] | order(orderRank asc) {
     _id, "name": name[$locale], "position": position[$locale],
     profileImage, "philosophy": philosophy[$locale],
     licenseNumber, "specialties": specialties[][$locale]

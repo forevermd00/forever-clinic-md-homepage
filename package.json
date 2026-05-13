@@ -16,6 +16,7 @@
     "@portabletext/react": "^6.0.3",
     "@portabletext/toolkit": "^5.0.2",
     "@sanity/image-url": "^2.1.1",
+    "@sanity/orderable-document-list": "^1.5.1",
     "@sanity/vision": "^5.22.0",
     "@types/nodemailer": "^8.0.0",
     "bcryptjs": "^3.0.3",

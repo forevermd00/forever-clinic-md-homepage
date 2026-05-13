@@ -24,7 +24,7 @@ export async function LocationSection({
 
   return (
     <section className="bg-[#faf8f5]">
-      <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-12 px-5 py-16 md:flex-row md:px-10 lg:px-12">
+      <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-8 px-5 py-16 md:px-10 lg:flex-row lg:gap-12 lg:px-12">
         {/* Map */}
         <div className="relative h-[240px] flex-1 overflow-hidden rounded-[12px] bg-[#efe5d9] lg:h-[360px]">
           {clinicInfo?.latitude && clinicInfo?.longitude ? (

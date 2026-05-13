@@ -1,4 +1,5 @@
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import { orderRankField } from '@sanity/orderable-document-list';
 
 export default defineType({
   name: 'doctor',
@@ -12,6 +13,7 @@ export default defineType({
     },
   },
   fields: [
+    orderRankField({ type: 'doctor' }),
     defineField({
       name: 'name',
       title: '의사 이름',

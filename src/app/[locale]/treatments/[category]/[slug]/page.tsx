@@ -72,16 +72,17 @@ function mapCmsTreatment(
   );
   if (!categoryMeta) return undefined;
 
-  const name = raw.name?.[locale] || raw.name?.ko || '';
-  const tagline = raw.tagline?.[locale] || raw.tagline?.ko || '';
-  const description =
-    raw.description?.[locale] || raw.description?.ko || tagline;
+  const name = extractLocale(raw.name, locale);
+  const tagline = extractLocale(raw.tagline, locale);
+  const description = extractLocale(raw.description, locale) || tagline;
   const firstPrice = raw.priceOptions?.[0];
   const effectivePrice = firstPrice?.discountPrice ?? firstPrice?.price;
+  const slug =
+    typeof raw.slug === 'string' ? raw.slug : raw.slug?.current || '';
 
   const treatment: Treatment = {
     name,
-    slug: raw.slug?.current || '',
+    slug,
     category: categorySlug,
     price: effectivePrice ? `₩${effectivePrice.toLocaleString()}` : '',
     priceNumeric: effectivePrice || 0,
@@ -92,13 +93,13 @@ function mapCmsTreatment(
       firstPrice?.price && firstPrice?.discountPrice
         ? Math.round((1 - firstPrice.discountPrice / firstPrice.price) * 100)
         : 0,
-    keywords: raw.keywords?.[locale] || raw.keywords?.ko || '',
-    composition: raw.composition?.[locale] || raw.composition?.ko || '',
+    keywords: extractLocale(raw.keywords, locale),
+    composition: extractLocale(raw.composition, locale),
     description,
     duration: extractLocale(raw.treatmentTime, locale),
-    anesthesia: raw.anesthesia?.[locale] || raw.anesthesia?.ko || '',
+    anesthesia: extractLocale(raw.anesthesia, locale),
     recovery: extractLocale(raw.downtime, locale),
-    recommended: raw.duration || '',
+    recommended: typeof raw.duration === 'string' ? raw.duration : '',
     imageUrl: raw.imageUrl || undefined,
   };
 
@@ -368,39 +369,9 @@ export default async function TreatmentDetailPage({
         </section>
       )}
 
-      {/* ── 이런 변화를 기대할 수 있어요 ── */}
-      {features.length > 0 && (
-        <section className="bg-[#faf8f5] py-12">
-          <div className="mx-auto w-full max-w-[680px] px-5">
-            <p className="text-[11px] font-medium tracking-[0.15em] text-[#a83c44] uppercase">
-              {CLINIC_NAMES[locale] ?? CLINIC_NAMES.ko}
-            </p>
-            <h2 className="mt-1 text-[20px] font-bold text-[#2b2b2b]">
-              {t('features')}
-            </h2>
-            <div className="mt-4 h-px w-full bg-[#e6e6e6]" />
-            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {features.map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-3 rounded-[12px] border border-[#e6e6e6] bg-white p-4"
-                >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#2b2b2b] text-[13px] font-bold text-white">
-                    {i + 1}
-                  </span>
-                  <span className="text-[14px] leading-[1.7] text-[#2b2b2b]">
-                    {item}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* ── 이런 고민이 있다면 ── */}
       {recommendedFor.length > 0 && (
-        <section className="bg-white py-12">
+        <section className="bg-[#faf8f5] py-12">
           <div className="mx-auto w-full max-w-[680px] px-5">
             <p className="text-[11px] font-medium tracking-[0.15em] text-[#a83c44] uppercase">
               {CLINIC_NAMES[locale] ?? CLINIC_NAMES.ko}
@@ -409,7 +380,7 @@ export default async function TreatmentDetailPage({
               {t('recommendedFor')}
             </h2>
             <div className="mt-4 h-px w-full bg-[#e6e6e6]" />
-            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-6 flex flex-col gap-3">
               {recommendedFor.map((item, i) => (
                 <div
                   key={i}
@@ -425,6 +396,36 @@ export default async function TreatmentDetailPage({
                         strokeLinejoin="round"
                       />
                     </svg>
+                  </span>
+                  <span className="text-[14px] leading-[1.7] text-[#2b2b2b]">
+                    {item}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── 이런 변화를 기대할 수 있어요 ── */}
+      {features.length > 0 && (
+        <section className="bg-white py-12">
+          <div className="mx-auto w-full max-w-[680px] px-5">
+            <p className="text-[11px] font-medium tracking-[0.15em] text-[#a83c44] uppercase">
+              {CLINIC_NAMES[locale] ?? CLINIC_NAMES.ko}
+            </p>
+            <h2 className="mt-1 text-[20px] font-bold text-[#2b2b2b]">
+              {t('features')}
+            </h2>
+            <div className="mt-4 h-px w-full bg-[#e6e6e6]" />
+            <div className="mt-6 flex flex-col gap-3">
+              {features.map((item, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-3 rounded-[12px] border border-[#e6e6e6] bg-white p-4"
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#2b2b2b] text-[13px] font-bold text-white">
+                    {i + 1}
                   </span>
                   <span className="text-[14px] leading-[1.7] text-[#2b2b2b]">
                     {item}
@@ -492,7 +493,7 @@ export default async function TreatmentDetailPage({
               {t('precautions')}
             </h2>
             <div className="mt-4 h-px w-full bg-[#e6e6e6]" />
-            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-6 flex flex-col gap-3">
               {precautions.map((item, i) => (
                 <div
                   key={i}

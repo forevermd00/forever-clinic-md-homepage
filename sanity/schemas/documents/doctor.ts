@@ -1,10 +1,12 @@
 import { defineType, defineField } from 'sanity';
+import { orderRankField } from '@sanity/orderable-document-list';
 
 export default defineType({
   name: 'doctor',
   title: '의료진',
   type: 'document',
   fields: [
+    orderRankField({ type: 'doctor' }),
     defineField({
       name: 'name',
       title: '이름',
