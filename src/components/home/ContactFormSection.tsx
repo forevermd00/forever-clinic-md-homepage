@@ -92,7 +92,6 @@ export function ContactFormSection({ config, businessHours }: Props) {
   const [preferredDate, setPreferredDate] = useState('');
   const [preferredTime, setPreferredTime] = useState('');
   const [privacyConsent, setPrivacyConsent] = useState(false);
-  const [showPrivacyDetail, setShowPrivacyDetail] = useState(false);
   const [privacyError, setPrivacyError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -101,6 +100,7 @@ export function ContactFormSection({ config, businessHours }: Props) {
   const accentColor = '#a83c44';
   const headerTitle = config?.title ?? t('contactTitle');
   const headerSubtitle = config?.subtitle ?? t('contactSubtitle');
+  const showDatetime = config?.showPreferredDatetime ?? true;
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/\D/g, '').slice(0, 11);
@@ -373,85 +373,90 @@ export function ContactFormSection({ config, businessHours }: Props) {
               </div>
 
               {/* Row 3: Preferred Date & Time — 좌: 날짜, 우: 시간 */}
-              <div className="flex flex-col gap-2">
-                <label className="text-[13px] font-medium text-[#2b2b2b]">
-                  {t('formPreferredDatetime')}
-                  <span className="ml-1.5 text-[11px] font-normal text-[#999]">
-                    ({tc('optional')})
-                  </span>
-                </label>
-                <div className="flex min-h-[80px] gap-5">
-                  {/* 좌: 날짜 선택 */}
-                  <div className="flex w-[180px] shrink-0 flex-col gap-1.5">
-                    <input
-                      type="date"
-                      value={preferredDate}
-                      min={getTodayStr()}
-                      onChange={(e) => {
-                        setPreferredDate(e.target.value);
-                        setPreferredTime('');
-                      }}
-                      className="h-[44px] w-full rounded-[6px] border border-[#d9d9d9] bg-white px-3 py-2.5 text-[14px] text-[#2b2b2b]"
-                    />
-                  </div>
-                  {/* 우: 시간 슬롯 */}
-                  <div className="flex flex-1 flex-wrap content-start gap-1.5">
-                    {(() => {
-                      if (!preferredDate) {
-                        return (
-                          <div className="flex h-[44px] items-center">
-                            <p className="text-[13px] text-[#ccc]">
-                              {t('selectDateFirst')}
-                            </p>
-                          </div>
-                        );
-                      }
-                      const slots = getTimeSlots(preferredDate, hours);
-                      if (slots.length === 0) {
-                        return (
-                          <div className="flex h-[44px] items-center">
-                            <p className="text-[13px] text-[#ccc]">
-                              {t('clinicClosedOnDate')}
-                            </p>
-                          </div>
-                        );
-                      }
-                      return slots.map((slot) => {
-                        const available = isSlotAvailable(preferredDate, slot);
-                        const selected = preferredTime === slot;
-                        return (
-                          <button
-                            key={slot}
-                            type="button"
-                            disabled={!available}
-                            onClick={() =>
-                              setPreferredTime(selected ? '' : slot)
-                            }
-                            className={cn(
-                              'h-[44px] rounded-[6px] border px-3 text-[13px] font-medium transition-colors',
-                              selected
-                                ? 'border-transparent text-white'
-                                : available
-                                  ? 'border-[#d9d9d9] bg-white text-[#2b2b2b] hover:border-[#a83c44] hover:text-[#a83c44]'
-                                  : 'cursor-not-allowed border-[#eee] bg-white text-[#ccc]',
-                            )}
-                            style={
-                              selected
-                                ? {
-                                    backgroundColor: accentColor,
-                                    borderColor: accentColor,
-                                  }
-                                : undefined
-                            }
-                          >
-                            {slot}
-                          </button>
-                        );
-                      });
-                    })()}
+              {showDatetime && (
+                <div className="flex flex-col gap-2">
+                  <label className="text-[13px] font-medium text-[#2b2b2b]">
+                    {t('formPreferredDatetime')}
+                    <span className="ml-1.5 text-[11px] font-normal text-[#999]">
+                      ({tc('optional')})
+                    </span>
+                  </label>
+                  <div className="flex min-h-[80px] gap-5">
+                    {/* 좌: 날짜 선택 */}
+                    <div className="flex w-[180px] shrink-0 flex-col gap-1.5">
+                      <input
+                        type="date"
+                        value={preferredDate}
+                        min={getTodayStr()}
+                        onChange={(e) => {
+                          setPreferredDate(e.target.value);
+                          setPreferredTime('');
+                        }}
+                        className="h-[44px] w-full rounded-[6px] border border-[#d9d9d9] bg-white px-3 py-2.5 text-[14px] text-[#2b2b2b]"
+                      />
+                    </div>
+                    {/* 우: 시간 슬롯 */}
+                    <div className="flex flex-1 flex-wrap content-start gap-1.5">
+                      {(() => {
+                        if (!preferredDate) {
+                          return (
+                            <div className="flex h-[44px] items-center">
+                              <p className="text-[13px] text-[#ccc]">
+                                {t('selectDateFirst')}
+                              </p>
+                            </div>
+                          );
+                        }
+                        const slots = getTimeSlots(preferredDate, hours);
+                        if (slots.length === 0) {
+                          return (
+                            <div className="flex h-[44px] items-center">
+                              <p className="text-[13px] text-[#ccc]">
+                                {t('clinicClosedOnDate')}
+                              </p>
+                            </div>
+                          );
+                        }
+                        return slots.map((slot) => {
+                          const available = isSlotAvailable(
+                            preferredDate,
+                            slot,
+                          );
+                          const selected = preferredTime === slot;
+                          return (
+                            <button
+                              key={slot}
+                              type="button"
+                              disabled={!available}
+                              onClick={() =>
+                                setPreferredTime(selected ? '' : slot)
+                              }
+                              className={cn(
+                                'h-[44px] rounded-[6px] border px-3 text-[13px] font-medium transition-colors',
+                                selected
+                                  ? 'border-transparent text-white'
+                                  : available
+                                    ? 'border-[#d9d9d9] bg-white text-[#2b2b2b] hover:border-[#a83c44] hover:text-[#a83c44]'
+                                    : 'cursor-not-allowed border-[#eee] bg-white text-[#ccc]',
+                              )}
+                              style={
+                                selected
+                                  ? {
+                                      backgroundColor: accentColor,
+                                      borderColor: accentColor,
+                                    }
+                                  : undefined
+                              }
+                            >
+                              {slot}
+                            </button>
+                          );
+                        });
+                      })()}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* Row 4: Message */}
               <div className="flex flex-col gap-1.5">
@@ -473,25 +478,19 @@ export function ContactFormSection({ config, businessHours }: Props) {
               {/* 개인정보 수집 및 이용 동의 */}
               <div className="flex flex-col gap-2">
                 <div className="overflow-hidden rounded-[6px] border border-[#efe5d9] bg-white">
-                  <div className="flex items-center justify-between px-4 py-3">
-                    <span className="text-[13px] font-medium text-[#2b2b2b]">
-                      {t('privacyTitle')}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setShowPrivacyDetail((v) => !v)}
-                      className="text-[11px] text-[#999] hover:text-[#2b2b2b]"
+                  <div className="flex items-center gap-1.5 px-4 py-3">
+                    <Link
+                      href={`/${locale}/privacy`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[13px] font-medium text-[#2b2b2b] underline-offset-2 hover:underline"
                     >
-                      {showPrivacyDetail ? t('privacyLess') : t('privacyMore')}
-                    </button>
+                      {t('privacyTitle')}
+                    </Link>
+                    <span className="text-[12px] font-medium text-[#a83c44]">
+                      {t('privacyRequired')}
+                    </span>
                   </div>
-                  {showPrivacyDetail && (
-                    <div className="border-t border-[#f0ebe4] bg-[#faf8f5] px-4 py-3">
-                      <p className="text-[12px] leading-[1.7] whitespace-pre-line text-[#666]">
-                        {t('privacyBody')}
-                      </p>
-                    </div>
-                  )}
                 </div>
                 <label className="flex cursor-pointer items-center gap-2.5">
                   <span

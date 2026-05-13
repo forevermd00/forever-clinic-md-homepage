@@ -155,7 +155,8 @@ export const clinicInfoQuery = `
 export const contactSectionConfigQuery = `
   *[_type == "pageHero" && _id == "page-hero-contact"][0] {
     "title": title[$locale],
-    "subtitle": subtitle[$locale]
+    "subtitle": subtitle[$locale],
+    showPreferredDatetime
   }
 `;
 

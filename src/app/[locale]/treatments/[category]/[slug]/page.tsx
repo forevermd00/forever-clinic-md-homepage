@@ -162,6 +162,9 @@ export default async function TreatmentDetailPage({
   if (!visibility.nav.treatments) {
     redirect(`/${locale}`);
   }
+  if (!visibility.treatments.detail) {
+    redirect(`/${locale}/treatments`);
+  }
 
   const cmsData = (await getTreatmentDetail(slug, locale)) as any;
   const cmsResult = mapCmsTreatment(cmsData, locale, categorySlug);

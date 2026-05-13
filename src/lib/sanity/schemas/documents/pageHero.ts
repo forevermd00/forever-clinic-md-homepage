@@ -44,5 +44,15 @@ export default defineType({
       type: 'file',
       options: { accept: 'video/mp4' },
     }),
+    defineField({
+      name: 'showPreferredDatetime',
+      title: '희망 예약 일시 표시',
+      description: '상담 문의 폼에서 날짜/시간 선택 항목을 표시합니다.',
+      type: 'boolean',
+      initialValue: true,
+      hidden: ({ document }) =>
+        (document as { pageName?: string } | undefined)?.pageName !==
+        'page-hero-contact',
+    }),
   ],
 });

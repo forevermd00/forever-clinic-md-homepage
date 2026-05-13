@@ -135,6 +135,21 @@ export const sectionVisibility = defineType({
       ],
     }),
     defineField({
+      name: 'treatments',
+      title: '시술 페이지 설정',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'detail',
+          title: '시술 상세 페이지',
+          description:
+            '꺼두면 시술 상세 페이지 접근 시 시술 목록 페이지로 이동합니다.',
+          type: 'boolean',
+          initialValue: true,
+        }),
+      ],
+    }),
+    defineField({
       name: 'media',
       title: '미디어 탭',
       type: 'object',
