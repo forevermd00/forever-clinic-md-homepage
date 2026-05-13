@@ -12,16 +12,16 @@ import './media-tool.css';
 interface PressDoc {
   _id: string;
   title: string;
-  publisher?: string;
-  publishedAt?: string;
+  source?: string;
+  publishDate?: string;
   _createdAt: string;
 }
 
 interface VideoDoc {
   _id: string;
   title: string;
-  youtubeUrl?: string;
-  publishedAt?: string;
+  youtubeId?: string;
+  publishDate?: string;
 }
 
 interface BlogDoc {
@@ -29,14 +29,14 @@ interface BlogDoc {
   title: string;
   slug?: string;
   category?: string;
-  publishedAt?: string;
+  publishDate?: string;
 }
 
 interface NoticeDoc {
   _id: string;
   title: string;
   isPinned?: boolean;
-  publishedAt?: string;
+  publishDate?: string;
 }
 
 // ─── Queries ────────────────────────────────────────────
@@ -45,32 +45,32 @@ const PRESS_QUERY = `
   *[_type == "pressArticle"] | order(_createdAt desc) {
     _id, _createdAt,
     "title": coalesce(title.ko, title.en, "(제목 없음)"),
-    publisher, publishedAt
+    source, publishDate
   }
 `;
 
 const VIDEO_QUERY = `
-  *[_type == "youtubeVideo"] | order(publishedAt desc) {
+  *[_type == "youtubeVideo"] | order(publishDate desc) {
     _id,
     "title": coalesce(title.ko, title.en, "(제목 없음)"),
-    youtubeUrl, publishedAt
+    youtubeId, publishDate
   }
 `;
 
 const BLOG_QUERY = `
-  *[_type == "blogPost"] | order(publishedAt desc) {
+  *[_type == "blogPost"] | order(publishDate desc) {
     _id,
     "title": coalesce(title.ko, title.en, "(제목 없음)"),
     "slug": slug.current,
-    category, publishedAt
+    category, publishDate
   }
 `;
 
 const NOTICE_QUERY = `
-  *[_type == "notice"] | order(isPinned desc, publishedAt desc) {
+  *[_type == "notice"] | order(isPinned desc, publishDate desc) {
     _id,
     "title": coalesce(title.ko, title.en, "(제목 없음)"),
-    isPinned, publishedAt
+    isPinned, publishDate
   }
 `;
 
@@ -146,9 +146,9 @@ function PressPanel({ onEdit }: { onEdit: (id: string) => void }) {
                   <td>
                     <span className="mt-title">{doc.title}</span>
                   </td>
-                  <td className="mt-meta">{doc.publisher || '—'}</td>
+                  <td className="mt-meta">{doc.source || '—'}</td>
                   <td className="mt-meta">
-                    {formatDate(doc.publishedAt || doc._createdAt)}
+                    {formatDate(doc.publishDate || doc._createdAt)}
                   </td>
                 </tr>
               ))
@@ -201,7 +201,7 @@ function VideoPanel({ onEdit }: { onEdit: (id: string) => void }) {
             <tr>
               <th>No.</th>
               <th>제목</th>
-              <th>YouTube URL</th>
+              <th>YouTube ID</th>
               <th>날짜</th>
             </tr>
           </thead>
@@ -232,9 +232,9 @@ function VideoPanel({ onEdit }: { onEdit: (id: string) => void }) {
                       maxWidth: 200,
                     }}
                   >
-                    {doc.youtubeUrl || '—'}
+                    {doc.youtubeId || '—'}
                   </td>
-                  <td className="mt-meta">{formatDate(doc.publishedAt)}</td>
+                  <td className="mt-meta">{formatDate(doc.publishDate)}</td>
                 </tr>
               ))
             )}
@@ -309,7 +309,7 @@ function BlogPanel({ onEdit }: { onEdit: (id: string) => void }) {
                     <span className="mt-title">{doc.title}</span>
                   </td>
                   <td className="mt-meta">{doc.category || '—'}</td>
-                  <td className="mt-meta">{formatDate(doc.publishedAt)}</td>
+                  <td className="mt-meta">{formatDate(doc.publishDate)}</td>
                 </tr>
               ))
             )}
@@ -387,7 +387,7 @@ function NoticePanel({ onEdit }: { onEdit: (id: string) => void }) {
                       <span className="mt-meta">—</span>
                     )}
                   </td>
-                  <td className="mt-meta">{formatDate(doc.publishedAt)}</td>
+                  <td className="mt-meta">{formatDate(doc.publishDate)}</td>
                 </tr>
               ))
             )}

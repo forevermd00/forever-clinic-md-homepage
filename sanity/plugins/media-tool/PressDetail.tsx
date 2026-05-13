@@ -5,9 +5,9 @@ import type { SanityClient } from 'sanity';
 interface PressDoc {
   _id: string;
   title?: { ko?: string; en?: string; zh?: string; ja?: string };
-  publisher?: string;
+  source?: string;
   url?: string;
-  publishedAt?: string;
+  publishDate?: string;
   thumbnail?: { asset?: { _ref: string } };
 }
 
@@ -38,7 +38,7 @@ async function uploadImage(client: SanityClient, file: File) {
 }
 
 const QUERY = `*[_type == "pressArticle" && _id == $id][0] {
-  _id, title, publisher, url, publishedAt,
+  _id, title, source, url, publishDate,
   thumbnail { asset { _ref } }
 }`;
 
@@ -155,8 +155,8 @@ export function PressDetail({
               <input
                 type="text"
                 className="mt-text-input"
-                defaultValue={doc.publisher ?? ''}
-                onBlur={(e) => patch({ publisher: e.target.value })}
+                defaultValue={doc.source ?? ''}
+                onBlur={(e) => patch({ source: e.target.value })}
               />
             </div>
             <div className="mt-detail-field">
@@ -173,8 +173,8 @@ export function PressDetail({
               <input
                 type="date"
                 className="mt-text-input"
-                defaultValue={doc.publishedAt ?? ''}
-                onBlur={(e) => patch({ publishedAt: e.target.value || null })}
+                defaultValue={doc.publishDate ?? ''}
+                onBlur={(e) => patch({ publishDate: e.target.value || null })}
               />
             </div>
           </div>

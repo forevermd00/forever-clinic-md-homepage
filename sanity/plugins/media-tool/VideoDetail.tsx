@@ -5,9 +5,9 @@ import type { SanityClient } from 'sanity';
 interface VideoDoc {
   _id: string;
   title?: { ko?: string; en?: string; zh?: string; ja?: string };
-  youtubeUrl?: string;
+  youtubeId?: string;
   description?: { ko?: string; en?: string; zh?: string; ja?: string };
-  publishedAt?: string;
+  publishDate?: string;
   thumbnail?: { asset?: { _ref: string } };
 }
 
@@ -37,13 +37,8 @@ async function uploadImage(client: SanityClient, file: File) {
   };
 }
 
-function extractYoutubeId(url: string): string | null {
-  const match = url.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
-  return match ? match[1] : null;
-}
-
 const QUERY = `*[_type == "youtubeVideo" && _id == $id][0] {
-  _id, title, youtubeUrl, description, publishedAt,
+  _id, title, youtubeId, description, publishDate,
   thumbnail { asset { _ref } }
 }`;
 
@@ -119,7 +114,7 @@ export function VideoDetail({
   const projectId = 'ecoamz42';
   const dataset = 'develop';
   const imageRef = doc.thumbnail?.asset?._ref;
-  const youtubeId = doc.youtubeUrl ? extractYoutubeId(doc.youtubeUrl) : null;
+  const youtubeId = doc.youtubeId || null;
 
   return (
     <div className="mt-detail-container">
@@ -156,12 +151,13 @@ export function VideoDetail({
         <div className="mt-detail-section-title">YouTube</div>
         <div className="mt-detail-body">
           <div className="mt-detail-field" style={{ marginBottom: 12 }}>
-            <label className="mt-detail-label">YouTube URL</label>
+            <label className="mt-detail-label">YouTube ID</label>
             <input
               type="text"
-              className="mt-text-input mt-text-input-wide"
-              defaultValue={doc.youtubeUrl ?? ''}
-              onBlur={(e) => patch({ youtubeUrl: e.target.value })}
+              className="mt-text-input"
+              placeholder="예: dQw4w9WgXcQ"
+              defaultValue={doc.youtubeId ?? ''}
+              onBlur={(e) => patch({ youtubeId: e.target.value })}
             />
           </div>
           {youtubeId && (
@@ -208,8 +204,8 @@ export function VideoDetail({
               <input
                 type="date"
                 className="mt-text-input"
-                defaultValue={doc.publishedAt ?? ''}
-                onBlur={(e) => patch({ publishedAt: e.target.value || null })}
+                defaultValue={doc.publishDate ?? ''}
+                onBlur={(e) => patch({ publishDate: e.target.value || null })}
               />
             </div>
           </div>

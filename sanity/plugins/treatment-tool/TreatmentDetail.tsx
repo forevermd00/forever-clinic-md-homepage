@@ -8,7 +8,7 @@ const FULL_QUERY = `
     "name": name,
     "tagline": tagline,
     "slug": slug.current,
-    category, isEvent, isSignature, isVisible, sortOrder,
+    category, isEvent, isSignature, isVisible, showInMenu, sortOrder,
     priceOptions[] { price, discountPrice, label },
     eventStartDate, eventEndDate,
     treatmentTime,
@@ -16,7 +16,12 @@ const FULL_QUERY = `
     downtime, duration,
     "keywords": keywords,
     "description": description,
-    "composition": composition
+    "composition": composition,
+    "features": features[],
+    "recommendedFor": recommendedFor[],
+    "procedure": procedure[],
+    "precautions": precautions[],
+    "faq": faq[]
   }
 `;
 
@@ -27,6 +32,22 @@ type LocalizedStr = {
   ja?: string;
 } | null;
 
+interface LocalizedItem {
+  _key: string;
+  _type?: string;
+  ko?: string;
+  en?: string;
+  zh?: string;
+  ja?: string;
+}
+
+interface FaqItem {
+  _key: string;
+  _type?: string;
+  question?: { ko?: string; en?: string; zh?: string; ja?: string };
+  answer?: { ko?: string; en?: string; zh?: string; ja?: string };
+}
+
 interface FullDoc {
   _id: string;
   name: LocalizedStr;
@@ -36,6 +57,7 @@ interface FullDoc {
   isEvent?: boolean;
   isSignature?: boolean;
   isVisible?: boolean;
+  showInMenu?: boolean;
   sortOrder?: number;
   priceOptions?: { price?: number; discountPrice?: number; label?: string }[];
   eventStartDate?: string;
@@ -47,6 +69,11 @@ interface FullDoc {
   keywords?: LocalizedStr;
   description?: LocalizedStr;
   composition?: LocalizedStr;
+  features?: LocalizedItem[];
+  recommendedFor?: LocalizedItem[];
+  procedure?: LocalizedItem[];
+  precautions?: LocalizedItem[];
+  faq?: FaqItem[];
 }
 
 const LOCALES: { key: 'ko' | 'en' | 'zh' | 'ja'; label: string }[] = [
@@ -55,6 +82,10 @@ const LOCALES: { key: 'ko' | 'en' | 'zh' | 'ja'; label: string }[] = [
   { key: 'zh', label: '中文' },
   { key: 'ja', label: '日本語' },
 ];
+
+function newKey() {
+  return Math.random().toString(36).slice(2, 10);
+}
 
 function Section({
   title,
@@ -86,6 +117,232 @@ function Field({
   );
 }
 
+function LocalizedArrayEditor({
+  initialItems,
+  onSave,
+}: {
+  initialItems: LocalizedItem[] | undefined;
+  onSave: (items: LocalizedItem[]) => void;
+}) {
+  const [items, setItems] = useState<LocalizedItem[]>([]);
+  const initialized = useRef(false);
+
+  useEffect(() => {
+    if (!initialized.current && Array.isArray(initialItems)) {
+      setItems(initialItems);
+      initialized.current = true;
+    }
+  }, [initialItems]);
+
+  const updateLocale = (
+    i: number,
+    locale: 'ko' | 'en' | 'zh' | 'ja',
+    val: string,
+  ) => {
+    setItems((prev) =>
+      prev.map((it, idx) => (idx === i ? { ...it, [locale]: val } : it)),
+    );
+  };
+
+  const saveBlur = (
+    i: number,
+    locale: 'ko' | 'en' | 'zh' | 'ja',
+    val: string,
+  ) => {
+    setItems((prev) => {
+      const updated = prev.map((it, idx) =>
+        idx === i ? { ...it, [locale]: val } : it,
+      );
+      onSave(updated);
+      return updated;
+    });
+  };
+
+  const remove = (i: number) => {
+    setItems((prev) => {
+      const updated = prev.filter((_, idx) => idx !== i);
+      onSave(updated);
+      return updated;
+    });
+  };
+
+  const add = () => {
+    setItems((prev) => {
+      const updated = [
+        ...prev,
+        {
+          _key: newKey(),
+          _type: 'localizedString',
+          ko: '',
+          en: '',
+          zh: '',
+          ja: '',
+        },
+      ];
+      onSave(updated);
+      return updated;
+    });
+  };
+
+  return (
+    <div className="tt-array-editor">
+      {items.map((item, i) => (
+        <div key={item._key} className="tt-array-item">
+          <div className="tt-array-item-header">
+            <span className="tt-array-num">{i + 1}</span>
+            <button className="tt-remove-btn" onClick={() => remove(i)}>
+              ✕
+            </button>
+          </div>
+          <div className="tt-detail-grid4">
+            {LOCALES.map(({ key, label }) => (
+              <div key={key} className="tt-detail-field">
+                <label className="tt-detail-label">{label}</label>
+                <input
+                  type="text"
+                  className="tt-text-input"
+                  value={item[key] ?? ''}
+                  onChange={(e) => updateLocale(i, key, e.target.value)}
+                  onBlur={(e) => saveBlur(i, key, e.target.value)}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+      <button className="tt-add-btn" onClick={add}>
+        + 항목 추가
+      </button>
+    </div>
+  );
+}
+
+function FaqEditor({
+  initialItems,
+  onSave,
+}: {
+  initialItems: FaqItem[] | undefined;
+  onSave: (items: FaqItem[]) => void;
+}) {
+  const [items, setItems] = useState<FaqItem[]>([]);
+  const initialized = useRef(false);
+
+  useEffect(() => {
+    if (!initialized.current && Array.isArray(initialItems)) {
+      setItems(initialItems);
+      initialized.current = true;
+    }
+  }, [initialItems]);
+
+  const updateField = (
+    i: number,
+    field: 'question' | 'answer',
+    locale: 'ko' | 'en' | 'zh' | 'ja',
+    val: string,
+  ) => {
+    setItems((prev) =>
+      prev.map((it, idx) =>
+        idx === i ? { ...it, [field]: { ...it[field], [locale]: val } } : it,
+      ),
+    );
+  };
+
+  const saveBlur = (
+    i: number,
+    field: 'question' | 'answer',
+    locale: 'ko' | 'en' | 'zh' | 'ja',
+    val: string,
+  ) => {
+    setItems((prev) => {
+      const updated = prev.map((it, idx) =>
+        idx === i ? { ...it, [field]: { ...it[field], [locale]: val } } : it,
+      );
+      onSave(updated);
+      return updated;
+    });
+  };
+
+  const remove = (i: number) => {
+    setItems((prev) => {
+      const updated = prev.filter((_, idx) => idx !== i);
+      onSave(updated);
+      return updated;
+    });
+  };
+
+  const add = () => {
+    setItems((prev) => {
+      const updated = [
+        ...prev,
+        {
+          _key: newKey(),
+          _type: 'faqItem',
+          question: { ko: '', en: '', zh: '', ja: '' },
+          answer: { ko: '', en: '', zh: '', ja: '' },
+        },
+      ];
+      onSave(updated);
+      return updated;
+    });
+  };
+
+  return (
+    <div className="tt-array-editor">
+      {items.map((item, i) => (
+        <div key={item._key} className="tt-array-item tt-faq-item">
+          <div className="tt-array-item-header">
+            <span className="tt-array-num">Q{i + 1}</span>
+            <button className="tt-remove-btn" onClick={() => remove(i)}>
+              ✕
+            </button>
+          </div>
+          <div className="tt-faq-group">
+            <p className="tt-faq-group-label">질문</p>
+            <div className="tt-detail-grid4">
+              {LOCALES.map(({ key, label }) => (
+                <div key={key} className="tt-detail-field">
+                  <label className="tt-detail-label">{label}</label>
+                  <input
+                    type="text"
+                    className="tt-text-input"
+                    value={item.question?.[key] ?? ''}
+                    onChange={(e) =>
+                      updateField(i, 'question', key, e.target.value)
+                    }
+                    onBlur={(e) => saveBlur(i, 'question', key, e.target.value)}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="tt-faq-group">
+            <p className="tt-faq-group-label">답변</p>
+            <div className="tt-detail-grid4">
+              {LOCALES.map(({ key, label }) => (
+                <div key={key} className="tt-detail-field">
+                  <label className="tt-detail-label">{label}</label>
+                  <textarea
+                    className="tt-text-input tt-textarea"
+                    value={item.answer?.[key] ?? ''}
+                    onChange={(e) =>
+                      updateField(i, 'answer', key, e.target.value)
+                    }
+                    onBlur={(e) => saveBlur(i, 'answer', key, e.target.value)}
+                    rows={3}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ))}
+      <button className="tt-add-btn" onClick={add}>
+        + FAQ 추가
+      </button>
+    </div>
+  );
+}
+
 export function TreatmentDetail({
   id,
   onBack,
@@ -98,12 +355,10 @@ export function TreatmentDetail({
   const [saving, setSaving] = useState(false);
   const saved = useRef(false);
 
-  // ESC key and swipe-right to go back
   useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onBack();
+    const onWheel = (e: WheelEvent) => {
+      if (e.deltaX > 80 && Math.abs(e.deltaY) < 30) onBack();
     };
-
     let touchStartX = 0;
     let touchStartY = 0;
     const onTouchStart = (e: TouchEvent) => {
@@ -115,12 +370,11 @@ export function TreatmentDetail({
       const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
       if (dx > 60 && dy < 40) onBack();
     };
-
-    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('wheel', onWheel, { passive: true });
     window.addEventListener('touchstart', onTouchStart, { passive: true });
     window.addEventListener('touchend', onTouchEnd, { passive: true });
     return () => {
-      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('wheel', onWheel);
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchend', onTouchEnd);
     };
@@ -144,6 +398,16 @@ export function TreatmentDetail({
           ) as unknown as FullDoc)
         : prev,
     );
+    setSaving(false);
+  };
+
+  const patchArray = async (field: string, newArray: unknown[]) => {
+    setSaving(true);
+    await client
+      .patch(id)
+      .set({ [field]: newArray })
+      .commit();
+    setDoc((prev) => (prev ? { ...prev, [field]: newArray } : prev));
     setSaving(false);
   };
 
@@ -172,7 +436,6 @@ export function TreatmentDetail({
       <div className="tt-detail-header">
         <button className="tt-back-btn" onClick={onBack}>
           ← 목록으로
-          <span className="tt-back-hint">ESC</span>
         </button>
         <div className="tt-detail-title-row">
           <h2 className="tt-detail-title">{nameKo}</h2>
@@ -235,6 +498,14 @@ export function TreatmentDetail({
               className="tt-toggle"
               checked={!!doc.isVisible}
               onChange={(e) => patchBool('isVisible', e.target.checked)}
+            />
+          </Field>
+          <Field label="메뉴 노출">
+            <input
+              type="checkbox"
+              className="tt-toggle"
+              checked={!!doc.showInMenu}
+              onChange={(e) => patchBool('showInMenu', e.target.checked)}
             />
           </Field>
         </div>
@@ -423,6 +694,46 @@ export function TreatmentDetail({
             </Field>
           ))}
         </div>
+      </Section>
+
+      {/* ─── 이런 고민이 있다면 ─── */}
+      <Section title="이런 고민이 있다면">
+        <LocalizedArrayEditor
+          initialItems={doc.recommendedFor}
+          onSave={(items) => patchArray('recommendedFor', items)}
+        />
+      </Section>
+
+      {/* ─── 기대효과 ─── */}
+      <Section title="기대효과">
+        <LocalizedArrayEditor
+          initialItems={doc.features}
+          onSave={(items) => patchArray('features', items)}
+        />
+      </Section>
+
+      {/* ─── 시술 과정 ─── */}
+      <Section title="시술 과정">
+        <LocalizedArrayEditor
+          initialItems={doc.procedure}
+          onSave={(items) => patchArray('procedure', items)}
+        />
+      </Section>
+
+      {/* ─── 주의사항 ─── */}
+      <Section title="주의사항">
+        <LocalizedArrayEditor
+          initialItems={doc.precautions}
+          onSave={(items) => patchArray('precautions', items)}
+        />
+      </Section>
+
+      {/* ─── 자주 묻는 질문 ─── */}
+      <Section title="자주 묻는 질문 (FAQ)">
+        <FaqEditor
+          initialItems={doc.faq}
+          onSave={(items) => patchArray('faq', items)}
+        />
       </Section>
 
       {doc.category && (

@@ -50,12 +50,10 @@ export function BnaDetail({ id, onBack }: { id: string; onBack: () => void }) {
   const [saving, setSaving] = useState(false);
   const saved = useRef(false);
 
-  // ESC key and swipe-right to go back
   useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onBack();
+    const onWheel = (e: WheelEvent) => {
+      if (e.deltaX > 80 && Math.abs(e.deltaY) < 30) onBack();
     };
-
     let touchStartX = 0;
     let touchStartY = 0;
     const onTouchStart = (e: TouchEvent) => {
@@ -67,12 +65,11 @@ export function BnaDetail({ id, onBack }: { id: string; onBack: () => void }) {
       const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
       if (dx > 60 && dy < 40) onBack();
     };
-
-    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('wheel', onWheel, { passive: true });
     window.addEventListener('touchstart', onTouchStart, { passive: true });
     window.addEventListener('touchend', onTouchEnd, { passive: true });
     return () => {
-      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('wheel', onWheel);
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchend', onTouchEnd);
     };
@@ -114,7 +111,6 @@ export function BnaDetail({ id, onBack }: { id: string; onBack: () => void }) {
       <div className="bn-detail-header">
         <button className="bn-back-btn" onClick={onBack}>
           ← 목록으로
-          <span className="bn-back-hint">ESC</span>
         </button>
         <div className="bn-detail-title-row">
           <h2 className="bn-detail-title">{doc.treatmentName}</h2>
