@@ -476,22 +476,7 @@ export function ContactFormSection({ config, businessHours }: Props) {
               </p>
 
               {/* 개인정보 수집 및 이용 동의 */}
-              <div className="flex flex-col gap-2">
-                <div className="overflow-hidden rounded-[6px] border border-[#efe5d9] bg-white">
-                  <div className="flex items-center gap-1.5 px-4 py-3">
-                    <Link
-                      href={`/${locale}/privacy`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[13px] font-medium text-[#2b2b2b] underline-offset-2 hover:underline"
-                    >
-                      {t('privacyTitle')}
-                    </Link>
-                    <span className="text-[12px] font-medium text-[#a83c44]">
-                      {t('privacyRequired')}
-                    </span>
-                  </div>
-                </div>
+              <div className="flex flex-col gap-1.5">
                 <label className="flex cursor-pointer items-center gap-2.5">
                   <span
                     className={cn(
@@ -538,11 +523,24 @@ export function ContactFormSection({ config, businessHours }: Props) {
                     className="sr-only"
                   />
                   <span className="text-[13px] text-[#2b2b2b]">
-                    {t('privacyAgree')}
+                    {t('privacyAgreePre')}
+                    <Link
+                      href={`/${locale}/privacy`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline underline-offset-2 hover:text-[#a83c44]"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {t('privacyTitle')}
+                    </Link>
+                    {t('privacyAgreePost')}{' '}
+                    <span className="font-medium text-[#a83c44]">
+                      {t('privacyRequired')}
+                    </span>
                   </span>
                 </label>
                 {privacyError && (
-                  <p className="text-[12px] text-[#a83c44]">
+                  <p className="ml-[30px] text-[12px] text-[#a83c44]">
                     {t('privacyError')}
                   </p>
                 )}
