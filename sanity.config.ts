@@ -2,9 +2,7 @@ import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
 import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list';
 import {
-  DocumentsIcon,
   UsersIcon,
-  TagIcon,
   ImagesIcon,
   HomeIcon,
   CogIcon,
@@ -23,6 +21,7 @@ import {
 } from '@sanity/icons';
 import { schemaTypes } from './src/lib/sanity/schemas';
 import { consultationTool } from './sanity/plugins/consultation-tool';
+import { treatmentTool } from './sanity/plugins/treatment-tool';
 
 const singletonTypes = new Set([
   'clinicInfo',
@@ -86,9 +85,6 @@ export default defineConfig({
           .title('포에버 클리닉 관리')
           .items([
             // --- 자주 수정하는 항목 ---
-            S.documentTypeListItem('treatment')
-              .title('시술 관리')
-              .icon(DocumentsIcon),
             orderableDocumentListDeskItem({
               type: 'doctor',
               title: '의료진 관리',
@@ -96,9 +92,6 @@ export default defineConfig({
               S,
               context,
             }),
-            S.documentTypeListItem('promotion')
-              .title('프로모션/이벤트')
-              .icon(TagIcon),
             S.documentTypeListItem('baCase')
               .title('Before & After')
               .icon(ImagesIcon),
@@ -138,12 +131,20 @@ export default defineConfig({
                           .schemaType('clinicInfo')
                           .documentId('forever-myeongdong-clinic-info'),
                       ),
-                    S.documentTypeListItem('facility')
-                      .title('시설 안내')
-                      .icon(HomeIcon),
-                    S.documentTypeListItem('equipment')
-                      .title('장비 안내')
-                      .icon(ComponentIcon),
+                    orderableDocumentListDeskItem({
+                      type: 'facility',
+                      title: '시설 안내',
+                      icon: HomeIcon,
+                      S,
+                      context,
+                    }),
+                    orderableDocumentListDeskItem({
+                      type: 'equipment',
+                      title: '장비 안내',
+                      icon: ComponentIcon,
+                      S,
+                      context,
+                    }),
                   ]),
               ),
 
@@ -228,6 +229,7 @@ export default defineConfig({
           ]),
     }),
     consultationTool(),
+    treatmentTool(),
   ],
   schema: {
     types: schemaTypes,

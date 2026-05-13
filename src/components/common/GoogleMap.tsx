@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Script from 'next/script';
 
 interface GoogleMapProps {
@@ -10,7 +10,6 @@ interface GoogleMapProps {
   className?: string;
 }
 
-// POI 및 불필요한 레이블 숨김 스타일
 const MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: 'poi', stylers: [{ visibility: 'off' }] },
   { featureType: 'poi.business', stylers: [{ visibility: 'off' }] },
@@ -27,6 +26,7 @@ declare global {
 export function GoogleMap({ lat, lng, zoom = 17, className }: GoogleMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
+  const [ready, setReady] = useState(false);
 
   const initMap = () => {
     if (!mapRef.current || mapInstanceRef.current) return;
@@ -60,10 +60,10 @@ export function GoogleMap({ lat, lng, zoom = 17, className }: GoogleMapProps) {
     });
 
     mapInstanceRef.current = map;
+    setReady(true);
   };
 
   useEffect(() => {
-    // 이미 로드된 경우 바로 초기화
     if (window.google?.maps) {
       initMap();
     } else {
@@ -79,7 +79,29 @@ export function GoogleMap({ lat, lng, zoom = 17, className }: GoogleMapProps) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   return (
-    <>
+    <div className="relative h-full w-full">
+      {/* 지도 로딩 전 beige 배경 유지 — 로드 완료 시 페이드아웃 */}
+      <div
+        className="absolute inset-0 z-10 flex items-center justify-center bg-[#efe5d9] transition-opacity duration-500"
+        style={{
+          opacity: ready ? 0 : 1,
+          pointerEvents: ready ? 'none' : 'auto',
+        }}
+      >
+        <svg
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#c4b5a8"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+      </div>
       <Script
         src={`https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initForeverMap&loading=async`}
         strategy="lazyOnload"
@@ -89,6 +111,6 @@ export function GoogleMap({ lat, lng, zoom = 17, className }: GoogleMapProps) {
         className={className}
         style={{ width: '100%', height: '100%' }}
       />
-    </>
+    </div>
   );
 }

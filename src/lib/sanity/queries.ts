@@ -298,13 +298,13 @@ export const eventPopupQuery = `
 `;
 
 export const facilitiesQuery = `
-  *[_type == "facility"] | order(sortOrder asc) {
+  *[_type == "facility"] | order(orderRank asc) {
     _id, "name": name[$locale], image, "description": description[$locale]
   }
 `;
 
 export const equipmentQuery = `
-  *[_type == "equipment"] | order(sortOrder asc) {
+  *[_type == "equipment"] | order(orderRank asc) {
     _id, "name": name[$locale], image, "description": description[$locale], manufacturer
   }
 `;

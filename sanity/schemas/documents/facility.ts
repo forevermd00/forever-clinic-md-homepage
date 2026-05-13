@@ -1,10 +1,12 @@
 import { defineType, defineField } from 'sanity';
+import { orderRankField } from '@sanity/orderable-document-list';
 
 export default defineType({
   name: 'facility',
   title: '시설/인테리어',
   type: 'document',
   fields: [
+    orderRankField({ type: 'facility' }),
     defineField({ name: 'name', title: '공간명', type: 'localizedString' }),
     defineField({
       name: 'image',

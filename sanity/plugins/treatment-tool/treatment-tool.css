@@ -1,0 +1,289 @@
+/* Treatment Tool — Sanity Studio theme-aware styles */
+
+/* ===== Layout ===== */
+.tt-container {
+  padding: 20px 24px;
+  font-size: 13px;
+  color: var(--card-fg-color);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ===== Category Tabs ===== */
+.tt-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--card-border-color);
+  padding-bottom: 10px;
+}
+
+.tt-tab {
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--card-border-color);
+  background: transparent;
+  color: var(--card-muted-fg-color);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.tt-tab:hover {
+  background: var(--card-bg2-color, var(--card-bg-color));
+  color: var(--card-fg-color);
+}
+
+.tt-tab.active {
+  background: var(--card-fg-color);
+  color: var(--card-bg-color);
+  border-color: var(--card-fg-color);
+}
+
+/* ===== Toolbar ===== */
+.tt-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.tt-search {
+  flex: 1;
+  max-width: 280px;
+  padding: 6px 10px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 4px;
+  background: var(--card-bg-color);
+  color: var(--card-fg-color);
+  font-size: 12px;
+}
+
+.tt-count {
+  font-size: 12px;
+  color: var(--card-muted-fg-color);
+  margin-left: auto;
+}
+
+/* ===== Table ===== */
+.tt-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--card-border-color);
+  border-radius: 6px;
+}
+
+.tt-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.tt-table th {
+  background: var(--card-bg2-color, rgba(0, 0, 0, 0.04));
+  padding: 8px 10px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--card-muted-fg-color);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--card-border-color);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+.tt-table th:hover {
+  color: var(--card-fg-color);
+}
+
+.tt-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--card-border-color);
+  vertical-align: middle;
+  font-size: 12px;
+}
+
+.tt-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tt-table tbody tr:hover td {
+  background: var(--card-bg2-color, rgba(0, 0, 0, 0.02));
+}
+
+/* ===== Row drag handle ===== */
+.tt-drag-handle {
+  cursor: grab;
+  color: var(--card-muted-fg-color);
+  padding: 2px 4px;
+  border-radius: 2px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tt-drag-handle:hover {
+  background: var(--card-border-color);
+}
+
+.tt-row-dragging td {
+  opacity: 0.5;
+}
+
+/* ===== Inline cells ===== */
+.tt-name-link {
+  color: var(--card-fg-color);
+  font-weight: 600;
+  text-decoration: none;
+  display: block;
+}
+
+.tt-name-link:hover {
+  color: #a83c44;
+}
+
+.tt-name-slug {
+  font-size: 11px;
+  color: var(--card-muted-fg-color);
+  margin-top: 1px;
+}
+
+.tt-category-select {
+  padding: 3px 6px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 3px;
+  background: var(--card-bg-color);
+  color: var(--card-fg-color);
+  font-size: 11px;
+  max-width: 130px;
+  cursor: pointer;
+}
+
+.tt-category-select:focus {
+  outline: 1px solid #a83c44;
+}
+
+.tt-toggle {
+  width: 28px;
+  height: 16px;
+  appearance: none;
+  background: var(--card-border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s;
+  flex-shrink: 0;
+  display: block;
+}
+
+.tt-toggle::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: left 0.15s;
+}
+
+.tt-toggle:checked {
+  background: #2ea265;
+}
+
+.tt-toggle:checked::after {
+  left: 14px;
+}
+
+.tt-toggle-event:checked {
+  background: #a83c44;
+}
+
+.tt-toggle-sig:checked {
+  background: #2b2b2b;
+}
+
+.tt-price {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.tt-price-discount {
+  color: #a83c44;
+  font-weight: 600;
+}
+
+.tt-price-original {
+  color: var(--card-muted-fg-color);
+  text-decoration: line-through;
+  font-size: 11px;
+}
+
+.tt-badge-event {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(168, 60, 68, 0.12);
+  color: #a83c44;
+}
+
+.tt-badge-sig {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(43, 43, 43, 0.1);
+  color: var(--card-fg-color);
+}
+
+/* ===== Sortorder input ===== */
+.tt-order-input {
+  width: 48px;
+  padding: 3px 5px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 3px;
+  background: var(--card-bg-color);
+  color: var(--card-fg-color);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* ===== Edit button ===== */
+.tt-edit-btn {
+  padding: 4px 10px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--card-fg-color);
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.tt-edit-btn:hover {
+  background: var(--card-fg-color);
+  color: var(--card-bg-color);
+}
+
+/* ===== Empty / Loading ===== */
+.tt-loading,
+.tt-empty {
+  padding: 40px;
+  text-align: center;
+  color: var(--card-muted-fg-color);
+}
+
+/* ===== Sort icon ===== */
+.tt-sort-icon {
+  font-size: 10px;
+  margin-left: 2px;
+}

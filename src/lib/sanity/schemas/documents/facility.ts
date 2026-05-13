@@ -1,4 +1,5 @@
 import { defineType, defineField } from 'sanity';
+import { orderRankField } from '@sanity/orderable-document-list';
 
 export default defineType({
   name: 'facility',
@@ -8,6 +9,7 @@ export default defineType({
     select: { title: 'name.ko', media: 'image' },
   },
   fields: [
+    orderRankField({ type: 'facility' }),
     defineField({
       name: 'name',
       title: '시설명',

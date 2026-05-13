@@ -29,12 +29,13 @@ export default defineType({
       type: 'string',
       options: {
         list: [
+          { title: '시그니처', value: 'signature' },
           { title: '리프팅·레이저', value: 'lifting-laser' },
           { title: '쁘띠 & 실리프팅', value: 'petit-lifting' },
-          { title: '스킨케어', value: 'skincare' },
+          { title: '피부 관리', value: 'skincare' },
           { title: '스킨부스터', value: 'skin-booster' },
-          { title: '제모클리닉', value: 'hair-removal' },
-          { title: '마취클리닉', value: 'anesthesia' },
+          { title: '제모', value: 'hair-removal' },
+          { title: '마취크림', value: 'anesthesia' },
         ],
       },
       validation: (rule) => rule.required(),
@@ -95,6 +96,18 @@ export default defineType({
       title: '이벤트 진행 여부',
       type: 'boolean',
       initialValue: false,
+    }),
+    defineField({
+      name: 'eventStartDate',
+      title: '이벤트 시작일',
+      description: '이벤트 기간 시작일 (isEvent가 true일 때만 사용)',
+      type: 'date',
+    }),
+    defineField({
+      name: 'eventEndDate',
+      title: '이벤트 종료일',
+      description: '이벤트 기간 종료일',
+      type: 'date',
     }),
     defineField({
       name: 'isVisible',
