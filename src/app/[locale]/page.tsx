@@ -27,6 +27,7 @@ import {
   getBusinessHours,
 } from '@/lib/data/clinic';
 import { getSignaturePrograms } from '@/lib/data/signaturePrograms';
+import { getSectionVisibility } from '@/lib/data/visibility';
 
 export async function generateMetadata({
   params,
@@ -57,6 +58,8 @@ export default async function HomePage({
 }) {
   const { locale } = await params;
 
+  const visibility = await getSectionVisibility();
+
   const [
     hero,
     qeTreatment,
@@ -71,42 +74,56 @@ export default async function HomePage({
     contactConfig,
     businessHours,
   ] = await Promise.all([
-    getHeroContent(locale),
-    getQuickEntryCards('treatment', locale),
-    getQuickEntryCards('concern', locale),
-    getQuickEntryCards('situation', locale),
-    getSignaturePrograms(locale),
-    getEventTreatments(locale),
-    getHomeBACases(locale),
-    getStats(locale),
-    getDoctors(locale),
-    getClinicInfo(locale),
-    getContactSectionConfig(locale),
-    getBusinessHours(),
+    visibility.home.hero ? getHeroContent(locale) : null,
+    visibility.home.quickEntry ? getQuickEntryCards('treatment', locale) : null,
+    visibility.home.quickEntry ? getQuickEntryCards('concern', locale) : null,
+    visibility.home.quickEntry ? getQuickEntryCards('situation', locale) : null,
+    visibility.home.signature ? getSignaturePrograms(locale) : null,
+    visibility.home.promo ? getEventTreatments(locale) : null,
+    visibility.home.bnA ? getHomeBACases(locale) : null,
+    visibility.home.stats ? getStats(locale) : null,
+    visibility.home.doctors ? getDoctors(locale) : null,
+    visibility.home.location || visibility.home.contact
+      ? getClinicInfo(locale)
+      : null,
+    visibility.home.contact ? getContactSectionConfig(locale) : null,
+    visibility.home.contact ? getBusinessHours() : null,
   ]);
 
   const cardsByTab = {
-    treatment: qeTreatment,
-    concern: qeConcern,
-    situation: qeSituation,
+    treatment: qeTreatment ?? [],
+    concern: qeConcern ?? [],
+    situation: qeSituation ?? [],
   };
 
   return (
     <>
-      <HeroSection hero={hero} />
-      <QuickEntrySection cardsByTab={cardsByTab} />
-      <SignatureProgramSection locale={locale} programs={signaturePrograms} />
-      <PromoSection locale={locale} events={eventTreatments} />
-      <BAPreviewSection cases={baCases} />
-      <StatsStripSection stats={stats} />
-      <DoctorSection doctors={doctors} />
-      <LocationSection clinicInfo={clinicInfo} />
-      <Suspense fallback={<div className="h-[600px] bg-[#faf8f5]" />}>
-        <ContactFormSection
-          config={contactConfig}
-          businessHours={businessHours}
-        />
-      </Suspense>
+      {visibility.home.hero && hero && <HeroSection hero={hero} />}
+      {visibility.home.quickEntry && (
+        <QuickEntrySection cardsByTab={cardsByTab} />
+      )}
+      {visibility.home.signature && signaturePrograms && (
+        <SignatureProgramSection locale={locale} programs={signaturePrograms} />
+      )}
+      {visibility.home.promo && eventTreatments && (
+        <PromoSection locale={locale} events={eventTreatments} />
+      )}
+      {visibility.home.bnA && baCases && <BAPreviewSection cases={baCases} />}
+      {visibility.home.stats && stats && <StatsStripSection stats={stats} />}
+      {visibility.home.doctors && doctors && (
+        <DoctorSection doctors={doctors} />
+      )}
+      {visibility.home.location && clinicInfo && (
+        <LocationSection clinicInfo={clinicInfo} />
+      )}
+      {visibility.home.contact && contactConfig && businessHours && (
+        <Suspense fallback={<div className="h-[600px] bg-[#faf8f5]" />}>
+          <ContactFormSection
+            config={contactConfig}
+            businessHours={businessHours}
+          />
+        </Suspense>
+      )}
     </>
   );
 }

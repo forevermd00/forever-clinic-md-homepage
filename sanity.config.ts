@@ -18,6 +18,7 @@ import {
   ComponentIcon,
   StarIcon,
   ImageIcon,
+  ToggleArrowRightIcon,
 } from '@sanity/icons';
 import { schemaTypes } from './src/lib/sanity/schemas';
 import { consultationTool } from './sanity/plugins/consultation-tool';
@@ -27,6 +28,7 @@ const singletonTypes = new Set([
   'brandPhilosophy',
   'statsStrip',
   'pageHero',
+  'sectionVisibility',
 ]);
 
 const PAGE_HEROES = [
@@ -204,6 +206,19 @@ export default defineConfig({
                       .title('이벤트 팝업')
                       .icon(StarIcon),
                   ]),
+              ),
+
+            S.divider(),
+
+            // --- 섹션 노출 설정 (싱글톤) ---
+            S.listItem()
+              .id('sectionVisibility')
+              .title('섹션 노출 설정')
+              .icon(ToggleArrowRightIcon)
+              .child(
+                S.document()
+                  .schemaType('sectionVisibility')
+                  .documentId('sectionVisibility'),
               ),
           ]),
     }),

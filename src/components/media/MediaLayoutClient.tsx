@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { HeroBanner } from '@/components/common/HeroBanner';
 import { MediaSectionNav } from '@/components/media/MediaSectionNav';
+import type { SectionVisibility } from '@/lib/data/visibility';
 
 const fallbackKeys: Record<string, { titleKey: string; subtitleKey: string }> =
   {
@@ -19,11 +20,13 @@ interface MediaLayoutClientProps {
     string,
     { title?: string; subtitle?: string; imageSrc?: string }
   >;
+  mediaVisibility: SectionVisibility['media'];
   children: React.ReactNode;
 }
 
 export function MediaLayoutClient({
   heroData,
+  mediaVisibility,
   children,
 }: MediaLayoutClientProps) {
   const pathname = usePathname();
@@ -45,7 +48,7 @@ export function MediaLayoutClient({
         imageSrc={hero?.imageSrc}
         className={hero?.imageSrc ? '!h-[280px] !max-h-[280px]' : ''}
       />
-      <MediaSectionNav />
+      <MediaSectionNav mediaVisibility={mediaVisibility} />
       {children}
     </>
   );

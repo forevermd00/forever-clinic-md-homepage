@@ -1,6 +1,7 @@
 import { getPageHero } from '@/lib/data/hero';
 import { urlFor } from '@/lib/sanity/image';
 import { MediaLayoutClient } from '@/components/media/MediaLayoutClient';
+import { getSectionVisibility } from '@/lib/data/visibility';
 
 export default async function MediaLayout({
   children,
@@ -11,7 +12,8 @@ export default async function MediaLayout({
 }) {
   const { locale } = await params;
 
-  const [press, video, blog, notice] = await Promise.all([
+  const [visibility, press, video, blog, notice] = await Promise.all([
+    getSectionVisibility(),
     getPageHero('press', locale),
     getPageHero('video', locale),
     getPageHero('blog', locale),
@@ -52,5 +54,9 @@ export default async function MediaLayout({
     },
   };
 
-  return <MediaLayoutClient heroData={heroData}>{children}</MediaLayoutClient>;
+  return (
+    <MediaLayoutClient heroData={heroData} mediaVisibility={visibility.media}>
+      {children}
+    </MediaLayoutClient>
+  );
 }

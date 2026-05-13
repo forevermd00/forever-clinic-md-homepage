@@ -3,8 +3,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { FilterTabs } from '@/components/common/FilterTabs';
+import type { SectionVisibility } from '@/lib/data/visibility';
 
-const SECTION_IDS = [
+const ALL_SECTION_IDS = [
   'philosophy',
   'doctors',
   'facilities',
@@ -12,7 +13,9 @@ const SECTION_IDS = [
   'location',
 ] as const;
 
-const SECTION_KEYS: Record<string, string> = {
+type SectionId = (typeof ALL_SECTION_IDS)[number];
+
+const SECTION_KEYS: Record<SectionId, string> = {
   philosophy: 'sectionPhilosophy',
   doctors: 'sectionDoctors',
   facilities: 'sectionFacilities',
@@ -20,16 +23,28 @@ const SECTION_KEYS: Record<string, string> = {
   location: 'sectionLocation',
 };
 
-export function BrandSectionNav() {
-  const t = useTranslations('brand');
-  const [activeTab, setActiveTab] = useState('philosophy');
+interface BrandSectionNavProps {
+  brandVisibility: SectionVisibility['brand'];
+}
 
-  const tabs = SECTION_IDS.map((id) => ({
+export function BrandSectionNav({ brandVisibility }: BrandSectionNavProps) {
+  const t = useTranslations('brand');
+
+  const visibleSections = ALL_SECTION_IDS.filter(
+    (id) => brandVisibility[id] !== false,
+  );
+
+  const [activeTab, setActiveTab] = useState<SectionId>(
+    visibleSections[0] ?? 'philosophy',
+  );
+
+  const tabs = visibleSections.map((id) => ({
     id,
     label: t(SECTION_KEYS[id]),
   }));
 
   const handleTabChange = useCallback((id: string) => {
+    setActiveTab(id as SectionId);
     const el = document.getElementById(id);
     if (el) {
       const offset = 116; // header(64px) + tab bar(48px) + 4px breathing room
@@ -43,20 +58,23 @@ export function BrandSectionNav() {
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            setActiveTab(entry.target.id);
+            setActiveTab(entry.target.id as SectionId);
           }
         }
       },
       { rootMargin: '-130px 0px -60% 0px', threshold: 0 },
     );
 
-    for (const id of SECTION_IDS) {
+    for (const id of visibleSections) {
       const el = document.getElementById(id);
       if (el) observer.observe(el);
     }
 
     return () => observer.disconnect();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visibleSections.join(',')]);
+
+  if (tabs.length === 0) return null;
 
   return (
     <nav className="sticky top-16 z-20 border-b border-[#e8ded6] bg-white/92 backdrop-blur-sm">

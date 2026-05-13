@@ -1,9 +1,12 @@
 // TODO: i18n - apply getTranslations to page title, subtitle
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 import { VideoCard } from '@/components/media/VideoCard';
 import { Pagination } from '@/components/common/Pagination';
 import { getYoutubeVideos } from '@/lib/data/media';
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
+import { getSectionVisibility } from '@/lib/data/visibility';
+import { getFirstVisibleMediaTab } from '@/lib/data/mediaRedirect';
 
 export async function generateMetadata({
   params,
@@ -45,6 +48,12 @@ export default async function VideoPage({
   const { locale } = await params;
   const { page } = await searchParams;
   const currentPage = Number(page) || 1;
+
+  const visibility = await getSectionVisibility();
+  if (!visibility.media.video) {
+    const firstTab = getFirstVisibleMediaTab(visibility.media);
+    redirect(`/${locale}/media/${firstTab ?? 'press'}`);
+  }
 
   const videos = await getYoutubeVideos(locale);
 

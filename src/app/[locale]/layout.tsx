@@ -12,6 +12,7 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { getMedicalBusinessJsonLd } from '@/lib/seo/jsonld';
 import { sanityFetch } from '@/lib/sanity/fetch';
 import { clinicInfoQuery } from '@/lib/sanity/queries';
+import { getSectionVisibility } from '@/lib/data/visibility';
 import {
   getKeywords,
   siteNames,
@@ -57,11 +58,14 @@ export default async function LocaleLayout({
   }
 
   const messages = await getMessages();
-  const clinicInfo = await sanityFetch<{
-    address?: string;
-    phone?: string;
-    email?: string;
-  } | null>(clinicInfoQuery, { locale });
+  const [clinicInfo, visibility] = await Promise.all([
+    sanityFetch<{
+      address?: string;
+      phone?: string;
+      email?: string;
+    } | null>(clinicInfoQuery, { locale }),
+    getSectionVisibility(),
+  ]);
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -77,7 +81,7 @@ export default async function LocaleLayout({
         <JsonLd data={getMedicalBusinessJsonLd(locale)} />
         <SessionProvider>
           <NextIntlClientProvider messages={messages}>
-            <Header />
+            <Header navVisibility={visibility.nav} />
             <main>{children}</main>
             <Footer locale={locale} clinicInfo={clinicInfo ?? undefined} />
             <FloatingCTA />

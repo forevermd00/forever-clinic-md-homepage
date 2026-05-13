@@ -4,22 +4,35 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
+import type { SectionVisibility } from '@/lib/data/visibility';
 
-const MEDIA_TABS = [
+const ALL_MEDIA_TABS = [
   { key: 'press', path: 'press' },
   { key: 'video', path: 'video' },
   { key: 'blog', path: 'blog' },
   { key: 'notice', path: 'notice' },
 ] as const;
 
-export function MediaSectionNav() {
+type MediaTabKey = (typeof ALL_MEDIA_TABS)[number]['key'];
+
+interface MediaSectionNavProps {
+  mediaVisibility: SectionVisibility['media'];
+}
+
+export function MediaSectionNav({ mediaVisibility }: MediaSectionNavProps) {
   const pathname = usePathname();
   const t = useTranslations('media');
+
+  const visibleTabs = ALL_MEDIA_TABS.filter(
+    (tab) => mediaVisibility[tab.key as MediaTabKey] !== false,
+  );
+
+  if (visibleTabs.length === 0) return null;
 
   return (
     <nav className="sticky top-16 z-20 border-b border-[#e8ded6] bg-white/92 backdrop-blur-sm">
       <div className="mx-auto flex max-w-[var(--container-max)] justify-center gap-2 overflow-x-auto px-4 sm:gap-6 md:gap-8 md:px-6 lg:gap-10 lg:px-12">
-        {MEDIA_TABS.map((tab) => {
+        {visibleTabs.map((tab) => {
           const isActive = pathname.includes(`/media/${tab.path}`);
           return (
             <Link
