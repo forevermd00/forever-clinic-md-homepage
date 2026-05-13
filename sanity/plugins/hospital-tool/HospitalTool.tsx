@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useClient } from 'sanity';
+import type { SanityClient } from 'sanity';
 import { useRouter, useRouterState } from 'sanity/router';
 import { DoctorDetail } from './DoctorDetail';
 import { HeroDetail } from './HeroDetail';
+import { QuickCardDetail } from './QuickCardDetail';
 import { PAGE_HEROES } from '../../../sanity.config';
 import './hospital-tool.css';
 
@@ -31,12 +33,20 @@ interface ClinicInfoDoc {
   walkingGuide?: { ko?: string };
 }
 
+interface BrandValue {
+  _key: string;
+  title?: { ko?: string; en?: string; zh?: string; ja?: string };
+  description?: { ko?: string; en?: string; zh?: string; ja?: string };
+  image?: { asset?: { _ref: string } };
+}
+
 interface BrandDoc {
-  title?: { ko?: string; en?: string };
-  subtitle?: { ko?: string; en?: string };
-  slogan?: { ko?: string; en?: string };
-  content?: { ko?: string };
+  title?: { ko?: string; en?: string; zh?: string; ja?: string };
+  subtitle?: { ko?: string; en?: string; zh?: string; ja?: string };
+  slogan?: { ko?: string; en?: string; zh?: string; ja?: string };
+  content?: { ko?: string; en?: string; zh?: string; ja?: string };
   backgroundImage?: { asset?: { _ref: string } };
+  values?: BrandValue[];
 }
 
 interface StatsItem {
@@ -69,8 +79,10 @@ interface QuickTabDoc {
 interface QuickCardDoc {
   _id: string;
   title?: { ko?: string };
+  slug?: { current?: string };
   tab?: { label?: { ko?: string } };
   isVisible?: boolean;
+  sortOrder?: number;
 }
 
 interface SectionVisibilityDoc {
@@ -129,7 +141,8 @@ const CLINIC_INFO_QUERY = `*[_type == "clinicInfo" && _id == "forever-myeongdong
 
 const BRAND_QUERY = `*[_type == "brandPhilosophy" && _id == "forever-myeongdong-brand"][0] {
   title, subtitle, slogan, content,
-  backgroundImage { asset { _ref } }
+  backgroundImage { asset { _ref } },
+  values[] { _key, title, description, image { asset { _ref } } }
 }`;
 
 const STATS_QUERY = `*[_type == "statsStrip" && _id == "forever-myeongdong-stats"][0] {
@@ -145,7 +158,7 @@ const QTABS_QUERY = `*[_type == "quickEntryTab"] | order(sortOrder asc) {
 }`;
 
 const QCARDS_QUERY = `*[_type == "quickEntryCard"] | order(sortOrder asc) {
-  _id, title, "tab": tab->{ label }, isVisible
+  _id, title, slug, "tab": tab->{ label }, isVisible, sortOrder
 }`;
 
 const SV_QUERY = `*[_type == "sectionVisibility" && _id == "sectionVisibility"][0]`;
@@ -463,14 +476,39 @@ function HeroBannerPanel({ onEdit }: { onEdit: (heroKey: string) => void }) {
 
 type SiteSettingsTab = 'brand' | 'stats' | 'popups' | 'quickNav';
 
+const BRAND_LOCALE_LABELS: Record<string, string> = {
+  ko: '한국어',
+  en: 'English',
+  zh: '中文',
+  ja: '日本語',
+};
+
+async function uploadImageAsset(client: SanityClient, file: File) {
+  const asset = await client.assets.upload('image', file, {
+    filename: file.name,
+  });
+  return {
+    _type: 'image' as const,
+    asset: { _type: 'reference' as const, _ref: asset._id },
+  };
+}
+
 function BrandSection() {
   const client = useClient({ apiVersion: '2026-05-13' });
   const [doc, setDoc] = useState<BrandDoc | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [values, setValues] = useState<BrandValue[]>([]);
+  const initialized = useRef(false);
 
   useEffect(() => {
-    client.fetch<BrandDoc>(BRAND_QUERY).then((data) => setDoc(data ?? {}));
+    client.fetch<BrandDoc>(BRAND_QUERY).then((data) => {
+      setDoc(data ?? {});
+      if (!initialized.current) {
+        setValues(data?.values ?? []);
+        initialized.current = true;
+      }
+    });
   }, [client]);
 
   const patch = async (fields: Record<string, unknown>) => {
@@ -479,18 +517,21 @@ function BrandSection() {
     setSaving(false);
   };
 
+  const saveValues = async (newValues: BrandValue[]) => {
+    setSaving(true);
+    await client
+      .patch('forever-myeongdong-brand')
+      .set({ values: newValues })
+      .commit();
+    setSaving(false);
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
     try {
-      const asset = await client.assets.upload('image', file, {
-        filename: file.name,
-      });
-      const imageRef = {
-        _type: 'image' as const,
-        asset: { _type: 'reference' as const, _ref: asset._id },
-      };
+      const imageRef = await uploadImageAsset(client, file);
       await client
         .patch('forever-myeongdong-brand')
         .set({ backgroundImage: imageRef })
@@ -501,22 +542,84 @@ function BrandSection() {
     }
   };
 
+  const handleValueImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    idx: number,
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const imageRef = await uploadImageAsset(client, file);
+    setValues((prev) => {
+      const updated = prev.map((v, i) =>
+        i === idx ? { ...v, image: imageRef } : v,
+      );
+      saveValues(updated);
+      return updated;
+    });
+  };
+
+  const addValue = () => {
+    setValues((prev) => {
+      const updated = [...prev, { _key: newKey(), title: {}, description: {} }];
+      saveValues(updated);
+      return updated;
+    });
+  };
+
+  const removeValue = (idx: number) => {
+    setValues((prev) => {
+      const updated = prev.filter((_, i) => i !== idx);
+      saveValues(updated);
+      return updated;
+    });
+  };
+
+  const updateValueLocale = (
+    idx: number,
+    field: 'title' | 'description',
+    locale: string,
+    val: string,
+  ) => {
+    setValues((prev) =>
+      prev.map((v, i) =>
+        i === idx ? { ...v, [field]: { ...v[field], [locale]: val } } : v,
+      ),
+    );
+  };
+
+  const saveValueBlur = (
+    idx: number,
+    field: 'title' | 'description',
+    locale: string,
+    val: string,
+  ) => {
+    setValues((prev) => {
+      const updated = prev.map((v, i) =>
+        i === idx ? { ...v, [field]: { ...v[field], [locale]: val } } : v,
+      );
+      saveValues(updated);
+      return updated;
+    });
+  };
+
   if (!doc) return <div className="ht-loading">불러오는 중...</div>;
 
   const imageRef = doc.backgroundImage?.asset?._ref;
 
   return (
     <div className="ht-subsection">
-      <div className="ht-subsection-title">브랜드 철학</div>
-      {saving && <span className="ht-saving-indicator">저장 중…</span>}
+      <div className="ht-subsection-title">
+        브랜드 철학
+        {saving && <span className="ht-saving-indicator">저장 중…</span>}
+      </div>
       <div className="ht-detail-section" style={{ marginTop: 12 }}>
         <div className="ht-detail-section-title">제목</div>
         <div className="ht-detail-body">
-          <div className="ht-detail-grid2">
-            {(['ko', 'en'] as const).map((key) => (
+          <div className="ht-detail-grid4">
+            {(['ko', 'en', 'zh', 'ja'] as const).map((key) => (
               <div key={key} className="ht-detail-field">
                 <label className="ht-detail-label">
-                  {key === 'ko' ? '한국어' : 'English'}
+                  {BRAND_LOCALE_LABELS[key]}
                 </label>
                 <input
                   type="text"
@@ -532,11 +635,11 @@ function BrandSection() {
       <div className="ht-detail-section">
         <div className="ht-detail-section-title">부제목</div>
         <div className="ht-detail-body">
-          <div className="ht-detail-grid2">
-            {(['ko', 'en'] as const).map((key) => (
+          <div className="ht-detail-grid4">
+            {(['ko', 'en', 'zh', 'ja'] as const).map((key) => (
               <div key={key} className="ht-detail-field">
                 <label className="ht-detail-label">
-                  {key === 'ko' ? '한국어' : 'English'}
+                  {BRAND_LOCALE_LABELS[key]}
                 </label>
                 <input
                   type="text"
@@ -552,11 +655,11 @@ function BrandSection() {
       <div className="ht-detail-section">
         <div className="ht-detail-section-title">슬로건</div>
         <div className="ht-detail-body">
-          <div className="ht-detail-grid2">
-            {(['ko', 'en'] as const).map((key) => (
+          <div className="ht-detail-grid4">
+            {(['ko', 'en', 'zh', 'ja'] as const).map((key) => (
               <div key={key} className="ht-detail-field">
                 <label className="ht-detail-label">
-                  {key === 'ko' ? '한국어' : 'English'}
+                  {BRAND_LOCALE_LABELS[key]}
                 </label>
                 <input
                   type="text"
@@ -570,14 +673,23 @@ function BrandSection() {
         </div>
       </div>
       <div className="ht-detail-section">
-        <div className="ht-detail-section-title">본문 (한국어)</div>
+        <div className="ht-detail-section-title">본문</div>
         <div className="ht-detail-body">
-          <textarea
-            className="ht-text-input ht-textarea"
-            rows={5}
-            defaultValue={doc.content?.ko ?? ''}
-            onBlur={(e) => patch({ 'content.ko': e.target.value })}
-          />
+          <div className="ht-detail-grid4">
+            {(['ko', 'en', 'zh', 'ja'] as const).map((key) => (
+              <div key={key} className="ht-detail-field">
+                <label className="ht-detail-label">
+                  {BRAND_LOCALE_LABELS[key]}
+                </label>
+                <textarea
+                  className="ht-text-input ht-textarea"
+                  rows={5}
+                  defaultValue={doc.content?.[key] ?? ''}
+                  onBlur={(e) => patch({ [`content.${key}`]: e.target.value })}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
       <div className="ht-detail-section">
@@ -599,6 +711,129 @@ function BrandSection() {
               onChange={handleImageUpload}
             />
           </label>
+        </div>
+      </div>
+
+      {/* ─── 브랜드 가치 목록 ─── */}
+      <div className="ht-detail-section">
+        <div className="ht-detail-section-title">브랜드 가치 목록</div>
+        <div className="ht-detail-body">
+          <div className="ht-array-editor">
+            {values.map((val, idx) => {
+              const valImageRef = val.image?.asset?._ref;
+              return (
+                <div key={val._key} className="ht-array-item">
+                  <div className="ht-array-item-header">
+                    <span className="ht-array-num">{idx + 1}</span>
+                    <button
+                      className="ht-remove-btn"
+                      onClick={() => removeValue(idx)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div
+                    className="ht-detail-section"
+                    style={{ marginBottom: 10 }}
+                  >
+                    <div className="ht-detail-section-title">제목</div>
+                    <div className="ht-detail-body">
+                      <div className="ht-detail-grid4">
+                        {(['ko', 'en', 'zh', 'ja'] as const).map((locale) => (
+                          <div key={locale} className="ht-detail-field">
+                            <label className="ht-detail-label">
+                              {BRAND_LOCALE_LABELS[locale]}
+                            </label>
+                            <input
+                              type="text"
+                              className="ht-text-input"
+                              value={val.title?.[locale] ?? ''}
+                              onChange={(e) =>
+                                updateValueLocale(
+                                  idx,
+                                  'title',
+                                  locale,
+                                  e.target.value,
+                                )
+                              }
+                              onBlur={(e) =>
+                                saveValueBlur(
+                                  idx,
+                                  'title',
+                                  locale,
+                                  e.target.value,
+                                )
+                              }
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    className="ht-detail-section"
+                    style={{ marginBottom: 10 }}
+                  >
+                    <div className="ht-detail-section-title">설명</div>
+                    <div className="ht-detail-body">
+                      <div className="ht-detail-grid4">
+                        {(['ko', 'en', 'zh', 'ja'] as const).map((locale) => (
+                          <div key={locale} className="ht-detail-field">
+                            <label className="ht-detail-label">
+                              {BRAND_LOCALE_LABELS[locale]}
+                            </label>
+                            <textarea
+                              className="ht-text-input ht-textarea"
+                              rows={3}
+                              value={val.description?.[locale] ?? ''}
+                              onChange={(e) =>
+                                updateValueLocale(
+                                  idx,
+                                  'description',
+                                  locale,
+                                  e.target.value,
+                                )
+                              }
+                              onBlur={(e) =>
+                                saveValueBlur(
+                                  idx,
+                                  'description',
+                                  locale,
+                                  e.target.value,
+                                )
+                              }
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="ht-detail-field">
+                    <label className="ht-detail-label">이미지</label>
+                    {valImageRef && (
+                      <img
+                        src={sanityImageUrl('ecoamz42', 'develop', valImageRef)}
+                        alt="value"
+                        className="ht-thumb-preview"
+                      />
+                    )}
+                    <label className="ht-upload-btn">
+                      이미지 선택
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        onChange={(e) => handleValueImageUpload(e, idx)}
+                      />
+                    </label>
+                  </div>
+                </div>
+              );
+            })}
+            <button className="ht-add-btn" onClick={addValue}>
+              + 가치 항목 추가
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -882,7 +1117,7 @@ function PopupsSection() {
   );
 }
 
-function QuickNavSection() {
+function QuickNavSection({ onEditCard }: { onEditCard: (id: string) => void }) {
   const client = useClient({ apiVersion: '2026-05-13' });
   const [tabs, setTabs] = useState<QuickTabDoc[]>([]);
   const [cards, setCards] = useState<QuickCardDoc[]>([]);
@@ -911,6 +1146,11 @@ function QuickNavSection() {
     setCards((prev) =>
       prev.map((c) => (c._id === id ? { ...c, isVisible: val } : c)),
     );
+  };
+
+  const handleAddCard = async () => {
+    const newDoc = await client.create({ _type: 'quickEntryCard' });
+    onEditCard(newDoc._id);
   };
 
   if (loading) return <div className="ht-loading">불러오는 중...</div>;
@@ -960,20 +1200,45 @@ function QuickNavSection() {
       <div className="ht-detail-section" style={{ marginTop: 16 }}>
         <div className="ht-detail-section-title">카드 목록</div>
         <div className="ht-detail-body">
+          <div className="ht-toolbar" style={{ marginBottom: 10 }}>
+            <button className="ht-add-btn" onClick={handleAddCard}>
+              + 카드 추가
+            </button>
+          </div>
           <table className="ht-table">
+            <colgroup>
+              <col style={{ width: '44px' }} />
+              <col />
+              <col style={{ width: '140px' }} />
+              <col style={{ width: '120px' }} />
+              <col style={{ width: '70px' }} />
+            </colgroup>
             <thead>
               <tr>
+                <th>No.</th>
                 <th>제목 (ko)</th>
+                <th>slug</th>
                 <th>탭</th>
                 <th style={{ textAlign: 'center' }}>노출</th>
               </tr>
             </thead>
             <tbody>
-              {cards.map((card) => (
-                <tr key={card._id}>
-                  <td>{card.title?.ko || '—'}</td>
+              {cards.map((card, idx) => (
+                <tr
+                  key={card._id}
+                  className="ht-row-clickable"
+                  onClick={() => onEditCard(card._id)}
+                >
+                  <td className="ht-row-num">{idx + 1}</td>
+                  <td>
+                    <span className="ht-row-name">{card.title?.ko || '—'}</span>
+                  </td>
+                  <td className="ht-row-meta">{card.slug?.current || '—'}</td>
                   <td className="ht-row-meta">{card.tab?.label?.ko || '—'}</td>
-                  <td style={{ textAlign: 'center' }}>
+                  <td
+                    style={{ textAlign: 'center' }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <input
                       type="checkbox"
                       className="tt-toggle"
@@ -985,7 +1250,7 @@ function QuickNavSection() {
               ))}
               {cards.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="ht-empty">
+                  <td colSpan={5} className="ht-empty">
                     카드가 없습니다
                   </td>
                 </tr>
@@ -998,7 +1263,11 @@ function QuickNavSection() {
   );
 }
 
-function SiteSettingsPanel() {
+function SiteSettingsPanel({
+  onEditCard,
+}: {
+  onEditCard: (id: string) => void;
+}) {
   const [activeTab, setActiveTab] = useState<SiteSettingsTab>('brand');
 
   const tabs: { key: SiteSettingsTab; label: string }[] = [
@@ -1025,7 +1294,7 @@ function SiteSettingsPanel() {
       {activeTab === 'brand' && <BrandSection />}
       {activeTab === 'stats' && <StatsSection />}
       {activeTab === 'popups' && <PopupsSection />}
-      {activeTab === 'quickNav' && <QuickNavSection />}
+      {activeTab === 'quickNav' && <QuickNavSection onEditCard={onEditCard} />}
     </div>
   );
 }
@@ -1275,9 +1544,11 @@ export function HospitalTool() {
   const routerState = useRouterState() as {
     selectedId?: string;
     heroKey?: string;
+    qcardId?: string;
   } | null;
   const selectedId = routerState?.selectedId;
   const heroKey = routerState?.heroKey;
+  const qcardId = routerState?.qcardId;
 
   const [activeTab, setActiveTab] = useState<MainTab>('doctors');
 
@@ -1287,6 +1558,10 @@ export function HospitalTool() {
 
   if (heroKey) {
     return <HeroDetail heroKey={heroKey} onBack={() => router.navigate({})} />;
+  }
+
+  if (qcardId) {
+    return <QuickCardDetail id={qcardId} onBack={() => router.navigate({})} />;
   }
 
   return (
@@ -1310,7 +1585,11 @@ export function HospitalTool() {
       {activeTab === 'hero' && (
         <HeroBannerPanel onEdit={(key) => router.navigate({ heroKey: key })} />
       )}
-      {activeTab === 'siteSettings' && <SiteSettingsPanel />}
+      {activeTab === 'siteSettings' && (
+        <SiteSettingsPanel
+          onEditCard={(id) => router.navigate({ qcardId: id })}
+        />
+      )}
       {activeTab === 'sections' && <SectionsPanel />}
     </div>
   );

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useClient } from 'sanity';
+import type { SanityClient } from 'sanity';
 import type { BnaFullDoc } from './types';
 
 const FULL_QUERY = `
@@ -10,9 +11,33 @@ const FULL_QUERY = `
     sessions,
     "elapsed": elapsed,
     "description": description,
+    beforeImage { asset { _ref } },
+    afterImage { asset { _ref } },
     showOnMain, isVisible, sortOrder
   }
 `;
+
+const LOCALE_LABELS: Record<string, string> = {
+  ko: '한국어',
+  en: 'English',
+  zh: '中文',
+  ja: '日本語',
+};
+
+function sanityImageUrl(ref: string): string {
+  const id = ref.replace('image-', '').replace(/-(\w+)$/, '.$1');
+  return `https://cdn.sanity.io/images/ecoamz42/develop/${id}`;
+}
+
+async function uploadImage(client: SanityClient, file: File) {
+  const asset = await client.assets.upload('image', file, {
+    filename: file.name,
+  });
+  return {
+    _type: 'image' as const,
+    asset: { _type: 'reference' as const, _ref: asset._id },
+  };
+}
 
 function Section({
   title,
@@ -48,6 +73,8 @@ export function BnaDetail({ id, onBack }: { id: string; onBack: () => void }) {
   const client = useClient({ apiVersion: '2026-05-13' });
   const [doc, setDoc] = useState<BnaFullDoc | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploadingBefore, setUploadingBefore] = useState(false);
+  const [uploadingAfter, setUploadingAfter] = useState(false);
   const saved = useRef(false);
 
   useEffect(() => {
@@ -94,6 +121,32 @@ export function BnaDetail({ id, onBack }: { id: string; onBack: () => void }) {
     setDoc((prev) => (prev ? { ...prev, [field]: value } : prev));
   };
 
+  const handleBeforeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingBefore(true);
+    try {
+      const imageRef = await uploadImage(client, file);
+      await client.patch(id).set({ beforeImage: imageRef }).commit();
+      setDoc((prev) => (prev ? { ...prev, beforeImage: imageRef } : prev));
+    } finally {
+      setUploadingBefore(false);
+    }
+  };
+
+  const handleAfterUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingAfter(true);
+    try {
+      const imageRef = await uploadImage(client, file);
+      await client.patch(id).set({ afterImage: imageRef }).commit();
+      setDoc((prev) => (prev ? { ...prev, afterImage: imageRef } : prev));
+    } finally {
+      setUploadingAfter(false);
+    }
+  };
+
   if (!doc) {
     return (
       <div className="bn-container">
@@ -104,6 +157,9 @@ export function BnaDetail({ id, onBack }: { id: string; onBack: () => void }) {
       </div>
     );
   }
+
+  const beforeRef = doc.beforeImage?.asset?._ref;
+  const afterRef = doc.afterImage?.asset?._ref;
 
   return (
     <div className="bn-container bn-detail-container">
@@ -165,7 +221,7 @@ export function BnaDetail({ id, onBack }: { id: string; onBack: () => void }) {
 
       {/* ─── 시술 정보 ─── */}
       <Section title="시술 정보">
-        <div className="bn-detail-row">
+        <div className="bn-detail-row" style={{ marginBottom: 14 }}>
           <Field label="시술 횟수">
             <input
               type="number"
@@ -183,37 +239,81 @@ export function BnaDetail({ id, onBack }: { id: string; onBack: () => void }) {
               }}
             />
           </Field>
-          <Field label="경과 기간 (한국어)">
-            <input
-              type="text"
-              className="bn-text-input"
-              defaultValue={doc.elapsed?.ko ?? ''}
-              placeholder="예: 3회 시술 후 1개월"
-              onBlur={(e) => patch({ 'elapsed.ko': e.target.value })}
-            />
-          </Field>
+        </div>
+        <div className="bn-detail-grid4">
+          {(['ko', 'en', 'zh', 'ja'] as const).map((locale) => (
+            <Field key={locale} label={`경과 기간 (${LOCALE_LABELS[locale]})`}>
+              <input
+                type="text"
+                className="bn-text-input"
+                defaultValue={doc.elapsed?.[locale] ?? ''}
+                placeholder={locale === 'ko' ? '예: 3회 시술 후 1개월' : ''}
+                onBlur={(e) => patch({ [`elapsed.${locale}`]: e.target.value })}
+              />
+            </Field>
+          ))}
         </div>
       </Section>
 
       {/* ─── 설명 ─── */}
       <Section title="설명">
+        <div className="bn-detail-grid4">
+          {(['ko', 'en', 'zh', 'ja'] as const).map((locale) => (
+            <Field key={locale} label={LOCALE_LABELS[locale]}>
+              <textarea
+                className="bn-textarea"
+                defaultValue={doc.description?.[locale] ?? ''}
+                rows={4}
+                onBlur={(e) =>
+                  patch({ [`description.${locale}`]: e.target.value })
+                }
+              />
+            </Field>
+          ))}
+        </div>
+      </Section>
+
+      {/* ─── 이미지 ─── */}
+      <Section title="이미지">
         <div className="bn-detail-grid2">
-          <Field label="한국어">
-            <textarea
-              className="bn-textarea"
-              defaultValue={doc.description?.ko ?? ''}
-              rows={4}
-              onBlur={(e) => patch({ 'description.ko': e.target.value })}
-            />
-          </Field>
-          <Field label="English">
-            <textarea
-              className="bn-textarea"
-              defaultValue={doc.description?.en ?? ''}
-              rows={4}
-              onBlur={(e) => patch({ 'description.en': e.target.value })}
-            />
-          </Field>
+          <div className="bn-detail-field">
+            <label className="bn-detail-label">Before 이미지</label>
+            {beforeRef && (
+              <img
+                src={sanityImageUrl(beforeRef)}
+                alt="before"
+                className="bn-thumb-preview"
+              />
+            )}
+            <label className="bn-upload-btn">
+              {uploadingBefore ? '업로드 중…' : '이미지 선택'}
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={handleBeforeUpload}
+              />
+            </label>
+          </div>
+          <div className="bn-detail-field">
+            <label className="bn-detail-label">After 이미지</label>
+            {afterRef && (
+              <img
+                src={sanityImageUrl(afterRef)}
+                alt="after"
+                className="bn-thumb-preview"
+              />
+            )}
+            <label className="bn-upload-btn">
+              {uploadingAfter ? '업로드 중…' : '이미지 선택'}
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={handleAfterUpload}
+              />
+            </label>
+          </div>
         </div>
       </Section>
     </div>

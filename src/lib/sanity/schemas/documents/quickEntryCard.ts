@@ -38,9 +38,18 @@ export default defineType({
       type: 'image',
     }),
     defineField({
+      name: 'slug',
+      title: 'Slug (카드 식별자)',
+      description: '영문 소문자·숫자·하이픈. URL에서 ?cat=slug 로 사용됩니다.',
+      type: 'slug',
+      options: { source: 'title.en', maxLength: 64 },
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: 'linkUrl',
       title: '링크 URL',
-      description: '카드 클릭 시 이동할 경로 (예: /treatments/lifting)',
+      description:
+        '카드 클릭 시 이동할 경로 (예: /treatments/lifting). 비워두면 slug로 자동 생성됩니다.',
       type: 'string',
     }),
     defineField({
