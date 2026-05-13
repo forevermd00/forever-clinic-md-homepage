@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
 import { getBADetail } from '@/lib/data/ba';
@@ -21,21 +22,21 @@ export default async function BADetailPage({
   const tc = await getTranslations('common');
 
   const cmsDetail = await getBADetail(id, locale);
-  const detail = cmsDetail
-    ? {
-        id: cmsDetail._id,
-        treatmentName: cmsDetail.treatment?.name ?? DUMMY_DETAIL.treatmentName,
-        sessionCount: cmsDetail.sessions
-          ? parseInt(cmsDetail.sessions, 10) || DUMMY_DETAIL.sessionCount
-          : DUMMY_DETAIL.sessionCount,
-        totalSessions: DUMMY_DETAIL.totalSessions,
-        description: cmsDetail.description,
-        beforeImage: cmsDetail.beforeImage,
-        afterImage: cmsDetail.afterImage,
-        prevId: cmsDetail.prevCase?._id,
-        nextId: cmsDetail.nextCase?._id,
-      }
-    : { ...DUMMY_DETAIL, id };
+  if (!cmsDetail) notFound();
+
+  const detail = {
+    id: cmsDetail._id,
+    treatmentName: cmsDetail.treatment?.name ?? DUMMY_DETAIL.treatmentName,
+    sessionCount: cmsDetail.sessions
+      ? parseInt(cmsDetail.sessions, 10) || DUMMY_DETAIL.sessionCount
+      : DUMMY_DETAIL.sessionCount,
+    totalSessions: DUMMY_DETAIL.totalSessions,
+    description: cmsDetail.description,
+    beforeImage: cmsDetail.beforeImage,
+    afterImage: cmsDetail.afterImage,
+    prevId: cmsDetail.prevCase?._id,
+    nextId: cmsDetail.nextCase?._id,
+  };
 
   return (
     <>
