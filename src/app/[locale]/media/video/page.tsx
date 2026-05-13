@@ -1,6 +1,6 @@
-// TODO: i18n - apply getTranslations to page title, subtitle
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { VideoCard } from '@/components/media/VideoCard';
 import { Pagination } from '@/components/common/Pagination';
 import { getYoutubeVideos } from '@/lib/data/media';
@@ -14,18 +14,9 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const title =
-    locale === 'ko'
-      ? '영상 콘텐츠'
-      : locale === 'en'
-        ? 'Videos'
-        : locale === 'zh'
-          ? '视频内容'
-          : '動画コンテンツ';
-  const description =
-    locale === 'ko'
-      ? '포에버 클리닉 명동 시술 과정과 후기 영상.'
-      : 'Treatment process and review videos from Forever Clinic Myeongdong.';
+  const t = await getTranslations({ locale, namespace: 'media' });
+  const title = t('video');
+  const description = t('videoDescription');
   return {
     title,
     description,
@@ -73,9 +64,11 @@ export default async function VideoPage({
           {videos.map((video) => (
             <VideoCard
               key={video.slug}
-              href={`/${locale}/media/video/${video.slug}`}
+              href={`https://www.youtube.com/watch?v=${video.slug}`}
               title={video.title}
               views={video.views}
+              target="_blank"
+              rel="noopener noreferrer"
             />
           ))}
         </div>

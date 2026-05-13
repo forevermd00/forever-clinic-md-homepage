@@ -1,6 +1,6 @@
-// TODO: i18n - apply getTranslations to page title, subtitle
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { ContentCard } from '@/components/media/ContentCard';
 import { Pagination } from '@/components/common/Pagination';
 import { getPressArticles } from '@/lib/data/media';
@@ -14,18 +14,9 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const title =
-    locale === 'ko'
-      ? '보도자료'
-      : locale === 'en'
-        ? 'Press'
-        : locale === 'zh'
-          ? '新闻报道'
-          : 'プレス';
-  const description =
-    locale === 'ko'
-      ? '포에버 클리닉 명동 보도자료 및 미디어 소식.'
-      : 'Press releases and media news from Forever Clinic Myeongdong.';
+  const t = await getTranslations({ locale, namespace: 'media' });
+  const title = t('press');
+  const description = t('pressDescription');
   return {
     title,
     description,

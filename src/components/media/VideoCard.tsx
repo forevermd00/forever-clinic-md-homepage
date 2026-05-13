@@ -5,11 +5,25 @@ interface VideoCardProps {
   thumbnailUrl?: string;
   title: string;
   views: string;
+  target?: string;
+  rel?: string;
 }
 
-function VideoCard({ href, thumbnailUrl, title, views }: VideoCardProps) {
+function VideoCard({
+  href,
+  thumbnailUrl,
+  title,
+  views,
+  target,
+  rel,
+}: VideoCardProps) {
   return (
-    <Link href={href} className="group block w-[300px]">
+    <Link
+      href={href}
+      target={target}
+      rel={rel}
+      className="group block w-[300px]"
+    >
       <article className="overflow-hidden rounded-[8px] bg-white shadow-[0px_2px_2px_rgba(43,43,43,0.08)]">
         {/* Thumbnail with play button */}
         <div className="bg-forever-ivory relative h-[220px] w-full overflow-hidden">

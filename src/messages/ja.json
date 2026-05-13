@@ -209,7 +209,11 @@
     "blog": "ブログ",
     "blogSubtitle": "皮膚科専門医がお届けするスキンケア情報",
     "notice": "お知らせ",
-    "noticeSubtitle": "Forever Clinicからのお知らせ"
+    "noticeSubtitle": "Forever Clinicからのお知らせ",
+    "pressDescription": "フォーエバークリニック明洞のプレスリリースとメディア情報。",
+    "blogDescription": "フォーエバークリニック明洞のスキンケアと施術情報ブログ。",
+    "noticeDescription": "フォーエバークリニック明洞からのお知らせ。",
+    "videoDescription": "フォーエバークリニック明洞の施術過程とレビュー動画。"
   },
   "noticeTable": {
     "number": "番号",

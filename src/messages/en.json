@@ -209,7 +209,11 @@
     "blog": "Blog",
     "blogSubtitle": "Skincare insights from our dermatology specialists",
     "notice": "Announcements",
-    "noticeSubtitle": "Stay updated with Forever Clinic news"
+    "noticeSubtitle": "Stay updated with Forever Clinic news",
+    "pressDescription": "Press releases and media news from Forever Clinic Myeongdong.",
+    "blogDescription": "Skin care tips and treatment information blog from Forever Clinic Myeongdong.",
+    "noticeDescription": "Notices from Forever Clinic Myeongdong.",
+    "videoDescription": "Treatment process and review videos from Forever Clinic Myeongdong."
   },
   "noticeTable": {
     "number": "No.",

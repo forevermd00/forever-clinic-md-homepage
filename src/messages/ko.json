@@ -209,7 +209,11 @@
     "blog": "블로그",
     "blogSubtitle": "피부과 전문의가 전하는 피부 관리 정보",
     "notice": "공지사항",
-    "noticeSubtitle": "포에버 클리닉의 소식을 전해드립니다"
+    "noticeSubtitle": "포에버 클리닉의 소식을 전해드립니다",
+    "pressDescription": "포에버 클리닉 명동 보도자료 및 미디어 소식.",
+    "blogDescription": "포에버 클리닉 명동 피부 관리 팁과 시술 정보 블로그.",
+    "noticeDescription": "포에버 클리닉 명동 공지사항.",
+    "videoDescription": "포에버 클리닉 명동 시술 과정과 후기 영상."
   },
   "noticeTable": {
     "number": "번호",

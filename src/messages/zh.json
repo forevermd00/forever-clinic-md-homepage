@@ -209,7 +209,11 @@
     "blog": "博客",
     "blogSubtitle": "皮肤科专家为您分享护肤知识",
     "notice": "通知公告",
-    "noticeSubtitle": "了解 Forever Clinic 的最新动态"
+    "noticeSubtitle": "了解 Forever Clinic 的最新动态",
+    "pressDescription": "永恒诊所明洞的媒体报道与最新消息。",
+    "blogDescription": "永恒诊所明洞的护肤小贴士与施术信息博客。",
+    "noticeDescription": "永恒诊所明洞的通知公告。",
+    "videoDescription": "永恒诊所明洞的施术过程与评价视频。"
   },
   "noticeTable": {
     "number": "序号",
