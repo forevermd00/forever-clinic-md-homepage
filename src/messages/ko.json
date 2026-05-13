@@ -301,6 +301,12 @@
     "treatmentOptionalNote": "관심시술로 선택하지 않고, 문의 내용에 적어주셔도 됩니다",
     "submitSuccess": "문의가 성공적으로 접수되었습니다. 빠른 시일 내에 연락드리겠습니다.",
     "submitting": "접수 중...",
+    "privacyTitle": "개인정보 수집 및 이용 동의 (필수)",
+    "privacyBody": "수집 항목: 성명, 연락처\n수집 목적: 상담 신청 접수 및 예약 안내 연락\n보유 기간: 상담 종료 후 1년\n※ 동의를 거부하실 수 있으나, 거부 시 상담 서비스 이용이 제한됩니다.",
+    "privacyAgree": "위 개인정보 수집 및 이용에 동의합니다.",
+    "privacyMore": "자세히 보기",
+    "privacyLess": "접기",
+    "privacyError": "개인정보 수집 및 이용에 동의해 주세요.",
     "signatureLabel": "SIGNATURE PROGRAM",
     "signatureTitle": "시그니처 프로그램",
     "signatureCtaAll": "전체 프로그램 상담 신청"

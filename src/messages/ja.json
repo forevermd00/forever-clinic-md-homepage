@@ -301,6 +301,12 @@
     "treatmentOptionalNote": "関心のある施術を選択せずに、お問い合わせ内容にご記入いただいても構いません",
     "submitSuccess": "お問い合わせが正常に送信されました。早急にご連絡いたします。",
     "submitting": "送信中...",
+    "privacyTitle": "個人情報の収集・利用への同意 (必須)",
+    "privacyBody": "収集項目：氏名、連絡先\n収集目的：相談申込の受付および予約案内連絡\n保管期間：相談終了後1年間\n※ 同意を拒否することができますが、拒否した場合、相談サービスの利用が制限される場合があります。",
+    "privacyAgree": "個人情報の収集・利用に同意します。",
+    "privacyMore": "詳細を見る",
+    "privacyLess": "閉じる",
+    "privacyError": "個人情報の収集・利用への同意をお願いします。",
     "signatureLabel": "SIGNATURE PROGRAM",
     "signatureTitle": "シグニチャープログラム",
     "signatureCtaAll": "全プログラムのカウンセリングを申し込む"

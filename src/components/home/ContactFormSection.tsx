@@ -91,6 +91,9 @@ export function ContactFormSection({ config, businessHours }: Props) {
   const [checkedIds, setCheckedIds] = useState<Set<string> | null>(null);
   const [preferredDate, setPreferredDate] = useState('');
   const [preferredTime, setPreferredTime] = useState('');
+  const [privacyConsent, setPrivacyConsent] = useState(false);
+  const [showPrivacyDetail, setShowPrivacyDetail] = useState(false);
+  const [privacyError, setPrivacyError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -106,6 +109,10 @@ export function ContactFormSection({ config, businessHours }: Props) {
 
   const handleSubmit = async () => {
     if (isSubmitting || !name || !phoneDigits) return;
+    if (!privacyConsent) {
+      setPrivacyError(true);
+      return;
+    }
     setIsSubmitting(true);
     try {
       const selectedTreatments = activeCartItems
@@ -140,6 +147,8 @@ export function ContactFormSection({ config, businessHours }: Props) {
         setCheckedIds(null);
         setPreferredDate('');
         setPreferredTime('');
+        setPrivacyConsent(false);
+        setPrivacyError(false);
       }
     } catch {
       // silent fail
@@ -460,6 +469,85 @@ export function ContactFormSection({ config, businessHours }: Props) {
               <p className="text-center text-[11px] text-[#999]">
                 {t('formOptionalNote')}
               </p>
+
+              {/* 개인정보 수집 및 이용 동의 */}
+              <div className="flex flex-col gap-2">
+                <div className="overflow-hidden rounded-[6px] border border-[#efe5d9] bg-white">
+                  <div className="flex items-center justify-between px-4 py-3">
+                    <span className="text-[13px] font-medium text-[#2b2b2b]">
+                      {t('privacyTitle')}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowPrivacyDetail((v) => !v)}
+                      className="text-[11px] text-[#999] hover:text-[#2b2b2b]"
+                    >
+                      {showPrivacyDetail ? t('privacyLess') : t('privacyMore')}
+                    </button>
+                  </div>
+                  {showPrivacyDetail && (
+                    <div className="border-t border-[#f0ebe4] bg-[#faf8f5] px-4 py-3">
+                      <p className="text-[12px] leading-[1.7] whitespace-pre-line text-[#666]">
+                        {t('privacyBody')}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <label className="flex cursor-pointer items-center gap-2.5">
+                  <span
+                    className={cn(
+                      'flex size-[18px] shrink-0 items-center justify-center rounded-[3px] border transition-colors',
+                      privacyConsent
+                        ? 'border-transparent'
+                        : privacyError
+                          ? 'border-[#a83c44] bg-white'
+                          : 'border-[#d5cabe] bg-white',
+                    )}
+                    style={
+                      privacyConsent
+                        ? {
+                            backgroundColor: accentColor,
+                            borderColor: accentColor,
+                          }
+                        : undefined
+                    }
+                  >
+                    {privacyConsent && (
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 12 12"
+                        fill="none"
+                      >
+                        <path
+                          d="M2.5 6L5 8.5L9.5 4"
+                          stroke="white"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    )}
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={privacyConsent}
+                    onChange={(e) => {
+                      setPrivacyConsent(e.target.checked);
+                      if (e.target.checked) setPrivacyError(false);
+                    }}
+                    className="sr-only"
+                  />
+                  <span className="text-[13px] text-[#2b2b2b]">
+                    {t('privacyAgree')}
+                  </span>
+                </label>
+                {privacyError && (
+                  <p className="text-[12px] text-[#a83c44]">
+                    {t('privacyError')}
+                  </p>
+                )}
+              </div>
 
               {isSuccess && (
                 <div className="rounded-[6px] bg-[#e8f5e9] px-4 py-3 text-center text-[14px] text-[#2e7d32]">

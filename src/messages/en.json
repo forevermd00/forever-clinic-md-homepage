@@ -301,6 +301,12 @@
     "treatmentOptionalNote": "You can also describe your interest in the message field instead",
     "submitSuccess": "Your inquiry has been submitted successfully. We will contact you shortly.",
     "submitting": "Submitting...",
+    "privacyTitle": "Personal Information Consent (Required)",
+    "privacyBody": "Items collected: Name, phone number\nPurpose: Processing consultation requests and reservation notifications\nRetention period: 1 year after consultation\n※ You may refuse consent, but refusal may limit access to consultation services.",
+    "privacyAgree": "I agree to the collection and use of my personal information.",
+    "privacyMore": "View details",
+    "privacyLess": "Collapse",
+    "privacyError": "Please agree to the personal information consent.",
     "signatureLabel": "SIGNATURE PROGRAM",
     "signatureTitle": "Signature Programs",
     "signatureCtaAll": "Book a Consultation for All Programs"
