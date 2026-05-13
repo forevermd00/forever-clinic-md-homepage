@@ -241,7 +241,13 @@
     "duration": "시술시간",
     "anesthesia": "마취",
     "recovery": "회복기간",
-    "recommended": "권장횟수"
+    "recommended": "권장횟수",
+    "description": "시술 소개",
+    "features": "이런 변화를 기대할 수 있어요",
+    "recommendedFor": "이런 고민이 있다면",
+    "procedure": "시술 과정",
+    "faq": "자주 묻는 질문",
+    "precautions": "주의사항"
   },
   "hero": {
     "homeTitle": "당신의 아름다움, 영원히",

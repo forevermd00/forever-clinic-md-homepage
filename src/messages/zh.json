@@ -241,7 +241,13 @@
     "duration": "诊疗时间",
     "anesthesia": "麻醉",
     "recovery": "恢复期",
-    "recommended": "建议次数"
+    "recommended": "建议次数",
+    "description": "治疗介绍",
+    "features": "预期效果",
+    "recommendedFor": "适合人群",
+    "procedure": "治疗步骤",
+    "faq": "常见问题",
+    "precautions": "注意事项"
   },
   "hero": {
     "homeTitle": "您的美丽，永恒绽放",

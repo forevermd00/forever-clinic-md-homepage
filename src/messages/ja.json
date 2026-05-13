@@ -241,7 +241,13 @@
     "duration": "施術時間",
     "anesthesia": "麻酔",
     "recovery": "回復期間",
-    "recommended": "推奨回数"
+    "recommended": "推奨回数",
+    "description": "施術について",
+    "features": "期待できる効果",
+    "recommendedFor": "こんなお悩みに",
+    "procedure": "施術の流れ",
+    "faq": "よくある質問",
+    "precautions": "注意事項"
   },
   "hero": {
     "homeTitle": "あなたの美しさを、永遠に",

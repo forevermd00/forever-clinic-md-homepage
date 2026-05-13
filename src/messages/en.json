@@ -241,7 +241,13 @@
     "duration": "Duration",
     "anesthesia": "Anesthesia",
     "recovery": "Recovery",
-    "recommended": "Recommended"
+    "recommended": "Recommended",
+    "description": "About This Treatment",
+    "features": "Expected Benefits",
+    "recommendedFor": "Who Is This For?",
+    "procedure": "Treatment Steps",
+    "faq": "FAQ",
+    "precautions": "Precautions"
   },
   "hero": {
     "homeTitle": "Your Beauty, Forever",

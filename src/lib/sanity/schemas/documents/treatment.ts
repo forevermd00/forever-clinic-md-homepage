@@ -108,6 +108,32 @@ export default defineType({
       of: [defineArrayMember({ type: 'priceOption' })],
     }),
     defineField({
+      name: 'features',
+      title: '시술 특징 (기대 효과)',
+      description: '• 이런 변화를 기대할 수 있어요 (list)',
+      type: 'array',
+      of: [defineArrayMember({ type: 'localizedString' })],
+    }),
+    defineField({
+      name: 'recommendedFor',
+      title: '추천 대상 (이런 고민이 있다면)',
+      type: 'array',
+      of: [defineArrayMember({ type: 'localizedString' })],
+    }),
+    defineField({
+      name: 'precautions',
+      title: '주의사항',
+      type: 'array',
+      of: [defineArrayMember({ type: 'localizedString' })],
+    }),
+    defineField({
+      name: 'procedure',
+      title: '시술 과정',
+      description: '순서대로 입력 (STEP 1, 2, 3...)',
+      type: 'array',
+      of: [defineArrayMember({ type: 'localizedString' })],
+    }),
+    defineField({
       name: 'faq',
       title: '자주 묻는 질문',
       type: 'array',
