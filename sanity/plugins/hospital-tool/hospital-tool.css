@@ -1,0 +1,122 @@
+/* Hospital Tool — Sanity Studio theme-aware styles */
+
+/* ===== Layout ===== */
+.ht-container {
+  padding: 20px 24px;
+  font-size: 13px;
+  color: var(--card-fg-color);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ht-page-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+  color: var(--card-fg-color);
+}
+
+/* ===== Section ===== */
+.ht-section {
+  margin-bottom: 28px;
+}
+
+.ht-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--card-muted-fg-color);
+  margin: 0 0 10px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--card-border-color);
+}
+
+/* ===== Card Grid ===== */
+.ht-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+/* ===== Card ===== */
+.ht-card {
+  border: 1px solid var(--card-border-color);
+  border-radius: 8px;
+  padding: 16px 20px;
+  background: var(--card-bg-color);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: border-color 0.15s;
+}
+
+.ht-card:hover {
+  border-color: var(--card-fg-color);
+}
+
+.ht-card-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.ht-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.ht-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--card-fg-color);
+  margin: 0 0 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ht-card-desc {
+  font-size: 11px;
+  color: var(--card-muted-fg-color);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ht-card-count {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--card-fg-color);
+  font-variant-numeric: tabular-nums;
+  margin-right: 2px;
+}
+
+/* ===== Edit Button ===== */
+.ht-edit-btn {
+  padding: 5px 12px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--card-fg-color);
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  display: inline-block;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.ht-edit-btn:hover {
+  background: var(--card-fg-color);
+  color: var(--card-bg-color);
+}
+
+/* ===== Loading ===== */
+.ht-loading {
+  padding: 40px;
+  text-align: center;
+  color: var(--card-muted-fg-color);
+}

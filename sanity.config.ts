@@ -22,6 +22,9 @@ import {
 import { schemaTypes } from './src/lib/sanity/schemas';
 import { consultationTool } from './sanity/plugins/consultation-tool';
 import { treatmentTool } from './sanity/plugins/treatment-tool';
+import { bnaAdminTool } from './sanity/plugins/bna-tool';
+import { mediaAdminTool } from './sanity/plugins/media-tool';
+import { hospitalAdminTool } from './sanity/plugins/hospital-tool';
 import { fontPlugin } from './sanity/plugins/font-plugin';
 
 const singletonTypes = new Set([
@@ -54,7 +57,8 @@ export default defineConfig({
   basePath: '/studio',
   releases: { enabled: false },
   scheduledPublishing: { enabled: false },
-  tools: (prev) => prev.filter((tool) => tool.name !== 'releases'),
+  tools: (prev) =>
+    prev.filter((tool) => tool.name !== 'releases' && tool.name !== 'desk'),
   document: {
     newDocumentOptions: (prev, { creationContext }) => {
       if (creationContext.type === 'global') {
@@ -229,8 +233,11 @@ export default defineConfig({
               ),
           ]),
     }),
-    consultationTool(),
+    bnaAdminTool(),
     treatmentTool(),
+    mediaAdminTool(),
+    consultationTool(),
+    hospitalAdminTool(),
     fontPlugin(),
   ],
   schema: {
