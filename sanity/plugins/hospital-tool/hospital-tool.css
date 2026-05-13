@@ -6,6 +6,8 @@
   font-size: 13px;
   color: var(--card-fg-color);
   width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
   box-sizing: border-box;
 }
 
@@ -183,13 +185,13 @@
 
 /* ===== Panel Section ===== */
 .ht-panel-section {
-  max-width: 900px;
+  max-width: 100%;
 }
 
 /* ===== Detail Page ===== */
 .ht-detail-container {
   padding: 20px 24px;
-  max-width: 900px;
+  max-width: 1080px;
   margin: 0 auto;
   touch-action: pan-y;
   font-size: 13px;

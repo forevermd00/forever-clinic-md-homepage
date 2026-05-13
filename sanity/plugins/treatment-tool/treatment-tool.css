@@ -6,6 +6,8 @@
   font-size: 13px;
   color: var(--card-fg-color);
   width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
   box-sizing: border-box;
 }
 
@@ -312,7 +314,7 @@
 
 /* ===== Detail Page ===== */
 .tt-detail-container {
-  max-width: 900px;
+  max-width: 1080px;
   margin: 0 auto;
   touch-action: pan-y;
 }
@@ -442,4 +444,90 @@
   font-size: 12px;
   color: var(--card-muted-fg-color);
   padding: 12px 0 4px;
+}
+
+/* ===== Array Editor ===== */
+.tt-array-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tt-array-item {
+  border: 1px solid var(--card-border-color);
+  border-radius: 6px;
+  padding: 12px;
+  background: var(--card-bg-color);
+}
+
+.tt-array-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.tt-array-num {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--card-muted-fg-color);
+  background: var(--card-bg2-color, rgba(0, 0, 0, 0.05));
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.tt-remove-btn {
+  background: none;
+  border: 1px solid var(--card-border-color);
+  border-radius: 4px;
+  color: var(--card-muted-fg-color);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px 8px;
+  line-height: 1.4;
+}
+
+.tt-remove-btn:hover {
+  background: rgba(168, 60, 68, 0.1);
+  border-color: #a83c44;
+  color: #a83c44;
+}
+
+.tt-add-btn {
+  align-self: flex-start;
+  padding: 6px 14px;
+  border: 1px dashed var(--card-border-color);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--card-muted-fg-color);
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s;
+}
+
+.tt-add-btn:hover {
+  border-color: var(--card-fg-color);
+  color: var(--card-fg-color);
+}
+
+/* ===== FAQ ===== */
+.tt-faq-item {
+  background: var(--card-bg2-color, rgba(0, 0, 0, 0.02));
+}
+
+.tt-faq-group {
+  margin-bottom: 12px;
+}
+
+.tt-faq-group:last-child {
+  margin-bottom: 0;
+}
+
+.tt-faq-group-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--card-muted-fg-color);
+  margin: 0 0 6px;
 }

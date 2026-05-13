@@ -29,6 +29,8 @@
   font-size: 13px;
   color: var(--card-fg-color);
   width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
   box-sizing: border-box;
 }
 
