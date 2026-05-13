@@ -6,26 +6,30 @@ const FONT_FAMILY =
 
 function PretendardLayout(props: LayoutProps) {
   useEffect(() => {
-    const existing = document.getElementById('pretendard-studio-font');
-    if (existing) return;
+    if (!document.getElementById('pretendard-studio-font')) {
+      const link = document.createElement('link');
+      link.id = 'pretendard-studio-font';
+      link.rel = 'stylesheet';
+      link.href = '/pretendard/pretendardvariable-dynamic-subset.css';
+      document.head.appendChild(link);
+    }
 
-    const link = document.createElement('link');
-    link.id = 'pretendard-studio-font';
-    link.rel = 'stylesheet';
-    link.href = '/pretendard/pretendardvariable-dynamic-subset.css';
-    document.head.appendChild(link);
-
-    const style = document.createElement('style');
-    style.id = 'pretendard-studio-override';
+    let style = document.getElementById(
+      'pretendard-studio-override',
+    ) as HTMLStyleElement | null;
+    if (!style) {
+      style = document.createElement('style');
+      style.id = 'pretendard-studio-override';
+      document.head.appendChild(style);
+    }
     style.textContent = `
-      .sanity-studio, [data-ui-theme], [data-sanity] {
+      * {
         font-family: ${FONT_FAMILY} !important;
       }
-      input, select, textarea, button {
-        font-family: ${FONT_FAMILY} !important;
+      html, body {
+        overscroll-behavior-x: auto;
       }
     `;
-    document.head.appendChild(style);
   }, []);
 
   return <>{props.renderDefault(props)}</>;
