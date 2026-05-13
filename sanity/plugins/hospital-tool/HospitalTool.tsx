@@ -25,12 +25,36 @@ interface HeroRow {
   hasImage?: boolean;
 }
 
+interface BusinessHoursItem {
+  _key: string;
+  dayOfWeek?: string[];
+  day?: { ko?: string; en?: string; zh?: string; ja?: string };
+  open?: string;
+  close?: string;
+  note?: { ko?: string; en?: string; zh?: string; ja?: string };
+}
+
+interface SnsLinkItem {
+  _key: string;
+  platform?: string;
+  url?: string;
+  label?: string;
+}
+
 interface ClinicInfoDoc {
   address?: { ko?: string; en?: string; zh?: string; ja?: string };
+  locationCoordinates?: {
+    searchAddress?: string;
+    latitude?: number;
+    longitude?: number;
+  };
   phone?: string;
   email?: string;
+  businessHours?: BusinessHoursItem[];
   closedDayNotice?: { ko?: string; en?: string; zh?: string; ja?: string };
   walkingGuide?: { ko?: string; en?: string; zh?: string; ja?: string };
+  snsLinks?: SnsLinkItem[];
+  messengerLinks?: SnsLinkItem[];
 }
 
 interface BrandValue {
@@ -123,20 +147,19 @@ interface SectionVisibilityDoc {
 // ─── Queries ─────────────────────────────────────────────
 
 const DOCTORS_QUERY = `*[_type == "doctor"] | order(sortOrder asc) {
-  _id,
-  "name": name.ko,
-  "position": position.ko,
-  isVisible, sortOrder
+  _id, "name": name.ko, "position": position.ko, isVisible, sortOrder
 }`;
 
 const HEROES_QUERY = `*[_type == "pageHero"] {
-  _id, pageName,
-  "titleKo": title.ko,
-  "hasImage": defined(heroImage)
+  _id, pageName, "titleKo": title.ko, "hasImage": defined(heroImage)
 }`;
 
 const CLINIC_INFO_QUERY = `*[_type == "clinicInfo" && _id == "forever-myeongdong-clinic-info"][0] {
-  address, phone, email, closedDayNotice, walkingGuide
+  address, locationCoordinates, phone, email,
+  businessHours[] { _key, dayOfWeek, day, open, close, note },
+  closedDayNotice, walkingGuide,
+  snsLinks[] { _key, platform, url, label },
+  messengerLinks[] { _key, platform, url, label }
 }`;
 
 const BRAND_QUERY = `*[_type == "brandPhilosophy" && _id == "forever-myeongdong-brand"][0] {
@@ -172,6 +195,25 @@ const CLINIC_LOCALES: { key: 'ko' | 'en' | 'zh' | 'ja'; label: string }[] = [
   { key: 'ja', label: '日本語' },
 ];
 
+const BRAND_LOCALE_LABELS: Record<string, string> = {
+  ko: '한국어',
+  en: 'English',
+  zh: '中文',
+  ja: '日本語',
+};
+
+const SNS_PLATFORMS = [
+  { value: 'instagram', label: 'Instagram' },
+  { value: 'youtube', label: 'YouTube' },
+  { value: 'blog', label: 'Blog' },
+  { value: 'wechat', label: 'WeChat' },
+  { value: 'weibo', label: 'Weibo' },
+  { value: 'xiaohongshu', label: 'Xiaohongshu' },
+  { value: 'line', label: 'LINE' },
+  { value: 'kakao', label: 'KakaoTalk' },
+  { value: 'whatsapp', label: 'WhatsApp' },
+];
+
 function newKey(): string {
   return Math.random().toString(36).slice(2, 10);
 }
@@ -185,24 +227,48 @@ function sanityImageUrl(
   return `https://cdn.sanity.io/images/${projectId}/${dataset}/${id}`;
 }
 
-// ─── Sub-tabs ─────────────────────────────────────────────
+async function uploadImageAsset(client: SanityClient, file: File) {
+  const asset = await client.assets.upload('image', file, {
+    filename: file.name,
+  });
+  return {
+    _type: 'image' as const,
+    asset: { _type: 'reference' as const, _ref: asset._id },
+  };
+}
 
-type MainTab = 'doctors' | 'clinicInfo' | 'hero' | 'siteSettings' | 'sections';
+// ─── Main Tabs ────────────────────────────────────────────
+
+type MainTab =
+  | 'doctors'
+  | 'clinicInfo'
+  | 'hero'
+  | 'brand'
+  | 'stats'
+  | 'popups'
+  | 'quickNav'
+  | 'sections';
 
 const MAIN_TABS: { key: MainTab; label: string }[] = [
   { key: 'doctors', label: '의료진' },
   { key: 'clinicInfo', label: '병원 정보' },
   { key: 'hero', label: '히어로 배너' },
-  { key: 'siteSettings', label: '사이트 설정' },
+  { key: 'brand', label: '브랜드 철학' },
+  { key: 'stats', label: '통계 수치' },
+  { key: 'popups', label: '이벤트 팝업' },
+  { key: 'quickNav', label: '빠른 탐색' },
   { key: 'sections', label: '섹션 노출' },
 ];
 
-// ─── 의료진 패널 ──────────────────────────────────────────
+// ─── 의료진 패널 (드래그 정렬) ────────────────────────────
 
 function DoctorsPanel({ onEdit }: { onEdit: (id: string) => void }) {
   const client = useClient({ apiVersion: '2026-05-13' });
   const [docs, setDocs] = useState<DoctorRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const dragIndexRef = useRef<number | null>(null);
+  const [dragOver, setDragOver] = useState<number | null>(null);
 
   useEffect(() => {
     client.fetch<DoctorRow[]>(DOCTORS_QUERY).then((data) => {
@@ -223,6 +289,41 @@ function DoctorsPanel({ onEdit }: { onEdit: (id: string) => void }) {
     );
   };
 
+  const handleDragStart = (i: number) => {
+    dragIndexRef.current = i;
+  };
+  const handleDragOver = (e: React.DragEvent, i: number) => {
+    e.preventDefault();
+    setDragOver(i);
+  };
+  const handleDragEnd = () => {
+    setDragOver(null);
+  };
+
+  const handleDrop = async (toIndex: number) => {
+    const fromIndex = dragIndexRef.current;
+    if (fromIndex === null || fromIndex === toIndex) {
+      dragIndexRef.current = null;
+      setDragOver(null);
+      return;
+    }
+    dragIndexRef.current = null;
+    setDragOver(null);
+
+    const newDocs = [...docs];
+    const [moved] = newDocs.splice(fromIndex, 1);
+    newDocs.splice(toIndex, 0, moved);
+    setDocs(newDocs);
+
+    setSaving(true);
+    const tx = client.transaction();
+    newDocs.forEach((doc, idx) => {
+      tx.patch(doc._id, { set: { sortOrder: idx } });
+    });
+    await tx.commit();
+    setSaving(false);
+  };
+
   if (loading) return <div className="ht-loading">불러오는 중...</div>;
 
   return (
@@ -231,10 +332,12 @@ function DoctorsPanel({ onEdit }: { onEdit: (id: string) => void }) {
         <button className="ht-add-btn" onClick={handleAdd}>
           + 의사 추가
         </button>
+        {saving && <span className="ht-saving-indicator">저장 중…</span>}
       </div>
       <div className="ht-table-wrap">
         <table className="ht-table">
           <colgroup>
+            <col style={{ width: '32px' }} />
             <col style={{ width: '44px' }} />
             <col />
             <col style={{ width: '140px' }} />
@@ -242,6 +345,7 @@ function DoctorsPanel({ onEdit }: { onEdit: (id: string) => void }) {
           </colgroup>
           <thead>
             <tr>
+              <th></th>
               <th>No.</th>
               <th>이름 (ko)</th>
               <th>직위 (ko)</th>
@@ -251,7 +355,7 @@ function DoctorsPanel({ onEdit }: { onEdit: (id: string) => void }) {
           <tbody>
             {docs.length === 0 ? (
               <tr>
-                <td colSpan={4} className="ht-empty">
+                <td colSpan={5} className="ht-empty">
                   의료진이 없습니다
                 </td>
               </tr>
@@ -259,9 +363,20 @@ function DoctorsPanel({ onEdit }: { onEdit: (id: string) => void }) {
               docs.map((doc, idx) => (
                 <tr
                   key={doc._id}
-                  className="ht-row-clickable"
+                  className={`ht-row-clickable${dragOver === idx ? 'ht-drag-over' : ''}`}
+                  draggable
+                  onDragStart={() => handleDragStart(idx)}
+                  onDragOver={(e) => handleDragOver(e, idx)}
+                  onDragEnd={handleDragEnd}
+                  onDrop={() => handleDrop(idx)}
                   onClick={() => onEdit(doc._id)}
                 >
+                  <td
+                    className="ht-drag-handle"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    ⋮⋮
+                  </td>
                   <td className="ht-row-num">{idx + 1}</td>
                   <td>
                     <span className="ht-row-name">
@@ -292,14 +407,38 @@ function DoctorsPanel({ onEdit }: { onEdit: (id: string) => void }) {
 
 // ─── 병원 정보 패널 ───────────────────────────────────────
 
+declare global {
+  interface Window {
+    daum?: {
+      Postcode: new (options: {
+        oncomplete: (data: {
+          roadAddress: string;
+          jibunAddress: string;
+        }) => void;
+      }) => { open: () => void };
+    };
+  }
+}
+
 function ClinicInfoPanel() {
   const client = useClient({ apiVersion: '2026-05-13' });
   const [doc, setDoc] = useState<ClinicInfoDoc | null>(null);
   const [saving, setSaving] = useState(false);
+  const [geocoding, setGeocoding] = useState(false);
+  const [hours, setHours] = useState<BusinessHoursItem[]>([]);
+  const [sns, setSns] = useState<SnsLinkItem[]>([]);
+  const [messenger, setMessenger] = useState<SnsLinkItem[]>([]);
+  const initialized = useRef(false);
 
   useEffect(() => {
     client.fetch<ClinicInfoDoc>(CLINIC_INFO_QUERY).then((data) => {
       setDoc(data ?? {});
+      if (!initialized.current) {
+        setHours(data?.businessHours ?? []);
+        setSns(data?.snsLinks ?? []);
+        setMessenger(data?.messengerLinks ?? []);
+        initialized.current = true;
+      }
     });
   }, [client]);
 
@@ -309,24 +448,269 @@ function ClinicInfoPanel() {
     setSaving(false);
   };
 
+  const handleAddressSearch = async () => {
+    await new Promise<void>((resolve) => {
+      if (window.daum?.Postcode) {
+        resolve();
+        return;
+      }
+      const s = document.createElement('script');
+      s.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+      s.onload = () => resolve();
+      document.head.appendChild(s);
+    });
+    new window.daum!.Postcode({
+      oncomplete: async (data) => {
+        const address = data.roadAddress || data.jibunAddress;
+        setGeocoding(true);
+        try {
+          const res = await fetch(
+            `/api/admin/geocode?address=${encodeURIComponent(address)}`,
+          );
+          if (!res.ok) throw new Error();
+          const { lat, lng } = (await res.json()) as {
+            lat: number;
+            lng: number;
+          };
+          await patch({
+            'locationCoordinates.searchAddress': address,
+            'locationCoordinates.latitude': lat,
+            'locationCoordinates.longitude': lng,
+          });
+          setDoc((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  locationCoordinates: {
+                    searchAddress: address,
+                    latitude: lat,
+                    longitude: lng,
+                  },
+                }
+              : prev,
+          );
+        } catch {
+          alert('좌표 변환 실패 — 수동 입력해주세요');
+        } finally {
+          setGeocoding(false);
+        }
+      },
+    }).open();
+  };
+
+  const saveHours = async (newHours: BusinessHoursItem[]) => {
+    setSaving(true);
+    await client
+      .patch('forever-myeongdong-clinic-info')
+      .set({ businessHours: newHours })
+      .commit();
+    setSaving(false);
+  };
+
+  const saveSns = async (newSns: SnsLinkItem[]) => {
+    setSaving(true);
+    await client
+      .patch('forever-myeongdong-clinic-info')
+      .set({ snsLinks: newSns })
+      .commit();
+    setSaving(false);
+  };
+
+  const saveMessenger = async (newMsg: SnsLinkItem[]) => {
+    setSaving(true);
+    await client
+      .patch('forever-myeongdong-clinic-info')
+      .set({ messengerLinks: newMsg })
+      .commit();
+    setSaving(false);
+  };
+
+  const updateHour = (
+    i: number,
+    field: keyof BusinessHoursItem,
+    val: unknown,
+  ) => {
+    setHours((prev) =>
+      prev.map((h, idx) => (idx === i ? { ...h, [field]: val } : h)),
+    );
+  };
+
+  const saveHourBlur = (
+    i: number,
+    field: keyof BusinessHoursItem,
+    val: unknown,
+  ) => {
+    setHours((prev) => {
+      const updated = prev.map((h, idx) =>
+        idx === i ? { ...h, [field]: val } : h,
+      );
+      saveHours(updated);
+      return updated;
+    });
+  };
+
+  const saveHourLocaleBlur = (
+    i: number,
+    field: 'day' | 'note',
+    locale: 'ko' | 'en' | 'zh' | 'ja',
+    val: string,
+  ) => {
+    setHours((prev) => {
+      const updated = prev.map((h, idx) =>
+        idx === i ? { ...h, [field]: { ...h[field], [locale]: val } } : h,
+      );
+      saveHours(updated);
+      return updated;
+    });
+  };
+
+  const updateSns = (
+    list: SnsLinkItem[],
+    setList: typeof setSns,
+    i: number,
+    field: keyof SnsLinkItem,
+    val: string,
+  ) => {
+    setList(list.map((s, idx) => (idx === i ? { ...s, [field]: val } : s)));
+  };
+
+  const saveSnsBlur = (
+    list: SnsLinkItem[],
+    saveList: (l: SnsLinkItem[]) => Promise<void>,
+    setList: typeof setSns,
+    i: number,
+    field: keyof SnsLinkItem,
+    val: string,
+  ) => {
+    const updated = list.map((s, idx) =>
+      idx === i ? { ...s, [field]: val } : s,
+    );
+    setList(updated);
+    saveList(updated);
+  };
+
   if (!doc) return <div className="ht-loading">불러오는 중...</div>;
+
+  const coords = doc.locationCoordinates;
+  const hasCoords = coords?.latitude != null && coords?.longitude != null;
 
   return (
     <div className="ht-panel-section">
       {saving && <span className="ht-saving-indicator">저장 중…</span>}
 
+      {/* ── 주소 ── */}
       <div className="ht-detail-section">
         <div className="ht-detail-section-title">주소</div>
+        <div className="ht-detail-body">
+          <input
+            type="text"
+            className="ht-text-input"
+            style={{ maxWidth: 480 }}
+            defaultValue={doc.address?.ko ?? ''}
+            onBlur={(e) => patch({ 'address.ko': e.target.value })}
+          />
+        </div>
+      </div>
+
+      {/* ── 위치 좌표 ── */}
+      <div className="ht-detail-section">
+        <div className="ht-detail-section-title">위치 좌표</div>
+        <div className="ht-detail-body">
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              marginBottom: 10,
+              flexWrap: 'wrap',
+            }}
+          >
+            <button
+              className="ht-add-btn"
+              onClick={handleAddressSearch}
+              disabled={geocoding}
+            >
+              {geocoding ? '좌표 변환 중…' : '🔍 주소 검색'}
+            </button>
+            {coords?.searchAddress && (
+              <span className="ht-row-meta">📍 {coords.searchAddress}</span>
+            )}
+          </div>
+          <details style={{ marginBottom: 10 }}>
+            <summary
+              style={{
+                fontSize: 12,
+                color: 'var(--card-muted-fg-color)',
+                cursor: 'pointer',
+              }}
+            >
+              수동 입력
+            </summary>
+            <div
+              className="ht-detail-row"
+              style={{ marginTop: 8, maxWidth: 360 }}
+            >
+              <div className="ht-detail-field">
+                <label className="ht-detail-label">위도</label>
+                <input
+                  type="number"
+                  className="ht-text-input"
+                  step="0.000001"
+                  defaultValue={coords?.latitude ?? ''}
+                  onBlur={(e) =>
+                    patch({
+                      'locationCoordinates.latitude': parseFloat(
+                        e.target.value,
+                      ),
+                    })
+                  }
+                />
+              </div>
+              <div className="ht-detail-field">
+                <label className="ht-detail-label">경도</label>
+                <input
+                  type="number"
+                  className="ht-text-input"
+                  step="0.000001"
+                  defaultValue={coords?.longitude ?? ''}
+                  onBlur={(e) =>
+                    patch({
+                      'locationCoordinates.longitude': parseFloat(
+                        e.target.value,
+                      ),
+                    })
+                  }
+                />
+              </div>
+            </div>
+          </details>
+          {hasCoords && (
+            <iframe
+              src={`https://maps.google.com/maps?q=${coords!.latitude},${coords!.longitude}&t=&z=17&ie=UTF8&iwloc=&output=embed`}
+              width="100%"
+              height="260"
+              style={{ border: 0, borderRadius: 6, maxWidth: 600 }}
+              loading="lazy"
+            />
+          )}
+        </div>
+      </div>
+
+      {/* ── 길안내 ── */}
+      <div className="ht-detail-section">
+        <div className="ht-detail-section-title">길안내</div>
         <div className="ht-detail-body">
           <div className="ht-detail-grid4">
             {CLINIC_LOCALES.map(({ key, label }) => (
               <div key={key} className="ht-detail-field">
                 <label className="ht-detail-label">{label}</label>
-                <input
-                  type="text"
-                  className="ht-text-input"
-                  defaultValue={doc.address?.[key] ?? ''}
-                  onBlur={(e) => patch({ [`address.${key}`]: e.target.value })}
+                <textarea
+                  className="ht-text-input ht-textarea"
+                  defaultValue={doc.walkingGuide?.[key] ?? ''}
+                  rows={4}
+                  onBlur={(e) =>
+                    patch({ [`walkingGuide.${key}`]: e.target.value })
+                  }
                 />
               </div>
             ))}
@@ -334,32 +718,116 @@ function ClinicInfoPanel() {
         </div>
       </div>
 
+      {/* ── 진료시간 ── */}
       <div className="ht-detail-section">
-        <div className="ht-detail-section-title">연락처</div>
+        <div className="ht-detail-section-title">진료시간</div>
         <div className="ht-detail-body">
-          <div className="ht-detail-row">
-            <div className="ht-detail-field">
-              <label className="ht-detail-label">전화번호</label>
-              <input
-                type="text"
-                className="ht-text-input"
-                defaultValue={doc.phone ?? ''}
-                onBlur={(e) => patch({ phone: e.target.value })}
-              />
-            </div>
-            <div className="ht-detail-field">
-              <label className="ht-detail-label">이메일</label>
-              <input
-                type="text"
-                className="ht-text-input"
-                defaultValue={doc.email ?? ''}
-                onBlur={(e) => patch({ email: e.target.value })}
-              />
-            </div>
+          <div className="ht-array-editor">
+            {hours.map((h, i) => (
+              <div key={h._key} className="ht-array-item">
+                <div className="ht-array-item-header">
+                  <span className="ht-array-num">{i + 1}</span>
+                  <button
+                    className="ht-remove-btn"
+                    onClick={() => {
+                      const updated = hours.filter((_, idx) => idx !== i);
+                      setHours(updated);
+                      saveHours(updated);
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="ht-detail-grid4" style={{ marginBottom: 8 }}>
+                  {CLINIC_LOCALES.map(({ key, label }) => (
+                    <div key={key} className="ht-detail-field">
+                      <label className="ht-detail-label">
+                        요일명 ({label})
+                      </label>
+                      <input
+                        type="text"
+                        className="ht-text-input"
+                        value={h.day?.[key] ?? ''}
+                        onChange={(e) =>
+                          updateHour(i, 'day', {
+                            ...h.day,
+                            [key]: e.target.value,
+                          })
+                        }
+                        onBlur={(e) =>
+                          saveHourLocaleBlur(i, 'day', key, e.target.value)
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="ht-detail-row" style={{ marginBottom: 8 }}>
+                  <div className="ht-detail-field">
+                    <label className="ht-detail-label">오픈</label>
+                    <input
+                      type="text"
+                      className="ht-text-input"
+                      style={{ width: 100 }}
+                      placeholder="10:00"
+                      value={h.open ?? ''}
+                      onChange={(e) => updateHour(i, 'open', e.target.value)}
+                      onBlur={(e) => saveHourBlur(i, 'open', e.target.value)}
+                    />
+                  </div>
+                  <div className="ht-detail-field">
+                    <label className="ht-detail-label">마감</label>
+                    <input
+                      type="text"
+                      className="ht-text-input"
+                      style={{ width: 100 }}
+                      placeholder="19:30"
+                      value={h.close ?? ''}
+                      onChange={(e) => updateHour(i, 'close', e.target.value)}
+                      onBlur={(e) => saveHourBlur(i, 'close', e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="ht-detail-grid4">
+                  {CLINIC_LOCALES.map(({ key, label }) => (
+                    <div key={key} className="ht-detail-field">
+                      <label className="ht-detail-label">비고 ({label})</label>
+                      <input
+                        type="text"
+                        className="ht-text-input"
+                        value={h.note?.[key] ?? ''}
+                        onChange={(e) =>
+                          updateHour(i, 'note', {
+                            ...h.note,
+                            [key]: e.target.value,
+                          })
+                        }
+                        onBlur={(e) =>
+                          saveHourLocaleBlur(i, 'note', key, e.target.value)
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+            <button
+              className="ht-add-btn"
+              onClick={() => {
+                const updated = [
+                  ...hours,
+                  { _key: newKey(), day: {}, open: '', close: '', note: {} },
+                ];
+                setHours(updated);
+                saveHours(updated);
+              }}
+            >
+              + 진료시간 추가
+            </button>
           </div>
         </div>
       </div>
 
+      {/* ── 휴진일 안내 ── */}
       <div className="ht-detail-section">
         <div className="ht-detail-section-title">휴진일 안내</div>
         <div className="ht-detail-body">
@@ -381,36 +849,223 @@ function ClinicInfoPanel() {
         </div>
       </div>
 
+      {/* ── SNS 링크 ── */}
       <div className="ht-detail-section">
-        <div className="ht-detail-section-title">도보 안내</div>
+        <div className="ht-detail-section-title">SNS 링크</div>
         <div className="ht-detail-body">
-          <div className="ht-detail-grid4">
-            {CLINIC_LOCALES.map(({ key, label }) => (
-              <div key={key} className="ht-detail-field">
-                <label className="ht-detail-label">{label}</label>
-                <textarea
-                  className="ht-text-input ht-textarea"
-                  defaultValue={doc.walkingGuide?.[key] ?? ''}
-                  rows={4}
-                  onBlur={(e) =>
-                    patch({ [`walkingGuide.${key}`]: e.target.value })
-                  }
-                />
+          <div className="ht-array-editor">
+            {sns.map((s, i) => (
+              <div key={s._key} className="ht-array-item">
+                <div className="ht-array-item-header">
+                  <span className="ht-array-num">{i + 1}</span>
+                  <button
+                    className="ht-remove-btn"
+                    onClick={() => {
+                      const updated = sns.filter((_, idx) => idx !== i);
+                      setSns(updated);
+                      saveSns(updated);
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="ht-detail-row">
+                  <div className="ht-detail-field">
+                    <label className="ht-detail-label">플랫폼</label>
+                    <select
+                      className="ht-text-input"
+                      value={s.platform ?? ''}
+                      onChange={(e) => {
+                        const updated = sns.map((x, idx) =>
+                          idx === i ? { ...x, platform: e.target.value } : x,
+                        );
+                        setSns(updated);
+                        saveSns(updated);
+                      }}
+                    >
+                      <option value="">— 선택 —</option>
+                      {SNS_PLATFORMS.map((p) => (
+                        <option key={p.value} value={p.value}>
+                          {p.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="ht-detail-field" style={{ flex: 2 }}>
+                    <label className="ht-detail-label">URL</label>
+                    <input
+                      type="text"
+                      className="ht-text-input"
+                      value={s.url ?? ''}
+                      onChange={(e) =>
+                        updateSns(sns, setSns, i, 'url', e.target.value)
+                      }
+                      onBlur={(e) =>
+                        saveSnsBlur(
+                          sns,
+                          saveSns,
+                          setSns,
+                          i,
+                          'url',
+                          e.target.value,
+                        )
+                      }
+                    />
+                  </div>
+                  <div className="ht-detail-field">
+                    <label className="ht-detail-label">표시명</label>
+                    <input
+                      type="text"
+                      className="ht-text-input"
+                      value={s.label ?? ''}
+                      onChange={(e) =>
+                        updateSns(sns, setSns, i, 'label', e.target.value)
+                      }
+                      onBlur={(e) =>
+                        saveSnsBlur(
+                          sns,
+                          saveSns,
+                          setSns,
+                          i,
+                          'label',
+                          e.target.value,
+                        )
+                      }
+                    />
+                  </div>
+                </div>
               </div>
             ))}
+            <button
+              className="ht-add-btn"
+              onClick={() => {
+                const updated = [
+                  ...sns,
+                  { _key: newKey(), platform: '', url: '', label: '' },
+                ];
+                setSns(updated);
+                saveSns(updated);
+              }}
+            >
+              + SNS 추가
+            </button>
           </div>
         </div>
       </div>
 
+      {/* ── 메신저 링크 ── */}
       <div className="ht-detail-section">
-        <div className="ht-detail-section-title">
-          복합 필드 (외부 편집기 사용)
-        </div>
+        <div className="ht-detail-section-title">메신저 링크</div>
         <div className="ht-detail-body">
-          <p className="ht-readonly-notice">
-            진료시간, 위치 좌표, SNS 링크, 메신저 링크는 Sanity Studio 기본
-            편집기에서 관리됩니다
-          </p>
+          <div className="ht-array-editor">
+            {messenger.map((s, i) => (
+              <div key={s._key} className="ht-array-item">
+                <div className="ht-array-item-header">
+                  <span className="ht-array-num">{i + 1}</span>
+                  <button
+                    className="ht-remove-btn"
+                    onClick={() => {
+                      const updated = messenger.filter((_, idx) => idx !== i);
+                      setMessenger(updated);
+                      saveMessenger(updated);
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="ht-detail-row">
+                  <div className="ht-detail-field">
+                    <label className="ht-detail-label">플랫폼</label>
+                    <select
+                      className="ht-text-input"
+                      value={s.platform ?? ''}
+                      onChange={(e) => {
+                        const updated = messenger.map((x, idx) =>
+                          idx === i ? { ...x, platform: e.target.value } : x,
+                        );
+                        setMessenger(updated);
+                        saveMessenger(updated);
+                      }}
+                    >
+                      <option value="">— 선택 —</option>
+                      {SNS_PLATFORMS.map((p) => (
+                        <option key={p.value} value={p.value}>
+                          {p.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="ht-detail-field" style={{ flex: 2 }}>
+                    <label className="ht-detail-label">URL / ID</label>
+                    <input
+                      type="text"
+                      className="ht-text-input"
+                      value={s.url ?? ''}
+                      onChange={(e) =>
+                        updateSns(
+                          messenger,
+                          setMessenger,
+                          i,
+                          'url',
+                          e.target.value,
+                        )
+                      }
+                      onBlur={(e) =>
+                        saveSnsBlur(
+                          messenger,
+                          saveMessenger,
+                          setMessenger,
+                          i,
+                          'url',
+                          e.target.value,
+                        )
+                      }
+                    />
+                  </div>
+                  <div className="ht-detail-field">
+                    <label className="ht-detail-label">표시명</label>
+                    <input
+                      type="text"
+                      className="ht-text-input"
+                      value={s.label ?? ''}
+                      onChange={(e) =>
+                        updateSns(
+                          messenger,
+                          setMessenger,
+                          i,
+                          'label',
+                          e.target.value,
+                        )
+                      }
+                      onBlur={(e) =>
+                        saveSnsBlur(
+                          messenger,
+                          saveMessenger,
+                          setMessenger,
+                          i,
+                          'label',
+                          e.target.value,
+                        )
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+            <button
+              className="ht-add-btn"
+              onClick={() => {
+                const updated = [
+                  ...messenger,
+                  { _key: newKey(), platform: '', url: '', label: '' },
+                ];
+                setMessenger(updated);
+                saveMessenger(updated);
+              }}
+            >
+              + 메신저 추가
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -454,12 +1109,12 @@ function HeroBannerPanel({ onEdit }: { onEdit: (heroKey: string) => void }) {
         </thead>
         <tbody>
           {PAGE_HEROES.map((page, idx) => {
-            const heroDoc = heroMap.get(page.title);
+            const heroDoc = heroMap.get(page.title) ?? heroMap.get(page.key);
             return (
               <tr
                 key={page.key}
                 className="ht-row-clickable"
-                onClick={() => onEdit(page.title)}
+                onClick={() => onEdit(page.key)}
               >
                 <td className="ht-row-num">{idx + 1}</td>
                 <td>
@@ -482,26 +1137,7 @@ function HeroBannerPanel({ onEdit }: { onEdit: (heroKey: string) => void }) {
   );
 }
 
-// ─── 사이트 설정 패널 ─────────────────────────────────────
-
-type SiteSettingsTab = 'brand' | 'stats' | 'popups' | 'quickNav';
-
-const BRAND_LOCALE_LABELS: Record<string, string> = {
-  ko: '한국어',
-  en: 'English',
-  zh: '中文',
-  ja: '日本語',
-};
-
-async function uploadImageAsset(client: SanityClient, file: File) {
-  const asset = await client.assets.upload('image', file, {
-    filename: file.name,
-  });
-  return {
-    _type: 'image' as const,
-    asset: { _type: 'reference' as const, _ref: asset._id },
-  };
-}
+// ─── 브랜드 철학 패널 ─────────────────────────────────────
 
 function BrandSection() {
   const client = useClient({ apiVersion: '2026-05-13' });
@@ -617,12 +1253,10 @@ function BrandSection() {
   const imageRef = doc.backgroundImage?.asset?._ref;
 
   return (
-    <div className="ht-subsection">
-      <div className="ht-subsection-title">
-        브랜드 철학
-        {saving && <span className="ht-saving-indicator">저장 중…</span>}
-      </div>
-      <div className="ht-detail-section" style={{ marginTop: 12 }}>
+    <div className="ht-panel-section">
+      {saving && <span className="ht-saving-indicator">저장 중…</span>}
+
+      <div className="ht-detail-section">
         <div className="ht-detail-section-title">제목</div>
         <div className="ht-detail-body">
           <div className="ht-detail-grid4">
@@ -642,6 +1276,7 @@ function BrandSection() {
           </div>
         </div>
       </div>
+
       <div className="ht-detail-section">
         <div className="ht-detail-section-title">부제목</div>
         <div className="ht-detail-body">
@@ -662,6 +1297,7 @@ function BrandSection() {
           </div>
         </div>
       </div>
+
       <div className="ht-detail-section">
         <div className="ht-detail-section-title">슬로건</div>
         <div className="ht-detail-body">
@@ -682,6 +1318,7 @@ function BrandSection() {
           </div>
         </div>
       </div>
+
       <div className="ht-detail-section">
         <div className="ht-detail-section-title">본문</div>
         <div className="ht-detail-body">
@@ -702,6 +1339,7 @@ function BrandSection() {
           </div>
         </div>
       </div>
+
       <div className="ht-detail-section">
         <div className="ht-detail-section-title">배경 이미지</div>
         <div className="ht-detail-body">
@@ -724,7 +1362,7 @@ function BrandSection() {
         </div>
       </div>
 
-      {/* ─── 브랜드 가치 목록 ─── */}
+      {/* ── 브랜드 가치 목록 ── */}
       <div className="ht-detail-section">
         <div className="ht-detail-section-title">브랜드 가치 목록</div>
         <div className="ht-detail-body">
@@ -850,6 +1488,8 @@ function BrandSection() {
   );
 }
 
+// ─── 통계 수치 패널 ───────────────────────────────────────
+
 function StatsSection() {
   const client = useClient({ apiVersion: '2026-05-13' });
   const [doc, setDoc] = useState<StatsDoc | null>(null);
@@ -948,11 +1588,8 @@ function StatsSection() {
   if (!doc) return <div className="ht-loading">불러오는 중...</div>;
 
   return (
-    <div className="ht-subsection">
-      <div className="ht-subsection-title">
-        통계 수치{' '}
-        {saving && <span className="ht-saving-indicator">저장 중…</span>}
-      </div>
+    <div className="ht-panel-section">
+      {saving && <span className="ht-saving-indicator">저장 중…</span>}
       <div className="ht-array-editor" style={{ marginTop: 12 }}>
         {items.map((item, i) => (
           <div key={item._key} className="ht-array-item">
@@ -1009,6 +1646,8 @@ function StatsSection() {
   );
 }
 
+// ─── 이벤트 팝업 패널 ─────────────────────────────────────
+
 function PopupsSection() {
   const client = useClient({ apiVersion: '2026-05-13' });
   const [docs, setDocs] = useState<EventPopupDoc[]>([]);
@@ -1044,9 +1683,8 @@ function PopupsSection() {
   if (loading) return <div className="ht-loading">불러오는 중...</div>;
 
   return (
-    <div className="ht-subsection">
-      <div className="ht-subsection-title">이벤트 팝업</div>
-      <div className="ht-toolbar" style={{ marginTop: 8 }}>
+    <div className="ht-panel-section">
+      <div className="ht-toolbar" style={{ marginBottom: 12 }}>
         <button className="ht-add-btn" onClick={handleAdd}>
           + 팝업 추가
         </button>
@@ -1150,11 +1788,16 @@ function PopupsSection() {
   );
 }
 
+// ─── 빠른 탐색 패널 (드래그 정렬) ────────────────────────
+
 function QuickNavSection({ onEditCard }: { onEditCard: (id: string) => void }) {
   const client = useClient({ apiVersion: '2026-05-13' });
   const [tabs, setTabs] = useState<QuickTabDoc[]>([]);
   const [cards, setCards] = useState<QuickCardDoc[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const dragIndexRef = useRef<number | null>(null);
+  const [dragOver, setDragOver] = useState<number | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -1186,13 +1829,48 @@ function QuickNavSection({ onEditCard }: { onEditCard: (id: string) => void }) {
     onEditCard(newDoc._id);
   };
 
+  const handleDragStart = (i: number) => {
+    dragIndexRef.current = i;
+  };
+  const handleDragOver = (e: React.DragEvent, i: number) => {
+    e.preventDefault();
+    setDragOver(i);
+  };
+  const handleDragEnd = () => {
+    setDragOver(null);
+  };
+
+  const handleDrop = async (toIndex: number) => {
+    const fromIndex = dragIndexRef.current;
+    if (fromIndex === null || fromIndex === toIndex) {
+      dragIndexRef.current = null;
+      setDragOver(null);
+      return;
+    }
+    dragIndexRef.current = null;
+    setDragOver(null);
+
+    const newCards = [...cards];
+    const [moved] = newCards.splice(fromIndex, 1);
+    newCards.splice(toIndex, 0, moved);
+    setCards(newCards);
+
+    setSaving(true);
+    const tx = client.transaction();
+    newCards.forEach((card, idx) => {
+      tx.patch(card._id, { set: { sortOrder: idx } });
+    });
+    await tx.commit();
+    setSaving(false);
+  };
+
   if (loading) return <div className="ht-loading">불러오는 중...</div>;
 
   return (
-    <div className="ht-subsection">
-      <div className="ht-subsection-title">빠른 탐색</div>
+    <div className="ht-panel-section">
+      {saving && <span className="ht-saving-indicator">저장 중…</span>}
 
-      <div className="ht-detail-section" style={{ marginTop: 12 }}>
+      <div className="ht-detail-section">
         <div className="ht-detail-section-title">탭 목록</div>
         <div className="ht-detail-body">
           <table className="ht-table">
@@ -1238,101 +1916,84 @@ function QuickNavSection({ onEditCard }: { onEditCard: (id: string) => void }) {
               + 카드 추가
             </button>
           </div>
-          <table className="ht-table">
-            <colgroup>
-              <col style={{ width: '44px' }} />
-              <col />
-              <col style={{ width: '140px' }} />
-              <col style={{ width: '120px' }} />
-              <col style={{ width: '70px' }} />
-            </colgroup>
-            <thead>
-              <tr>
-                <th>No.</th>
-                <th>제목 (ko)</th>
-                <th>slug</th>
-                <th>탭</th>
-                <th style={{ textAlign: 'center' }}>노출</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cards.map((card, idx) => (
-                <tr
-                  key={card._id}
-                  className="ht-row-clickable"
-                  onClick={() => onEditCard(card._id)}
-                >
-                  <td className="ht-row-num">{idx + 1}</td>
-                  <td>
-                    <span className="ht-row-name">{card.title?.ko || '—'}</span>
-                  </td>
-                  <td className="ht-row-meta">{card.slug?.current || '—'}</td>
-                  <td className="ht-row-meta">{card.tab?.label?.ko || '—'}</td>
-                  <td
-                    style={{ textAlign: 'center' }}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <input
-                      type="checkbox"
-                      className="tt-toggle"
-                      checked={!!card.isVisible}
-                      onChange={(e) => toggleCard(card._id, e.target.checked)}
-                    />
-                  </td>
-                </tr>
-              ))}
-              {cards.length === 0 && (
+          <div className="ht-table-wrap">
+            <table className="ht-table">
+              <colgroup>
+                <col style={{ width: '32px' }} />
+                <col style={{ width: '44px' }} />
+                <col />
+                <col style={{ width: '120px' }} />
+                <col style={{ width: '120px' }} />
+                <col style={{ width: '70px' }} />
+              </colgroup>
+              <thead>
                 <tr>
-                  <td colSpan={5} className="ht-empty">
-                    카드가 없습니다
-                  </td>
+                  <th></th>
+                  <th>No.</th>
+                  <th>제목 (ko)</th>
+                  <th>slug</th>
+                  <th>탭</th>
+                  <th style={{ textAlign: 'center' }}>노출</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {cards.map((card, idx) => (
+                  <tr
+                    key={card._id}
+                    className={`ht-row-clickable${dragOver === idx ? 'ht-drag-over' : ''}`}
+                    draggable
+                    onDragStart={() => handleDragStart(idx)}
+                    onDragOver={(e) => handleDragOver(e, idx)}
+                    onDragEnd={handleDragEnd}
+                    onDrop={() => handleDrop(idx)}
+                    onClick={() => onEditCard(card._id)}
+                  >
+                    <td
+                      className="ht-drag-handle"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      ⋮⋮
+                    </td>
+                    <td className="ht-row-num">{idx + 1}</td>
+                    <td>
+                      <span className="ht-row-name">
+                        {card.title?.ko || '—'}
+                      </span>
+                    </td>
+                    <td className="ht-row-meta">{card.slug?.current || '—'}</td>
+                    <td className="ht-row-meta">
+                      {card.tab?.label?.ko || '—'}
+                    </td>
+                    <td
+                      style={{ textAlign: 'center' }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <input
+                        type="checkbox"
+                        className="tt-toggle"
+                        checked={!!card.isVisible}
+                        onChange={(e) => toggleCard(card._id, e.target.checked)}
+                      />
+                    </td>
+                  </tr>
+                ))}
+                {cards.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="ht-empty">
+                      카드가 없습니다
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-function SiteSettingsPanel({
-  onEditCard,
-}: {
-  onEditCard: (id: string) => void;
-}) {
-  const [activeTab, setActiveTab] = useState<SiteSettingsTab>('brand');
-
-  const tabs: { key: SiteSettingsTab; label: string }[] = [
-    { key: 'brand', label: '브랜드 철학' },
-    { key: 'stats', label: '통계 수치' },
-    { key: 'popups', label: '이벤트 팝업' },
-    { key: 'quickNav', label: '빠른 탐색' },
-  ];
-
-  return (
-    <div>
-      <div className="ht-sub-tabs">
-        {tabs.map((t) => (
-          <button
-            key={t.key}
-            className={`ht-sub-tab ${activeTab === t.key ? 'active' : ''}`}
-            onClick={() => setActiveTab(t.key)}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {activeTab === 'brand' && <BrandSection />}
-      {activeTab === 'stats' && <StatsSection />}
-      {activeTab === 'popups' && <PopupsSection />}
-      {activeTab === 'quickNav' && <QuickNavSection onEditCard={onEditCard} />}
-    </div>
-  );
-}
-
-// ─── ToggleRow (module-level) ─────────────────────────────
+// ─── ToggleRow ────────────────────────────────────────────
 
 function ToggleRow({
   label,
@@ -1378,7 +2039,6 @@ function SectionsPanel() {
       .set({ [path]: value })
       .commit();
     setSaving(false);
-    // Optimistic update for nested path
     setDoc((prev) => {
       if (!prev) return prev;
       const parts = path.split('.');
@@ -1387,10 +2047,7 @@ function SectionsPanel() {
         const g = group as keyof SectionVisibilityDoc;
         return {
           ...prev,
-          [g]: {
-            ...(prev[g] as Record<string, unknown>),
-            [field]: value,
-          },
+          [g]: { ...(prev[g] as Record<string, unknown>), [field]: value },
         };
       }
       return prev;
@@ -1588,11 +2245,9 @@ export function HospitalTool() {
   if (selectedId) {
     return <DoctorDetail id={selectedId} onBack={() => router.navigate({})} />;
   }
-
   if (heroKey) {
     return <HeroDetail heroKey={heroKey} onBack={() => router.navigate({})} />;
   }
-
   if (qcardId) {
     return <QuickCardDetail id={qcardId} onBack={() => router.navigate({})} />;
   }
@@ -1618,8 +2273,11 @@ export function HospitalTool() {
       {activeTab === 'hero' && (
         <HeroBannerPanel onEdit={(key) => router.navigate({ heroKey: key })} />
       )}
-      {activeTab === 'siteSettings' && (
-        <SiteSettingsPanel
+      {activeTab === 'brand' && <BrandSection />}
+      {activeTab === 'stats' && <StatsSection />}
+      {activeTab === 'popups' && <PopupsSection />}
+      {activeTab === 'quickNav' && (
+        <QuickNavSection
           onEditCard={(id) => router.navigate({ qcardId: id })}
         />
       )}

@@ -48,7 +48,7 @@ const CARD_QUERY = `*[_type == "quickEntryCard" && _id == $id][0] {
 
 const TABS_QUERY = `*[_type == "quickEntryTab"] | order(sortOrder asc) { _id, "label": label.ko }`;
 
-const TREATMENT_SEARCH_QUERY = `*[_type == "treatment" && (name.ko match $q || name.en match $q || slug.current match $q)] | order(sortOrder asc) [0..19] {
+const ALL_TREATMENTS_QUERY = `*[_type == "treatment"] | order(sortOrder asc) {
   _id,
   "name": coalesce(name.ko, name.en, "(이름없음)"),
   "slug": slug.current
@@ -84,11 +84,9 @@ export function QuickCardDetail({
   const [slugError, setSlugError] = useState<string | null>(null);
 
   const [treatments, setTreatments] = useState<TreatmentResult[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<TreatmentResult[]>([]);
-  const [searching, setSearching] = useState(false);
+  const [allTreatments, setAllTreatments] = useState<TreatmentResult[]>([]);
+  const [filterQuery, setFilterQuery] = useState('');
 
-  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const initialized = useRef(false);
 
   useEffect(() => {
@@ -120,9 +118,11 @@ export function QuickCardDetail({
     Promise.all([
       client.fetch<CardDoc>(CARD_QUERY, { id }),
       client.fetch<TabOption[]>(TABS_QUERY),
-    ]).then(([cardData, tabData]) => {
+      client.fetch<TreatmentResult[]>(ALL_TREATMENTS_QUERY),
+    ]).then(([cardData, tabData, treatmentData]) => {
       setDoc(cardData);
       setTabs(tabData ?? []);
+      setAllTreatments(treatmentData ?? []);
       if (!initialized.current) {
         setTreatments(cardData?.linkedTreatments ?? []);
         initialized.current = true;
@@ -156,27 +156,6 @@ export function QuickCardDetail({
     }
     await patch({ slug: { _type: 'slug', current: trimmed } });
     setDoc((prev) => (prev ? { ...prev, slug: trimmed } : prev));
-  };
-
-  const handleSearch = (q: string) => {
-    setSearchQuery(q);
-    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
-    if (!q.trim()) {
-      setSearchResults([]);
-      return;
-    }
-    searchTimerRef.current = setTimeout(async () => {
-      setSearching(true);
-      try {
-        const results = await client.fetch<TreatmentResult[]>(
-          TREATMENT_SEARCH_QUERY,
-          { q: `*${q}*` },
-        );
-        setSearchResults(results ?? []);
-      } finally {
-        setSearching(false);
-      }
-    }, 300);
   };
 
   const saveTreatments = async (newList: TreatmentResult[]) => {
@@ -376,130 +355,58 @@ export function QuickCardDetail({
 
       {/* ─── 연결 시술 ─── */}
       <div className="ht-detail-section">
-        <div className="ht-detail-section-title">연결 시술</div>
+        <div className="ht-detail-section-title">
+          연결 시술
+          <span className="ht-row-meta" style={{ fontWeight: 400 }}>
+            ({treatments.length}개 선택됨)
+          </span>
+        </div>
         <div className="ht-detail-body">
-          {treatments.length > 0 && (
-            <div className="ht-array-editor" style={{ marginBottom: 12 }}>
-              {treatments.map((t) => (
-                <div
-                  key={t._id}
-                  className="ht-array-item"
-                  style={{ padding: '8px 12px' }}
-                >
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
-                    <span style={{ fontSize: 13 }}>
-                      {t.name}
-                      {t.slug && (
-                        <span className="ht-row-meta" style={{ marginLeft: 8 }}>
-                          ({t.slug})
-                        </span>
-                      )}
-                    </span>
-                    <button
-                      className="ht-remove-btn"
-                      onClick={() => removeTreatment(t._id)}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          {treatments.length === 0 && (
-            <p className="ht-row-meta" style={{ marginBottom: 10 }}>
-              연결된 시술이 없습니다.
-            </p>
-          )}
-          <div className="ht-detail-field" style={{ maxWidth: 360 }}>
-            <label className="ht-detail-label">시술 검색</label>
+          <div
+            className="ht-detail-field"
+            style={{ maxWidth: 360, marginBottom: 10 }}
+          >
             <input
               type="text"
               className="ht-text-input"
-              value={searchQuery}
-              placeholder="시술명으로 검색..."
-              onChange={(e) => handleSearch(e.target.value)}
+              value={filterQuery}
+              placeholder="시술명 필터..."
+              onChange={(e) => setFilterQuery(e.target.value)}
             />
           </div>
-          {searchQuery && (
-            <div
-              style={{
-                marginTop: 8,
-                border: '1px solid var(--card-border-color)',
-                borderRadius: 4,
-                overflow: 'hidden',
-                maxWidth: 360,
-              }}
-            >
-              {searching && (
-                <div
-                  style={{
-                    padding: '8px 12px',
-                    fontSize: 12,
-                    color: 'var(--card-muted-fg-color)',
-                  }}
-                >
-                  검색 중...
-                </div>
-              )}
-              {!searching && searchResults.length === 0 && (
-                <div
-                  style={{
-                    padding: '8px 12px',
-                    fontSize: 12,
-                    color: 'var(--card-muted-fg-color)',
-                  }}
-                >
-                  결과 없음
-                </div>
-              )}
-              {!searching &&
-                searchResults.map((t) => {
-                  const already = treatments.some((x) => x._id === t._id);
-                  return (
-                    <div
-                      key={t._id}
-                      onClick={() => !already && addTreatment(t)}
-                      style={{
-                        padding: '8px 12px',
-                        fontSize: 13,
-                        cursor: already ? 'default' : 'pointer',
-                        opacity: already ? 0.4 : 1,
-                        borderBottom: '1px solid var(--card-border-color)',
-                        background: 'var(--card-bg-color)',
+          <div className="ht-treatment-list">
+            {allTreatments
+              .filter(
+                (t) =>
+                  !filterQuery.trim() ||
+                  t.name.toLowerCase().includes(filterQuery.toLowerCase()),
+              )
+              .map((t) => {
+                const checked = treatments.some((x) => x._id === t._id);
+                return (
+                  <label
+                    key={t._id}
+                    className={`ht-treatment-item${checked ? 'selected' : ''}`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => {
+                        if (checked) {
+                          removeTreatment(t._id);
+                        } else {
+                          addTreatment(t);
+                        }
                       }}
-                      onMouseEnter={(e) => {
-                        if (!already)
-                          (e.currentTarget as HTMLDivElement).style.background =
-                            'var(--card-bg2-color, rgba(0,0,0,0.04))';
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLDivElement).style.background =
-                          'var(--card-bg-color)';
-                      }}
-                    >
-                      {t.name}
-                      {t.slug && (
-                        <span className="ht-row-meta" style={{ marginLeft: 8 }}>
-                          ({t.slug})
-                        </span>
-                      )}
-                      {already && (
-                        <span className="ht-row-meta" style={{ marginLeft: 8 }}>
-                          이미 추가됨
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
-            </div>
-          )}
+                    />
+                    <span className="ht-treatment-name">{t.name}</span>
+                  </label>
+                );
+              })}
+            {allTreatments.length === 0 && (
+              <p className="ht-row-meta">시술이 없습니다.</p>
+            )}
+          </div>
         </div>
       </div>
 

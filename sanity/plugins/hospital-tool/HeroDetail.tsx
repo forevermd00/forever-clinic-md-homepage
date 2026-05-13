@@ -67,7 +67,7 @@ export function HeroDetail({
   const [uploading, setUploading] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
 
-  const pageEntry = PAGE_HEROES.find((p) => p.title === heroKey);
+  const pageEntry = PAGE_HEROES.find((p) => p.key === heroKey);
   const pageKey = pageEntry?.key ?? heroKey;
   const docId = `page-hero-${pageKey}`;
 
@@ -101,7 +101,7 @@ export function HeroDetail({
       await client.createIfNotExists({
         _id: docId,
         _type: 'pageHero',
-        pageName: heroKey,
+        pageName: pageEntry?.title ?? heroKey,
       });
       const result = await client.fetch<HeroDoc>(QUERY, { docId });
       setDoc(result ?? { _id: docId, pageName: heroKey });
@@ -156,7 +156,9 @@ export function HeroDetail({
           ← 목록으로
         </button>
         <div className="ht-detail-title-row">
-          <h2 className="ht-detail-title">히어로 — {heroKey}</h2>
+          <h2 className="ht-detail-title">
+            히어로 — {pageEntry?.title ?? heroKey}
+          </h2>
           {saving && <span className="ht-saving-indicator">저장 중…</span>}
         </div>
       </div>
