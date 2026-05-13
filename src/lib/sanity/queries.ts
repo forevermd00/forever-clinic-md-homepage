@@ -197,7 +197,7 @@ export const contactSectionConfigQuery = `
 
 // === QuickEntry ===
 export const quickEntryCardsQuery = `
-  *[_type == "quickEntryCard" && tab->key == $tab] | order(sortOrder asc) {
+  *[_type == "quickEntryCard" && tab == $tab] | order(sortOrder asc) {
     _id,
     "title": title[$locale],
     "description": description[$locale],
@@ -280,10 +280,10 @@ export const brandPhilosophyQuery = `
     backgroundImage, "content": content[$locale],
     "values": values[] {
       _key,
-      "titleKo": title.ko,
-      "titleEn": title.en,
+      titleKo,
+      titleEn,
       "description": description[$locale],
-      "image": image
+      "image": backgroundImage
     }
   }
 `;
