@@ -123,7 +123,23 @@ export function Footer({ locale = 'ko', clinicInfo }: FooterProps) {
 
         {/* Copyright row */}
         <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-          <p className="text-[12px] text-[#706263]">{t('copyright')}</p>
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+            <p className="text-[12px] text-[#706263]">{t('copyright')}</p>
+            <div className="flex gap-3">
+              <Link
+                href={`/${locale}/terms`}
+                className="text-[12px] text-[#706263] transition-colors hover:text-white"
+              >
+                {t('terms')}
+              </Link>
+              <Link
+                href={`/${locale}/privacy`}
+                className="text-[12px] text-[#706263] transition-colors hover:text-white"
+              >
+                {t('privacy')}
+              </Link>
+            </div>
+          </div>
           <div className="flex gap-2.5">
             {snsIcons.map(({ label, title }) => (
               <span
