@@ -129,7 +129,7 @@ function mapEquipment(raw: SanityEquipment[]): EquipmentItem[] {
     treatments: '', // Sanity equipment schema doesn't include treatments field directly
     image: e.image
       ? {
-          src: urlFor(e.image)?.width(600).height(400).url() || '',
+          src: urlFor(e.image)?.width(800).fit('max').url() || '',
           alt: e.name || '',
         }
       : undefined,
