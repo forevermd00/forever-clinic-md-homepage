@@ -229,7 +229,7 @@ export default async function TreatmentDetailPage({
         ])}
       />
       <section className="bg-[#faf8f5]">
-        <div className="mx-auto flex max-w-[var(--container-max)] flex-col gap-0 p-5 lg:flex-row lg:px-[120px] lg:py-16">
+        <div className="mx-auto flex max-w-[680px] flex-col gap-0 px-5 py-5 lg:max-w-[var(--container-max)] lg:flex-row lg:px-[120px] lg:py-16">
           {/* Left - Title */}
           <div className="flex flex-col lg:w-[340px] lg:shrink-0 lg:pr-12">
             {/* Breadcrumb */}
