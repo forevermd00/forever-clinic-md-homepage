@@ -151,3 +151,225 @@
   text-align: center;
   color: var(--card-muted-fg-color);
 }
+
+/* ===== Row clickable ===== */
+.mt-row-clickable {
+  cursor: pointer;
+}
+
+/* ===== Toolbar ===== */
+.mt-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.mt-add-btn {
+  padding: 6px 14px;
+  border: 1px dashed var(--card-border-color);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--card-muted-fg-color);
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s;
+}
+
+.mt-add-btn:hover {
+  border-color: var(--card-fg-color);
+  color: var(--card-fg-color);
+}
+
+/* ===== Detail Page ===== */
+.mt-detail-container {
+  padding: 20px 24px;
+  max-width: 900px;
+  margin: 0 auto;
+  touch-action: pan-y;
+  font-size: 13px;
+  color: var(--card-fg-color);
+}
+
+.mt-detail-header {
+  margin-bottom: 24px;
+}
+
+.mt-back-btn {
+  background: none;
+  border: none;
+  color: var(--card-muted-fg-color);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+  margin-bottom: 8px;
+  display: inline-block;
+}
+
+.mt-back-btn:hover {
+  color: var(--card-fg-color);
+}
+
+.mt-detail-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mt-detail-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--card-fg-color);
+  margin: 0;
+}
+
+.mt-saving-indicator {
+  font-size: 11px;
+  color: var(--card-muted-fg-color);
+}
+
+.mt-detail-section {
+  margin-bottom: 24px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.mt-detail-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--card-muted-fg-color);
+  background: var(--card-bg2-color, rgba(0, 0, 0, 0.03));
+  padding: 8px 14px;
+  margin: 0;
+  border-bottom: 1px solid var(--card-border-color);
+}
+
+.mt-detail-body {
+  padding: 14px;
+}
+
+.mt-detail-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.mt-detail-grid4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.mt-detail-grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 700px) {
+  .mt-detail-grid4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .mt-detail-grid2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mt-detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mt-detail-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--card-muted-fg-color);
+  white-space: nowrap;
+}
+
+.mt-text-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 9px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 4px;
+  background: var(--card-bg-color);
+  color: var(--card-fg-color);
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.mt-text-input:focus {
+  outline: 1px solid #a83c44;
+}
+
+.mt-text-input-wide {
+  min-width: 280px;
+}
+
+.mt-textarea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.5;
+}
+
+.mt-textarea-lg {
+  min-height: 140px;
+}
+
+/* ===== Thumbnail preview ===== */
+.mt-thumb-preview {
+  max-width: 200px;
+  max-height: 140px;
+  border-radius: 4px;
+  border: 1px solid var(--card-border-color);
+  display: block;
+  margin-bottom: 10px;
+  object-fit: cover;
+}
+
+/* ===== Upload button ===== */
+.mt-upload-btn {
+  display: inline-block;
+  padding: 6px 14px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--card-fg-color);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.mt-upload-btn:hover {
+  background: var(--card-fg-color);
+  color: var(--card-bg-color);
+}
+
+/* ===== Delete area ===== */
+.mt-detail-delete-area {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--card-border-color);
+}
+
+.mt-delete-btn {
+  padding: 6px 14px;
+  border: 1px solid #a83c44;
+  border-radius: 4px;
+  background: transparent;
+  color: #a83c44;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.mt-delete-btn:hover {
+  background: #a83c44;
+  color: white;
+}
