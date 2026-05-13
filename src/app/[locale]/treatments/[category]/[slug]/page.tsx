@@ -302,7 +302,7 @@ export default async function TreatmentDetailPage({
           </div>
 
           {/* Right - Content */}
-          <div className="mt-8 flex flex-col border-t border-[#e6e6e6] pt-8 lg:mt-0 lg:flex-1 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-12">
+          <div className="mt-5 flex flex-col border-[#e6e6e6] lg:mt-0 lg:flex-1 lg:border-l lg:pt-0 lg:pl-12">
             {/* Composition (signature only) */}
             {treatment.hasSignature && treatment.composition && (
               <div className="mb-6 rounded-[8px] border border-[#efe5d9] bg-white p-4">

@@ -30,12 +30,12 @@ export function EquipmentShowcase({
       {/* Main display: image left + info right */}
       <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
         {/* Selected image */}
-        <div className="aspect-[4/3] flex-1 overflow-hidden rounded-[12px] lg:max-w-[560px]">
+        <div className="aspect-[4/3] flex-1 overflow-hidden rounded-[12px] bg-[#faf8f5] lg:max-w-[560px]">
           {selected.image ? (
             <img
               src={selected.image.src}
               alt={selected.image.alt}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-contain"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#efe5d9] via-[#e8ddd0] to-[#d4c7bd]">
@@ -80,7 +80,7 @@ export function EquipmentShowcase({
             type="button"
             onClick={() => setSelectedIndex(index)}
             className={cn(
-              'h-[90px] w-[140px] shrink-0 overflow-hidden rounded-[8px] transition-all duration-200',
+              'h-[90px] w-[140px] shrink-0 overflow-hidden rounded-[8px] bg-[#faf8f5] transition-all duration-200',
               index === selectedIndex
                 ? 'ring-2 ring-[#2b2b2b]'
                 : 'opacity-60 hover:opacity-90',
@@ -90,7 +90,7 @@ export function EquipmentShowcase({
               <img
                 src={item.image.src}
                 alt={item.image.alt}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-contain"
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#efe5d9] to-[#d4c7bd]">
