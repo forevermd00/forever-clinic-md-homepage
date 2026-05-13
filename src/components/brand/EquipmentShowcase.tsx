@@ -30,15 +30,15 @@ export function EquipmentShowcase({
       {/* Main display: image left + info right */}
       <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
         {/* Selected image */}
-        <div className="flex-1 overflow-hidden rounded-[12px] bg-[#faf8f5] lg:max-w-[560px]">
+        <div className="h-[320px] w-full overflow-hidden rounded-[12px] bg-[#faf8f5] lg:h-[480px] lg:max-w-[560px]">
           {selected.image ? (
             <img
               src={selected.image.src}
               alt={selected.image.alt}
-              className="h-auto w-full"
+              className="h-full w-full object-contain"
             />
           ) : (
-            <div className="flex aspect-[4/3] w-full items-center justify-center bg-gradient-to-br from-[#efe5d9] via-[#e8ddd0] to-[#d4c7bd]">
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#efe5d9] via-[#e8ddd0] to-[#d4c7bd]">
               <span className="text-[16px] font-medium text-[#b3a89c]">
                 {selected.name}
               </span>
