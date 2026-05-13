@@ -14,7 +14,7 @@ export default defineType({
         skincare: '피부 관리',
         'skin-booster': '스킨부스터',
         'hair-removal': '제모',
-        anesthesia: '마취크림',
+        anesthesia: '마취',
       };
       return {
         title: title || '(시술명 미입력)',
@@ -53,7 +53,7 @@ export default defineType({
           { title: '피부 관리', value: 'skincare' },
           { title: '스킨부스터', value: 'skin-booster' },
           { title: '제모', value: 'hair-removal' },
-          { title: '마취크림', value: 'anesthesia' },
+          { title: '마취', value: 'anesthesia' },
         ],
       },
     }),

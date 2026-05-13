@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useClient } from 'sanity';
-import { IntentLink } from 'sanity/router';
 import {
   TreatmentDoc,
   CATEGORIES,
   CATEGORY_LABEL,
   EDITABLE_CATEGORIES,
 } from './types';
+import { TreatmentDetail } from './TreatmentDetail';
 import './treatment-tool.css';
 
 const QUERY = `
@@ -36,6 +36,7 @@ export function TreatmentTool() {
   const [sortKey, setSortKey] = useState<SortKey>('sortOrder');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [saving, setSaving] = useState<Set<string>>(new Set());
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -113,6 +114,40 @@ export function TreatmentTool() {
     [client],
   );
 
+  const handleDragStart = (e: React.DragEvent, idx: number) => {
+    e.dataTransfer.setData('dragIdx', String(idx));
+  };
+
+  const handleDrop = useCallback(
+    async (e: React.DragEvent, dropIdx: number) => {
+      const from = parseInt(e.dataTransfer.getData('dragIdx'), 10);
+      if (isNaN(from) || from === dropIdx) return;
+
+      const reordered = [...filtered];
+      const [moved] = reordered.splice(from, 1);
+      reordered.splice(dropIdx, 0, moved);
+
+      const updates = reordered.map((doc, i) => ({
+        id: doc._id,
+        sortOrder: i * 10,
+      }));
+
+      setDocs((prev) => {
+        const map = new Map(updates.map((u) => [u.id, u.sortOrder]));
+        return prev.map((d) =>
+          map.has(d._id) ? { ...d, sortOrder: map.get(d._id)! } : d,
+        );
+      });
+
+      await Promise.all(
+        updates.map(({ id, sortOrder }) =>
+          client.patch(id).set({ sortOrder }).commit(),
+        ),
+      );
+    },
+    [client, filtered],
+  );
+
   const counts = useMemo(() => {
     const c: Record<string, number> = { all: docs.length, _event: 0 };
     docs.forEach((d) => {
@@ -125,6 +160,12 @@ export function TreatmentTool() {
   const sortIcon = (key: SortKey) =>
     sortKey === key ? (sortDir === 'asc' ? ' ↑' : ' ↓') : '';
 
+  if (selectedId) {
+    return (
+      <TreatmentDetail id={selectedId} onBack={() => setSelectedId(null)} />
+    );
+  }
+
   return (
     <div className="tt-container">
       {/* Category Tabs */}
@@ -136,11 +177,11 @@ export function TreatmentTool() {
             onClick={() => setActiveTab(cat.slug)}
           >
             {cat.label}
-            {counts[cat.slug] !== undefined ? (
+            {counts[cat.slug] !== undefined && (
               <span style={{ marginLeft: 4, opacity: 0.6 }}>
                 {counts[cat.slug]}
               </span>
-            ) : null}
+            )}
           </button>
         ))}
       </div>
@@ -163,23 +204,26 @@ export function TreatmentTool() {
         <div className="tt-table-wrap">
           <table className="tt-table">
             <colgroup>
+              <col style={{ width: '36px' }} />
               <col style={{ width: '52px' }} />
-              <col style={{ width: '28%' }} />
-              <col style={{ width: '18%' }} />
+              <col style={{ width: '26%' }} />
+              <col style={{ width: '17%' }} />
               <col style={{ width: '60px' }} />
               <col style={{ width: '60px' }} />
               <col style={{ width: '60px' }} />
-              <col style={{ width: '18%' }} />
+              <col style={{ width: '16%' }} />
               <col style={{ width: '80px' }} />
             </colgroup>
             <thead>
               <tr>
+                <th>⠿</th>
                 <th onClick={() => handleSort('sortOrder')}>
                   순서
                   <span className="tt-sort-icon">{sortIcon('sortOrder')}</span>
                 </th>
                 <th onClick={() => handleSort('name')}>
-                  시술명<span className="tt-sort-icon">{sortIcon('name')}</span>
+                  시술명
+                  <span className="tt-sort-icon">{sortIcon('name')}</span>
                 </th>
                 <th onClick={() => handleSort('category')}>
                   카테고리
@@ -195,17 +239,21 @@ export function TreatmentTool() {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="tt-empty">
+                  <td colSpan={9} className="tt-empty">
                     시술이 없습니다
                   </td>
                 </tr>
               ) : (
-                filtered.map((doc) => (
+                filtered.map((doc, idx) => (
                   <TreatmentRow
                     key={doc._id}
                     doc={doc}
                     saving={saving.has(doc._id)}
                     onPatch={patch}
+                    onEdit={() => setSelectedId(doc._id)}
+                    onDragStart={(e) => handleDragStart(e, idx)}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => handleDrop(e, idx)}
                   />
                 ))
               )}
@@ -221,18 +269,38 @@ function TreatmentRow({
   doc,
   saving,
   onPatch,
+  onEdit,
+  onDragStart,
+  onDragOver,
+  onDrop,
 }: {
   doc: TreatmentDoc;
   saving: boolean;
   onPatch: (id: string, fields: Record<string, unknown>) => Promise<void>;
+  onEdit: () => void;
+  onDragStart: (e: React.DragEvent) => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDrop: (e: React.DragEvent) => void;
 }) {
   const firstPrice = doc.priceOptions?.[0];
   const price = firstPrice?.price;
   const discountPrice = firstPrice?.discountPrice;
 
   return (
-    <tr style={{ opacity: saving ? 0.5 : 1 }}>
-      {/* sortOrder */}
+    <tr
+      style={{ opacity: saving ? 0.5 : 1 }}
+      draggable
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+    >
+      <td
+        className="tt-drag-handle"
+        style={{ textAlign: 'center', cursor: 'grab' }}
+      >
+        ⠿
+      </td>
+
       <td>
         <input
           className="tt-order-input"
@@ -244,21 +312,21 @@ function TreatmentRow({
               onPatch(doc._id, { sortOrder: v });
             }
           }}
+          onClick={(e) => e.stopPropagation()}
         />
       </td>
 
-      {/* 시술명 */}
       <td>
         <span className="tt-name-link">{doc.name || '(미입력)'}</span>
         <div className="tt-name-slug">{doc.slug}</div>
       </td>
 
-      {/* 카테고리 */}
       <td>
         <select
           className="tt-category-select"
           value={doc.category || ''}
           onChange={(e) => onPatch(doc._id, { category: e.target.value })}
+          onClick={(e) => e.stopPropagation()}
         >
           <option value="">—</option>
           {EDITABLE_CATEGORIES.map((c) => (
@@ -269,7 +337,6 @@ function TreatmentRow({
         </select>
       </td>
 
-      {/* 이벤트 */}
       <td style={{ textAlign: 'center' }}>
         <input
           type="checkbox"
@@ -279,7 +346,6 @@ function TreatmentRow({
         />
       </td>
 
-      {/* 시그니처 */}
       <td style={{ textAlign: 'center' }}>
         <input
           type="checkbox"
@@ -289,7 +355,6 @@ function TreatmentRow({
         />
       </td>
 
-      {/* 노출 */}
       <td style={{ textAlign: 'center' }}>
         <input
           type="checkbox"
@@ -299,7 +364,6 @@ function TreatmentRow({
         />
       </td>
 
-      {/* 가격 */}
       <td className="tt-price">
         {price ? (
           discountPrice ? (
@@ -317,15 +381,10 @@ function TreatmentRow({
         )}
       </td>
 
-      {/* 편집 */}
       <td>
-        <IntentLink
-          intent="edit"
-          params={{ id: doc._id, type: 'treatment' }}
-          className="tt-edit-btn"
-        >
+        <button className="tt-edit-btn" onClick={onEdit}>
           편집
-        </IntentLink>
+        </button>
       </td>
     </tr>
   );

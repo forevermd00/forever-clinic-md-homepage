@@ -22,6 +22,7 @@ import {
 import { schemaTypes } from './src/lib/sanity/schemas';
 import { consultationTool } from './sanity/plugins/consultation-tool';
 import { treatmentTool } from './sanity/plugins/treatment-tool';
+import { fontPlugin } from './sanity/plugins/font-plugin';
 
 const singletonTypes = new Set([
   'clinicInfo',
@@ -230,6 +231,7 @@ export default defineConfig({
     }),
     consultationTool(),
     treatmentTool(),
+    fontPlugin(),
   ],
   schema: {
     types: schemaTypes,

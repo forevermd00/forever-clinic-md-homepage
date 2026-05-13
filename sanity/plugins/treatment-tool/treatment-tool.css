@@ -287,3 +287,124 @@
   font-size: 10px;
   margin-left: 2px;
 }
+
+/* ===== Detail Page ===== */
+.tt-detail-container {
+  max-width: 900px;
+}
+.tt-detail-header {
+  margin-bottom: 24px;
+}
+.tt-back-btn {
+  background: none;
+  border: none;
+  color: var(--card-muted-fg-color);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+  margin-bottom: 8px;
+  display: inline-block;
+}
+.tt-back-btn:hover {
+  color: var(--card-fg-color);
+}
+.tt-detail-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.tt-detail-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--card-fg-color);
+  margin: 0;
+}
+.tt-saving-indicator {
+  font-size: 11px;
+  color: var(--card-muted-fg-color);
+}
+.tt-detail-section {
+  margin-bottom: 24px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.tt-detail-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--card-muted-fg-color);
+  background: var(--card-bg2-color, rgba(0, 0, 0, 0.03));
+  padding: 8px 14px;
+  margin: 0;
+  border-bottom: 1px solid var(--card-border-color);
+}
+.tt-detail-section > :not(.tt-detail-section-title) {
+  padding: 14px;
+}
+.tt-detail-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.tt-detail-grid4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.tt-detail-grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+@media (max-width: 700px) {
+  .tt-detail-grid4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .tt-detail-grid2 {
+    grid-template-columns: 1fr;
+  }
+}
+.tt-detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.tt-detail-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--card-muted-fg-color);
+  white-space: nowrap;
+}
+.tt-text-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 9px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 4px;
+  background: var(--card-bg-color);
+  color: var(--card-fg-color);
+  font-size: 13px;
+  font-family: inherit;
+}
+.tt-text-input:focus {
+  outline: 1px solid #a83c44;
+}
+.tt-text-input-sm {
+  width: 140px;
+}
+.tt-textarea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.5;
+}
+.tt-category-select-lg {
+  max-width: 180px;
+}
+.tt-detail-footer {
+  font-size: 12px;
+  color: var(--card-muted-fg-color);
+  padding: 12px 0 4px;
+}
