@@ -30,13 +30,6 @@ const mediaLinkKeys = [
   { key: 'notice', href: '/media/notice' },
 ] as const;
 
-const snsIcons = [
-  { label: 'IG', title: 'Instagram' },
-  { label: 'YT', title: 'YouTube' },
-  { label: 'WC', title: 'WeChat' },
-  { label: 'B', title: 'Blog' },
-];
-
 interface FooterClinicInfo {
   address?: string;
   phone?: string;
@@ -139,17 +132,6 @@ export function Footer({ locale = 'ko', clinicInfo }: FooterProps) {
                 {t('privacy')}
               </Link>
             </div>
-          </div>
-          <div className="flex gap-2.5">
-            {snsIcons.map(({ label, title }) => (
-              <span
-                key={label}
-                title={title}
-                className="flex size-9 cursor-pointer items-center justify-center rounded-full border border-white/20 text-[11px] font-medium tracking-[0.5px] text-white/60 transition-colors hover:border-white/40 hover:text-white"
-              >
-                {label}
-              </span>
-            ))}
           </div>
         </div>
       </div>
