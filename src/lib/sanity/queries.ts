@@ -297,7 +297,7 @@ export const brandPhilosophyQuery = `
 
 export const statsStripQuery = `
   *[_type == "statsStrip"][0] {
-    "stats": stats[] { "label": label[$locale], number, unit }
+    "stats": stats[] { "label": label[$locale], number, unit, "description": description[$locale] }
   }
 `;
 

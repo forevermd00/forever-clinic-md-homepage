@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
+import type { BrandValue } from '@/lib/data/brand';
 
 const VALUE_KEYS = ['honesty', 'precision', 'expertise', 'dignity'] as const;
 const VALUE_ENGLISH = {
@@ -21,9 +22,11 @@ const VALUE_IMAGES = {
 export function BrandPhilosophySection({
   locale = 'ko',
   slogan,
+  values,
 }: {
   locale?: string;
   slogan?: string | null;
+  values?: BrandValue[];
 }) {
   const t = useTranslations('brand');
 
@@ -49,7 +52,17 @@ export function BrandPhilosophySection({
 
       {/* Value rows - alternating, compact */}
       {VALUE_KEYS.map((key, index) => {
+        const cms = values?.[index];
         const imageOnLeft = index % 2 === 0;
+
+        const title =
+          cms?.titleKo && locale === 'ko'
+            ? cms.titleKo
+            : cms?.titleEn && locale === 'en'
+              ? cms.titleEn
+              : t(key);
+        const description = cms?.description || t(`${key}Desc`);
+        const imageSrc = cms?.image || VALUE_IMAGES[key];
 
         return (
           <div
@@ -60,11 +73,11 @@ export function BrandPhilosophySection({
               !imageOnLeft && 'md:flex-row-reverse',
             )}
           >
-            {/* Image - 320x320 on desktop, fluid on mobile */}
+            {/* Image */}
             <div className="bg-forever-beige aspect-square w-full max-w-[320px] shrink-0 overflow-hidden rounded-[8px]">
               <img
-                src={VALUE_IMAGES[key]}
-                alt={t(key)}
+                src={imageSrc}
+                alt={title}
                 className="h-full w-full object-cover"
               />
             </div>
@@ -74,9 +87,9 @@ export function BrandPhilosophySection({
               <span className="text-[12px] font-medium tracking-[2px] text-[#706263]">
                 {VALUE_ENGLISH[key]}
               </span>
-              <h3 className="text-[32px] font-bold text-[#2b2b2b]">{t(key)}</h3>
+              <h3 className="text-[32px] font-bold text-[#2b2b2b]">{title}</h3>
               <p className="text-[15px] leading-relaxed text-[#706263]">
-                {t(`${key}Desc`)}
+                {description}
               </p>
             </div>
           </div>

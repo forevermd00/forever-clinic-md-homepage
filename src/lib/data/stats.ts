@@ -6,6 +6,7 @@ import { statsStripQuery } from '@/lib/sanity/queries';
 export type StatItem = {
   label: string;
   value: string;
+  description?: string;
 };
 
 /* ─── Sanity raw shape ─── */
@@ -15,6 +16,7 @@ interface SanityStatsStrip {
     label?: Record<string, string> | string;
     number?: number;
     unit?: string;
+    description?: string;
   }[];
 }
 
@@ -33,6 +35,7 @@ export async function getStats(locale: string): Promise<StatItem[]> {
     return {
       label,
       value: `${s.number?.toLocaleString() ?? ''}${s.unit || ''}`,
+      description: s.description || undefined,
     };
   });
 }

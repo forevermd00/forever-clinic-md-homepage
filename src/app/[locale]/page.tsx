@@ -6,6 +6,7 @@ import { SignatureProgramSection } from '@/components/home/SignatureProgramSecti
 import { PromoSection } from '@/components/home/PromoSection';
 import { BAPreviewSection } from '@/components/home/BAPreviewSection';
 import { StatsStripSection } from '@/components/home/StatsStripSection';
+import { BrandPhilosophySection } from '@/components/home/BrandPhilosophySection';
 import { DoctorSection } from '@/components/home/DoctorSection';
 import { LocationSection } from '@/components/home/LocationSection';
 import { ContactFormSection } from '@/components/home/ContactFormSection';
@@ -25,6 +26,7 @@ import { getEventTreatments } from '@/lib/data/treatments';
 import { getHomeBACases } from '@/lib/data/ba';
 import { getStats } from '@/lib/data/stats';
 import { getDoctors } from '@/lib/data/doctors';
+import { getBrandPhilosophy } from '@/lib/data/brand';
 import {
   getClinicInfo,
   getContactSectionConfig,
@@ -77,6 +79,7 @@ export default async function HomePage({
     eventTreatments,
     baCases,
     stats,
+    brandPhilosophy,
     doctors,
     clinicInfo,
     contactConfig,
@@ -91,6 +94,7 @@ export default async function HomePage({
     visibility.home.promo ? getEventTreatments(locale) : null,
     visibility.home.bnA ? getHomeBACases(locale) : null,
     visibility.home.stats ? getStats(locale) : null,
+    getBrandPhilosophy(locale),
     visibility.home.doctors ? getDoctors(locale) : null,
     visibility.home.location || visibility.home.contact
       ? getClinicInfo(locale)
@@ -138,6 +142,11 @@ export default async function HomePage({
       )}
       {visibility.home.bnA && baCases && <BAPreviewSection cases={baCases} />}
       {visibility.home.stats && stats && <StatsStripSection stats={stats} />}
+      <BrandPhilosophySection
+        locale={locale}
+        slogan={brandPhilosophy?.slogan}
+        values={brandPhilosophy?.values}
+      />
       {visibility.home.doctors && doctors && (
         <DoctorSection doctors={doctors} />
       )}

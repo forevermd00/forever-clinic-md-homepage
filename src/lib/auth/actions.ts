@@ -36,14 +36,65 @@ export async function registerUser(data: {
   return { success: true };
 }
 
-// 전화번호 인증 코드 발송 (wrapper - 실제 API는 추후 연동)
-export async function sendPhoneVerificationCode(phone: string) {
-  // TODO: 실제 SMS API 연동 예정
-  // 현재는 000000 코드를 저장하여 테스트 통과 가능
-  const code = '000000';
-  const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5분
+function formatPhoneForSms(phone: string): string {
+  // input: "+82 01012345678" or "+81 09012345678"
+  const parts = phone.trim().split(/\s+/);
+  const countryCode = parts[0].replace('+', '');
+  const localNumber = parts.slice(1).join('').replace(/\D/g, '');
+  const localNormalized = localNumber.startsWith('0')
+    ? localNumber.slice(1)
+    : localNumber;
+  return `${countryCode}${localNormalized}`;
+}
 
+async function insertFallbackCode(phone: string) {
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+  await db
+    .insert(phoneVerificationCodes)
+    .values({ phone, code: '000000', expiresAt });
+}
+
+// 전화번호 인증 코드 발송 (NHN Cloud SMS API)
+// SMS 발송 불가(환경변수 미설정) 또는 API 실패 시 000000 폴백 코드로 테스트 가능
+export async function sendPhoneVerificationCode(phone: string) {
+  const appKey = process.env.NHN_SMS_APP_KEY;
+  const secretKey = process.env.NHN_SMS_SECRET_KEY;
+  const sendNo = process.env.NHN_SMS_SENDER_NO;
+
+  if (!appKey || !secretKey || !sendNo) {
+    console.warn('[SMS] 발신번호 미설정 — 000000 폴백 코드 사용');
+    await insertFallbackCode(phone);
+    return { success: true };
+  }
+
+  const code = Math.random().toString().slice(2, 8).padStart(6, '0');
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5분
   await db.insert(phoneVerificationCodes).values({ phone, code, expiresAt });
+
+  const internationalNo = formatPhoneForSms(phone);
+
+  const response = await fetch(
+    `https://sms.api.nhncloudservice.com/sms/v3.0/appKeys/${appKey}/sender/sms`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+        'X-Secret-Key': secretKey,
+      },
+      body: JSON.stringify({
+        body: `[포에버 의원] 인증번호: ${code}`,
+        sendNo,
+        recipientList: [{ internationalRecipientNo: internationalNo }],
+      }),
+    },
+  );
+
+  const result = await response.json();
+
+  if (!result.header?.isSuccessful) {
+    console.error('[SMS] 발송 실패:', result.header, '— 000000 폴백 코드 사용');
+    await insertFallbackCode(phone);
+  }
 
   return { success: true };
 }

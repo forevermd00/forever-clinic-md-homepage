@@ -145,7 +145,7 @@ export function HeroDetail({
   if (!doc) return <div className="ht-loading">불러오는 중...</div>;
 
   const projectId = 'ecoamz42';
-  const dataset = 'develop';
+  const dataset = 'production';
   const imageRef = doc.heroImage?.asset?._ref;
   const videoRef = doc.heroVideo?.asset?._ref;
 

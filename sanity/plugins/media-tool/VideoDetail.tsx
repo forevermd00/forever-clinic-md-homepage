@@ -112,7 +112,7 @@ export function VideoDetail({
   if (!doc) return <div className="mt-loading">불러오는 중...</div>;
 
   const projectId = 'ecoamz42';
-  const dataset = 'develop';
+  const dataset = 'production';
   const imageRef = doc.thumbnail?.asset?._ref;
   const youtubeId = doc.youtubeId || null;
 

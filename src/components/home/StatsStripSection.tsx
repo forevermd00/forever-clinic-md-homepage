@@ -9,17 +9,31 @@ export async function StatsStripSection({
 }: StatsStripSectionProps = {}) {
   if (!stats || stats.length === 0) return null;
 
-  const items = stats.map((s) => ({ value: s.value, label: s.label }));
+  const items = stats.map((s) => ({
+    value: s.value,
+    label: s.label,
+    description: s.description,
+  }));
 
   return (
     <section className="bg-white py-10">
       <div className="mx-auto flex max-w-[1280px] flex-col items-center justify-between gap-8 px-5 md:flex-row md:px-10 lg:px-12">
         {items.map((stat, i) => (
-          <div key={i} className="flex flex-1 flex-col items-center gap-1">
+          <div
+            key={i}
+            className="flex flex-1 flex-col items-center gap-1 text-center"
+          >
             <span className="text-[32px] font-bold text-[#a83c44]">
               {stat.value}
             </span>
-            <span className="text-[14px] text-[#808080]">{stat.label}</span>
+            <span className="text-[13px] font-semibold text-[#2b2b2b]">
+              {stat.label}
+            </span>
+            {stat.description && (
+              <p className="mt-0.5 max-w-[180px] text-[11px] leading-relaxed text-[#9e9e9e]">
+                {stat.description}
+              </p>
+            )}
           </div>
         ))}
       </div>

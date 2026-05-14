@@ -26,7 +26,7 @@ const LOCALE_LABELS: Record<string, string> = {
 
 function sanityImageUrl(ref: string): string {
   const id = ref.replace('image-', '').replace(/-(\w+)$/, '.$1');
-  return `https://cdn.sanity.io/images/ecoamz42/develop/${id}`;
+  return `https://cdn.sanity.io/images/ecoamz42/production/${id}`;
 }
 
 async function uploadImage(client: SanityClient, file: File) {
