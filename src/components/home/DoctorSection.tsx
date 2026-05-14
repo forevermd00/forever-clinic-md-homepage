@@ -31,7 +31,7 @@ export async function DoctorSection({ doctors }: DoctorSectionProps = {}) {
                 <img
                   src={doctor.photo.src}
                   alt={doctor.photo.alt}
-                  className="h-[220px] w-full object-cover"
+                  className="w-full object-contain"
                 />
               ) : (
                 <div className="h-[220px] w-full bg-[#efe5d9]" />
@@ -41,7 +41,7 @@ export async function DoctorSection({ doctors }: DoctorSectionProps = {}) {
                 <span className="text-[13px] font-medium text-[#d4c8bd]">
                   {doctor.specialty}
                 </span>
-                {doctor.careers && doctor.careers.length > 0 ? (
+                {doctor.careers && doctor.careers.length > 0 && (
                   <ul className="mt-1 flex flex-col gap-0.5">
                     {doctor.careers.map((c, i) => (
                       <li
@@ -52,11 +52,7 @@ export async function DoctorSection({ doctors }: DoctorSectionProps = {}) {
                       </li>
                     ))}
                   </ul>
-                ) : doctor.bio ? (
-                  <p className="text-[13px] whitespace-pre-line text-[#808080]">
-                    {doctor.bio}
-                  </p>
-                ) : null}
+                )}
               </div>
             </div>
           ))}
