@@ -32,6 +32,7 @@ interface DoctorDoc {
   profileImage?: { asset?: { _ref: string } };
   philosophy?: LocalizedStr;
   specialties?: LocalizedItem[];
+  careers?: LocalizedItem[];
   licenseNumber?: string;
   isVisible?: boolean;
   sortOrder?: number;
@@ -63,6 +64,7 @@ function newKey(): string {
 const QUERY = `*[_type == "doctor" && _id == $id][0] {
   _id, name, position, profileImage { asset { _ref } },
   philosophy, specialties[] { _key, _type, ko, en, zh, ja },
+  careers[] { _key, _type, ko, en, zh, ja },
   licenseNumber, isVisible, sortOrder
 }`;
 
@@ -251,7 +253,7 @@ export function DoctorDetail({
   if (!doc) return <div className="ht-loading">불러오는 중...</div>;
 
   const projectId = 'ecoamz42';
-  const dataset = 'develop';
+  const dataset = 'production';
   const imageRef = doc.profileImage?.asset?._ref;
 
   return (
@@ -331,6 +333,16 @@ export function DoctorDetail({
           <LocalizedArrayEditor
             initialItems={doc.specialties}
             onSave={(items) => patchArray('specialties', items)}
+          />
+        </div>
+      </div>
+
+      <div className="ht-detail-section">
+        <div className="ht-detail-section-title">약력</div>
+        <div className="ht-detail-body">
+          <LocalizedArrayEditor
+            initialItems={doc.careers}
+            onSave={(items) => patchArray('careers', items)}
           />
         </div>
       </div>

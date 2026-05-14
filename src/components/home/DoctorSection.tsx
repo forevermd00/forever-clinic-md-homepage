@@ -41,9 +41,22 @@ export async function DoctorSection({ doctors }: DoctorSectionProps = {}) {
                 <span className="text-[13px] font-medium text-[#d4c8bd]">
                   {doctor.specialty}
                 </span>
-                <p className="text-[13px] whitespace-pre-line text-[#808080]">
-                  {doctor.bio}
-                </p>
+                {doctor.careers && doctor.careers.length > 0 ? (
+                  <ul className="mt-1 flex flex-col gap-0.5">
+                    {doctor.careers.map((c, i) => (
+                      <li
+                        key={i}
+                        className="text-[12px] leading-relaxed text-[#808080]"
+                      >
+                        {c}
+                      </li>
+                    ))}
+                  </ul>
+                ) : doctor.bio ? (
+                  <p className="text-[13px] whitespace-pre-line text-[#808080]">
+                    {doctor.bio}
+                  </p>
+                ) : null}
               </div>
             </div>
           ))}

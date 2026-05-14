@@ -20,7 +20,8 @@ function mapSanityDoctors(raw: SanityDoctor[]): Doctor[] {
   return raw.map((d) => ({
     name: d.name || '',
     specialty: d.specialties?.filter(Boolean).join(' · ') || d.position || '',
-    bio: d.careers?.filter(Boolean).join('\n') || d.philosophy || '',
+    bio: d.philosophy || '',
+    careers: d.careers?.filter(Boolean),
     photo: d.profileImage
       ? {
           src: urlFor(d.profileImage)?.width(400).height(500).url() || '',

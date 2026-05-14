@@ -4,6 +4,7 @@ interface Doctor {
   name: string;
   specialty: string;
   bio: string;
+  careers?: string[];
   photo?: { src: string; alt: string };
 }
 
