@@ -13,7 +13,7 @@ export default async function RootPage() {
     .map((l) => l.split(';')[0].trim().split('-')[0].toLowerCase());
 
   const locale = (langs.find((l) => locales.includes(l as Locale)) ??
-    'ko') as Locale;
+    'en') as Locale;
 
   redirect(`/${locale}`);
 }
