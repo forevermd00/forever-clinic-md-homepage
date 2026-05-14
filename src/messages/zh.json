@@ -268,6 +268,7 @@
   "home": {
     "heroTitle": "施术细节\n成就卓越效果",
     "heroSubtitle": "Precision. Science. Perfection. - 永恒诊所 明洞",
+    "heroSince": "Since 2009",
     "quickEntryTitle": "选择您的诊疗项目",
     "quickEntrySubtitle": "按烦恼、项目或场合找到适合您的疗程",
     "tabTreatment": "按项目查找",
@@ -296,6 +297,7 @@
     "locationSubway": "地铁",
     "locationHours": "营业时间",
     "locationPhone": "电话",
+    "locationEmail": "邮箱",
     "mapPlaceholder": "地图区域\n(Google Maps / Naver Maps)",
     "emptyCartNote": "报价单中没有项目",
     "treatmentOptionalNote": "您也可以不选择项目，直接在咨询内容中描述",

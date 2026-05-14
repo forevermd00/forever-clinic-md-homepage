@@ -268,6 +268,7 @@
   "home": {
     "heroTitle": "시술의 디테일이\n결과의 차이를 만듭니다.",
     "heroSubtitle": "Precision. Science. Perfection. - 포에버 의원 명동",
+    "heroSince": "Since 2009",
     "quickEntryTitle": "원하는 시술을 선택하세요",
     "quickEntrySubtitle": "고민·시술·상황으로 내게 맞는 시술을 찾아보세요",
     "tabTreatment": "시술로 찾기",
@@ -296,6 +297,7 @@
     "locationSubway": "지하철",
     "locationHours": "진료시간",
     "locationPhone": "전화",
+    "locationEmail": "이메일",
     "mapPlaceholder": "지도 영역\n(Google Maps / Naver Maps)",
     "emptyCartNote": "견적에 담긴 시술이 없습니다",
     "treatmentOptionalNote": "관심시술로 선택하지 않고, 문의 내용에 적어주셔도 됩니다",

@@ -98,11 +98,19 @@ function mapClinicInfo(raw: SanityClinicInfo): ClinicInfo {
     ? `${hours}\n${normalizeHoursText(raw.closedDayNotice)}`.trim()
     : hours;
 
+  const snsLinks = Array.isArray(raw.snsLinks)
+    ? (raw.snsLinks as { platform?: string; url?: string; label?: string }[])
+        .filter((s) => s.platform && s.url)
+        .map((s) => ({ platform: s.platform!, url: s.url!, label: s.label }))
+    : undefined;
+
   return {
     address: raw.address || '',
     subway: raw.walkingGuide || '',
     hours: hoursWithNotice,
     phone: raw.phone || '',
+    email: raw.email || undefined,
+    snsLinks: snsLinks && snsLinks.length > 0 ? snsLinks : undefined,
     latitude: raw.locationCoordinates?.latitude,
     longitude: raw.locationCoordinates?.longitude,
   };

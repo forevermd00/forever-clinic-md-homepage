@@ -167,6 +167,11 @@ export default async function BrandPage({
             <p className="text-center text-[14px] text-[#706263]">
               {t('philosophyDescription')}
             </p>
+            {brandPhilosophy?.slogan && (
+              <p className="text-[15px] font-medium text-[#a83c44] italic">
+                {brandPhilosophy.slogan}
+              </p>
+            )}
           </div>
 
           {/* Philosophy Values - dynamically rendered from CMS with fallback */}

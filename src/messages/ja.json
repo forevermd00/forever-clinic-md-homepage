@@ -268,6 +268,7 @@
   "home": {
     "heroTitle": "施術の細部が\n結果の差を生む",
     "heroSubtitle": "Precision. Science. Perfection. - フォーエバークリニック明洞",
+    "heroSince": "Since 2009",
     "quickEntryTitle": "ご希望の施術をお選びください",
     "quickEntrySubtitle": "悩み・施術・シーン別で最適な施術を見つけましょう",
     "tabTreatment": "施術で探す",
@@ -296,6 +297,7 @@
     "locationSubway": "地下鉄",
     "locationHours": "診療時間",
     "locationPhone": "電話",
+    "locationEmail": "メール",
     "mapPlaceholder": "地図エリア\n(Google Maps / Naver Maps)",
     "emptyCartNote": "見積もりに追加された施術がありません",
     "treatmentOptionalNote": "関心のある施術を選択せずに、お問い合わせ内容にご記入いただいても構いません",

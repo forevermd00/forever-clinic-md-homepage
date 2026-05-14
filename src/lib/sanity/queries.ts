@@ -196,6 +196,12 @@ export const contactSectionConfigQuery = `
 `;
 
 // === QuickEntry ===
+export const quickEntryTabsQuery = `
+  *[_type == "quickEntryTab"] | order(sortOrder asc) {
+    _id, key, "label": label[$locale]
+  }
+`;
+
 export const quickEntryCardsQuery = `
   *[_type == "quickEntryCard" && tab == $tab] | order(sortOrder asc) {
     _id,
@@ -295,8 +301,11 @@ export const statsStripQuery = `
 `;
 
 export const eventPopupQuery = `
-  *[_type == "eventPopup" && dateTime(now()) >= dateTime(startDate) && dateTime(now()) <= dateTime(endDate)][0] {
-    _id, image, "title": title[$locale], "description": description[$locale], linkUrl
+  *[_type == "eventPopup" && isVisible == true
+    && (!defined(startDate) || dateTime(now()) >= dateTime(startDate))
+    && (!defined(endDate) || dateTime(now()) <= dateTime(endDate))
+  ] | order(_createdAt asc) {
+    _id, image, "title": title[$locale], linkUrl
   }
 `;
 

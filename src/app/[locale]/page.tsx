@@ -10,13 +10,17 @@ import { DoctorSection } from '@/components/home/DoctorSection';
 import { LocationSection } from '@/components/home/LocationSection';
 import { ContactFormSection } from '@/components/home/ContactFormSection';
 import {
+  EventPopupModal,
+  type PopupItem,
+} from '@/components/home/EventPopupModal';
+import {
   siteDescriptions,
   getAlternates,
   ogLocales,
   siteNames,
 } from '@/lib/seo/keywords';
 import { getHeroContent } from '@/lib/data/hero';
-import { getQuickEntryCards } from '@/lib/data/quickEntry';
+import { getQuickEntryCards, getQuickEntryTabs } from '@/lib/data/quickEntry';
 import { getEventTreatments } from '@/lib/data/treatments';
 import { getHomeBACases } from '@/lib/data/ba';
 import { getStats } from '@/lib/data/stats';
@@ -28,6 +32,10 @@ import {
 } from '@/lib/data/clinic';
 import { getSignaturePrograms } from '@/lib/data/signaturePrograms';
 import { getSectionVisibility } from '@/lib/data/visibility';
+import { getPageHero } from '@/lib/data/hero';
+import { sanityFetch } from '@/lib/sanity/fetch';
+import { eventPopupQuery } from '@/lib/sanity/queries';
+import { urlFor } from '@/lib/sanity/image';
 
 export async function generateMetadata({
   params,
@@ -73,6 +81,7 @@ export default async function HomePage({
     clinicInfo,
     contactConfig,
     businessHours,
+    popups,
   ] = await Promise.all([
     visibility.home.hero ? getHeroContent(locale) : null,
     visibility.home.quickEntry ? getQuickEntryCards('treatment', locale) : null,
@@ -88,7 +97,22 @@ export default async function HomePage({
       : null,
     visibility.home.contact ? getContactSectionConfig(locale) : null,
     visibility.home.contact ? getBusinessHours() : null,
+    sanityFetch<PopupItem[]>(eventPopupQuery, { locale }),
   ]);
+
+  const [quickEntryTabs, contactHero] = await Promise.all([
+    visibility.home.quickEntry ? getQuickEntryTabs(locale) : null,
+    visibility.home.contact ? getPageHero('contact', locale) : null,
+  ]);
+
+  const contactBannerUrl = contactHero?.heroImage
+    ? (urlFor(contactHero.heroImage)?.width(1600).url() ?? null)
+    : null;
+
+  const popupList = popups ?? [];
+  const popupImageUrls = popupList.map((p) =>
+    p.image ? (urlFor(p.image)?.width(480).url() ?? '') : '',
+  );
 
   const cardsByTab = {
     treatment: qeTreatment ?? [],
@@ -98,9 +122,13 @@ export default async function HomePage({
 
   return (
     <>
+      <EventPopupModal popups={popupList} imageUrls={popupImageUrls} />
       {visibility.home.hero && hero && <HeroSection hero={hero} />}
       {visibility.home.quickEntry && (
-        <QuickEntrySection cardsByTab={cardsByTab} />
+        <QuickEntrySection
+          cardsByTab={cardsByTab}
+          tabs={quickEntryTabs ?? []}
+        />
       )}
       {visibility.home.signature && signaturePrograms && (
         <SignatureProgramSection locale={locale} programs={signaturePrograms} />
@@ -122,6 +150,7 @@ export default async function HomePage({
             config={contactConfig}
             businessHours={businessHours}
             showPreferredDatetime={visibility.contact.showPreferredDatetime}
+            bannerImageUrl={contactBannerUrl}
           />
         </Suspense>
       )}

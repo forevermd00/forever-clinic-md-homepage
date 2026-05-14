@@ -22,17 +22,36 @@ const TAB_KEYS: Record<string, string> = {
   situation: 'tabSituation',
 };
 
-interface QuickEntrySectionProps {
-  cardsByTab?: Record<string, QuickEntryCard[]>;
+interface SanityTab {
+  id: string;
+  key: string;
+  label: string;
 }
 
-export function QuickEntrySection({ cardsByTab }: QuickEntrySectionProps = {}) {
+interface QuickEntrySectionProps {
+  cardsByTab?: Record<string, QuickEntryCard[]>;
+  tabs?: SanityTab[];
+}
+
+export function QuickEntrySection({
+  cardsByTab,
+  tabs,
+}: QuickEntrySectionProps = {}) {
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'ko';
   const t = useTranslations('home');
   const [activeTab, setActiveTab] = useState('treatment');
   const allCards = cardsByTab ?? {};
   const cards = allCards[activeTab] ?? [];
+
+  // Sanity 탭 이름이 있으면 우선 사용, fallback은 i18n
+  const getTabLabel = (tabId: string): string => {
+    if (tabs && tabs.length > 0) {
+      const found = tabs.find((tb) => tb.key === tabId);
+      if (found?.label) return found.label;
+    }
+    return t(TAB_KEYS[tabId]);
+  };
 
   return (
     <section className="bg-[#faf8f5]">
@@ -57,7 +76,7 @@ export function QuickEntrySection({ cardsByTab }: QuickEntrySectionProps = {}) {
                   : 'bg-transparent text-[#2b2b2b] hover:bg-[#2b2b2b]/5',
               )}
             >
-              {t(TAB_KEYS[tabId])}
+              {getTabLabel(tabId)}
             </button>
           ))}
         </div>

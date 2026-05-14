@@ -18,7 +18,13 @@ const VALUE_IMAGES = {
   dignity: '/images/home/brand-dignity.png',
 } as const;
 
-export function BrandPhilosophySection({ locale = 'ko' }: { locale?: string }) {
+export function BrandPhilosophySection({
+  locale = 'ko',
+  slogan,
+}: {
+  locale?: string;
+  slogan?: string | null;
+}) {
   const t = useTranslations('brand');
 
   return (
@@ -34,6 +40,11 @@ export function BrandPhilosophySection({ locale = 'ko' }: { locale?: string }) {
         <p className="text-[14px] text-[#706263]">
           {t('philosophyDescription')}
         </p>
+        {slogan && (
+          <p className="text-[15px] font-medium text-[#a83c44] italic">
+            {slogan}
+          </p>
+        )}
       </div>
 
       {/* Value rows - alternating, compact */}

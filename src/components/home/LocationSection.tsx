@@ -14,6 +14,7 @@ function clinicInfoToRows(info: ClinicInfo) {
     { key: 'locationSubway', value: info.subway },
     { key: 'locationHours', value: info.hours },
     { key: 'locationPhone', value: info.phone },
+    ...(info.email ? [{ key: 'locationEmail', value: info.email }] : []),
   ];
 }
 
@@ -179,6 +180,21 @@ export async function LocationSection({
                           <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.51 2 2 0 0 1 3.6 1.32h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z" />
                         </svg>
                       )}
+                      {row.key === 'locationEmail' && (
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#706263"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                          <polyline points="22,6 12,13 2,6" />
+                        </svg>
+                      )}
                     </div>
                     {/* Content */}
                     <div className="flex flex-col gap-0.5">
@@ -191,6 +207,23 @@ export async function LocationSection({
                     </div>
                   </div>
                 ))}
+
+            {/* SNS 링크 */}
+            {clinicInfo?.snsLinks && clinicInfo.snsLinks.length > 0 && (
+              <div className="flex flex-wrap gap-2 pt-1">
+                {clinicInfo.snsLinks.map((sns, idx) => (
+                  <a
+                    key={idx}
+                    href={sns.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-[20px] border border-[#d4c8bd] px-3 py-1.5 text-[12px] font-medium text-[#706263] transition-colors hover:border-[#2b2b2b] hover:text-[#2b2b2b]"
+                  >
+                    {sns.label ?? sns.platform}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

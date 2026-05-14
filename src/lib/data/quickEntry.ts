@@ -1,5 +1,8 @@
 import { sanityFetch } from '@/lib/sanity/fetch';
-import { quickEntryCardsQuery } from '@/lib/sanity/queries';
+import {
+  quickEntryCardsQuery,
+  quickEntryTabsQuery,
+} from '@/lib/sanity/queries';
 import { urlFor } from '@/lib/sanity/image';
 
 interface SanityLinkedTreatment {
@@ -54,6 +57,32 @@ function mapToPageShape(
       ? urlFor(card.icon)?.width(400).height(300).url() || ''
       : '',
     linkUrl: card.linkUrl || deriveLinkUrl(card.linkedTreatments),
+  }));
+}
+
+export interface QuickEntryTab {
+  id: string;
+  key: string;
+  label: string;
+}
+
+interface SanityQuickEntryTab {
+  _id: string;
+  key?: string;
+  label?: string;
+}
+
+export async function getQuickEntryTabs(
+  locale: string,
+): Promise<QuickEntryTab[]> {
+  const data = await sanityFetch<SanityQuickEntryTab[]>(quickEntryTabsQuery, {
+    locale,
+  });
+  if (!data || data.length === 0) return [];
+  return data.map((t) => ({
+    id: t._id,
+    key: t.key ?? '',
+    label: t.label ?? '',
   }));
 }
 

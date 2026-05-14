@@ -268,6 +268,7 @@
   "home": {
     "heroTitle": "The Detail in Treatment\nMakes All the Difference.",
     "heroSubtitle": "Precision. Science. Perfection. - Forever Clinic Myeongdong",
+    "heroSince": "Since 2009",
     "quickEntryTitle": "Choose Your Treatment",
     "quickEntrySubtitle": "Find the right treatment by concern, category, or situation",
     "tabTreatment": "By Treatment",
@@ -296,6 +297,7 @@
     "locationSubway": "Subway",
     "locationHours": "Hours",
     "locationPhone": "Phone",
+    "locationEmail": "Email",
     "mapPlaceholder": "Map Area\n(Google Maps / Naver Maps)",
     "emptyCartNote": "No treatments in your estimate",
     "treatmentOptionalNote": "You can also describe your interest in the message field instead",

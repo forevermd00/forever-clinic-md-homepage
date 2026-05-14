@@ -1,10 +1,18 @@
 import { getTranslations } from 'next-intl/server';
 
+interface SnsLink {
+  platform: string;
+  url: string;
+  label?: string;
+}
+
 interface ClinicInfo {
   address: string;
   subway: string;
   hours: string;
   phone: string;
+  email?: string;
+  snsLinks?: SnsLink[];
   latitude?: number;
   longitude?: number;
 }

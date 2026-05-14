@@ -62,12 +62,14 @@ type Props = {
   config?: ContactSectionConfig;
   businessHours?: BusinessHoursEntry[];
   showPreferredDatetime?: boolean;
+  bannerImageUrl?: string | null;
 };
 
 export function ContactFormSection({
   config,
   businessHours,
   showPreferredDatetime = true,
+  bannerImageUrl,
 }: Props) {
   const hours = businessHours ?? FALLBACK_BUSINESS_HOURS;
   const pathname = usePathname();
@@ -184,7 +186,7 @@ export function ContactFormSection({
       <div
         className="relative flex flex-col items-center justify-center gap-3 px-5 py-20 text-center"
         style={{
-          backgroundImage: 'url(/images/contact-banner.png)',
+          backgroundImage: `url(${bannerImageUrl ?? '/images/contact-banner.png'})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center 40%',
         }}

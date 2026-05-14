@@ -7,6 +7,7 @@ import { urlFor } from '@/lib/sanity/image';
 interface SanityBrandPhilosophy {
   title?: string;
   subtitle?: string;
+  slogan?: string;
   backgroundImage?: unknown;
   content?: string;
   values?: {
@@ -31,6 +32,7 @@ export type BrandValue = {
 export type BrandPhilosophy = {
   title?: string;
   subtitle?: string;
+  slogan?: string;
   backgroundImage?: string;
   content?: string;
   values: BrandValue[];
@@ -50,6 +52,7 @@ export async function getBrandPhilosophy(
   return {
     title: data.title,
     subtitle: data.subtitle,
+    slogan: data.slogan,
     backgroundImage: data.backgroundImage
       ? urlFor(data.backgroundImage)?.width(1920).height(800).url() || undefined
       : undefined,

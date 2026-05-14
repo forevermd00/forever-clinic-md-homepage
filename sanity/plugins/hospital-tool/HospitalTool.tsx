@@ -87,6 +87,7 @@ interface StatsDoc {
 interface EventPopupDoc {
   _id: string;
   title?: { ko?: string; en?: string; zh?: string; ja?: string };
+  image?: { asset?: { _ref: string } };
   linkUrl?: string;
   startDate?: string;
   endDate?: string;
@@ -173,7 +174,7 @@ const STATS_QUERY = `*[_type == "statsStrip" && _id == "forever-myeongdong-stats
 }`;
 
 const POPUPS_QUERY = `*[_type == "eventPopup"] | order(_createdAt desc) {
-  _id, title, linkUrl, startDate, endDate, isVisible
+  _id, title, image { asset { _ref } }, linkUrl, startDate, endDate, isVisible
 }`;
 
 const QTABS_QUERY = `*[_type == "quickEntryTab"] | order(sortOrder asc) {
@@ -602,13 +603,19 @@ function ClinicInfoPanel() {
       <div className="ht-detail-section">
         <div className="ht-detail-section-title">주소</div>
         <div className="ht-detail-body">
-          <input
-            type="text"
-            className="ht-text-input"
-            style={{ maxWidth: 480 }}
-            defaultValue={doc.address?.ko ?? ''}
-            onBlur={(e) => patch({ 'address.ko': e.target.value })}
-          />
+          <div className="ht-detail-grid4">
+            {CLINIC_LOCALES.map(({ key, label }) => (
+              <div key={key} className="ht-detail-field">
+                <label className="ht-detail-label">{label}</label>
+                <input
+                  type="text"
+                  className="ht-text-input"
+                  defaultValue={doc.address?.[key] ?? ''}
+                  onBlur={(e) => patch({ [`address.${key}`]: e.target.value })}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -1657,6 +1664,7 @@ function PopupsSection() {
   const [docs, setDocs] = useState<EventPopupDoc[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
 
   useEffect(() => {
     client.fetch<EventPopupDoc[]>(POPUPS_QUERY).then((data) => {
@@ -1670,6 +1678,28 @@ function PopupsSection() {
     setDocs((prev) =>
       prev.map((d) => (d._id === id ? { ...d, ...fields } : d)),
     );
+  };
+
+  const handleImageUpload = async (
+    id: string,
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingId(id);
+    try {
+      const imageRef = await uploadImageAsset(client, file);
+      await client.patch(id).set({ image: imageRef }).commit();
+      setDocs((prev) =>
+        prev.map((d) =>
+          d._id === id
+            ? { ...d, image: { asset: { _ref: imageRef.asset._ref } } }
+            : d,
+        ),
+      );
+    } finally {
+      setUploadingId(null);
+    }
   };
 
   const handleAdd = async () => {
@@ -1724,6 +1754,81 @@ function PopupsSection() {
             </div>
             {expandedId === doc._id && (
               <div className="ht-popup-body">
+                {/* ─── 팝업 이미지 ─── */}
+                <div className="ht-detail-section" style={{ marginBottom: 12 }}>
+                  <div className="ht-detail-section-title">팝업 이미지</div>
+                  <div
+                    className="ht-detail-body"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: 12,
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    {doc.image?.asset?._ref ? (
+                      <img
+                        src={sanityImageUrl(
+                          'ecoamz42',
+                          'production',
+                          doc.image.asset._ref,
+                        )}
+                        alt="팝업 미리보기"
+                        style={{
+                          width: 100,
+                          height: 133,
+                          objectFit: 'cover',
+                          borderRadius: 4,
+                          border: '1px solid #e5e7eb',
+                        }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: 100,
+                          height: 133,
+                          borderRadius: 4,
+                          border: '1px dashed #d1d5db',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 12,
+                          color: '#9ca3af',
+                          flexShrink: 0,
+                        }}
+                      >
+                        이미지 없음
+                      </div>
+                    )}
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 8,
+                      }}
+                    >
+                      <label
+                        className="ht-add-btn"
+                        style={{ cursor: 'pointer', display: 'inline-block' }}
+                      >
+                        {uploadingId === doc._id
+                          ? '업로드 중…'
+                          : '이미지 업로드'}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          style={{ display: 'none' }}
+                          disabled={uploadingId === doc._id}
+                          onChange={(e) => handleImageUpload(doc._id, e)}
+                        />
+                      </label>
+                      <span style={{ fontSize: 11, color: '#9ca3af' }}>
+                        권장 비율: 3:4 (세로형)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="ht-detail-grid4" style={{ marginBottom: 10 }}>
                   {CLINIC_LOCALES.map(({ key, label }) => (
                     <div key={key} className="ht-detail-field">
