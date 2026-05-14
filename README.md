@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 포에버 의원 명동점 — 공식 홈페이지
 
-## Getting Started
+포에버 의원 명동점의 공식 웹사이트입니다. 시술 안내, 이벤트/프로모션, Before & After 사례, 의료진 소개, 상담 예약 기능을 제공합니다.
 
-First, run the development server:
+## 기술 스택
+
+| 분류      | 기술                                   |
+| --------- | -------------------------------------- |
+| Framework | Next.js 16 (App Router)                |
+| Language  | TypeScript                             |
+| Styling   | Tailwind CSS v4                        |
+| CMS       | Sanity v5 (Studio 내장)                |
+| Auth      | NextAuth v5 + Drizzle ORM (PostgreSQL) |
+| i18n      | next-intl (ko / en / zh / ja)          |
+| Form      | React Hook Form + Zod                  |
+| Email     | Nodemailer / Resend                    |
+| SMS       | NHN Cloud SMS API                      |
+| Bot 방지  | Cloudflare Turnstile                   |
+| State     | Zustand                                |
+| Carousel  | Embla Carousel                         |
+
+## 로컬 실행
 
 ```bash
+# 패키지 설치
+npm install
+
+# 환경변수 설정
+cp .env.example .env.local
+# .env.local 편집 (아래 환경변수 항목 참조)
+
+# 개발 서버 실행
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+개발 서버: [http://localhost:3000](http://localhost:3000)
+Sanity Studio: [http://localhost:3000/studio](http://localhost:3000/studio)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 환경변수
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+# Sanity
+NEXT_PUBLIC_SANITY_PROJECT_ID=
+NEXT_PUBLIC_SANITY_DATASET=
+SANITY_API_TOKEN=
 
-## Learn More
+# Database (PostgreSQL)
+DATABASE_URL=
 
-To learn more about Next.js, take a look at the following resources:
+# NextAuth
+NEXTAUTH_SECRET=
+AUTH_URL=
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Email
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
+CONTACT_RECIPIENT_EMAIL=
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# SMS (NHN Cloud)
+NHN_SMS_APP_KEY=
+NHN_SMS_SECRET_KEY=
+NHN_SMS_SENDER_NO=
 
-## Deploy on Vercel
+# Cloudflare Turnstile
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=
+TURNSTILE_SECRET_KEY=
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 주요 페이지
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| 경로                          | 설명                                                     |
+| ----------------------------- | -------------------------------------------------------- |
+| `/[locale]`                   | 홈 (히어로, 시그니처 프로그램, 이벤트, B&A, 보도자료 등) |
+| `/[locale]/treatments`        | 시술 목록 (카테고리별)                                   |
+| `/[locale]/treatments/[slug]` | 시술 상세                                                |
+| `/[locale]/signature`         | 시그니처 프로그램                                        |
+| `/[locale]/promotions`        | 이벤트·프로모션                                          |
+| `/[locale]/before-after`      | Before & After 사례                                      |
+| `/[locale]/brand`             | 브랜드 소개 (철학, 의료진, 시설, 장비)                   |
+| `/[locale]/media`             | 미디어 (보도자료, 블로그, 영상, 공지사항)                |
+| `/[locale]/contact`           | 상담 문의                                                |
+| `/[locale]/estimate`          | 견적 담기                                                |
+| `/[locale]/auth`              | 로그인 / 회원가입 (SMS 인증)                             |
+| `/studio`                     | Sanity CMS 관리자                                        |
+
+## 빌드 및 배포
+
+```bash
+# 프로덕션 빌드
+npm run build
+
+# 프로덕션 실행
+npm run start
+```
+
+배포 플랫폼: Vercel
+CMS: Sanity (프로젝트 ID: `ecoamz42`, dataset: `production`)
