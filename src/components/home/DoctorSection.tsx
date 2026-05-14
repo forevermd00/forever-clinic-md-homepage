@@ -43,7 +43,7 @@ export async function DoctorSection({ doctors }: DoctorSectionProps = {}) {
                 </span>
                 {doctor.careers && doctor.careers.length > 0 && (
                   <ul className="mt-1 flex flex-col gap-0.5">
-                    {doctor.careers.map((c, i) => (
+                    {doctor.careers.slice(0, 3).map((c, i) => (
                       <li
                         key={i}
                         className="text-[12px] leading-relaxed text-[#808080]"
