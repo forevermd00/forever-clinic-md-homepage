@@ -407,6 +407,37 @@
   margin-bottom: 10px;
 }
 
+.ht-array-item.dragging {
+  opacity: 0.4;
+}
+
+.ht-array-item.drag-over {
+  border-color: #a83c44;
+  background: rgba(168, 60, 68, 0.04);
+}
+
+.ht-drag-handle {
+  cursor: grab;
+  color: var(--card-muted-fg-color);
+  font-size: 14px;
+  padding: 0 6px 0 0;
+  background: none;
+  border: none;
+  line-height: 1;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.ht-drag-handle:active {
+  cursor: grabbing;
+}
+
+.ht-array-item-header-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .ht-array-num {
   font-size: 11px;
   font-weight: 600;

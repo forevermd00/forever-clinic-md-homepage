@@ -76,6 +76,8 @@ function LocalizedArrayEditor({
   onSave: (items: LocalizedItem[]) => void;
 }) {
   const [items, setItems] = useState<LocalizedItem[]>([]);
+  const [draggingIdx, setDraggingIdx] = useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   const initialized = useRef(false);
 
   useEffect(() => {
@@ -135,12 +137,67 @@ function LocalizedArrayEditor({
     });
   };
 
+  const handleDragStart = (i: number) => {
+    setDraggingIdx(i);
+  };
+
+  const handleDragOver = (e: React.DragEvent, i: number) => {
+    e.preventDefault();
+    setDragOverIdx(i);
+  };
+
+  const handleDrop = (
+    e: React.DragEvent,
+    toIdx: number,
+    fromIdx: number | null,
+  ) => {
+    e.preventDefault();
+    if (fromIdx === null || fromIdx === toIdx) {
+      setDraggingIdx(null);
+      setDragOverIdx(null);
+      return;
+    }
+    setItems((prev) => {
+      const updated = [...prev];
+      const [moved] = updated.splice(fromIdx, 1);
+      updated.splice(toIdx, 0, moved);
+      onSave(updated);
+      return updated;
+    });
+    setDraggingIdx(null);
+    setDragOverIdx(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggingIdx(null);
+    setDragOverIdx(null);
+  };
+
   return (
     <div className="ht-array-editor">
       {items.map((item, i) => (
-        <div key={item._key} className="ht-array-item">
+        <div
+          key={item._key}
+          className={[
+            'ht-array-item',
+            draggingIdx === i ? 'dragging' : '',
+            dragOverIdx === i && draggingIdx !== i ? 'drag-over' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          draggable
+          onDragStart={() => handleDragStart(i)}
+          onDragOver={(e) => handleDragOver(e, i)}
+          onDrop={(e) => handleDrop(e, i, draggingIdx)}
+          onDragEnd={handleDragEnd}
+        >
           <div className="ht-array-item-header">
-            <span className="ht-array-num">{i + 1}</span>
+            <div className="ht-array-item-header-left">
+              <span className="ht-drag-handle" title="드래그하여 순서 변경">
+                ⠿
+              </span>
+              <span className="ht-array-num">{i + 1}</span>
+            </div>
             <button className="ht-remove-btn" onClick={() => remove(i)}>
               ✕
             </button>
