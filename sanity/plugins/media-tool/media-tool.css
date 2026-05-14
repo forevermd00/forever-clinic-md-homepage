@@ -324,6 +324,53 @@
   min-height: 140px;
 }
 
+/* ===== Translate button ===== */
+.mt-translate-btn {
+  padding: 3px 10px;
+  border: 1px solid #a83c44;
+  border-radius: 4px;
+  background: transparent;
+  color: #a83c44;
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.mt-translate-btn:hover:not(:disabled) {
+  background: #a83c44;
+  color: white;
+}
+
+.mt-translate-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ===== Thumbnail dropzone ===== */
+.mt-thumb-dropzone {
+  border: 2px dashed var(--card-border-color);
+  border-radius: 6px;
+  padding: 12px;
+  transition: border-color 0.15s;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mt-thumb-dropzone:hover,
+.mt-thumb-dropzone.uploading {
+  border-color: #a83c44;
+}
+
+.mt-thumb-empty {
+  color: var(--card-muted-fg-color);
+  font-size: 12px;
+  text-align: center;
+  padding: 16px;
+}
+
 /* ===== Thumbnail preview ===== */
 .mt-thumb-preview {
   max-width: 200px;
@@ -351,6 +398,44 @@
 .mt-upload-btn:hover {
   background: var(--card-fg-color);
   color: var(--card-bg-color);
+}
+
+/* ===== Visibility Toggle ===== */
+.mt-toggle {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.mt-toggle-track {
+  display: inline-block;
+  width: 32px;
+  height: 18px;
+  border-radius: 9px;
+  background: var(--card-border-color);
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.mt-toggle.on .mt-toggle-track {
+  background: #22a55a;
+}
+
+.mt-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+
+.mt-toggle.on .mt-toggle-thumb {
+  transform: translateX(14px);
 }
 
 /* ===== Delete area ===== */

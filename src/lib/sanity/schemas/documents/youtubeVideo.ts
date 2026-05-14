@@ -16,8 +16,14 @@ export default defineType({
     defineField({
       name: 'youtubeId',
       title: 'YouTube ID',
-      description: 'YouTube 영상 URL에서 v= 뒤의 값',
+      description: 'YouTube 영상 URL에서 v= 뒤의 값 (썸네일 자동 생성에 사용)',
       type: 'string',
+    }),
+    defineField({
+      name: 'youtubeUrl',
+      title: '영상 링크 URL',
+      description: '클릭 시 이동할 URL (Shorts, 시작 시간 등 커스텀 링크)',
+      type: 'url',
     }),
     defineField({
       name: 'description',

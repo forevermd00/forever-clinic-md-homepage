@@ -70,6 +70,11 @@ export default defineType({
               description: '예: 건, 명, 년',
               type: 'string',
             }),
+            defineField({
+              name: 'description',
+              title: '설명 (서브텍스트)',
+              type: 'localizedString',
+            }),
           ],
         }),
       ],

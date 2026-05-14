@@ -65,6 +65,7 @@ export default async function PressPage({
             <ContentCard
               key={article.slug}
               href={`/${locale}/media/press/${article.slug}`}
+              imageUrl={article.thumbnail}
               date={article.date}
               title={article.title}
               description={article.description}

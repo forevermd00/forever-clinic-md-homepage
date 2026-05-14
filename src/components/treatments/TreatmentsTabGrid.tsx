@@ -147,9 +147,9 @@ export function TreatmentsTabGrid({
       <nav
         role="tablist"
         aria-label={t('title')}
-        className="scrollbar-hide sticky top-16 z-20 flex overflow-x-auto border-b-2 border-[#e8ded6] bg-white"
+        className="sticky top-16 z-20 border-b-2 border-[#e8ded6] bg-white"
       >
-        <div className="mx-auto flex w-full max-w-[var(--container-max)] items-center justify-center px-5 md:px-10 lg:px-12">
+        <div className="flex w-full flex-wrap items-center justify-center gap-y-1 px-4 py-2">
           {allTabs.map((cat, idx) => {
             const isActive = cat.slug === activeCategory;
             const isEventTab = cat.slug === EVENT_SLUG;
@@ -182,7 +182,7 @@ export function TreatmentsTabGrid({
                   onClick={() => handleTabChange(cat.slug)}
                   style={{ fontFamily }}
                   className={cn(
-                    'mr-1.5 flex shrink-0 items-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-semibold whitespace-nowrap transition-all duration-200 md:text-[14px]',
+                    'mr-1.5 flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-semibold whitespace-nowrap transition-all duration-200 md:text-[14px]',
                     isSignature
                       ? isActive
                         ? 'bg-[#2b2b2b] text-white shadow-sm'
@@ -233,10 +233,10 @@ export function TreatmentsTabGrid({
                   onClick={() => handleTabChange(cat.slug)}
                   style={{ fontFamily }}
                   className={cn(
-                    'shrink-0 border-b-2 px-4 py-4 text-[13px] font-medium whitespace-nowrap transition-colors duration-200 md:px-5 md:text-[14px]',
+                    'rounded px-4 py-2 text-[13px] font-medium whitespace-nowrap transition-colors duration-200 md:px-5 md:text-[14px]',
                     isActive
-                      ? 'border-[#a83c44] text-[#a83c44]'
-                      : 'border-transparent text-neutral-500 hover:text-[#2b2b2b]',
+                      ? 'bg-[#a83c44]/10 font-semibold text-[#a83c44]'
+                      : 'text-neutral-500 hover:text-[#2b2b2b]',
                   )}
                 >
                   {label}

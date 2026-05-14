@@ -115,23 +115,21 @@ export function Footer({ locale = 'ko', clinicInfo }: FooterProps) {
         <div className="my-10 h-px w-full bg-[rgba(112,98,99,0.3)]" />
 
         {/* Copyright row */}
-        <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-          <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
-            <p className="text-[12px] text-[#706263]">{t('copyright')}</p>
-            <div className="flex gap-3">
-              <Link
-                href={`/${locale}/terms`}
-                className="text-[12px] text-[#706263] transition-colors hover:text-white"
-              >
-                {t('terms')}
-              </Link>
-              <Link
-                href={`/${locale}/privacy`}
-                className="text-[12px] text-[#706263] transition-colors hover:text-white"
-              >
-                {t('privacy')}
-              </Link>
-            </div>
+        <div className="flex flex-col items-start justify-between gap-2 md:flex-row md:items-center">
+          <p className="text-[12px] text-[#706263]">{t('copyright')}</p>
+          <div className="flex gap-3">
+            <Link
+              href={`/${locale}/terms`}
+              className="text-[12px] text-[#706263] transition-colors hover:text-white"
+            >
+              {t('terms')}
+            </Link>
+            <Link
+              href={`/${locale}/privacy`}
+              className="text-[12px] text-[#706263] transition-colors hover:text-white"
+            >
+              {t('privacy')}
+            </Link>
           </div>
         </div>
       </div>

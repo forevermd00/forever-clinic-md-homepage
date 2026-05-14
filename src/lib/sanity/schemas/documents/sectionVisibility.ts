@@ -95,6 +95,12 @@ export const sectionVisibility = defineType({
           type: 'boolean',
           initialValue: true,
         }),
+        defineField({
+          name: 'brandPhilosophy',
+          title: '브랜드 철학',
+          type: 'boolean',
+          initialValue: true,
+        }),
       ],
     }),
     defineField({

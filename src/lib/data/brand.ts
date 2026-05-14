@@ -2,14 +2,24 @@ import { sanityFetch } from '@/lib/sanity/fetch';
 import { brandPhilosophyQuery } from '@/lib/sanity/queries';
 import { urlFor } from '@/lib/sanity/image';
 
+function sanityImageUrl(source: unknown): string | undefined {
+  if (!source || typeof source !== 'object') return undefined;
+  const img = source as { asset?: { _ref?: string } };
+  const ref = img.asset?._ref;
+  if (!ref) return undefined;
+  // Try urlFor first
+  const built = urlFor(source)?.width(600).height(400).url();
+  if (built) return built;
+  // Direct CDN fallback
+  const id = ref.replace(/^image-/, '').replace(/-([a-z]+)$/, '.$1');
+  return `https://cdn.sanity.io/images/ecoamz42/production/${id}`;
+}
+
 /* ─── Sanity raw shape ─── */
 
 interface SanityBrandPhilosophy {
-  title?: string;
-  subtitle?: string;
   slogan?: string;
-  backgroundImage?: unknown;
-  content?: string;
+  subtitle?: string;
   values?: {
     _key: string;
     titleKo?: string;
@@ -30,11 +40,8 @@ export type BrandValue = {
 };
 
 export type BrandPhilosophy = {
-  title?: string;
-  subtitle?: string;
   slogan?: string;
-  backgroundImage?: string;
-  content?: string;
+  subtitle?: string;
   values: BrandValue[];
 };
 
@@ -50,22 +57,15 @@ export async function getBrandPhilosophy(
   if (!data) return null;
 
   return {
-    title: data.title,
-    subtitle: data.subtitle,
     slogan: data.slogan,
-    backgroundImage: data.backgroundImage
-      ? urlFor(data.backgroundImage)?.width(1920).height(800).url() || undefined
-      : undefined,
-    content: data.content,
+    subtitle: data.subtitle,
     values:
       data.values?.map((v) => ({
         key: v._key,
         titleKo: v.titleKo || '',
         titleEn: v.titleEn || '',
         description: v.description || '',
-        image: v.image
-          ? urlFor(v.image)?.width(600).height(400).url() || undefined
-          : undefined,
+        image: sanityImageUrl(v.image),
       })) ?? [],
   };
 }

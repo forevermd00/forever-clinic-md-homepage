@@ -13,6 +13,7 @@ export const hospitalAdminTool = definePlugin({
         route.create('/doctor/:selectedId'),
         route.create('/hero/:heroKey'),
         route.create('/qcard/:qcardId'),
+        route.create('/:tab'),
       ]),
     },
   ],

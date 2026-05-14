@@ -12,20 +12,16 @@ const VALUE_ENGLISH = {
   expertise: 'Expertise',
   dignity: 'Dignity',
 } as const;
-const VALUE_IMAGES = {
-  honesty: '/images/home/brand-honesty.png',
-  precision: '/images/home/brand-precision.png',
-  expertise: '/images/home/brand-expertise.png',
-  dignity: '/images/home/brand-dignity.png',
-} as const;
 
 export function BrandPhilosophySection({
   locale = 'ko',
   slogan,
+  subtitle,
   values,
 }: {
   locale?: string;
   slogan?: string | null;
+  subtitle?: string | null;
   values?: BrandValue[];
 }) {
   const t = useTranslations('brand');
@@ -38,16 +34,11 @@ export function BrandPhilosophySection({
           BRAND PHILOSOPHY · Since 2009
         </span>
         <h2 className="text-[28px] font-bold text-[#2b2b2b]">
-          {t('smartBoutiquePhilosophy')}
+          {slogan || t('smartBoutiquePhilosophy')}
         </h2>
         <p className="text-[14px] text-[#706263]">
-          {t('philosophyDescription')}
+          {subtitle || t('philosophyDescription')}
         </p>
-        {slogan && (
-          <p className="text-[15px] font-medium text-[#a83c44] italic">
-            {slogan}
-          </p>
-        )}
       </div>
 
       {/* Value rows - alternating, compact */}
@@ -62,7 +53,7 @@ export function BrandPhilosophySection({
               ? cms.titleEn
               : t(key);
         const description = cms?.description || t(`${key}Desc`);
-        const imageSrc = cms?.image || VALUE_IMAGES[key];
+        const imageSrc = cms?.image || '';
 
         return (
           <div
@@ -75,11 +66,15 @@ export function BrandPhilosophySection({
           >
             {/* Image */}
             <div className="bg-forever-beige aspect-square w-full max-w-[320px] shrink-0 overflow-hidden rounded-[8px]">
-              <img
-                src={imageSrc}
-                alt={title}
-                className="h-full w-full object-cover"
-              />
+              {imageSrc ? (
+                <img
+                  src={imageSrc}
+                  alt={title}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="h-full w-full bg-[#efe5d9]" />
+              )}
             </div>
 
             {/* Text */}

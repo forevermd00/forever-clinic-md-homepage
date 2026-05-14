@@ -23,6 +23,7 @@
     "backToListShort": "一覧へ",
     "prevArticle": "前の記事",
     "nextArticle": "次の記事",
+    "viewOriginalArticle": "原文を見る",
     "views": "閲覧数",
     "consultationBooking": "カウンセリング予約",
     "requestConsultation": "カウンセリングを申し込む",
@@ -310,7 +311,9 @@
     "privacyError": "個人情報の収集・利用への同意をお願いします。",
     "signatureLabel": "SIGNATURE PROGRAM",
     "signatureTitle": "シグニチャープログラム",
-    "signatureCtaAll": "全プログラムのカウンセリングを申し込む"
+    "signatureCtaAll": "全プログラムのカウンセリングを申し込む",
+    "pressTitle": "メディア掲載",
+    "pressViewMore": "報道資料一覧"
   },
   "contact": {
     "heroTitle": "ご予約・お問い合わせ",

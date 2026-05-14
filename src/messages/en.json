@@ -23,6 +23,7 @@
     "backToListShort": "Back to List",
     "prevArticle": "Previous",
     "nextArticle": "Next",
+    "viewOriginalArticle": "View Original Article",
     "views": "Views",
     "consultationBooking": "Book Consultation",
     "requestConsultation": "Request Consultation",
@@ -310,7 +311,9 @@
     "privacyError": "Please agree to the personal information consent.",
     "signatureLabel": "SIGNATURE PROGRAM",
     "signatureTitle": "Signature Programs",
-    "signatureCtaAll": "Book a Consultation for All Programs"
+    "signatureCtaAll": "Book a Consultation for All Programs",
+    "pressTitle": "Press Coverage",
+    "pressViewMore": "View All Press"
   },
   "contact": {
     "heroTitle": "Reservations & Consultations",

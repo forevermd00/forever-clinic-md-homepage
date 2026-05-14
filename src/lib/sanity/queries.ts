@@ -32,6 +32,17 @@ export const signatureProgramBySlugQuery = `
 // === Home Page ===
 export const homeHeroQuery = `*[_type == "pageHero" && _id == "page-hero-main"][0]`;
 
+export const homePressQuery = `
+  *[_type == "pressArticle" && isVisible != false] | order(coalesce(publishedAt, publishDate) desc)[0...3] {
+    _id,
+    "title": title[$locale],
+    "excerpt": excerpt[$locale],
+    "publisher": coalesce(publisher, source),
+    "publishedAt": coalesce(publishedAt, publishDate),
+    thumbnail
+  }
+`;
+
 export const homeQuickEntryQuery = `*[_type == "quickEntryCard" && isVisible == true] | order(sortOrder asc)`;
 
 export const homePromoQuery = `*[_type == "promotion" && showOnMain == true] | order(sortOrder asc)[0...3]`;
@@ -219,38 +230,42 @@ export const quickEntryCardsQuery = `
 
 // === Media ===
 export const pressArticlesQuery = `
-  *[_type == "pressArticle"] | order(publishDate desc) {
-    _id, "title": title[$locale], source, url, thumbnail, publishDate, views
+  *[_type == "pressArticle" && isVisible != false] | order(coalesce(publishedAt, publishDate) desc) {
+    _id, "title": title[$locale], "excerpt": excerpt[$locale],
+    "publisher": coalesce(publisher, source), url, thumbnail,
+    "publishedAt": coalesce(publishedAt, publishDate), views
   }
 `;
 
 export const youtubeVideosQuery = `
-  *[_type == "youtubeVideo"] | order(publishDate desc) {
-    _id, "title": title[$locale], youtubeId, thumbnail, "description": description[$locale], publishDate
+  *[_type == "youtubeVideo" && isVisible != false] | order(publishedAt desc) {
+    _id, "title": title[$locale], youtubeId, youtubeUrl, thumbnail, "description": description[$locale], publishedAt
   }
 `;
 
 export const blogPostsQuery = `
-  *[_type == "blogPost"] | order(publishDate desc) {
-    _id, "title": title[$locale], "slug": slug.current, thumbnail, category, publishDate, views
+  *[_type == "blogPost" && isVisible != false] | order(publishedAt desc) {
+    _id, "title": title[$locale], "slug": slug.current, thumbnail, category, publishedAt, views
   }
 `;
 
 export const noticesQuery = `
-  *[_type == "notice"] | order(isPinned desc, publishDate desc) {
-    _id, "title": title[$locale], publishDate, isPinned, views
+  *[_type == "notice" && isVisible != false] | order(isPinned desc, publishedAt desc) {
+    _id, "title": title[$locale], publishedAt, isPinned, views
   }
 `;
 
 // === Media Detail ===
 export const pressArticleDetailQuery = `
   *[_type == "pressArticle" && _id == $slug][0] {
-    _id, "title": title[$locale], source, url, thumbnail, publishDate, views,
-    "content": content[$locale],
-    "prevArticle": *[_type == "pressArticle" && publishDate > ^.publishDate] | order(publishDate asc)[0] { _id, "title": title[$locale] },
-    "nextArticle": *[_type == "pressArticle" && publishDate < ^.publishDate] | order(publishDate desc)[0] { _id, "title": title[$locale] },
-    "position": count(*[_type == "pressArticle" && publishDate > ^.publishDate]) + 1,
-    "total": count(*[_type == "pressArticle"])
+    _id, "title": title[$locale], "excerpt": excerpt[$locale],
+    "publisher": coalesce(publisher, source), url, thumbnail,
+    "publishedAt": coalesce(publishedAt, publishDate), views,
+    "pubDate": coalesce(publishedAt, publishDate),
+    "prevArticle": *[_type == "pressArticle" && isVisible != false && coalesce(publishedAt, publishDate) > ^.pubDate] | order(coalesce(publishedAt, publishDate) asc)[0] { _id, "title": title[$locale] },
+    "nextArticle": *[_type == "pressArticle" && isVisible != false && coalesce(publishedAt, publishDate) < ^.pubDate] | order(coalesce(publishedAt, publishDate) desc)[0] { _id, "title": title[$locale] },
+    "position": count(*[_type == "pressArticle" && isVisible != false && coalesce(publishedAt, publishDate) > ^.pubDate]) + 1,
+    "total": count(*[_type == "pressArticle" && isVisible != false])
   }
 `;
 
@@ -281,16 +296,15 @@ export const noticeDetailQuery = `
 
 // === Singletons ===
 export const brandPhilosophyQuery = `
-  *[_type == "brandPhilosophy"][0] {
-    "title": title[$locale], "subtitle": subtitle[$locale],
+  *[_type == "brandPhilosophy" && _id == "brand-philosophy"][0] {
     "slogan": slogan[$locale],
-    backgroundImage, "content": content[$locale],
+    "subtitle": subtitle[$locale],
     "values": values[] {
       _key,
-      titleKo,
-      titleEn,
+      "titleKo": title.ko,
+      "titleEn": title.en,
       "description": description[$locale],
-      "image": backgroundImage
+      image
     }
   }
 `;

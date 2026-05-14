@@ -197,33 +197,21 @@ export async function LocationSection({
                       )}
                     </div>
                     {/* Content */}
-                    <div className="flex flex-col gap-0.5">
+                    <div className="flex min-w-0 flex-col gap-0.5">
                       <span className="text-[12px] font-medium text-[#d4c8bd]">
                         {t(row.key)}
                       </span>
-                      <p className="text-[14px] leading-[1.5] whitespace-pre-line text-[#2b2b2b]">
-                        {row.value}
+                      <p className="text-[14px] leading-[1.5] text-[#2b2b2b]">
+                        {row.value.split('\n').map((line, i, arr) => (
+                          <span key={i}>
+                            {line}
+                            {i < arr.length - 1 && <br />}
+                          </span>
+                        ))}
                       </p>
                     </div>
                   </div>
                 ))}
-
-            {/* SNS 링크 */}
-            {clinicInfo?.snsLinks && clinicInfo.snsLinks.length > 0 && (
-              <div className="flex flex-wrap gap-2 pt-1">
-                {clinicInfo.snsLinks.map((sns, idx) => (
-                  <a
-                    key={idx}
-                    href={sns.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-[20px] border border-[#d4c8bd] px-3 py-1.5 text-[12px] font-medium text-[#706263] transition-colors hover:border-[#2b2b2b] hover:text-[#2b2b2b]"
-                  >
-                    {sns.label ?? sns.platform}
-                  </a>
-                ))}
-              </div>
-            )}
           </div>
         </div>
       </div>

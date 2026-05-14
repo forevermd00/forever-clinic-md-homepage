@@ -113,12 +113,17 @@ async function LocationInfo({ clinicInfo }: LocationInfoProps) {
           <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#efe5d9]">
             {row.icon}
           </div>
-          <div className="flex flex-col gap-0.5">
+          <div className="flex min-w-0 flex-col gap-0.5">
             <span className="text-[12px] font-medium text-[#d4c8bd]">
               {t(row.key)}
             </span>
-            <p className="text-[14px] leading-[1.5] whitespace-pre-line text-[#2b2b2b]">
-              {row.value}
+            <p className="text-[14px] leading-[1.5] text-[#2b2b2b]">
+              {row.value.split('\n').map((line, i, arr) => (
+                <span key={i}>
+                  {line}
+                  {i < arr.length - 1 && <br />}
+                </span>
+              ))}
             </p>
           </div>
         </div>

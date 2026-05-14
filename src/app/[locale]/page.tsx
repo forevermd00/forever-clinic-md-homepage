@@ -10,6 +10,7 @@ import { BrandPhilosophySection } from '@/components/home/BrandPhilosophySection
 import { DoctorSection } from '@/components/home/DoctorSection';
 import { LocationSection } from '@/components/home/LocationSection';
 import { ContactFormSection } from '@/components/home/ContactFormSection';
+import { HomePressSection } from '@/components/home/HomePressSection';
 import {
   EventPopupModal,
   type PopupItem,
@@ -36,7 +37,7 @@ import { getSignaturePrograms } from '@/lib/data/signaturePrograms';
 import { getSectionVisibility } from '@/lib/data/visibility';
 import { getPageHero } from '@/lib/data/hero';
 import { sanityFetch } from '@/lib/sanity/fetch';
-import { eventPopupQuery } from '@/lib/sanity/queries';
+import { eventPopupQuery, homePressQuery } from '@/lib/sanity/queries';
 import { urlFor } from '@/lib/sanity/image';
 
 export async function generateMetadata({
@@ -78,6 +79,7 @@ export default async function HomePage({
     signaturePrograms,
     eventTreatments,
     baCases,
+    pressItems,
     stats,
     brandPhilosophy,
     doctors,
@@ -93,8 +95,11 @@ export default async function HomePage({
     visibility.home.signature ? getSignaturePrograms(locale) : null,
     visibility.home.promo ? getEventTreatments(locale) : null,
     visibility.home.bnA ? getHomeBACases(locale) : null,
+    visibility.home.press
+      ? sanityFetch<unknown[]>(homePressQuery, { locale })
+      : null,
     visibility.home.stats ? getStats(locale) : null,
-    getBrandPhilosophy(locale),
+    visibility.home.brandPhilosophy ? getBrandPhilosophy(locale) : null,
     visibility.home.doctors ? getDoctors(locale) : null,
     visibility.home.location || visibility.home.contact
       ? getClinicInfo(locale)
@@ -141,12 +146,18 @@ export default async function HomePage({
         <PromoSection locale={locale} events={eventTreatments} />
       )}
       {visibility.home.bnA && baCases && <BAPreviewSection cases={baCases} />}
+      {visibility.home.press && pressItems && pressItems.length > 0 && (
+        <HomePressSection locale={locale} items={pressItems as never} />
+      )}
       {visibility.home.stats && stats && <StatsStripSection stats={stats} />}
-      <BrandPhilosophySection
-        locale={locale}
-        slogan={brandPhilosophy?.slogan}
-        values={brandPhilosophy?.values}
-      />
+      {visibility.home.brandPhilosophy && brandPhilosophy && (
+        <BrandPhilosophySection
+          locale={locale}
+          slogan={brandPhilosophy.slogan}
+          subtitle={brandPhilosophy.subtitle}
+          values={brandPhilosophy.values}
+        />
+      )}
       {visibility.home.doctors && doctors && (
         <DoctorSection doctors={doctors} />
       )}

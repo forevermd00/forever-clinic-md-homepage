@@ -23,6 +23,7 @@
     "backToListShort": "목록으로",
     "prevArticle": "이전글",
     "nextArticle": "다음글",
+    "viewOriginalArticle": "원문 보기",
     "views": "조회",
     "consultationBooking": "상담 예약하기",
     "requestConsultation": "상담 신청하기",
@@ -310,7 +311,9 @@
     "privacyError": "개인정보 수집 및 이용에 동의해 주세요.",
     "signatureLabel": "SIGNATURE PROGRAM",
     "signatureTitle": "시그니처 프로그램",
-    "signatureCtaAll": "전체 프로그램 상담 신청"
+    "signatureCtaAll": "전체 프로그램 상담 신청",
+    "pressTitle": "언론 보도",
+    "pressViewMore": "보도자료 전체보기"
   },
   "contact": {
     "heroTitle": "예약 및 상담",

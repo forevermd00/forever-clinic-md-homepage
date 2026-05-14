@@ -22,15 +22,15 @@ function DoctorCard({ doctor, className }: DoctorCardProps) {
       )}
     >
       {/* Photo */}
-      <div className="h-[220px] overflow-hidden">
+      <div className="overflow-hidden">
         {doctor.photo ? (
           <img
             src={doctor.photo.src}
             alt={doctor.photo.alt}
-            className="h-full w-full object-cover"
+            className="w-full object-contain"
           />
         ) : (
-          <div className="h-full w-full bg-[#efe5d9]" />
+          <div className="h-[220px] w-full bg-[#efe5d9]" />
         )}
       </div>
 
@@ -38,9 +38,18 @@ function DoctorCard({ doctor, className }: DoctorCardProps) {
       <div className="p-5">
         <h3 className="text-[18px] font-bold text-[#2b2b2b]">{doctor.name}</h3>
         <p className="mt-1 text-[13px] text-[#d4c8bd]">{doctor.specialty}</p>
-        <p className="mt-2 text-[13px] leading-relaxed text-[#808080]">
-          {doctor.bio}
-        </p>
+        {doctor.careers && doctor.careers.length > 0 && (
+          <ul className="mt-1 flex flex-col gap-0.5">
+            {doctor.careers.slice(0, 3).map((c, i) => (
+              <li
+                key={i}
+                className="text-[12px] leading-relaxed text-[#808080]"
+              >
+                {c}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

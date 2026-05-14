@@ -64,7 +64,8 @@ export default async function VideoPage({
           {videos.map((video) => (
             <VideoCard
               key={video.slug}
-              href={`https://www.youtube.com/watch?v=${video.slug}`}
+              href={video.href}
+              thumbnailUrl={video.thumbnailUrl}
               title={video.title}
               views={video.views}
               target="_blank"

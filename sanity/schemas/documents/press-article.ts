@@ -13,6 +13,11 @@ export default defineType({
     }),
     defineField({ name: 'publisher', title: '언론사', type: 'string' }),
     defineField({
+      name: 'excerpt',
+      title: '요약 (4개 언어)',
+      type: 'localizedString',
+    }),
+    defineField({
       name: 'url',
       title: '기사 URL',
       type: 'url',

@@ -13,7 +13,9 @@ export interface SectionVisibility {
     signature: boolean;
     promo: boolean;
     bnA: boolean;
+    press: boolean;
     stats: boolean;
+    brandPhilosophy: boolean;
     doctors: boolean;
     location: boolean;
     contact: boolean;
@@ -47,7 +49,9 @@ export const DEFAULT_VISIBILITY: SectionVisibility = {
     signature: true,
     promo: true,
     bnA: true,
+    press: true,
     stats: true,
+    brandPhilosophy: true,
     doctors: true,
     location: true,
     contact: true,
@@ -102,7 +106,9 @@ export async function getSectionVisibility(): Promise<SectionVisibility> {
       signature: raw.home?.signature ?? true,
       promo: raw.home?.promo ?? true,
       bnA: raw.home?.bnA ?? true,
+      press: raw.home?.press ?? true,
       stats: raw.home?.stats ?? true,
+      brandPhilosophy: raw.home?.brandPhilosophy ?? true,
       doctors: raw.home?.doctors ?? true,
       location: raw.home?.location ?? true,
       contact: raw.home?.contact ?? true,

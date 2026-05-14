@@ -6,6 +6,7 @@ interface VideoDoc {
   _id: string;
   title?: { ko?: string; en?: string; zh?: string; ja?: string };
   youtubeId?: string;
+  youtubeUrl?: string;
   description?: { ko?: string; en?: string; zh?: string; ja?: string };
   publishDate?: string;
   thumbnail?: { asset?: { _ref: string } };
@@ -38,7 +39,7 @@ async function uploadImage(client: SanityClient, file: File) {
 }
 
 const QUERY = `*[_type == "youtubeVideo" && _id == $id][0] {
-  _id, title, youtubeId, description, publishDate,
+  _id, title, youtubeId, youtubeUrl, description, publishDate,
   thumbnail { asset { _ref } }
 }`;
 
@@ -158,6 +159,18 @@ export function VideoDetail({
               placeholder="예: dQw4w9WgXcQ"
               defaultValue={doc.youtubeId ?? ''}
               onBlur={(e) => patch({ youtubeId: e.target.value })}
+            />
+          </div>
+          <div className="mt-detail-field" style={{ marginBottom: 12 }}>
+            <label className="mt-detail-label">
+              영상 링크 URL (Shorts/커스텀)
+            </label>
+            <input
+              type="text"
+              className="mt-text-input"
+              placeholder="예: https://youtube.com/shorts/xxxx"
+              defaultValue={doc.youtubeUrl ?? ''}
+              onBlur={(e) => patch({ youtubeUrl: e.target.value || null })}
             />
           </div>
           {youtubeId && (

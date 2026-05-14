@@ -17,10 +17,11 @@ import type { PortableTextBlock } from '@portabletext/types';
 interface SanityPressArticle {
   _id: string;
   title?: string;
-  source?: string;
+  excerpt?: string;
+  publisher?: string;
   url?: string;
   thumbnail?: unknown;
-  publishDate?: string;
+  publishedAt?: string;
   views?: number;
 }
 
@@ -30,7 +31,7 @@ interface SanityBlogPost {
   slug?: string;
   thumbnail?: unknown;
   category?: string;
-  publishDate?: string;
+  publishedAt?: string;
   views?: number;
 }
 
@@ -38,15 +39,16 @@ interface SanityYoutubeVideo {
   _id: string;
   title?: string;
   youtubeId?: string;
+  youtubeUrl?: string;
   thumbnail?: unknown;
   description?: string;
-  publishDate?: string;
+  publishedAt?: string;
 }
 
 interface SanityNotice {
   _id: string;
   title?: string;
-  publishDate?: string;
+  publishedAt?: string;
   isPinned?: boolean;
   views?: number;
 }
@@ -75,6 +77,8 @@ export type YoutubeVideo = {
   slug: string;
   title: string;
   views: string;
+  href: string;
+  thumbnailUrl?: string;
 };
 
 /* ─── Mapping helpers ─── */
@@ -88,9 +92,9 @@ function formatDate(iso?: string): string {
 function mapPressArticles(raw: SanityPressArticle[]): PressArticle[] {
   return raw.map((a) => ({
     slug: a._id,
-    date: formatDate(a.publishDate),
+    date: formatDate(a.publishedAt),
     title: a.title || '',
-    description: a.source ? `${a.source}` : '',
+    description: a.excerpt || a.publisher || '',
     thumbnail: a.thumbnail
       ? urlFor(a.thumbnail)?.width(600).height(400).url() || undefined
       : undefined,
@@ -101,7 +105,7 @@ function mapPressArticles(raw: SanityPressArticle[]): PressArticle[] {
 function mapBlogPosts(raw: SanityBlogPost[]): BlogPost[] {
   return raw.map((p) => ({
     slug: p.slug || p._id,
-    date: formatDate(p.publishDate),
+    date: formatDate(p.publishedAt),
     title: p.title || '',
     description: p.category || '',
     thumbnail: p.thumbnail
@@ -112,11 +116,24 @@ function mapBlogPosts(raw: SanityBlogPost[]): BlogPost[] {
 }
 
 function mapYoutubeVideos(raw: SanityYoutubeVideo[]): YoutubeVideo[] {
-  return raw.map((v) => ({
-    slug: v.youtubeId || v._id,
-    title: v.title || '',
-    views: v.description || '',
-  }));
+  return raw.map((v) => {
+    const id = v.youtubeId || '';
+    const href =
+      v.youtubeUrl || (id ? `https://www.youtube.com/watch?v=${id}` : '');
+    const sanityThumb = v.thumbnail
+      ? urlFor(v.thumbnail)?.width(600).height(400).url() || undefined
+      : undefined;
+    const thumbnailUrl =
+      sanityThumb ||
+      (id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : undefined);
+    return {
+      slug: id || v._id,
+      title: v.title || '',
+      views: v.description || '',
+      href,
+      thumbnailUrl,
+    };
+  });
 }
 
 function mapNotices(
@@ -129,7 +146,7 @@ function mapNotices(
     id: effectiveTotal - startOffset - i,
     slug: n._id,
     title: n.title || '',
-    date: formatDate(n.publishDate),
+    date: formatDate(n.publishedAt),
     views: n.views ?? 0,
   }));
 }
@@ -246,19 +263,46 @@ interface SanityArticleDetail {
   total?: number;
 }
 
+interface SanityPressDetail {
+  _id: string;
+  title?: string;
+  excerpt?: string;
+  publisher?: string;
+  url?: string;
+  thumbnail?: unknown;
+  publishedAt?: string;
+  pubDate?: string;
+  views?: number;
+  prevArticle?: { _id?: string; title?: string };
+  nextArticle?: { _id?: string; title?: string };
+  position?: number;
+  total?: number;
+}
+
+export type PressDetailResult = {
+  article: {
+    slug: string;
+    title: string;
+    date: string;
+    excerpt: string;
+    publisher: string;
+    url: string;
+    thumbnail?: string;
+    views: number;
+  };
+  prevArticle: ArticleNav;
+  nextArticle: ArticleNav;
+  position?: number;
+  total?: number;
+};
+
 /* ─── Detail Fetch Functions ─── */
 
 export async function getPressDetail(
   slug: string,
   locale: string,
-): Promise<{
-  article: ArticleDetail;
-  prevArticle: ArticleNav;
-  nextArticle: ArticleNav;
-  position?: number;
-  total?: number;
-} | null> {
-  const data = await sanityFetch<SanityArticleDetail>(pressArticleDetailQuery, {
+): Promise<PressDetailResult | null> {
+  const data = await sanityFetch<SanityPressDetail>(pressArticleDetailQuery, {
     slug,
     locale,
   });
@@ -269,8 +313,13 @@ export async function getPressDetail(
     article: {
       slug: data._id,
       title: data.title,
-      date: formatDate(data.publishDate),
-      content: data.content || '',
+      date: formatDate(data.publishedAt),
+      excerpt: data.excerpt || '',
+      publisher: data.publisher || '',
+      url: data.url || '',
+      thumbnail: data.thumbnail
+        ? urlFor(data.thumbnail)?.width(1200).height(630).url() || undefined
+        : undefined,
       views: data.views ?? 0,
     },
     prevArticle: data.prevArticle?.title

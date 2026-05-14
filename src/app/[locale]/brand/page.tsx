@@ -6,10 +6,12 @@ import { GalleryCarousel } from '@/components/brand/GalleryCarousel';
 import { EquipmentShowcase } from '@/components/brand/EquipmentShowcase';
 import { LocationInfo } from '@/components/brand/LocationInfo';
 import { BrandSectionNav } from '@/components/brand/BrandSectionNav';
+import { StatsStripSection } from '@/components/home/StatsStripSection';
 import { GoogleMap } from '@/components/common/GoogleMap';
 import Link from 'next/link';
 import { buildGoogleMapsUrl } from '@/lib/utils/map';
 import { getDoctors } from '@/lib/data/doctors';
+import { getStats } from '@/lib/data/stats';
 import { getClinicInfo, getFacilities, getEquipment } from '@/lib/data/clinic';
 import { getBrandPhilosophy } from '@/lib/data/brand';
 import { getPageHero } from '@/lib/data/hero';
@@ -55,6 +57,8 @@ export async function generateMetadata({
   };
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function BrandPage({
   params,
 }: {
@@ -71,37 +75,33 @@ export default async function BrandPage({
   const th = await getTranslations('home');
   const bv = visibility.brand;
 
-  const [doctors, facilities, equipment, clinicInfo, brandPhilosophy, hero] =
-    await Promise.all([
-      bv.doctors ? getDoctors(locale) : null,
-      bv.facilities ? getFacilities(locale) : null,
-      bv.equipment ? getEquipment(locale) : null,
-      bv.location ? getClinicInfo(locale) : null,
-      bv.philosophy ? getBrandPhilosophy(locale) : null,
-      getPageHero('brand', locale),
-    ]);
+  const [
+    doctors,
+    facilities,
+    equipment,
+    clinicInfo,
+    brandPhilosophy,
+    hero,
+    stats,
+  ] = await Promise.all([
+    bv.doctors ? getDoctors(locale) : null,
+    bv.facilities ? getFacilities(locale) : null,
+    bv.equipment ? getEquipment(locale) : null,
+    bv.location ? getClinicInfo(locale) : null,
+    bv.philosophy ? getBrandPhilosophy(locale) : null,
+    getPageHero('brand', locale),
+    getStats(locale),
+  ]);
   const heroImageUrl = hero?.heroImage
     ? urlFor(hero.heroImage)?.width(1200).height(630).url() || undefined
     : undefined;
 
   // Map CMS brand values to page structure (key order: honesty, precision, expertise, dignity)
-  const valueKeyMap: Record<string, { tKey: string; imgFallback: string }> = {
-    honesty: {
-      tKey: 'honesty',
-      imgFallback: '/images/brand/philosophy-honesty.png',
-    },
-    precision: {
-      tKey: 'precision',
-      imgFallback: '/images/brand/philosophy-precision.png',
-    },
-    expertise: {
-      tKey: 'expertise',
-      imgFallback: '/images/brand/philosophy-expertise.png',
-    },
-    dignity: {
-      tKey: 'dignity',
-      imgFallback: '/images/brand/philosophy-dignity.png',
-    },
+  const valueKeyMap: Record<string, { tKey: string }> = {
+    honesty: { tKey: 'honesty' },
+    precision: { tKey: 'precision' },
+    expertise: { tKey: 'expertise' },
+    dignity: { tKey: 'dignity' },
   };
 
   // Build philosophy values: CMS values override translation keys when available
@@ -120,7 +120,7 @@ export default async function BrandPage({
               : t(mapping.tKey),
         description: cms?.description || t(`${mapping.tKey}Desc`),
         descriptionDesktop: cms?.description || t(`${mapping.tKey}DescDesktop`),
-        image: cms?.image || mapping.imgFallback,
+        image: cms?.image || '',
       };
     },
   );
@@ -162,16 +162,11 @@ export default async function BrandPage({
               BRAND PHILOSOPHY · Since 2009
             </span>
             <h2 className="text-[28px] font-bold text-[#2b2b2b]">
-              {t('smartBoutiquePhilosophy')}
+              {brandPhilosophy?.slogan || t('smartBoutiquePhilosophy')}
             </h2>
             <p className="text-center text-[14px] text-[#706263]">
-              {t('philosophyDescription')}
+              {brandPhilosophy?.subtitle || t('philosophyDescription')}
             </p>
-            {brandPhilosophy?.slogan && (
-              <p className="text-[15px] font-medium text-[#a83c44] italic">
-                {brandPhilosophy.slogan}
-              </p>
-            )}
           </div>
 
           {/* Philosophy Values - dynamically rendered from CMS with fallback */}
@@ -194,19 +189,27 @@ export default async function BrandPage({
                           {value.descriptionDesktop}
                         </p>
                       </div>
-                      <img
-                        src={imgSrc}
-                        alt={value.title}
-                        className="h-[400px] w-[620px] shrink-0 rounded-[8px] object-cover"
-                      />
+                      {imgSrc ? (
+                        <img
+                          src={imgSrc}
+                          alt={value.title}
+                          className="h-[400px] w-[620px] shrink-0 rounded-[8px] object-cover"
+                        />
+                      ) : (
+                        <div className="h-[400px] w-[620px] shrink-0 rounded-[8px] bg-[#efe5d9]" />
+                      )}
                     </>
                   ) : (
                     <>
-                      <img
-                        src={imgSrc}
-                        alt={value.title}
-                        className="h-[400px] w-[620px] shrink-0 rounded-[8px] object-cover"
-                      />
+                      {imgSrc ? (
+                        <img
+                          src={imgSrc}
+                          alt={value.title}
+                          className="h-[400px] w-[620px] shrink-0 rounded-[8px] object-cover"
+                        />
+                      ) : (
+                        <div className="h-[400px] w-[620px] shrink-0 rounded-[8px] bg-[#efe5d9]" />
+                      )}
                       <div className="flex flex-col gap-3">
                         <p className="text-[28px] font-bold text-[#2b2b2b]">
                           {value.title}
@@ -220,11 +223,15 @@ export default async function BrandPage({
                 </div>
                 {/* Mobile layout */}
                 <div className="flex flex-col pb-4 lg:hidden">
-                  <img
-                    src={imgSrc}
-                    alt={value.title}
-                    className="h-[220px] w-full object-cover"
-                  />
+                  {imgSrc ? (
+                    <img
+                      src={imgSrc}
+                      alt={value.title}
+                      className="h-[220px] w-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-[220px] w-full bg-[#efe5d9]" />
+                  )}
                   <div className="flex flex-col gap-2 px-5 pt-4">
                     <p className="text-[20px] font-bold text-[#2b2b2b]">
                       {value.title}
@@ -239,6 +246,9 @@ export default async function BrandPage({
           })}
         </section>
       )}
+
+      {/* Stats Strip */}
+      {stats && stats.length > 0 && <StatsStripSection stats={stats} />}
 
       {/* Doctors Section */}
       {bv.doctors && doctors && (
@@ -321,7 +331,7 @@ export default async function BrandPage({
             </div>
             <div className="flex flex-col gap-8 lg:flex-row">
               {/* Map */}
-              <div className="relative min-h-[360px] flex-1 overflow-hidden rounded-[12px] bg-[#efe5d9]">
+              <div className="relative h-[320px] w-full overflow-hidden rounded-[12px] bg-[#efe5d9] lg:h-[480px] lg:flex-1">
                 {clinicInfo.latitude && clinicInfo.longitude ? (
                   <>
                     <GoogleMap

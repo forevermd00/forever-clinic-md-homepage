@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useClient } from 'sanity';
 import { useRouter, useRouterState } from 'sanity/router';
 import { PressDetail } from './PressDetail';
@@ -12,8 +12,9 @@ import './media-tool.css';
 interface PressDoc {
   _id: string;
   title: string;
-  source?: string;
-  publishDate?: string;
+  publisher?: string;
+  publishedAt?: string;
+  isVisible?: boolean;
   _createdAt: string;
 }
 
@@ -21,7 +22,8 @@ interface VideoDoc {
   _id: string;
   title: string;
   youtubeId?: string;
-  publishDate?: string;
+  publishedAt?: string;
+  isVisible?: boolean;
 }
 
 interface BlogDoc {
@@ -29,14 +31,16 @@ interface BlogDoc {
   title: string;
   slug?: string;
   category?: string;
-  publishDate?: string;
+  publishedAt?: string;
+  isVisible?: boolean;
 }
 
 interface NoticeDoc {
   _id: string;
   title: string;
   isPinned?: boolean;
-  publishDate?: string;
+  publishedAt?: string;
+  isVisible?: boolean;
 }
 
 // ─── Queries ────────────────────────────────────────────
@@ -45,32 +49,34 @@ const PRESS_QUERY = `
   *[_type == "pressArticle"] | order(_createdAt desc) {
     _id, _createdAt,
     "title": coalesce(title.ko, title.en, "(제목 없음)"),
-    source, publishDate
+    "publisher": coalesce(publisher, source),
+    "publishedAt": coalesce(publishedAt, publishDate),
+    isVisible
   }
 `;
 
 const VIDEO_QUERY = `
-  *[_type == "youtubeVideo"] | order(publishDate desc) {
+  *[_type == "youtubeVideo"] | order(publishedAt desc) {
     _id,
     "title": coalesce(title.ko, title.en, "(제목 없음)"),
-    youtubeId, publishDate
+    youtubeId, publishedAt, isVisible
   }
 `;
 
 const BLOG_QUERY = `
-  *[_type == "blogPost"] | order(publishDate desc) {
+  *[_type == "blogPost"] | order(publishedAt desc) {
     _id,
     "title": coalesce(title.ko, title.en, "(제목 없음)"),
     "slug": slug.current,
-    category, publishDate
+    category, publishedAt, isVisible
   }
 `;
 
 const NOTICE_QUERY = `
-  *[_type == "notice"] | order(isPinned desc, publishDate desc) {
+  *[_type == "notice"] | order(isPinned desc, publishedAt desc) {
     _id,
     "title": coalesce(title.ko, title.en, "(제목 없음)"),
-    isPinned, publishDate
+    isPinned, publishedAt, isVisible
   }
 `;
 
@@ -79,6 +85,41 @@ const NOTICE_QUERY = `
 function formatDate(dateStr?: string): string {
   if (!dateStr) return '—';
   return dateStr.slice(0, 10);
+}
+
+// isVisible이 명시적으로 false인 경우만 숨김 처리 (null/undefined = 노출)
+function isDocVisible(doc: { isVisible?: boolean }): boolean {
+  return doc.isVisible !== false;
+}
+
+// ─── Visibility Toggle ───────────────────────────────────
+
+function VisibilityToggle({
+  id,
+  visible,
+  onToggle,
+}: {
+  id: string;
+  visible: boolean;
+  onToggle: (id: string, next: boolean) => void;
+}) {
+  return (
+    <label
+      className={`mt-toggle ${visible ? 'on' : 'off'}`}
+      title={visible ? '클릭하여 숨기기' : '클릭하여 노출'}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <input
+        type="checkbox"
+        checked={visible}
+        onChange={() => onToggle(id, !visible)}
+        style={{ display: 'none' }}
+      />
+      <span className="mt-toggle-track">
+        <span className="mt-toggle-thumb" />
+      </span>
+    </label>
+  );
 }
 
 // ─── Sub-tab panels ──────────────────────────────────────
@@ -95,10 +136,21 @@ function PressPanel({ onEdit }: { onEdit: (id: string) => void }) {
     });
   }, [client]);
 
+  const handleToggle = useCallback(
+    async (id: string, next: boolean) => {
+      setDocs((prev) =>
+        prev.map((d) => (d._id === id ? { ...d, isVisible: next } : d)),
+      );
+      await client.patch(id).set({ isVisible: next }).commit();
+    },
+    [client],
+  );
+
   const handleAdd = async () => {
     const newDoc = await client.create({
       _type: 'pressArticle',
       title: { ko: '' },
+      isVisible: true,
     });
     onEdit(newDoc._id);
   };
@@ -119,6 +171,7 @@ function PressPanel({ onEdit }: { onEdit: (id: string) => void }) {
             <col />
             <col style={{ width: '120px' }} />
             <col style={{ width: '100px' }} />
+            <col style={{ width: '60px' }} />
           </colgroup>
           <thead>
             <tr>
@@ -126,12 +179,13 @@ function PressPanel({ onEdit }: { onEdit: (id: string) => void }) {
               <th>제목</th>
               <th>언론사</th>
               <th>날짜</th>
+              <th style={{ textAlign: 'center' }}>노출</th>
             </tr>
           </thead>
           <tbody>
             {docs.length === 0 ? (
               <tr>
-                <td colSpan={4} className="mt-empty">
+                <td colSpan={5} className="mt-empty">
                   보도자료가 없습니다
                 </td>
               </tr>
@@ -146,9 +200,16 @@ function PressPanel({ onEdit }: { onEdit: (id: string) => void }) {
                   <td>
                     <span className="mt-title">{doc.title}</span>
                   </td>
-                  <td className="mt-meta">{doc.source || '—'}</td>
+                  <td className="mt-meta">{doc.publisher || '—'}</td>
                   <td className="mt-meta">
-                    {formatDate(doc.publishDate || doc._createdAt)}
+                    {formatDate(doc.publishedAt || doc._createdAt)}
+                  </td>
+                  <td style={{ textAlign: 'center' }}>
+                    <VisibilityToggle
+                      id={doc._id}
+                      visible={isDocVisible(doc)}
+                      onToggle={handleToggle}
+                    />
                   </td>
                 </tr>
               ))
@@ -172,10 +233,21 @@ function VideoPanel({ onEdit }: { onEdit: (id: string) => void }) {
     });
   }, [client]);
 
+  const handleToggle = useCallback(
+    async (id: string, next: boolean) => {
+      setDocs((prev) =>
+        prev.map((d) => (d._id === id ? { ...d, isVisible: next } : d)),
+      );
+      await client.patch(id).set({ isVisible: next }).commit();
+    },
+    [client],
+  );
+
   const handleAdd = async () => {
     const newDoc = await client.create({
       _type: 'youtubeVideo',
       title: { ko: '' },
+      isVisible: true,
     });
     onEdit(newDoc._id);
   };
@@ -194,8 +266,9 @@ function VideoPanel({ onEdit }: { onEdit: (id: string) => void }) {
           <colgroup>
             <col style={{ width: '44px' }} />
             <col />
-            <col style={{ width: '220px' }} />
+            <col style={{ width: '200px' }} />
             <col style={{ width: '100px' }} />
+            <col style={{ width: '60px' }} />
           </colgroup>
           <thead>
             <tr>
@@ -203,12 +276,13 @@ function VideoPanel({ onEdit }: { onEdit: (id: string) => void }) {
               <th>제목</th>
               <th>YouTube ID</th>
               <th>날짜</th>
+              <th style={{ textAlign: 'center' }}>노출</th>
             </tr>
           </thead>
           <tbody>
             {docs.length === 0 ? (
               <tr>
-                <td colSpan={4} className="mt-empty">
+                <td colSpan={5} className="mt-empty">
                   영상 콘텐츠가 없습니다
                 </td>
               </tr>
@@ -229,12 +303,18 @@ function VideoPanel({ onEdit }: { onEdit: (id: string) => void }) {
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
-                      maxWidth: 200,
                     }}
                   >
                     {doc.youtubeId || '—'}
                   </td>
-                  <td className="mt-meta">{formatDate(doc.publishDate)}</td>
+                  <td className="mt-meta">{formatDate(doc.publishedAt)}</td>
+                  <td style={{ textAlign: 'center' }}>
+                    <VisibilityToggle
+                      id={doc._id}
+                      visible={isDocVisible(doc)}
+                      onToggle={handleToggle}
+                    />
+                  </td>
                 </tr>
               ))
             )}
@@ -257,10 +337,21 @@ function BlogPanel({ onEdit }: { onEdit: (id: string) => void }) {
     });
   }, [client]);
 
+  const handleToggle = useCallback(
+    async (id: string, next: boolean) => {
+      setDocs((prev) =>
+        prev.map((d) => (d._id === id ? { ...d, isVisible: next } : d)),
+      );
+      await client.patch(id).set({ isVisible: next }).commit();
+    },
+    [client],
+  );
+
   const handleAdd = async () => {
     const newDoc = await client.create({
       _type: 'blogPost',
       title: { ko: '' },
+      isVisible: true,
     });
     onEdit(newDoc._id);
   };
@@ -281,6 +372,7 @@ function BlogPanel({ onEdit }: { onEdit: (id: string) => void }) {
             <col />
             <col style={{ width: '120px' }} />
             <col style={{ width: '100px' }} />
+            <col style={{ width: '60px' }} />
           </colgroup>
           <thead>
             <tr>
@@ -288,12 +380,13 @@ function BlogPanel({ onEdit }: { onEdit: (id: string) => void }) {
               <th>제목</th>
               <th>카테고리</th>
               <th>날짜</th>
+              <th style={{ textAlign: 'center' }}>노출</th>
             </tr>
           </thead>
           <tbody>
             {docs.length === 0 ? (
               <tr>
-                <td colSpan={4} className="mt-empty">
+                <td colSpan={5} className="mt-empty">
                   블로그 포스트가 없습니다
                 </td>
               </tr>
@@ -309,7 +402,14 @@ function BlogPanel({ onEdit }: { onEdit: (id: string) => void }) {
                     <span className="mt-title">{doc.title}</span>
                   </td>
                   <td className="mt-meta">{doc.category || '—'}</td>
-                  <td className="mt-meta">{formatDate(doc.publishDate)}</td>
+                  <td className="mt-meta">{formatDate(doc.publishedAt)}</td>
+                  <td style={{ textAlign: 'center' }}>
+                    <VisibilityToggle
+                      id={doc._id}
+                      visible={isDocVisible(doc)}
+                      onToggle={handleToggle}
+                    />
+                  </td>
                 </tr>
               ))
             )}
@@ -332,8 +432,22 @@ function NoticePanel({ onEdit }: { onEdit: (id: string) => void }) {
     });
   }, [client]);
 
+  const handleToggle = useCallback(
+    async (id: string, next: boolean) => {
+      setDocs((prev) =>
+        prev.map((d) => (d._id === id ? { ...d, isVisible: next } : d)),
+      );
+      await client.patch(id).set({ isVisible: next }).commit();
+    },
+    [client],
+  );
+
   const handleAdd = async () => {
-    const newDoc = await client.create({ _type: 'notice', title: { ko: '' } });
+    const newDoc = await client.create({
+      _type: 'notice',
+      title: { ko: '' },
+      isVisible: true,
+    });
     onEdit(newDoc._id);
   };
 
@@ -351,8 +465,9 @@ function NoticePanel({ onEdit }: { onEdit: (id: string) => void }) {
           <colgroup>
             <col style={{ width: '44px' }} />
             <col />
-            <col style={{ width: '80px' }} />
+            <col style={{ width: '60px' }} />
             <col style={{ width: '100px' }} />
+            <col style={{ width: '60px' }} />
           </colgroup>
           <thead>
             <tr>
@@ -360,12 +475,13 @@ function NoticePanel({ onEdit }: { onEdit: (id: string) => void }) {
               <th>제목</th>
               <th style={{ textAlign: 'center' }}>고정</th>
               <th>날짜</th>
+              <th style={{ textAlign: 'center' }}>노출</th>
             </tr>
           </thead>
           <tbody>
             {docs.length === 0 ? (
               <tr>
-                <td colSpan={4} className="mt-empty">
+                <td colSpan={5} className="mt-empty">
                   공지사항이 없습니다
                 </td>
               </tr>
@@ -387,7 +503,14 @@ function NoticePanel({ onEdit }: { onEdit: (id: string) => void }) {
                       <span className="mt-meta">—</span>
                     )}
                   </td>
-                  <td className="mt-meta">{formatDate(doc.publishDate)}</td>
+                  <td className="mt-meta">{formatDate(doc.publishedAt)}</td>
+                  <td style={{ textAlign: 'center' }}>
+                    <VisibilityToggle
+                      id={doc._id}
+                      visible={isDocVisible(doc)}
+                      onToggle={handleToggle}
+                    />
+                  </td>
                 </tr>
               ))
             )}

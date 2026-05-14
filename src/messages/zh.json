@@ -23,6 +23,7 @@
     "backToListShort": "返回列表",
     "prevArticle": "上一篇",
     "nextArticle": "下一篇",
+    "viewOriginalArticle": "查看原文",
     "views": "浏览量",
     "consultationBooking": "预约咨询",
     "requestConsultation": "申请咨询",
@@ -310,7 +311,9 @@
     "privacyError": "请同意个人信息收集及使用条款。",
     "signatureLabel": "SIGNATURE PROGRAM",
     "signatureTitle": "招牌项目",
-    "signatureCtaAll": "咨询全部项目"
+    "signatureCtaAll": "咨询全部项目",
+    "pressTitle": "媒体报道",
+    "pressViewMore": "查看全部报道"
   },
   "contact": {
     "heroTitle": "预约与咨询",

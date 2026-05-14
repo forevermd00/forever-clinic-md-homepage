@@ -65,11 +65,8 @@ interface BrandValue {
 }
 
 interface BrandDoc {
-  title?: { ko?: string; en?: string; zh?: string; ja?: string };
-  subtitle?: { ko?: string; en?: string; zh?: string; ja?: string };
   slogan?: { ko?: string; en?: string; zh?: string; ja?: string };
-  content?: { ko?: string; en?: string; zh?: string; ja?: string };
-  backgroundImage?: { asset?: { _ref: string } };
+  subtitle?: { ko?: string; en?: string; zh?: string; ja?: string };
   values?: BrandValue[];
 }
 
@@ -78,6 +75,7 @@ interface StatsItem {
   label?: { ko?: string; en?: string; zh?: string; ja?: string };
   number?: number;
   unit?: string;
+  description?: { ko?: string; en?: string; zh?: string; ja?: string };
 }
 
 interface StatsDoc {
@@ -124,6 +122,7 @@ interface SectionVisibilityDoc {
     promo?: boolean;
     bnA?: boolean;
     stats?: boolean;
+    brandPhilosophy?: boolean;
     doctors?: boolean;
     location?: boolean;
     contact?: boolean;
@@ -163,14 +162,13 @@ const CLINIC_INFO_QUERY = `*[_type == "clinicInfo" && _id == "forever-myeongdong
   messengerLinks[] { _key, platform, url, label }
 }`;
 
-const BRAND_QUERY = `*[_type == "brandPhilosophy" && _id == "forever-myeongdong-brand"][0] {
-  title, subtitle, slogan, content,
-  backgroundImage { asset { _ref } },
+const BRAND_QUERY = `*[_type == "brandPhilosophy" && _id == "brand-philosophy"][0] {
+  slogan, subtitle,
   values[] { _key, title, description, image { asset { _ref } } }
 }`;
 
 const STATS_QUERY = `*[_type == "statsStrip" && _id == "forever-myeongdong-stats"][0] {
-  stats[] { _key, label, number, unit }
+  stats[] { _key, label, number, unit, description }
 }`;
 
 const POPUPS_QUERY = `*[_type == "eventPopup"] | order(_createdAt desc) {
@@ -1150,7 +1148,6 @@ function BrandSection() {
   const client = useClient({ apiVersion: '2026-05-13' });
   const [doc, setDoc] = useState<BrandDoc | null>(null);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [values, setValues] = useState<BrandValue[]>([]);
   const initialized = useRef(false);
 
@@ -1166,33 +1163,14 @@ function BrandSection() {
 
   const patch = async (fields: Record<string, unknown>) => {
     setSaving(true);
-    await client.patch('forever-myeongdong-brand').set(fields).commit();
+    await client.patch('brand-philosophy').set(fields).commit();
     setSaving(false);
   };
 
   const saveValues = async (newValues: BrandValue[]) => {
     setSaving(true);
-    await client
-      .patch('forever-myeongdong-brand')
-      .set({ values: newValues })
-      .commit();
+    await client.patch('brand-philosophy').set({ values: newValues }).commit();
     setSaving(false);
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const imageRef = await uploadImageAsset(client, file);
-      await client
-        .patch('forever-myeongdong-brand')
-        .set({ backgroundImage: imageRef })
-        .commit();
-      setDoc((prev) => (prev ? { ...prev, backgroundImage: imageRef } : prev));
-    } finally {
-      setUploading(false);
-    }
   };
 
   const handleValueImageUpload = async (
@@ -1257,56 +1235,13 @@ function BrandSection() {
 
   if (!doc) return <div className="ht-loading">불러오는 중...</div>;
 
-  const imageRef = doc.backgroundImage?.asset?._ref;
-
   return (
     <div className="ht-panel-section">
       {saving && <span className="ht-saving-indicator">저장 중…</span>}
 
+      {/* ── 메인 슬로건 ── */}
       <div className="ht-detail-section">
-        <div className="ht-detail-section-title">제목</div>
-        <div className="ht-detail-body">
-          <div className="ht-detail-grid4">
-            {(['ko', 'en', 'zh', 'ja'] as const).map((key) => (
-              <div key={key} className="ht-detail-field">
-                <label className="ht-detail-label">
-                  {BRAND_LOCALE_LABELS[key]}
-                </label>
-                <input
-                  type="text"
-                  className="ht-text-input"
-                  defaultValue={doc.title?.[key] ?? ''}
-                  onBlur={(e) => patch({ [`title.${key}`]: e.target.value })}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="ht-detail-section">
-        <div className="ht-detail-section-title">부제목</div>
-        <div className="ht-detail-body">
-          <div className="ht-detail-grid4">
-            {(['ko', 'en', 'zh', 'ja'] as const).map((key) => (
-              <div key={key} className="ht-detail-field">
-                <label className="ht-detail-label">
-                  {BRAND_LOCALE_LABELS[key]}
-                </label>
-                <input
-                  type="text"
-                  className="ht-text-input"
-                  defaultValue={doc.subtitle?.[key] ?? ''}
-                  onBlur={(e) => patch({ [`subtitle.${key}`]: e.target.value })}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="ht-detail-section">
-        <div className="ht-detail-section-title">슬로건</div>
+        <div className="ht-detail-section-title">메인 슬로건 (h2)</div>
         <div className="ht-detail-body">
           <div className="ht-detail-grid4">
             {(['ko', 'en', 'zh', 'ja'] as const).map((key) => (
@@ -1326,8 +1261,9 @@ function BrandSection() {
         </div>
       </div>
 
+      {/* ── 서브 슬로건 ── */}
       <div className="ht-detail-section">
-        <div className="ht-detail-section-title">본문</div>
+        <div className="ht-detail-section-title">서브 슬로건</div>
         <div className="ht-detail-body">
           <div className="ht-detail-grid4">
             {(['ko', 'en', 'zh', 'ja'] as const).map((key) => (
@@ -1335,11 +1271,11 @@ function BrandSection() {
                 <label className="ht-detail-label">
                   {BRAND_LOCALE_LABELS[key]}
                 </label>
-                <textarea
-                  className="ht-text-input ht-textarea"
-                  rows={5}
-                  defaultValue={doc.content?.[key] ?? ''}
-                  onBlur={(e) => patch({ [`content.${key}`]: e.target.value })}
+                <input
+                  type="text"
+                  className="ht-text-input"
+                  defaultValue={doc.subtitle?.[key] ?? ''}
+                  onBlur={(e) => patch({ [`subtitle.${key}`]: e.target.value })}
                 />
               </div>
             ))}
@@ -1347,31 +1283,9 @@ function BrandSection() {
         </div>
       </div>
 
+      {/* ── 브랜드 가치 ── */}
       <div className="ht-detail-section">
-        <div className="ht-detail-section-title">배경 이미지</div>
-        <div className="ht-detail-body">
-          {imageRef && (
-            <img
-              src={sanityImageUrl('ecoamz42', 'production', imageRef)}
-              alt="bg"
-              className="ht-thumb-preview"
-            />
-          )}
-          <label className="ht-upload-btn">
-            {uploading ? '업로드 중…' : '이미지 선택'}
-            <input
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={handleImageUpload}
-            />
-          </label>
-        </div>
-      </div>
-
-      {/* ── 브랜드 가치 목록 ── */}
-      <div className="ht-detail-section">
-        <div className="ht-detail-section-title">브랜드 가치 목록</div>
+        <div className="ht-detail-section-title">브랜드 가치</div>
         <div className="ht-detail-body">
           <div className="ht-array-editor">
             {values.map((val, idx) => {
@@ -1391,7 +1305,7 @@ function BrandSection() {
                     className="ht-detail-section"
                     style={{ marginBottom: 10 }}
                   >
-                    <div className="ht-detail-section-title">제목</div>
+                    <div className="ht-detail-section-title">가치명</div>
                     <div className="ht-detail-body">
                       <div className="ht-detail-grid4">
                         {(['ko', 'en', 'zh', 'ja'] as const).map((locale) => (
@@ -1553,6 +1467,36 @@ function StatsSection() {
     });
   };
 
+  const updateDescription = (
+    i: number,
+    locale: 'ko' | 'en' | 'zh' | 'ja',
+    val: string,
+  ) => {
+    setItems((prev) =>
+      prev.map((it, idx) =>
+        idx === i
+          ? { ...it, description: { ...it.description, [locale]: val } }
+          : it,
+      ),
+    );
+  };
+
+  const saveDescriptionBlur = (
+    i: number,
+    locale: 'ko' | 'en' | 'zh' | 'ja',
+    val: string,
+  ) => {
+    setItems((prev) => {
+      const updated = prev.map((it, idx) =>
+        idx === i
+          ? { ...it, description: { ...it.description, [locale]: val } }
+          : it,
+      );
+      save(updated);
+      return updated;
+    });
+  };
+
   const update = (
     i: number,
     field: 'number' | 'unit',
@@ -1646,6 +1590,20 @@ function StatsSection() {
                   onBlur={(e) => saveBlur(i, 'unit', e.target.value)}
                 />
               </div>
+            </div>
+            <div className="ht-detail-grid4" style={{ marginTop: 8 }}>
+              {CLINIC_LOCALES.map(({ key, label }) => (
+                <div key={key} className="ht-detail-field">
+                  <label className="ht-detail-label">설명 ({label})</label>
+                  <input
+                    type="text"
+                    className="ht-text-input"
+                    value={item.description?.[key] ?? ''}
+                    onChange={(e) => updateDescription(i, key, e.target.value)}
+                    onBlur={(e) => saveDescriptionBlur(i, key, e.target.value)}
+                  />
+                </div>
+              ))}
             </div>
           </div>
         ))}
@@ -2236,6 +2194,12 @@ function SectionsPanel() {
           onToggle={toggle}
         />
         <ToggleRow
+          label="브랜드 철학"
+          path="home.brandPhilosophy"
+          value={doc.home?.brandPhilosophy}
+          onToggle={toggle}
+        />
+        <ToggleRow
           label="의료진"
           path="home.doctors"
           value={doc.home?.doctors}
@@ -2344,12 +2308,12 @@ export function HospitalTool() {
     selectedId?: string;
     heroKey?: string;
     qcardId?: string;
+    tab?: MainTab;
   } | null;
   const selectedId = routerState?.selectedId;
   const heroKey = routerState?.heroKey;
   const qcardId = routerState?.qcardId;
-
-  const [activeTab, setActiveTab] = useState<MainTab>('doctors');
+  const activeTab: MainTab = routerState?.tab ?? 'doctors';
 
   if (selectedId) {
     return <DoctorDetail id={selectedId} onBack={() => router.navigate({})} />;
@@ -2368,7 +2332,7 @@ export function HospitalTool() {
           <button
             key={tab.key}
             className={`ht-tab ${activeTab === tab.key ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.key)}
+            onClick={() => router.navigate({ tab: tab.key })}
           >
             {tab.label}
           </button>
