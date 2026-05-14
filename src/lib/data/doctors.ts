@@ -11,6 +11,7 @@ interface SanityDoctor {
   position?: string;
   philosophy?: string;
   specialties?: string[];
+  careers?: string[];
   profileImage?: unknown;
   licenseNumber?: string;
 }
@@ -19,7 +20,7 @@ function mapSanityDoctors(raw: SanityDoctor[]): Doctor[] {
   return raw.map((d) => ({
     name: d.name || '',
     specialty: d.specialties?.filter(Boolean).join(' · ') || d.position || '',
-    bio: d.philosophy || '',
+    bio: d.careers?.filter(Boolean).join('\n') || d.philosophy || '',
     photo: d.profileImage
       ? {
           src: urlFor(d.profileImage)?.width(400).height(500).url() || '',

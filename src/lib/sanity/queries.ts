@@ -53,7 +53,7 @@ export const homeBrandQuery = `*[_type == "brandPhilosophy"][0]`;
 
 export const homeStatsQuery = `*[_type == "statsStrip"][0]`;
 
-export const homeDoctorsQuery = `*[_type == "doctor" && isVisible == true] | order(orderRank asc)`;
+export const homeDoctorsQuery = `*[_type == "doctor" && isVisible == true] | order(sortOrder asc)`;
 
 export const homeClinicInfoQuery = `*[_type == "clinicInfo"][0]`;
 
@@ -169,10 +169,11 @@ export const pageHeroQuery = `
 
 // === Doctor ===
 export const doctorsQuery = `
-  *[_type == "doctor" && isVisible == true] | order(orderRank asc) {
+  *[_type == "doctor" && isVisible == true] | order(sortOrder asc) {
     _id, "name": name[$locale], "position": position[$locale],
     profileImage, "philosophy": philosophy[$locale],
-    licenseNumber, "specialties": specialties[][$locale]
+    licenseNumber, "specialties": specialties[][$locale],
+    "careers": careers[][$locale]
   }
 `;
 
