@@ -3,11 +3,19 @@
 import { useEffect, useRef, useState } from 'react';
 import Script from 'next/script';
 
+const LOCALE_TO_LANG: Record<string, string> = {
+  ko: 'ko',
+  en: 'en',
+  zh: 'zh-CN',
+  ja: 'ja',
+};
+
 interface GoogleMapProps {
   lat: number;
   lng: number;
   zoom?: number;
   className?: string;
+  locale?: string;
 }
 
 const MAP_STYLES: google.maps.MapTypeStyle[] = [
@@ -19,11 +27,22 @@ const MAP_STYLES: google.maps.MapTypeStyle[] = [
 declare global {
   interface Window {
     initForeverMap?: () => void;
+    initForeverMap_ko?: () => void;
+    initForeverMap_en?: () => void;
+    initForeverMap_zh?: () => void;
+    initForeverMap_ja?: () => void;
     google?: typeof google;
   }
 }
 
-export function GoogleMap({ lat, lng, zoom = 17, className }: GoogleMapProps) {
+export function GoogleMap({
+  lat,
+  lng,
+  zoom = 17,
+  className,
+  locale = 'ko',
+}: GoogleMapProps) {
+  const language = LOCALE_TO_LANG[locale] ?? 'ko';
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
   const [ready, setReady] = useState(false);
@@ -63,11 +82,13 @@ export function GoogleMap({ lat, lng, zoom = 17, className }: GoogleMapProps) {
     setReady(true);
   };
 
+  const callbackName = `initForeverMap_${locale}` as keyof Window;
+
   useEffect(() => {
     if (window.google?.maps) {
       initMap();
     } else {
-      window.initForeverMap = initMap;
+      (window[callbackName] as () => void) = initMap;
     }
 
     return () => {
@@ -103,7 +124,8 @@ export function GoogleMap({ lat, lng, zoom = 17, className }: GoogleMapProps) {
         </svg>
       </div>
       <Script
-        src={`https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initForeverMap&loading=async`}
+        key={language}
+        src={`https://maps.googleapis.com/maps/api/js?key=${apiKey}&language=${language}&callback=${callbackName}&loading=async`}
         strategy="lazyOnload"
       />
       <div

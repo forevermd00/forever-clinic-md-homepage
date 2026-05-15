@@ -162,7 +162,7 @@ export default async function HomePage({
         <DoctorSection doctors={doctors} />
       )}
       {visibility.home.location && clinicInfo && (
-        <LocationSection clinicInfo={clinicInfo} />
+        <LocationSection clinicInfo={clinicInfo} locale={locale} />
       )}
       {visibility.home.contact && contactConfig && businessHours && (
         <Suspense fallback={<div className="h-[600px] bg-[#faf8f5]" />}>

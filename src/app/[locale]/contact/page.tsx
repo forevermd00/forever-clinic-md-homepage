@@ -91,6 +91,7 @@ export default async function ContactPage({
                     lat={clinic.latitude}
                     lng={clinic.longitude}
                     className="h-full w-full"
+                    locale={locale}
                   />
                   <Link
                     href={buildGoogleMapsUrl(clinic.latitude, clinic.longitude)}

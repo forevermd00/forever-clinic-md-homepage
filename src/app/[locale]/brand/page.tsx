@@ -338,6 +338,7 @@ export default async function BrandPage({
                       lat={clinicInfo.latitude}
                       lng={clinicInfo.longitude}
                       className="h-full w-full"
+                      locale={locale}
                     />
                     <Link
                       href={buildGoogleMapsUrl(

@@ -20,10 +20,12 @@ function clinicInfoToRows(info: ClinicInfo) {
 
 interface LocationSectionProps {
   clinicInfo?: ClinicInfo;
+  locale?: string;
 }
 
 export async function LocationSection({
   clinicInfo,
+  locale = 'ko',
 }: LocationSectionProps = {}) {
   const t = await getTranslations('home');
 
@@ -39,6 +41,7 @@ export async function LocationSection({
                   lat={clinicInfo.latitude}
                   lng={clinicInfo.longitude}
                   className="h-full w-full"
+                  locale={locale}
                 />
                 <Link
                   href={buildGoogleMapsUrl(
