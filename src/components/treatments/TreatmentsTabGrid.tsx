@@ -5,7 +5,12 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
-import { TREATMENT_CATEGORIES, type TreatmentCategory } from './treatmentData';
+import {
+  TREATMENT_CATEGORIES,
+  getCategoryLabel,
+  getCategoryDescription,
+  type TreatmentCategory,
+} from './treatmentData';
 import { TreatmentCard } from './TreatmentCard';
 
 /* ----------------------------------------------------------------
@@ -263,11 +268,11 @@ export function TreatmentsTabGrid({
                     SIGNATURE PROGRAMS
                   </p>
                   <h2 className="mt-1 text-[22px] font-bold text-white md:text-[26px]">
-                    {currentCategory.label}
+                    {getCategoryLabel(currentCategory, locale)}
                   </h2>
                   {currentCategory.description && (
                     <p className="mt-2 text-[14px] leading-[1.6] text-white/50">
-                      {currentCategory.description}
+                      {getCategoryDescription(currentCategory, locale)}
                     </p>
                   )}
                 </div>
@@ -309,11 +314,11 @@ export function TreatmentsTabGrid({
                         : currentCategory.labelEn}
                   </p>
                   <h2 className="mt-1 text-[22px] font-bold text-[#2b2b2b] md:text-[26px]">
-                    {currentCategory.label}
+                    {getCategoryLabel(currentCategory, locale)}
                   </h2>
                   {currentCategory.description && (
                     <p className="mt-2 text-[14px] leading-[1.6] text-[#706263]">
-                      {currentCategory.description}
+                      {getCategoryDescription(currentCategory, locale)}
                     </p>
                   )}
                 </div>
