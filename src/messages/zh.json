@@ -34,7 +34,9 @@
     "whichTreatmentFits": "哪个项目适合我？",
     "findRightTreatment": "让专业医生为您找到最适合的诊疗方案",
     "submit": "提交",
-    "addedToEstimate": "已添加到报价单"
+    "addedToEstimate": "已添加到报价单",
+    "dismissToday": "今日不再显示",
+    "popupSlide": "弹窗 {n}"
   },
   "nav": {
     "beforeAfter": "前后对比",

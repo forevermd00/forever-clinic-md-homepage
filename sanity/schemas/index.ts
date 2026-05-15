@@ -1,11 +1,13 @@
 // Objects
 import localizedString from './objects/localized-string';
 import localizedText from './objects/localized-text';
+import localizedSimpleText from './objects/localized-simple-text';
 import localizedImage from './objects/localized-image';
 import priceOption from './objects/price-option';
 import faqItem from './objects/faq-item';
 import businessHours from './objects/business-hours';
 import snsLink from './objects/sns-link';
+import legalSection from './objects/legal-section';
 
 // Documents
 import treatment from './documents/treatment';
@@ -26,16 +28,19 @@ import youtubeVideo from './documents/youtube-video';
 import blogPost from './documents/blog-post';
 import notice from './documents/notice';
 import pageHero from './documents/page-hero';
+import legalDocument from './documents/legal-document';
 
 export const schemaTypes = [
   // Objects
   localizedString,
   localizedText,
+  localizedSimpleText,
   localizedImage,
   priceOption,
   faqItem,
   businessHours,
   snsLink,
+  legalSection,
   // Documents
   treatment,
   promotion,
@@ -54,4 +59,5 @@ export const schemaTypes = [
   blogPost,
   notice,
   pageHero,
+  legalDocument,
 ];

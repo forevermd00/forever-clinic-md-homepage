@@ -34,7 +34,9 @@
     "whichTreatmentFits": "どの施術が自分に合うのか？",
     "findRightTreatment": "お肌の状態に合った施術を専門医と一緒に確認しましょう",
     "submit": "送信",
-    "addedToEstimate": "見積もりに追加しました"
+    "addedToEstimate": "見積もりに追加しました",
+    "dismissToday": "今日は表示しない",
+    "popupSlide": "ポップアップ {n}"
   },
   "nav": {
     "beforeAfter": "ビフォーアフター",

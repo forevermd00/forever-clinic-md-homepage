@@ -34,7 +34,9 @@
     "whichTreatmentFits": "Which treatment is right for me?",
     "findRightTreatment": "Find the best treatment for your skin with our specialists",
     "submit": "Submit",
-    "addedToEstimate": "Added to estimate"
+    "addedToEstimate": "Added to estimate",
+    "dismissToday": "Don't show today",
+    "popupSlide": "Popup {n}"
   },
   "nav": {
     "beforeAfter": "Before & After",

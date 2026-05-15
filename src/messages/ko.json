@@ -34,7 +34,9 @@
     "whichTreatmentFits": "어떤 시술이 나에게 맞을까요?",
     "findRightTreatment": "피부 상태에 맞는 시술을 전문의와 함께 확인해 보세요",
     "submit": "문의하기",
-    "addedToEstimate": "견적에 추가되었습니다"
+    "addedToEstimate": "견적에 추가되었습니다",
+    "dismissToday": "오늘 다시 열지 않음",
+    "popupSlide": "팝업 {n}"
   },
   "nav": {
     "beforeAfter": "Before & After",

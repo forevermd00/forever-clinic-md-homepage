@@ -2,9 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { useClient } from 'sanity';
 import type { SanityClient } from 'sanity';
 import { useRouter, useRouterState } from 'sanity/router';
+import type { PortableTextBlock } from '@sanity/types';
 import { DoctorDetail } from './DoctorDetail';
 import { HeroDetail } from './HeroDetail';
 import { QuickCardDetail } from './QuickCardDetail';
+import { LegalEditor } from './LegalEditor';
 import { PAGE_HEROES } from '../../../sanity.config';
 import './hospital-tool.css';
 
@@ -246,7 +248,8 @@ type MainTab =
   | 'stats'
   | 'popups'
   | 'quickNav'
-  | 'sections';
+  | 'sections'
+  | 'legal';
 
 const MAIN_TABS: { key: MainTab; label: string }[] = [
   { key: 'doctors', label: '의료진' },
@@ -257,6 +260,7 @@ const MAIN_TABS: { key: MainTab; label: string }[] = [
   { key: 'popups', label: '이벤트 팝업' },
   { key: 'quickNav', label: '빠른 탐색' },
   { key: 'sections', label: '섹션 노출' },
+  { key: 'legal', label: '약관 관리' },
 ];
 
 // ─── 의료진 패널 (드래그 정렬) ────────────────────────────
@@ -2300,6 +2304,195 @@ function SectionsPanel() {
   );
 }
 
+// ─── 약관 관리 패널 ───────────────────────────────────────
+
+type LegalDocType = 'privacy-policy' | 'terms-of-service';
+
+interface LegalDocRow {
+  _id: string;
+  effectiveDate?: string;
+  publicationDate?: string;
+  contentKo?: PortableTextBlock[];
+  contentEn?: PortableTextBlock[];
+}
+
+const LEGAL_DOC_ID: Record<LegalDocType, string> = {
+  'privacy-policy': 'legal-privacy-policy',
+  'terms-of-service': 'legal-terms-of-service',
+};
+
+const LEGAL_LABELS: Record<LegalDocType, string> = {
+  'privacy-policy': '개인정보 처리방침',
+  'terms-of-service': '이용약관',
+};
+
+function LegalDocPanel() {
+  const client = useClient({ apiVersion: '2026-05-13' });
+  const [activeDoc, setActiveDoc] = useState<LegalDocType>('privacy-policy');
+  const [activeLang, setActiveLang] = useState<'ko' | 'en'>('ko');
+  const [docs, setDocs] = useState<Record<LegalDocType, LegalDocRow | null>>({
+    'privacy-policy': null,
+    'terms-of-service': null,
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const query = `{
+      "privacy": *[_type == "legalDocument" && documentType == "privacy-policy"][0]{ _id, effectiveDate, publicationDate, contentKo, contentEn },
+      "terms": *[_type == "legalDocument" && documentType == "terms-of-service"][0]{ _id, effectiveDate, publicationDate, contentKo, contentEn }
+    }`;
+    client
+      .fetch<{ privacy: LegalDocRow | null; terms: LegalDocRow | null }>(query)
+      .then(({ privacy, terms }) => {
+        setDocs({
+          'privacy-policy': privacy ?? null,
+          'terms-of-service': terms ?? null,
+        });
+        setLoading(false);
+      });
+  }, [client]);
+
+  const getOrCreate = async (type: LegalDocType): Promise<LegalDocRow> => {
+    const existing = docs[type];
+    if (existing) return existing;
+    const id = LEGAL_DOC_ID[type];
+    const created = await client.createIfNotExists({
+      _id: id,
+      _type: 'legalDocument',
+      documentType: type,
+    });
+    const newDoc: LegalDocRow = { _id: created._id };
+    setDocs((prev) => ({ ...prev, [type]: newDoc }));
+    return newDoc;
+  };
+
+  const patchDoc = async (
+    type: LegalDocType,
+    fields: Record<string, unknown>,
+  ) => {
+    setSaving(true);
+    const d = await getOrCreate(type);
+    await client.patch(d._id).set(fields).commit();
+    setDocs((prev) => ({
+      ...prev,
+      [type]: prev[type] ? { ...prev[type]!, ...fields } : prev[type],
+    }));
+    setSaving(false);
+  };
+
+  const handleContentChange = (
+    type: LegalDocType,
+    lang: 'ko' | 'en',
+    blocks: PortableTextBlock[],
+  ) => {
+    const field = lang === 'ko' ? 'contentKo' : 'contentEn';
+    patchDoc(type, { [field]: blocks });
+  };
+
+  const doc = docs[activeDoc];
+
+  if (loading) return <div className="ht-loading">불러오는 중...</div>;
+
+  return (
+    <div className="ht-panel-section">
+      {saving && <span className="ht-saving-indicator">저장 중…</span>}
+
+      {/* 문서 선택 서브탭 */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+        {(['privacy-policy', 'terms-of-service'] as LegalDocType[]).map(
+          (type) => (
+            <button
+              key={type}
+              className={`ht-tab${activeDoc === type ? 'active' : ''}`}
+              style={{ fontSize: 13 }}
+              onClick={() => setActiveDoc(type)}
+            >
+              {LEGAL_LABELS[type]}
+            </button>
+          ),
+        )}
+      </div>
+
+      {/* 날짜 */}
+      <div className="ht-detail-section">
+        <div className="ht-detail-section-title">시행일 / 공고일</div>
+        <div className="ht-detail-body">
+          <div className="ht-detail-row">
+            <div className="ht-detail-field">
+              <label className="ht-detail-label">시행일</label>
+              <input
+                key={`${activeDoc}-eff`}
+                type="date"
+                className="ht-text-input"
+                style={{ width: 160 }}
+                defaultValue={doc?.effectiveDate ?? ''}
+                onBlur={(e) =>
+                  patchDoc(activeDoc, { effectiveDate: e.target.value || null })
+                }
+              />
+            </div>
+            <div className="ht-detail-field">
+              <label className="ht-detail-label">공고일</label>
+              <input
+                key={`${activeDoc}-pub`}
+                type="date"
+                className="ht-text-input"
+                style={{ width: 160 }}
+                defaultValue={doc?.publicationDate ?? ''}
+                onBlur={(e) =>
+                  patchDoc(activeDoc, {
+                    publicationDate: e.target.value || null,
+                  })
+                }
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 언어 선택 */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+        {(['ko', 'en'] as const).map((lang) => (
+          <button
+            key={lang}
+            className={`ht-tab${activeLang === lang ? 'active' : ''}`}
+            style={{ fontSize: 12 }}
+            onClick={() => setActiveLang(lang)}
+          >
+            {lang === 'ko' ? '한국어' : 'English'}
+          </button>
+        ))}
+      </div>
+
+      {/* 본문 에디터 */}
+      <div className="ht-detail-section">
+        <div className="ht-detail-section-title">
+          본문 ({activeLang === 'ko' ? '한국어' : 'English'})
+        </div>
+        <div className="ht-detail-body" style={{ padding: 0 }}>
+          <LegalEditor
+            key={`${activeDoc}-${activeLang}`}
+            value={
+              activeLang === 'ko'
+                ? (doc?.contentKo ?? [])
+                : (doc?.contentEn ?? [])
+            }
+            onChange={(blocks) =>
+              handleContentChange(activeDoc, activeLang, blocks)
+            }
+            placeholder={
+              activeLang === 'ko'
+                ? '한국어 내용을 입력하세요…'
+                : 'Enter English content…'
+            }
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────
 
 export function HospitalTool() {
@@ -2355,6 +2548,7 @@ export function HospitalTool() {
         />
       )}
       {activeTab === 'sections' && <SectionsPanel />}
+      {activeTab === 'legal' && <LegalDocPanel />}
     </div>
   );
 }

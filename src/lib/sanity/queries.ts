@@ -350,3 +350,13 @@ export const navTreatmentsQuery = `
     "name": { "ko": name.ko, "en": name.en, "zh": name.zh, "ja": name.ja }
   }
 `;
+
+// === Legal Documents ===
+export const legalDocumentQuery = `
+  *[_type == "legalDocument" && documentType == $documentType][0] {
+    effectiveDate,
+    publicationDate,
+    contentKo,
+    contentEn
+  }
+`;

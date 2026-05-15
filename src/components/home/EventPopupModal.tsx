@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 export interface PopupItem {
   _id: string;
@@ -22,6 +23,7 @@ function getTodayKey(): string {
 const SESSION_KEY = 'forever-popup-seen';
 
 export function EventPopupModal({ popups, imageUrls }: EventPopupModalProps) {
+  const t = useTranslations('common');
   const [visible, setVisible] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [dismissToday, setDismissToday] = useState(false);
@@ -91,7 +93,7 @@ export function EventPopupModal({ popups, imageUrls }: EventPopupModalProps) {
         <button
           onClick={handleClose}
           className="absolute top-3 right-3 z-10 flex size-8 items-center justify-center rounded-full bg-black/40 text-white transition-colors hover:bg-black/60"
-          aria-label="닫기"
+          aria-label={t('close')}
         >
           <svg
             width="14"
@@ -122,7 +124,7 @@ export function EventPopupModal({ popups, imageUrls }: EventPopupModalProps) {
             <button
               onClick={handlePrev}
               className="absolute top-1/2 left-2 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/30 text-white hover:bg-black/50"
-              aria-label="이전"
+              aria-label={t('previous')}
             >
               <svg
                 width="14"
@@ -140,7 +142,7 @@ export function EventPopupModal({ popups, imageUrls }: EventPopupModalProps) {
             <button
               onClick={handleNext}
               className="absolute top-1/2 right-2 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/30 text-white hover:bg-black/50"
-              aria-label="다음"
+              aria-label={t('next')}
             >
               <svg
                 width="14"
@@ -172,7 +174,7 @@ export function EventPopupModal({ popups, imageUrls }: EventPopupModalProps) {
                   height: 8,
                   backgroundColor: idx === currentIndex ? '#2b2b2b' : '#d4c8bd',
                 }}
-                aria-label={`팝업 ${idx + 1}`}
+                aria-label={t('popupSlide', { n: idx + 1 })}
               />
             ))}
           </div>
@@ -206,7 +208,7 @@ export function EventPopupModal({ popups, imageUrls }: EventPopupModalProps) {
               )}
             </span>
             <span className="text-[12px] text-[#706263]">
-              오늘 다시 열지 않음
+              {t('dismissToday')}
             </span>
           </label>
         </div>

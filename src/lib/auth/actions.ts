@@ -21,7 +21,7 @@ export async function registerUser(data: {
     .where(eq(users.email, data.email));
 
   if (existing.length > 0) {
-    return { error: '이미 등록된 이메일입니다.' };
+    return { error: 'email_already_exists' };
   }
 
   const passwordHash = await bcrypt.hash(data.password, 12);
