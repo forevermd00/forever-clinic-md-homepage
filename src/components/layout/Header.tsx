@@ -210,12 +210,20 @@ export function Header({
 
   const allColumns = useMemo<MegaColumn[]>(
     () => [
-      STATIC_BA_COLUMN,
-      ...treatmentColumns,
-      STATIC_BRAND_COLUMN,
-      STATIC_MEDIA_COLUMN,
+      ...(!navVisibility || navVisibility.bnA !== false
+        ? [STATIC_BA_COLUMN]
+        : []),
+      ...(!navVisibility || navVisibility.treatments !== false
+        ? treatmentColumns
+        : []),
+      ...(!navVisibility || navVisibility.brand !== false
+        ? [STATIC_BRAND_COLUMN]
+        : []),
+      ...(!navVisibility || navVisibility.media !== false
+        ? [STATIC_MEDIA_COLUMN]
+        : []),
     ],
-    [treatmentColumns],
+    [treatmentColumns, navVisibility],
   );
 
   const [isScrolled, setIsScrolled] = useState(false);
