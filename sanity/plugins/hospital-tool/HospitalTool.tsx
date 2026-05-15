@@ -116,6 +116,12 @@ interface SectionVisibilityDoc {
     treatments?: boolean;
     brand?: boolean;
     media?: boolean;
+    catLiftingLaser?: boolean;
+    catPetitLifting?: boolean;
+    catSkincare?: boolean;
+    catSkinBooster?: boolean;
+    catHairRemoval?: boolean;
+    catAnesthesia?: boolean;
   };
   home?: {
     hero?: boolean;
@@ -2155,6 +2161,46 @@ function SectionsPanel() {
           label="미디어"
           path="nav.media"
           value={doc.nav?.media}
+          onToggle={toggle}
+        />
+      </div>
+
+      <div className="ht-sv-group">
+        <div className="ht-sv-group-title">메가메뉴 시술 카테고리</div>
+        <ToggleRow
+          label="리프팅·레이저"
+          path="nav.catLiftingLaser"
+          value={doc.nav?.catLiftingLaser}
+          onToggle={toggle}
+        />
+        <ToggleRow
+          label="쁘띠 & 실리프팅"
+          path="nav.catPetitLifting"
+          value={doc.nav?.catPetitLifting}
+          onToggle={toggle}
+        />
+        <ToggleRow
+          label="스킨케어"
+          path="nav.catSkincare"
+          value={doc.nav?.catSkincare}
+          onToggle={toggle}
+        />
+        <ToggleRow
+          label="스킨부스터"
+          path="nav.catSkinBooster"
+          value={doc.nav?.catSkinBooster}
+          onToggle={toggle}
+        />
+        <ToggleRow
+          label="제모클리닉"
+          path="nav.catHairRemoval"
+          value={doc.nav?.catHairRemoval}
+          onToggle={toggle}
+        />
+        <ToggleRow
+          label="마취클리닉"
+          path="nav.catAnesthesia"
+          value={doc.nav?.catAnesthesia}
           onToggle={toggle}
         />
       </div>

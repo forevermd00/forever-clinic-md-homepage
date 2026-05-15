@@ -6,6 +6,12 @@ export interface SectionVisibility {
     treatments: boolean;
     brand: boolean;
     media: boolean;
+    catLiftingLaser: boolean;
+    catPetitLifting: boolean;
+    catSkincare: boolean;
+    catSkinBooster: boolean;
+    catHairRemoval: boolean;
+    catAnesthesia: boolean;
   };
   home: {
     hero: boolean;
@@ -42,7 +48,18 @@ export interface SectionVisibility {
 }
 
 export const DEFAULT_VISIBILITY: SectionVisibility = {
-  nav: { bnA: true, treatments: true, brand: true, media: true },
+  nav: {
+    bnA: true,
+    treatments: true,
+    brand: true,
+    media: true,
+    catLiftingLaser: true,
+    catPetitLifting: true,
+    catSkincare: true,
+    catSkinBooster: true,
+    catHairRemoval: true,
+    catAnesthesia: true,
+  },
   home: {
     hero: true,
     quickEntry: true,
@@ -99,6 +116,12 @@ export async function getSectionVisibility(): Promise<SectionVisibility> {
       treatments: raw.nav?.treatments ?? true,
       brand: raw.nav?.brand ?? true,
       media: raw.nav?.media ?? true,
+      catLiftingLaser: raw.nav?.catLiftingLaser ?? true,
+      catPetitLifting: raw.nav?.catPetitLifting ?? true,
+      catSkincare: raw.nav?.catSkincare ?? true,
+      catSkinBooster: raw.nav?.catSkinBooster ?? true,
+      catHairRemoval: raw.nav?.catHairRemoval ?? true,
+      catAnesthesia: raw.nav?.catAnesthesia ?? true,
     },
     home: {
       hero: raw.home?.hero ?? true,

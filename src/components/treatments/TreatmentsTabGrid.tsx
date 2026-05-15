@@ -171,10 +171,10 @@ export function TreatmentsTabGrid({
             const label = isEventTab
               ? t('eventLabel')
               : isSignatureTab
-                ? cat.label
+                ? getCategoryLabel(cat, locale)
                 : labelKey
                   ? tFooter(labelKey)
-                  : cat.label;
+                  : getCategoryLabel(cat, locale);
 
             if (isSpecialTab) {
               const isSignature = isSignatureTab;
@@ -289,7 +289,10 @@ export function TreatmentsTabGrid({
                         name={treatment.name}
                         slug={treatment.slug}
                         category={SIGNATURE_SLUG}
-                        categoryLabel={currentCategory.label}
+                        categoryLabel={getCategoryLabel(
+                          currentCategory,
+                          locale,
+                        )}
                         price={treatment.price}
                         hasEvent={treatment.hasEvent}
                         locale={locale}
@@ -338,10 +341,14 @@ export function TreatmentsTabGrid({
                       const cardCategory = isCrossCategory
                         ? treatment.category
                         : currentCategory.slug;
+                      const crossCat = categories.find(
+                        (c) => c.slug === treatment.category,
+                      );
                       const cardCategoryLabel = isCrossCategory
-                        ? (categories.find((c) => c.slug === treatment.category)
-                            ?.label ?? currentCategory.label)
-                        : currentCategory.label;
+                        ? crossCat
+                          ? getCategoryLabel(crossCat, locale)
+                          : getCategoryLabel(currentCategory, locale)
+                        : getCategoryLabel(currentCategory, locale);
                       return (
                         <TreatmentCard
                           key={treatment.slug || treatment.name}

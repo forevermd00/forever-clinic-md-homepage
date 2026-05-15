@@ -87,6 +87,15 @@ const CATEGORY_TITLE_KEYS: Record<string, string> = {
   anesthesia: 'anesthesia',
 };
 
+const CATEGORY_VIS_KEYS: Record<string, keyof SectionVisibility['nav']> = {
+  'lifting-laser': 'catLiftingLaser',
+  'petit-lifting': 'catPetitLifting',
+  skincare: 'catSkincare',
+  'skin-booster': 'catSkinBooster',
+  'hair-removal': 'catHairRemoval',
+  anesthesia: 'catAnesthesia',
+};
+
 /* Nav items with group mapping - label is a translation key under "nav" namespace */
 const ALL_NAV_ITEMS = [
   {
@@ -178,7 +187,13 @@ export function Header({
       if (!grouped.has(t.category)) grouped.set(t.category, []);
       grouped.get(t.category)!.push(t);
     }
-    const cats = CATEGORY_ORDER.filter((cat) => grouped.has(cat));
+    const cats = CATEGORY_ORDER.filter((cat) => {
+      if (!grouped.has(cat)) return false;
+      const visKey = CATEGORY_VIS_KEYS[cat];
+      if (visKey && navVisibility && navVisibility[visKey] === false)
+        return false;
+      return true;
+    });
     return cats.map((cat, idx) => ({
       group: 'treatments',
       titleKey: CATEGORY_TITLE_KEYS[cat] || cat,
@@ -191,7 +206,7 @@ export function Header({
       })),
       dividerAfter: idx === cats.length - 1,
     }));
-  }, [navTreatments, currentLocale]);
+  }, [navTreatments, currentLocale, navVisibility]);
 
   const allColumns = useMemo<MegaColumn[]>(
     () => [
