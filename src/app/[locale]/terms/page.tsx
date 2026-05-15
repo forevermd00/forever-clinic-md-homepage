@@ -40,6 +40,8 @@ interface LegalDocument {
   publicationDate?: string;
   contentKo?: PortableTextBlock[];
   contentEn?: PortableTextBlock[];
+  contentZh?: PortableTextBlock[];
+  contentJa?: PortableTextBlock[];
 }
 
 // ─── Fallback Portable Text blocks ───────────────────────
@@ -455,10 +457,20 @@ export default async function TermsPage({
     documentType: 'terms-of-service',
   });
 
-  const isEn = locale === 'en';
   const contentKo = doc?.contentKo?.length ? doc.contentKo : FALLBACK_KO;
   const contentEn = doc?.contentEn?.length ? doc.contentEn : FALLBACK_EN;
-  const content = isEn ? contentEn : contentKo;
+  const contentZh = doc?.contentZh?.length ? doc.contentZh : FALLBACK_EN;
+  const contentJa = doc?.contentJa?.length ? doc.contentJa : FALLBACK_EN;
+  const content =
+    locale === 'ko'
+      ? contentKo
+      : locale === 'en'
+        ? contentEn
+        : locale === 'zh'
+          ? contentZh
+          : locale === 'ja'
+            ? contentJa
+            : contentKo;
   const effectiveDate = doc?.effectiveDate ?? '2025-04-23';
   const heading = titles[locale] ?? titles.ko;
 
@@ -469,9 +481,9 @@ export default async function TermsPage({
           {heading}
         </h1>
         <p className="mb-10 text-[13px] text-[#888]">
-          {isEn
-            ? `Effective date: ${formatDate(effectiveDate, locale)}`
-            : `시행일: ${formatDate(effectiveDate, locale)}`}
+          {locale === 'ko'
+            ? `시행일: ${formatDate(effectiveDate, locale)}`
+            : `Effective date: ${formatDate(effectiveDate, locale)}`}
         </p>
         <div>
           <PortableText value={content} components={ptComponents} />

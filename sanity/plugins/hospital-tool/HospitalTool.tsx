@@ -2314,6 +2314,8 @@ interface LegalDocRow {
   publicationDate?: string;
   contentKo?: PortableTextBlock[];
   contentEn?: PortableTextBlock[];
+  contentZh?: PortableTextBlock[];
+  contentJa?: PortableTextBlock[];
 }
 
 const LEGAL_DOC_ID: Record<LegalDocType, string> = {
@@ -2329,7 +2331,7 @@ const LEGAL_LABELS: Record<LegalDocType, string> = {
 function LegalDocPanel() {
   const client = useClient({ apiVersion: '2026-05-13' });
   const [activeDoc, setActiveDoc] = useState<LegalDocType>('privacy-policy');
-  const [activeLang, setActiveLang] = useState<'ko' | 'en'>('ko');
+  const [activeLang, setActiveLang] = useState<'ko' | 'en' | 'zh' | 'ja'>('ko');
   const [docs, setDocs] = useState<Record<LegalDocType, LegalDocRow | null>>({
     'privacy-policy': null,
     'terms-of-service': null,
@@ -2339,8 +2341,8 @@ function LegalDocPanel() {
 
   useEffect(() => {
     const query = `{
-      "privacy": *[_type == "legalDocument" && documentType == "privacy-policy"][0]{ _id, effectiveDate, publicationDate, contentKo, contentEn },
-      "terms": *[_type == "legalDocument" && documentType == "terms-of-service"][0]{ _id, effectiveDate, publicationDate, contentKo, contentEn }
+      "privacy": *[_type == "legalDocument" && documentType == "privacy-policy"][0]{ _id, effectiveDate, publicationDate, contentKo, contentEn, contentZh, contentJa },
+      "terms": *[_type == "legalDocument" && documentType == "terms-of-service"][0]{ _id, effectiveDate, publicationDate, contentKo, contentEn, contentZh, contentJa }
     }`;
     client
       .fetch<{ privacy: LegalDocRow | null; terms: LegalDocRow | null }>(query)
@@ -2381,13 +2383,19 @@ function LegalDocPanel() {
     setSaving(false);
   };
 
+  const LANG_FIELD: Record<'ko' | 'en' | 'zh' | 'ja', string> = {
+    ko: 'contentKo',
+    en: 'contentEn',
+    zh: 'contentZh',
+    ja: 'contentJa',
+  };
+
   const handleContentChange = (
     type: LegalDocType,
-    lang: 'ko' | 'en',
+    lang: 'ko' | 'en' | 'zh' | 'ja',
     blocks: PortableTextBlock[],
   ) => {
-    const field = lang === 'ko' ? 'contentKo' : 'contentEn';
-    patchDoc(type, { [field]: blocks });
+    patchDoc(type, { [LANG_FIELD[lang]]: blocks });
   };
 
   const doc = docs[activeDoc];
@@ -2453,14 +2461,21 @@ function LegalDocPanel() {
 
       {/* 언어 선택 */}
       <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-        {(['ko', 'en'] as const).map((lang) => (
+        {(
+          [
+            { key: 'ko', label: '한국어' },
+            { key: 'en', label: 'English' },
+            { key: 'zh', label: '中文' },
+            { key: 'ja', label: '日本語' },
+          ] as { key: 'ko' | 'en' | 'zh' | 'ja'; label: string }[]
+        ).map(({ key, label }) => (
           <button
-            key={lang}
-            className={`ht-tab${activeLang === lang ? 'active' : ''}`}
+            key={key}
+            className={`ht-tab${activeLang === key ? 'active' : ''}`}
             style={{ fontSize: 12 }}
-            onClick={() => setActiveLang(lang)}
+            onClick={() => setActiveLang(key)}
           >
-            {lang === 'ko' ? '한국어' : 'English'}
+            {label}
           </button>
         ))}
       </div>
@@ -2468,7 +2483,13 @@ function LegalDocPanel() {
       {/* 본문 에디터 */}
       <div className="ht-detail-section">
         <div className="ht-detail-section-title">
-          본문 ({activeLang === 'ko' ? '한국어' : 'English'})
+          본문 (
+          {
+            { ko: '한국어', en: 'English', zh: '中文', ja: '日本語' }[
+              activeLang
+            ]
+          }
+          )
         </div>
         <div className="ht-detail-body" style={{ padding: 0 }}>
           <LegalEditor
@@ -2476,7 +2497,11 @@ function LegalDocPanel() {
             value={
               activeLang === 'ko'
                 ? (doc?.contentKo ?? [])
-                : (doc?.contentEn ?? [])
+                : activeLang === 'en'
+                  ? (doc?.contentEn ?? [])
+                  : activeLang === 'zh'
+                    ? (doc?.contentZh ?? [])
+                    : (doc?.contentJa ?? [])
             }
             onChange={(blocks) =>
               handleContentChange(activeDoc, activeLang, blocks)
@@ -2484,7 +2509,11 @@ function LegalDocPanel() {
             placeholder={
               activeLang === 'ko'
                 ? '한국어 내용을 입력하세요…'
-                : 'Enter English content…'
+                : activeLang === 'en'
+                  ? 'Enter English content…'
+                  : activeLang === 'zh'
+                    ? '请输入中文内容…'
+                    : '日本語のコンテンツを入力してください…'
             }
           />
         </div>

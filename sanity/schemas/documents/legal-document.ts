@@ -73,6 +73,50 @@ export default defineType({
         },
       ],
     }),
+    defineField({
+      name: 'contentZh',
+      title: '내용 (중국어)',
+      type: 'array',
+      of: [
+        {
+          type: 'block',
+          styles: [
+            { title: 'Normal', value: 'normal' },
+            { title: 'Sub-heading', value: 'h3' },
+          ],
+          lists: [
+            { title: '• Bullet', value: 'bullet' },
+            { title: '1. Number', value: 'number' },
+          ],
+          marks: {
+            decorators: [{ title: 'Bold', value: 'strong' }],
+            annotations: [],
+          },
+        },
+      ],
+    }),
+    defineField({
+      name: 'contentJa',
+      title: '내용 (일본어)',
+      type: 'array',
+      of: [
+        {
+          type: 'block',
+          styles: [
+            { title: 'Normal', value: 'normal' },
+            { title: 'Sub-heading', value: 'h3' },
+          ],
+          lists: [
+            { title: '• Bullet', value: 'bullet' },
+            { title: '1. Number', value: 'number' },
+          ],
+          marks: {
+            decorators: [{ title: 'Bold', value: 'strong' }],
+            annotations: [],
+          },
+        },
+      ],
+    }),
   ],
   preview: {
     select: { title: 'documentType', subtitle: 'effectiveDate' },

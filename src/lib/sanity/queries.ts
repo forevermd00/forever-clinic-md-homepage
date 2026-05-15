@@ -357,6 +357,8 @@ export const legalDocumentQuery = `
     effectiveDate,
     publicationDate,
     contentKo,
-    contentEn
+    contentEn,
+    contentZh,
+    contentJa
   }
 `;

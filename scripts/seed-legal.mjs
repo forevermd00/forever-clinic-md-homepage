@@ -165,6 +165,123 @@ const privacyKo = [
   li('단, 정보주체의 권리에 중요한 변경이 있는 경우에는 최소 30일 전에 공지합니다.'),
 ];
 
+// ─── 개인정보처리방침 영어 ────────────────────────────────────
+
+const privacyEn = [
+  p('Forever Clinic Myeongdong (hereinafter "Clinic") processes personal information in accordance with Article 30 of the Personal Information Protection Act and Article 22 of the Medical Service Act to protect the rights and interests of data subjects.'),
+
+  h3('Article 1 (Purpose of Processing Personal Information)'),
+  p('The Clinic processes personal information for the following purposes. Personal information will not be used for purposes other than those stated below. If the purpose changes, the Clinic will take necessary measures such as obtaining separate consent in accordance with Article 18 of the Personal Information Protection Act.'),
+  bold('1. Website membership registration and management'),
+  li('Confirming intent to register, maintaining membership status, identity verification'),
+  li('Providing appointment booking, confirmation, modification, and cancellation services'),
+  li('Maintaining records for complaints and dispute resolution'),
+  bold('2. Medical and healthcare services'),
+  li('Appointment booking and medical services for dermatology, plastic surgery, aesthetics, etc.'),
+  li('Medical consultation, procedure guidance, and prior consent'),
+  li('Processing and confirming medical fee payments'),
+  li('Issuing prescriptions, medical certificates, and other documents'),
+  bold('3. Marketing and advertising (only for those who provide separate consent)'),
+  li('Sending event and promotion notifications via SMS, email, and KakaoTalk'),
+  li('Providing new treatment information and health newsletters'),
+  li('Statistical and analytical use for service improvement'),
+
+  h3('Article 2 (Personal Information Items Processed)'),
+  p('The Clinic processes the following personal information:'),
+  bold('1. Items collected upon membership registration'),
+  li('[Required] Name, date of birth, gender, mobile phone number, email address, login ID, password'),
+  li('[Optional] Address, occupation, referral source, treatment interests'),
+  bold('2. Items collected for appointments and consultations'),
+  li('[Required] Name, contact information, desired treatment, appointment date and time'),
+  li('[Optional] Previous treatment history, skin type, special notes, consultation content'),
+  bold('3. Items automatically collected during service use'),
+  li('IP address, cookies, service usage records, visit records, improper use records'),
+  bold('4. Sensitive information (collected pursuant to the Medical Service Act and Article 23 of the Personal Information Protection Act)'),
+  li('Health information, medical records, and prescription details collected during treatment'),
+  li('Before/after procedure photos (collected after written patient consent)'),
+  p('Sensitive information is collected pursuant to Article 22 of the Medical Service Act, Article 14 of its Enforcement Rules, and Article 23(2)(2) of the Personal Information Protection Act.'),
+
+  h3('Article 3 (Retention Period)'),
+  li('The Clinic processes and retains personal information within the legally required retention period or the period agreed upon when collecting personal information from data subjects.'),
+  li('Retention periods for each category of personal information are as follows:'),
+  bold('■ Member information: Until withdrawal (retained 1 year post-withdrawal to prevent misuse)'),
+  bold('■ Medical records: At least 5 years per the Medical Service Act Enforcement Rules Article 15 (some records 10 years)'),
+  bold('■ Reservation and consultation records: 3 years'),
+  bold('■ Upon withdrawal of marketing consent: Immediately destroyed (withdrawal history retained 1 year)'),
+  bold('■ E-commerce transaction records: 5 years per the E-Commerce Act'),
+  bold('■ Consumer complaint/dispute records: 3 years per the E-Commerce Act'),
+
+  h3('Article 4 (Third-Party Disclosure)'),
+  li('The Clinic processes personal information only within the scope stated in Article 1 and provides personal information to third parties only with the user\'s consent or as required by law (Articles 17 and 18 of the Personal Information Protection Act).'),
+  li('Personal information may be provided to third parties without consent in the following cases:'),
+  li('Transfer of medical records to other medical institutions per Article 21 of the Medical Service Act'),
+  li('Provision to the Health Insurance Review and Assessment Service and National Health Insurance Service per the National Health Insurance Act'),
+  li('Requests from investigative agencies pursuant to applicable law'),
+
+  h3('Article 5 (Processing Consignment)'),
+  li('The Clinic entrusts personal information processing to the following third parties for smooth service delivery:'),
+  bold('Consignment Details'),
+  li('Consignee: SMS/KakaoTalk notification service / Work: Appointment confirmation messages and alerts'),
+  li('Consignee: Website operation and management service / Work: Website maintenance and server operation'),
+  li('Consignee: Payment processing service / Work: Online medical fee payment processing'),
+  li('When entering into entrustment agreements, the Clinic specifies in contracts: prohibition of processing personal information beyond the scope of entrusted work, technical and managerial protective measures, and restrictions on re-entrustment, in accordance with Article 26 of the Personal Information Protection Act.'),
+
+  h3('Article 6 (Rights of the Data Subject)'),
+  li('The data subject may exercise the following rights against the Clinic at any time:'),
+  li('Right to access personal information'),
+  li('Right to request correction of errors'),
+  li('Right to request deletion'),
+  li('Right to request suspension of processing'),
+  li('Rights may be exercised in writing, by email, or by fax pursuant to Article 41(1) of the Personal Information Protection Act Enforcement Decree, and the Clinic will respond without delay.'),
+  li('For access to medical records, separate identity verification is required under Article 21 of the Medical Service Act and Article 13-3 of its Enforcement Rules.'),
+  li('Personal information of children under 14 is processed with the consent of their legal guardian, who may request access, correction, deletion, or suspension of processing.'),
+
+  h3('Article 7 (Destruction of Personal Information)'),
+  li('The Clinic destroys personal information without delay once the purpose of processing has been fulfilled.'),
+  li('If personal information must be retained despite the expiration of the agreed retention period or fulfillment of the processing purpose due to other legal requirements, the information is moved to a separate database or stored in a different location.'),
+  li('Destruction procedure and methods:'),
+  li('Destruction procedure: Grounds arise → Privacy Officer approval → Destruction executed → Destruction record kept'),
+  li('Electronic files: Permanently deleted using irreversible methods'),
+  li('Printed materials: Shredded or incinerated'),
+
+  h3('Article 8 (Security Measures)'),
+  p('The Clinic implements the following technical, administrative, and physical measures in accordance with Article 29 of the Personal Information Protection Act:'),
+  li('Establishment and implementation of internal management plans'),
+  li('Minimizing personnel handling personal information and conducting training'),
+  li('Restricting access to personal information (access control systems)'),
+  li('Applying encryption when storing or transmitting personal information'),
+  li('Technical countermeasures against hacking (antivirus programs, firewalls, etc.)'),
+  li('Maintaining and protecting access records to personal information processing systems'),
+  li('Physical access control to medical spaces and facilities'),
+
+  h3('Article 9 (Cookies)'),
+  li('The Clinic uses cookies to store and retrieve usage information to provide personalized services.'),
+  li('Cookies are small pieces of information sent by the server to the user\'s browser and stored on the user\'s computer.'),
+  li('Users may accept or refuse cookies through browser settings. Refusing cookies may limit certain services.'),
+
+  h3('Article 10 (Privacy Officer)'),
+  p('The Clinic has designated a Privacy Officer responsible for overseeing personal information processing and handling complaints and remedies.'),
+  bold('■ Privacy Officer'),
+  li('Name: [Name]'),
+  li('Position: [Director / Administrative Manager, etc.]'),
+  li('Contact: [Phone number] / [Email]'),
+  bold('■ Privacy Department'),
+  li('Department: [Administrative Office / Admin Team, etc.]'),
+  li('Contact: [Phone number] / [Email]'),
+  p('Data subjects may submit personal information access requests pursuant to Article 35 of the Personal Information Protection Act to the department above. The Clinic will ensure timely processing of access requests.'),
+
+  h3('Article 11 (Remedies for Rights Violations)'),
+  p('For personal information violation remedies and consultations, you may contact the following agencies:'),
+  li('Personal Information Infringement Report Center (KISA): privacy.kisa.or.kr / 118'),
+  li('Personal Information Dispute Mediation Committee: www.kopico.go.kr / 1833-6972'),
+  li('Supreme Prosecutors\' Office Cyber Crime Investigation Division: www.spo.go.kr / 1301'),
+  li('National Police Agency Cyber Safety Bureau: cyberbureau.police.go.kr / 182'),
+
+  h3('Article 12 (Changes to This Policy)'),
+  li('This Privacy Policy takes effect from the effective date. Changes due to laws or policy will be announced through notices at least 7 days before taking effect.'),
+  li('For significant changes to user rights, notice will be given at least 30 days in advance.'),
+];
+
 // ─── 이용약관 ─────────────────────────────────────────────
 
 const termsKo = [
@@ -265,6 +382,106 @@ const termsKo = [
   li('이 약관의 일부가 무효인 경우에도 나머지 조항은 유효하게 존속합니다.'),
 ];
 
+// ─── 이용약관 영어 ────────────────────────────────────────
+
+const termsEn = [
+  p('These terms govern the conditions and procedures for using the online services provided by Forever Clinic Myeongdong (the "Clinic") through its website (the "Site"), including the rights, obligations, and responsibilities of the Clinic and users.'),
+
+  h3('Article 1 (Purpose)'),
+  p('These terms govern the use of online services provided by Forever Clinic Myeongdong (the "Clinic") through its website (the "Site"), including the rights, obligations, responsibilities, and other necessary matters between the Clinic and users.'),
+
+  h3('Article 2 (Definitions)'),
+  p('The following definitions apply to these terms:'),
+  li('"Site" refers to the internet website operated by the Clinic using information and communications equipment to provide services to users.'),
+  li('"User" refers to members and non-members who access the site and receive services from the Clinic under these terms.'),
+  li('"Member" refers to a person who has registered with the Clinic by providing personal information and can continuously receive information and use services provided by the Clinic.'),
+  li('"Non-member" refers to a person who uses services provided by the Clinic without registering as a member.'),
+  li('"Appointment service" refers to the service for booking appointments in advance through the site.'),
+  li('"Content" refers to all materials posted on the site, including text, images, videos, treatment information, and medical staff information.'),
+
+  h3('Article 3 (Effect and Modification of Terms)'),
+  li('These terms take effect upon posting on the site\'s main page or notification to users by other means.'),
+  li('The Clinic may amend these terms as necessary, and amended terms take effect upon announcement on the site.'),
+  li('Changes are announced at least 7 days before taking effect (30 days for significant changes to user rights and obligations).'),
+  li('If users do not agree to the amended terms, they may discontinue use and withdraw membership. Failure to express objection within 7 days of the change notice is deemed consent to the amended terms.'),
+
+  h3('Article 4 (Services Provided)'),
+  p('The Clinic provides the following services:'),
+  li('Appointment booking, confirmation, modification, and cancellation services'),
+  li('Medical staff introductions and treatment guidance information'),
+  li('Treatment and procedure information (dermatology, plastic surgery, aesthetics, etc.)'),
+  li('Events, announcements, and health information'),
+  li('Online consultation inquiry reception'),
+  li('Other services as determined by the Clinic'),
+
+  h3('Article 5 (Service Use)'),
+  li('Service is available 24 hours a day, 365 days a year, unless there are special operational or technical difficulties.'),
+  li('The Clinic may temporarily suspend service in the following cases:'),
+  li('Equipment maintenance, replacement, failure, or communication disruption'),
+  li('Suspension of telecommunications services by a carrier regulated under the Telecommunications Business Act'),
+  li('Force majeure events such as natural disasters or national emergencies'),
+  li('Users will be notified in advance through site announcements when service is suspended. If advance notice is not possible due to unforeseeable circumstances, notice will be given after the fact.'),
+
+  h3('Article 6 (Membership Registration)'),
+  li('Users may register by completing the registration form established by the Clinic and expressing agreement to these terms.'),
+  li('The Clinic may refuse or subsequently revoke membership in the following cases:'),
+  li('Previous loss of membership status'),
+  li('False or misappropriated information provided'),
+  li('Age under 14 without legal guardian consent'),
+  li('Other violations of these terms or illegal/improper conduct'),
+
+  h3('Article 7 (ID and Password Management)'),
+  li('Members are solely responsible for managing their ID and password and must not allow third parties to use them.'),
+  li('Members must immediately notify the Clinic if their account is stolen or used by a third party, and must follow the Clinic\'s guidance.'),
+  li('The Clinic is not liable for any disadvantage arising from failure to notify or failure to follow the Clinic\'s guidance after notification.'),
+
+  h3('Article 8 (User Obligations)'),
+  p('Users must not engage in the following activities:'),
+  li('Entering false information when registering or making changes'),
+  li('Misappropriating another person\'s information'),
+  li('Modifying information posted by the Clinic'),
+  li('Transmitting or posting information other than that designated by the Clinic (including computer programs)'),
+  li('Infringing intellectual property rights of the Clinic or third parties'),
+  li('Defaming the Clinic or third parties, or interfering with their operations'),
+  li('Posting obscene or violent messages, videos, audio, or other content contrary to public order and morals'),
+  li('Using services for commercial purposes without the Clinic\'s consent'),
+  li('Any other illegal or improper acts'),
+
+  h3('Article 9 (Online Consultation and Appointment Services)'),
+  li('Online consultations and appointments do not replace actual medical treatment and have no medical diagnostic or therapeutic value.'),
+  li('Appointments take effect upon confirmation and may be subject to change based on Clinic circumstances.'),
+  li('To change or cancel an appointment, please contact the Clinic before the end of business hours on the day before your appointment. Repeated no-shows may result in service restrictions.'),
+  li('Non-reimbursable treatment costs are announced in accordance with Article 45 of the Medical Service Act. Prices listed on the website may differ from actual costs; please confirm before visiting.'),
+
+  h3('Article 10 (Notice Regarding Treatment Information)'),
+  bold('Treatment information for dermatology, plastic surgery, and aesthetics on this site has been prepared in accordance with the Medical Advertising Act (Article 56 of the Medical Service Act) and is intended for general informational purposes only.'),
+  li('Treatment and procedure information on the site is for general informational purposes and does not constitute medical diagnosis or treatment.'),
+  li('Results may vary by individual, and the content on the site may not apply equally to all patients.'),
+  li('The Clinic prohibits exaggerated or false advertising per Article 56 of the Medical Service Act and discloses potential side effects for applicable procedures.'),
+  li('Before/after photos are posted with written patient consent and show results at least 3 months post-treatment.'),
+  li('Detailed consultation and specific pricing for treatments must be determined through direct consultation with medical staff.'),
+
+  h3('Article 11 (Copyright and Intellectual Property)'),
+  li('Copyright and other intellectual property rights for content created by the Clinic belong to the Clinic.'),
+  li('Users may not reproduce, transmit, publish, distribute, broadcast, or otherwise use information obtained from the site for commercial purposes without the Clinic\'s prior consent, nor may they allow third parties to do so.'),
+  li('The Clinic will notify the relevant user when using copyrights that belong to the user pursuant to an agreement.'),
+
+  h3('Article 12 (Disclaimer)'),
+  li('The Clinic is not liable for service disruptions caused by natural disasters, war, telecommunications service suspensions, or other force majeure events.'),
+  li('The Clinic is not liable for service disruptions caused by the user\'s own actions.'),
+  li('Medical information on the site is for reference only; the Clinic is not liable for any outcome based on independent medical decisions made by users.'),
+  li('The user is responsible for the reliability and accuracy of information, data, and facts posted by the user on the site.'),
+
+  h3('Article 13 (Dispute Resolution and Jurisdiction)'),
+  li('Disputes between the Clinic and users shall be resolved through mutual consultation as a first principle.'),
+  li('The agreed jurisdiction for litigation regarding these terms is the court with jurisdiction over the Clinic\'s location.'),
+  li('Applicable law is the law of the Republic of Korea.'),
+
+  h3('Article 14 (Miscellaneous)'),
+  li('Matters not specified in these terms are governed by applicable laws and the Clinic\'s detailed usage guidelines.'),
+  li('If any provision of these terms is found invalid, the remaining provisions shall remain in full force and effect.'),
+];
+
 // ─── Sanity 저장 ──────────────────────────────────────────
 
 async function seed() {
@@ -278,7 +495,9 @@ async function seed() {
       effectiveDate: '2025-04-23',
       publicationDate: '2025-04-23',
       contentKo: privacyKo,
-      contentEn: [],
+      contentEn: privacyEn,
+      contentZh: privacyEn,
+      contentJa: privacyEn,
     });
   console.log('✓ 개인정보처리방침 저장 완료');
 
@@ -290,7 +509,9 @@ async function seed() {
       effectiveDate: '2025-04-23',
       publicationDate: '2025-04-23',
       contentKo: termsKo,
-      contentEn: [],
+      contentEn: termsEn,
+      contentZh: termsEn,
+      contentJa: termsEn,
     });
   console.log('✓ 이용약관 저장 완료');
 
