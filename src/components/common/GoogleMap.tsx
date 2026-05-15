@@ -27,10 +27,6 @@ const MAP_STYLES: google.maps.MapTypeStyle[] = [
 declare global {
   interface Window {
     initForeverMap?: () => void;
-    initForeverMap_ko?: () => void;
-    initForeverMap_en?: () => void;
-    initForeverMap_zh?: () => void;
-    initForeverMap_ja?: () => void;
     google?: typeof google;
   }
 }
@@ -46,6 +42,15 @@ export function GoogleMap({
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
   const [ready, setReady] = useState(false);
+
+  // Only inject the script if Maps API isn't already loaded.
+  // useState lazy init runs on both server (window === undefined → true)
+  // and client first mount (window.google undefined → true).
+  // On SPA locale-switch remounts, window.google already exists → false → no duplicate load.
+  const [shouldLoadScript] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true;
+    return !window.google?.maps;
+  });
 
   const initMap = () => {
     if (!mapRef.current || mapInstanceRef.current) return;
@@ -82,13 +87,11 @@ export function GoogleMap({
     setReady(true);
   };
 
-  const callbackName = `initForeverMap_${locale}` as keyof Window;
-
   useEffect(() => {
     if (window.google?.maps) {
       initMap();
     } else {
-      (window[callbackName] as () => void) = initMap;
+      window.initForeverMap = initMap;
     }
 
     return () => {
@@ -123,11 +126,12 @@ export function GoogleMap({
           <circle cx="12" cy="10" r="3" />
         </svg>
       </div>
-      <Script
-        key={language}
-        src={`https://maps.googleapis.com/maps/api/js?key=${apiKey}&language=${language}&callback=${callbackName}&loading=async`}
-        strategy="lazyOnload"
-      />
+      {shouldLoadScript && (
+        <Script
+          src={`https://maps.googleapis.com/maps/api/js?key=${apiKey}&language=${language}&callback=initForeverMap&loading=async`}
+          strategy="lazyOnload"
+        />
+      )}
       <div
         ref={mapRef}
         className={className}
