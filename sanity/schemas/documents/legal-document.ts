@@ -18,6 +18,17 @@ export default defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'title',
+      title: '제목',
+      type: 'object',
+      fields: [
+        defineField({ name: 'ko', title: '한국어', type: 'string' }),
+        defineField({ name: 'en', title: 'English', type: 'string' }),
+        defineField({ name: 'zh', title: '中文', type: 'string' }),
+        defineField({ name: 'ja', title: '日本語', type: 'string' }),
+      ],
+    }),
+    defineField({
       name: 'effectiveDate',
       title: '시행일',
       type: 'date',

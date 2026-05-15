@@ -36,6 +36,7 @@ export async function generateMetadata({
 }
 
 interface LegalDocument {
+  title?: { ko?: string; en?: string; zh?: string; ja?: string };
   effectiveDate?: string;
   publicationDate?: string;
   contentKo?: PortableTextBlock[];
@@ -460,7 +461,10 @@ export default async function PrivacyPage({
             ? contentJa
             : contentKo;
   const effectiveDate = doc?.effectiveDate ?? '2025-04-23';
-  const heading = titles[locale] ?? titles.ko;
+  const heading =
+    doc?.title?.[locale as keyof typeof doc.title] ??
+    titles[locale] ??
+    titles.ko;
 
   return (
     <section className="bg-[#faf8f5] px-5 py-12 md:px-10 lg:px-[120px] lg:py-16">

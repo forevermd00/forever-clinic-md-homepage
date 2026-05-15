@@ -354,6 +354,7 @@ export const navTreatmentsQuery = `
 // === Legal Documents ===
 export const legalDocumentQuery = `
   *[_type == "legalDocument" && documentType == $documentType][0] {
+    title,
     effectiveDate,
     publicationDate,
     contentKo,

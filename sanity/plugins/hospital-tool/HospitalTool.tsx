@@ -2310,6 +2310,7 @@ type LegalDocType = 'privacy-policy' | 'terms-of-service';
 
 interface LegalDocRow {
   _id: string;
+  title?: { ko?: string; en?: string; zh?: string; ja?: string };
   effectiveDate?: string;
   publicationDate?: string;
   contentKo?: PortableTextBlock[];
@@ -2341,8 +2342,8 @@ function LegalDocPanel() {
 
   useEffect(() => {
     const query = `{
-      "privacy": *[_type == "legalDocument" && documentType == "privacy-policy"][0]{ _id, effectiveDate, publicationDate, contentKo, contentEn, contentZh, contentJa },
-      "terms": *[_type == "legalDocument" && documentType == "terms-of-service"][0]{ _id, effectiveDate, publicationDate, contentKo, contentEn, contentZh, contentJa }
+      "privacy": *[_type == "legalDocument" && documentType == "privacy-policy"][0]{ _id, title, effectiveDate, publicationDate, contentKo, contentEn, contentZh, contentJa },
+      "terms": *[_type == "legalDocument" && documentType == "terms-of-service"][0]{ _id, title, effectiveDate, publicationDate, contentKo, contentEn, contentZh, contentJa }
     }`;
     client
       .fetch<{ privacy: LegalDocRow | null; terms: LegalDocRow | null }>(query)
@@ -2456,6 +2457,43 @@ function LegalDocPanel() {
               />
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* 제목 */}
+      <div className="ht-detail-section">
+        <div className="ht-detail-section-title">제목 (언어별)</div>
+        <div className="ht-detail-body">
+          {(
+            [
+              { key: 'ko', label: '한국어' },
+              { key: 'en', label: 'English' },
+              { key: 'zh', label: '中文' },
+              { key: 'ja', label: '日本語' },
+            ] as { key: 'ko' | 'en' | 'zh' | 'ja'; label: string }[]
+          ).map(({ key, label }) => (
+            <div
+              key={key}
+              className="ht-detail-row"
+              style={{ marginBottom: 8 }}
+            >
+              <div className="ht-detail-field">
+                <label className="ht-detail-label">{label}</label>
+                <input
+                  key={`${activeDoc}-title-${key}`}
+                  type="text"
+                  className="ht-text-input"
+                  style={{ width: 320 }}
+                  defaultValue={doc?.title?.[key] ?? ''}
+                  onBlur={(e) =>
+                    patchDoc(activeDoc, {
+                      title: { ...doc?.title, [key]: e.target.value || null },
+                    })
+                  }
+                />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
