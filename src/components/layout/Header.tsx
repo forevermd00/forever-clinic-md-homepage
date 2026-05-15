@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
 import { locales, localeNames, type Locale } from '@/lib/i18n/config';
@@ -166,7 +166,6 @@ export function Header({
 }: HeaderProps = {}) {
   const pathname = usePathname();
   const currentLocale = pathname.split('/')[1] as Locale;
-  const router = useRouter();
   const tNav = useTranslations('nav');
   const tCommon = useTranslations('common');
   const tFooter = useTranslations('footer');
@@ -267,8 +266,7 @@ export function Header({
   const switchLocale = (locale: Locale) => {
     const segments = pathname.split('/');
     segments[1] = locale;
-    router.push(segments.join('/'));
-    setIsLangOpen(false);
+    window.location.assign(segments.join('/'));
   };
 
   const navItems = ALL_NAV_ITEMS.filter(
