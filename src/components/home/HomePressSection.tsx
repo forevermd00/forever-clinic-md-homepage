@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { urlFor } from '@/lib/sanity/image';
+import { ContentCard } from '@/components/media/ContentCard';
 
 interface PressItem {
   _id: string;
@@ -40,48 +41,25 @@ export function HomePressSection({ locale, items }: HomePressProps) {
           </h2>
         </div>
 
-        <div className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((item) => {
-            const thumbUrl = item.thumbnail
-              ? urlFor(item.thumbnail)?.width(600).height(400).url()
-              : null;
-            return (
-              <Link
-                key={item._id}
-                href={`/${locale}/media/press/${item._id}`}
-                className="group flex flex-col overflow-hidden rounded-[8px] border border-[#efe5d9] bg-white shadow-[0px_1px_2px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-md"
-              >
-                {thumbUrl ? (
-                  <div className="h-[200px] overflow-hidden">
-                    <img
-                      src={thumbUrl}
-                      alt={item.title || ''}
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  </div>
-                ) : (
-                  <div className="h-[200px] bg-[#f3eee6]" />
-                )}
-                <div className="flex flex-1 flex-col gap-2 p-4">
-                  <div className="flex items-center gap-2 text-[11px] text-[#a08080]">
-                    {item.publisher && <span>{item.publisher}</span>}
-                    {item.publisher && item.publishedAt && <span>·</span>}
-                    {item.publishedAt && (
-                      <span>{formatDate(item.publishedAt)}</span>
-                    )}
-                  </div>
-                  <p className="line-clamp-2 text-[15px] leading-snug font-semibold text-[#2b2b2b]">
-                    {item.title || ''}
-                  </p>
-                  {item.excerpt && (
-                    <p className="line-clamp-2 text-[13px] leading-relaxed text-[#706263]">
-                      {item.excerpt}
-                    </p>
-                  )}
-                </div>
-              </Link>
-            );
-          })}
+        <div
+          className="grid w-full max-w-[1272px] justify-center gap-6"
+          style={{ gridTemplateColumns: 'repeat(auto-fill, 300px)' }}
+        >
+          {items.map((item) => (
+            <ContentCard
+              key={item._id}
+              href={`/${locale}/media/press/${item._id}`}
+              imageUrl={
+                item.thumbnail
+                  ? (urlFor(item.thumbnail)?.width(600).height(400).url() ??
+                    undefined)
+                  : undefined
+              }
+              date={formatDate(item.publishedAt)}
+              title={item.title || ''}
+              description={item.excerpt || item.publisher || ''}
+            />
+          ))}
         </div>
 
         <Link
