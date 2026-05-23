@@ -45,6 +45,9 @@ export async function GET(req: NextRequest) {
         created_at TIMESTAMP DEFAULT NOW() NOT NULL
       )
     `;
+    await client`
+      CREATE INDEX IF NOT EXISTS pvc_phone_idx ON phone_verification_codes (phone)
+    `;
 
     // keepalive 기록 삽입
     await db.insert(keepaliveLogs).values({ source: 'cron' });

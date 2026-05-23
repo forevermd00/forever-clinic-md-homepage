@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 export type SmsStatus =
   | 'sent'
@@ -26,13 +26,17 @@ export const passwordResetCodes = pgTable('password_reset_codes', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-export const phoneVerificationCodes = pgTable('phone_verification_codes', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  phone: text('phone').notNull(),
-  code: text('code').notNull(),
-  expiresAt: timestamp('expires_at').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+export const phoneVerificationCodes = pgTable(
+  'phone_verification_codes',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    phone: text('phone').notNull(),
+    code: text('code').notNull(),
+    expiresAt: timestamp('expires_at').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (t) => [index('pvc_phone_idx').on(t.phone)],
+);
 
 export const smsLogs = pgTable('sms_logs', {
   id: uuid('id').defaultRandom().primaryKey(),

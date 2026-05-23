@@ -232,15 +232,6 @@ export async function verifyPhoneCode(phone: string, code: string) {
   if (new Date() > record.expiresAt) return { error: 'expired' };
   if (record.code !== code) return { error: 'invalid' };
 
-  void db
-    .delete(phoneVerificationCodes)
-    .where(
-      and(
-        eq(phoneVerificationCodes.phone, normalizedPhone),
-        eq(phoneVerificationCodes.id, record.id),
-      ),
-    );
-
   return { success: true };
 }
 
