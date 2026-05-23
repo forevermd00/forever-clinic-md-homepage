@@ -12,6 +12,7 @@ interface TreatmentCardProps {
   dark?: boolean;
   className?: string;
   showDetail?: boolean;
+  showPrice?: boolean;
 }
 
 function TreatmentCard({
@@ -25,6 +26,7 @@ function TreatmentCard({
   dark,
   className,
   showDetail = true,
+  showPrice = true,
 }: TreatmentCardProps) {
   const cardClass = cn(
     'group block w-[300px] overflow-hidden rounded-[8px]',
@@ -63,7 +65,9 @@ function TreatmentCard({
       >
         {name}
       </h3>
-      <p className="mt-1 text-[14px] font-medium text-[#a83c44]">{price}</p>
+      {showPrice && (
+        <p className="mt-1 text-[14px] font-medium text-[#a83c44]">{price}</p>
+      )}
     </div>
   );
 

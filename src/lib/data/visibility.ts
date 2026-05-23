@@ -41,6 +41,7 @@ export interface SectionVisibility {
   };
   treatments: {
     detail: boolean;
+    showPrice: boolean;
   };
   contact: {
     showPreferredDatetime: boolean;
@@ -81,7 +82,7 @@ export const DEFAULT_VISIBILITY: SectionVisibility = {
     location: true,
   },
   media: { press: true, blog: true, notice: true, video: true },
-  treatments: { detail: true },
+  treatments: { detail: true, showPrice: true },
   contact: { showPreferredDatetime: true },
 };
 
@@ -151,6 +152,7 @@ export async function getSectionVisibility(): Promise<SectionVisibility> {
     },
     treatments: {
       detail: raw.treatments?.detail ?? true,
+      showPrice: raw.treatments?.showPrice ?? true,
     },
     contact: {
       showPreferredDatetime: raw.contact?.showPreferredDatetime ?? true,

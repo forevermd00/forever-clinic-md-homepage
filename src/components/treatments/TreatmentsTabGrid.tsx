@@ -43,12 +43,14 @@ interface TreatmentsTabGridProps {
   locale: string;
   categories?: TreatmentCategory[];
   showDetail?: boolean;
+  showPrice?: boolean;
 }
 
 export function TreatmentsTabGrid({
   locale,
   categories = TREATMENT_CATEGORIES,
   showDetail = true,
+  showPrice = true,
 }: TreatmentsTabGridProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -298,6 +300,7 @@ export function TreatmentsTabGrid({
                         locale={locale}
                         dark
                         showDetail={showDetail}
+                        showPrice={showPrice}
                       />
                     ))}
                   </div>
@@ -360,6 +363,7 @@ export function TreatmentsTabGrid({
                           hasEvent={treatment.hasEvent}
                           locale={locale}
                           showDetail={showDetail}
+                          showPrice={showPrice}
                         />
                       );
                     })}

@@ -167,6 +167,13 @@ export const sectionVisibility = defineType({
           type: 'boolean',
           initialValue: true,
         }),
+        defineField({
+          name: 'showPrice',
+          title: '가격 표시',
+          description: '꺼두면 시술 카드와 상세 페이지에서 가격이 숨겨집니다.',
+          type: 'boolean',
+          initialValue: true,
+        }),
       ],
     }),
     defineField({

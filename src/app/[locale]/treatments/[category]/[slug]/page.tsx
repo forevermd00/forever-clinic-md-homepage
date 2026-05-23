@@ -286,23 +286,25 @@ export default async function TreatmentDetailPage({
             )}
 
             {/* Price */}
-            <div className="mt-8 lg:mt-auto lg:pt-8">
-              {(treatment.hasSignature || treatment.hasEvent) &&
-              (treatment.discountRate ?? 0) > 0 ? (
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[13px] text-[#999] line-through">
-                    ₩{treatment.originalPriceNumeric?.toLocaleString()}
-                  </span>
-                  <span className="text-[22px] font-bold text-[#a83c44] lg:text-[26px]">
+            {visibility.treatments.showPrice && (
+              <div className="mt-8 lg:mt-auto lg:pt-8">
+                {(treatment.hasSignature || treatment.hasEvent) &&
+                (treatment.discountRate ?? 0) > 0 ? (
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[13px] text-[#999] line-through">
+                      ₩{treatment.originalPriceNumeric?.toLocaleString()}
+                    </span>
+                    <span className="text-[22px] font-bold text-[#a83c44] lg:text-[26px]">
+                      {treatment.price}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-forever-charcoal text-[20px] font-bold lg:text-[24px]">
                     {treatment.price}
                   </span>
-                </div>
-              ) : (
-                <span className="text-forever-charcoal text-[20px] font-bold lg:text-[24px]">
-                  {treatment.price}
-                </span>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Right - Content */}

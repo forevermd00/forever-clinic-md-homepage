@@ -118,6 +118,7 @@ export default async function TreatmentsPage({
           locale={locale}
           categories={categories}
           showDetail={visibility.treatments.detail}
+          showPrice={visibility.treatments.showPrice}
         />
       </Suspense>
     </>

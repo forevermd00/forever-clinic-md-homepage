@@ -148,7 +148,7 @@ interface SectionVisibilityDoc {
     blog?: boolean;
     notice?: boolean;
   };
-  treatments?: { detail?: boolean };
+  treatments?: { detail?: boolean; showPrice?: boolean };
   contact?: { showPreferredDatetime?: boolean };
 }
 
@@ -2343,6 +2343,12 @@ function SectionsPanel() {
           label="시술 상세 페이지"
           path="treatments.detail"
           value={doc.treatments?.detail}
+          onToggle={toggle}
+        />
+        <ToggleRow
+          label="가격 표시"
+          path="treatments.showPrice"
+          value={doc.treatments?.showPrice}
           onToggle={toggle}
         />
       </div>
