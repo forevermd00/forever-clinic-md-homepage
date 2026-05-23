@@ -1,9 +1,11 @@
+import { BASE_URL } from '@/lib/seo/keywords';
+
 // MedicalBusiness — used in layout
 export function getMedicalBusinessJsonLd(locale: string) {
   return {
     '@context': 'https://schema.org',
     '@type': 'MedicalBusiness',
-    '@id': 'https://forever-clinic-myeongdong.com',
+    '@id': BASE_URL,
     name:
       locale === 'ko'
         ? '포에버 클리닉 명동'
@@ -12,8 +14,8 @@ export function getMedicalBusinessJsonLd(locale: string) {
           : locale === 'zh'
             ? '永恒诊所 明洞'
             : 'フォーエバークリニック 明洞',
-    url: `https://forever-clinic-myeongdong.com/${locale}`,
-    telephone: '+82-2-XXX-XXXX',
+    url: `${BASE_URL}/${locale}`,
+    telephone: process.env.NEXT_PUBLIC_CLINIC_PHONE ?? '+82-2-0000-0000',
     email: 'contact@forever-clinic.kr',
     address: {
       '@type': 'PostalAddress',
@@ -65,7 +67,7 @@ export function getMedicalBusinessJsonLd(locale: string) {
     ],
     medicalSpecialty: 'Dermatology',
     priceRange: '₩₩₩',
-    image: 'https://forever-clinic-myeongdong.com/images/heroes/brand-hero.png',
+    image: `${BASE_URL}/images/heroes/brand-hero.png`,
     sameAs: [],
   };
 }
@@ -87,7 +89,7 @@ export function getTreatmentProductJsonLd(
     name: treatment.name,
     description: treatment.description,
     category: treatment.category,
-    url: `https://forever-clinic-myeongdong.com/${locale}/treatments/${treatment.category}/${treatment.slug}`,
+    url: `${BASE_URL}/${locale}/treatments/${treatment.category}/${treatment.slug}`,
     offers: {
       '@type': 'Offer',
       price: treatment.price,
@@ -130,6 +132,22 @@ export function getArticleJsonLd(article: {
       '@type': 'Organization',
       name: 'Forever Clinic Myeongdong',
     },
+  };
+}
+
+// FAQPage — for treatment detail pages with FAQ items
+export function getFaqPageJsonLd(items: { q: string; a: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.a,
+      },
+    })),
   };
 }
 

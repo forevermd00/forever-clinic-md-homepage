@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { TREATMENT_CATEGORIES } from '@/components/treatments/treatmentData';
+import { BASE_URL } from '@/lib/seo/keywords';
 import { createClient } from '@sanity/client';
 
 const sanityClient = createClient({
@@ -10,7 +11,7 @@ const sanityClient = createClient({
 });
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://forever-clinic-myeongdong.com';
+  const baseUrl = BASE_URL;
   const locales = ['ko', 'en', 'zh', 'ja'];
 
   const staticPages = [
@@ -33,20 +34,40 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Treatment detail pages from Sanity
   let treatmentPages: string[] = [];
+  let pressPages: string[] = [];
+  let blogPages: string[] = [];
   try {
-    const treatments = await sanityClient.fetch<
-      { slug: string; category: string }[]
-    >(
-      `*[_type == "treatment" && isVisible == true]{"slug": slug.current, category}`,
-    );
+    const [treatments, pressArticles, blogPosts] = await Promise.all([
+      sanityClient.fetch<{ slug: string; category: string }[]>(
+        `*[_type == "treatment" && isVisible == true]{"slug": slug.current, category}`,
+      ),
+      sanityClient.fetch<{ slug: string }[]>(
+        `*[_type == "pressArticle" && isVisible != false]{"slug": _id}`,
+      ),
+      sanityClient.fetch<{ slug: string }[]>(
+        `*[_type == "blogPost" && isVisible != false]{"slug": slug.current}`,
+      ),
+    ]);
     treatmentPages = treatments
       .filter((t) => t.slug && t.category)
       .map((t) => `/treatments/${t.category}/${t.slug}`);
+    pressPages = pressArticles
+      .filter((p) => p.slug)
+      .map((p) => `/media/press/${p.slug}`);
+    blogPages = blogPosts
+      .filter((b) => b.slug)
+      .map((b) => `/media/blog/${b.slug}`);
   } catch {
     // fall back to empty if Sanity is unreachable
   }
 
-  const allPages = [...staticPages, ...categoryPages, ...treatmentPages];
+  const allPages = [
+    ...staticPages,
+    ...categoryPages,
+    ...treatmentPages,
+    ...pressPages,
+    ...blogPages,
+  ];
 
   const entries: MetadataRoute.Sitemap = allPages.flatMap((page) =>
     locales.map((locale) => ({

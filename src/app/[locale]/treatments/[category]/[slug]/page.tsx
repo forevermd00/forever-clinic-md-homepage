@@ -15,8 +15,14 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import {
   getTreatmentProductJsonLd,
   getBreadcrumbJsonLd,
+  getFaqPageJsonLd,
 } from '@/lib/seo/jsonld';
-import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
+import {
+  BASE_URL,
+  getAlternates,
+  ogLocales,
+  siteNames,
+} from '@/lib/seo/keywords';
 import { getSectionVisibility } from '@/lib/data/visibility';
 
 const CLINIC_NAMES: Record<string, string> = {
@@ -121,6 +127,9 @@ export async function generateMetadata({
   const { treatment } = result;
   const title = `${treatment.name} ${treatment.price}`;
   const description = treatment.description;
+  const ogImage = treatment.imageUrl
+    ? [{ url: treatment.imageUrl, width: 1200, height: 630 }]
+    : [{ url: '/images/heroes/brand-hero.png', width: 1200, height: 630 }];
 
   return {
     title,
@@ -130,6 +139,7 @@ export async function generateMetadata({
       title: `${treatment.name} | ${siteNames[locale] ?? siteNames.ko}`,
       description,
       locale: ogLocales[locale] ?? 'ko_KR',
+      images: ogImage,
     },
   };
 }
@@ -203,8 +213,6 @@ export default async function TreatmentDetailPage({
     : [];
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
-  const baseUrl = 'https://forever-clinic-myeongdong.com';
-
   return (
     <>
       <JsonLd
@@ -221,17 +229,18 @@ export default async function TreatmentDetailPage({
       />
       <JsonLd
         data={getBreadcrumbJsonLd([
-          { name: t('title'), url: `${baseUrl}/${locale}/treatments` },
+          { name: t('title'), url: `${BASE_URL}/${locale}/treatments` },
           {
             name: getCategoryLabel(category, locale),
-            url: `${baseUrl}/${locale}/treatments/${category.slug}`,
+            url: `${BASE_URL}/${locale}/treatments/${category.slug}`,
           },
           {
             name: treatment.name,
-            url: `${baseUrl}/${locale}/treatments/${category.slug}/${treatment.slug}`,
+            url: `${BASE_URL}/${locale}/treatments/${category.slug}/${treatment.slug}`,
           },
         ])}
       />
+      {faqItems.length > 0 && <JsonLd data={getFaqPageJsonLd(faqItems)} />}
       <section className="bg-[#faf8f5]">
         <div className="mx-auto flex max-w-[680px] flex-col gap-0 px-5 py-5 lg:max-w-[var(--container-max)] lg:flex-row lg:px-[120px] lg:py-16">
           {/* Left - Title */}

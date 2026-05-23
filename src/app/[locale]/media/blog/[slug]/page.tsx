@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
@@ -7,6 +8,36 @@ import { getArticleJsonLd } from '@/lib/seo/jsonld';
 import { getBlogDetail } from '@/lib/data/media';
 import { BlogContent } from '@/components/media/BlogContent';
 import { ViewTracker } from '@/components/media/ViewTracker';
+import {
+  BASE_URL,
+  getAlternates,
+  ogLocales,
+  siteNames,
+} from '@/lib/seo/keywords';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const cmsResult = await getBlogDetail(slug, locale);
+  if (!cmsResult) return {};
+  const { article } = cmsResult;
+  const plainText =
+    article.content.length > 0 ? toPlainText(article.content) : '';
+  const description = plainText.slice(0, 160);
+  return {
+    title: article.title,
+    description,
+    alternates: getAlternates(locale, `/media/blog/${slug}`),
+    openGraph: {
+      title: `${article.title} | ${siteNames[locale] ?? siteNames.ko}`,
+      description,
+      locale: ogLocales[locale] ?? 'ko_KR',
+    },
+  };
+}
 
 export default async function BlogDetailPage({
   params,
@@ -21,7 +52,6 @@ export default async function BlogDetailPage({
 
   const { article, prevArticle, nextArticle } = cmsResult;
   const basePath = `/${locale}/media/blog`;
-  const baseUrl = 'https://forever-clinic-myeongdong.com';
   const plainText =
     article.content.length > 0 ? toPlainText(article.content) : '';
 
@@ -33,7 +63,7 @@ export default async function BlogDetailPage({
           title: article.title,
           date: article.date,
           description: plainText.slice(0, 160),
-          url: `${baseUrl}${basePath}/${article.slug}`,
+          url: `${BASE_URL}${basePath}/${article.slug}`,
         })}
       />
       <section className="bg-[#faf8f5] px-5 py-12 md:px-10 lg:px-[120px] lg:py-16">

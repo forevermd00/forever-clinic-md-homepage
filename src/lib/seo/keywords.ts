@@ -107,12 +107,14 @@ export const ogLocales: Record<string, string> = {
   ja: 'ja_JP',
 };
 
-export const BASE_URL = 'https://forever-clinic-myeongdong.com';
+export const BASE_URL =
+  process.env.NEXT_PUBLIC_BASE_URL ?? 'https://md.foreverclinic.co.kr';
 
 export function getAlternates(locale: string, path: string = '') {
   return {
     canonical: `${BASE_URL}/${locale}${path}`,
     languages: {
+      'x-default': `${BASE_URL}/ko${path}`,
       ko: `${BASE_URL}/ko${path}`,
       en: `${BASE_URL}/en${path}`,
       zh: `${BASE_URL}/zh${path}`,
