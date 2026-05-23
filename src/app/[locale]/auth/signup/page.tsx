@@ -92,7 +92,9 @@ export default function SignupPage() {
       const result = await sendPhoneVerificationCode(
         `${form.countryCode} ${form.phone}`,
       );
-      if (result.success) {
+      if ('error' in result) {
+        setErrors((prev) => ({ ...prev, phone: t('errorSmsFailed') }));
+      } else {
         setPhoneSent(true);
         setPhoneTimer(300); // 5분
         setPhoneVerified(false);
