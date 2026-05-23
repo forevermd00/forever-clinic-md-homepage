@@ -184,7 +184,7 @@ export async function sendPhoneVerificationCode(phone: string) {
     const header = result?.header;
 
     if (header?.isSuccessful) {
-      await logSms(
+      void logSms(
         normalizedPhone,
         'sent',
         String(header.resultCode ?? ''),
@@ -193,14 +193,14 @@ export async function sendPhoneVerificationCode(phone: string) {
     } else {
       const errCode = String(header?.resultCode ?? 'unknown');
       const errMsg = header?.resultMessage ?? 'api_failure';
-      await logSms(normalizedPhone, 'api_failed', errCode, errMsg);
-      await checkAndAlertOnFailures(normalizedPhone);
+      void logSms(normalizedPhone, 'api_failed', errCode, errMsg);
+      void checkAndAlertOnFailures(normalizedPhone);
       await insertFallbackCode(normalizedPhone);
     }
   } catch (netErr) {
     const msg = netErr instanceof Error ? netErr.message : String(netErr);
-    await logSms(normalizedPhone, 'network_failed', undefined, msg);
-    await checkAndAlertOnFailures(normalizedPhone);
+    void logSms(normalizedPhone, 'network_failed', undefined, msg);
+    void checkAndAlertOnFailures(normalizedPhone);
     await insertFallbackCode(normalizedPhone);
   }
 
@@ -232,7 +232,7 @@ export async function verifyPhoneCode(phone: string, code: string) {
   if (new Date() > record.expiresAt) return { error: 'expired' };
   if (record.code !== code) return { error: 'invalid' };
 
-  await db
+  void db
     .delete(phoneVerificationCodes)
     .where(
       and(
