@@ -111,7 +111,7 @@
     "errorNameRequired": "お名前を入力してください。",
     "errorPrivacyRequired": "プライバシーポリシーに同意してください。",
     "resetPasswordTitle": "パスワード再設定",
-    "resetPasswordSubtitle": "登録したメールアドレスを入力すると、パスワード再設定リンクをお送りします。",
+    "resetPasswordSubtitle": "ご登録のメールアドレスと電話番号を入力してください。SMS認証コードをお送りします。",
     "sendVerificationEmail": "認証メールを送信",
     "emailSentTitle": "メールを送信しました",
     "emailSentDescription": "宛てにパスワード再設定リンクを送信しました。メールをご確認ください。",

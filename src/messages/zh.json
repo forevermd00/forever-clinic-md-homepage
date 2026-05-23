@@ -111,7 +111,7 @@
     "errorNameRequired": "请输入姓名。",
     "errorPrivacyRequired": "请同意隐私政策。",
     "resetPasswordTitle": "重置密码",
-    "resetPasswordSubtitle": "请输入注册邮箱，我们将发送密码重置链接。",
+    "resetPasswordSubtitle": "请输入注册时使用的邮箱和手机号码，我们将通过短信发送验证码。",
     "sendVerificationEmail": "发送验证邮件",
     "emailSentTitle": "邮件已发送",
     "emailSentDescription": " - 密码重置链接已发送，请查看邮箱。",

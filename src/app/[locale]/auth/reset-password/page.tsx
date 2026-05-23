@@ -18,6 +18,8 @@ export default function ResetPasswordPage() {
 
   const [step, setStep] = useState<Step>('email');
   const [email, setEmail] = useState('');
+  const [countryCode, setCountryCode] = useState('+82');
+  const [phone, setPhone] = useState('');
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -27,7 +29,6 @@ export default function ResetPasswordPage() {
 
   const codeRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Timer
   useEffect(() => {
     if (timer <= 0) return;
     const interval = setInterval(() => {
@@ -42,21 +43,25 @@ export default function ResetPasswordPage() {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   }, []);
 
-  const handleSendEmail = async () => {
+  const handleSend = async () => {
     if (!email) {
       setError(t('errorEmailRequired'));
+      return;
+    }
+    if (!phone) {
+      setError(t('errorPhoneRequired'));
       return;
     }
     setError('');
     setLoading(true);
     try {
-      await sendPasswordResetCode(email);
+      await sendPasswordResetCode(email, `${countryCode} ${phone}`);
       setStep('code');
       setTimer(300);
       setCode(['', '', '', '', '', '']);
       setTimeout(() => codeRefs.current[0]?.focus(), 100);
     } catch {
-      setError(t('errorEmailRequired'));
+      setError(t('errorSmsFailed'));
     } finally {
       setLoading(false);
     }
@@ -65,7 +70,7 @@ export default function ResetPasswordPage() {
   const handleResend = async () => {
     setLoading(true);
     try {
-      await sendPasswordResetCode(email);
+      await sendPasswordResetCode(email, `${countryCode} ${phone}`);
       setTimer(300);
       setCode(['', '', '', '', '', '']);
       setError('');
@@ -82,8 +87,6 @@ export default function ResetPasswordPage() {
     const newCode = [...code];
     newCode[index] = value.slice(-1);
     setCode(newCode);
-
-    // Auto-focus next input
     if (value && index < 5) {
       codeRefs.current[index + 1]?.focus();
     }
@@ -162,7 +165,7 @@ export default function ResetPasswordPage() {
   return (
     <div className="min-h-[calc(100vh-64px)] bg-[#faf8f5] px-5">
       <div className="mx-auto flex max-w-[480px] flex-col py-16 md:py-20">
-        {/* Step 1: Email input */}
+        {/* Step 1: Email + Phone input */}
         {step === 'email' && (
           <div className="flex flex-col gap-6">
             <div className="text-center">
@@ -174,27 +177,61 @@ export default function ResetPasswordPage() {
               </p>
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label
-                htmlFor="reset-email"
-                className="text-[13px] font-medium text-[#2b2b2b]"
-              >
-                {t('email')}
-              </label>
-              <input
-                id="reset-email"
-                type="email"
-                placeholder={t('emailPlaceholder')}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={inputClass}
-              />
-              {error && <p className="text-[13px] text-[#a83c44]">{error}</p>}
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label
+                  htmlFor="reset-email"
+                  className="text-[13px] font-medium text-[#2b2b2b]"
+                >
+                  {t('email')}
+                </label>
+                <input
+                  id="reset-email"
+                  type="email"
+                  placeholder={t('emailPlaceholder')}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label
+                  htmlFor="reset-phone"
+                  className="text-[13px] font-medium text-[#2b2b2b]"
+                >
+                  {t('phone')}
+                </label>
+                <div className="flex gap-2">
+                  <select
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    className="h-[48px] w-[120px] shrink-0 rounded-[6px] border border-[#efe5d9] bg-white px-2 text-[14px] text-[#2b2b2b] focus:border-[#a83c44] focus:outline-none"
+                  >
+                    <option value="+82">🇰🇷 +82</option>
+                    <option value="+1">🇺🇸 +1</option>
+                    <option value="+81">🇯🇵 +81</option>
+                    <option value="+86">🇨🇳 +86</option>
+                  </select>
+                  <input
+                    id="reset-phone"
+                    type="tel"
+                    placeholder={t('phonePlaceholder')}
+                    value={phone}
+                    onChange={(e) =>
+                      setPhone(e.target.value.replace(/[^\d\-]/g, ''))
+                    }
+                    className={inputClass}
+                  />
+                </div>
+              </div>
             </div>
+
+            {error && <p className="text-[13px] text-[#a83c44]">{error}</p>}
 
             <button
               type="button"
-              onClick={handleSendEmail}
+              onClick={handleSend}
               disabled={loading}
               className="h-[52px] w-full cursor-pointer rounded-[6px] bg-[#a83c44] text-[16px] font-bold text-white transition-colors hover:bg-[#8c2e38] disabled:cursor-not-allowed disabled:opacity-50"
             >
@@ -210,7 +247,7 @@ export default function ResetPasswordPage() {
           </div>
         )}
 
-        {/* Step 2: Code input */}
+        {/* Step 2: SMS Code input */}
         {step === 'code' && (
           <div className="flex flex-col gap-6">
             <div className="text-center">
@@ -218,12 +255,13 @@ export default function ResetPasswordPage() {
                 {t('verificationCodeTitle')}
               </h1>
               <p className="mt-2 text-[14px] text-[#808080]">
-                <span className="font-medium text-[#2b2b2b]">{email}</span>
+                <span className="font-medium text-[#2b2b2b]">
+                  {countryCode} {phone}
+                </span>
                 {t('verificationCodeSubtitle')}
               </p>
             </div>
 
-            {/* 6-digit code boxes */}
             <div
               className="flex justify-center gap-3"
               onPaste={handleCodePaste}
@@ -245,7 +283,6 @@ export default function ResetPasswordPage() {
               ))}
             </div>
 
-            {/* Timer */}
             <p className="text-center text-[13px] text-[#a83c44]">
               {t('codeExpiry')} {formatTimer(timer)}
             </p>

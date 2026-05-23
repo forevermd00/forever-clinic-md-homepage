@@ -106,12 +106,15 @@ export default function AccountPage() {
       } else if ('error' in result) {
         if (result.error === 'wrong_password') {
           setDeleteError(t('errorCurrentPasswordWrong'));
+        } else if (result.error === 'db_error') {
+          setDeleteError('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
         } else {
           setDeleteError(t('errorPasswordRequired'));
         }
       }
-    } catch {
-      setDeleteError(t('errorPasswordRequired'));
+    } catch (err) {
+      console.error('[deleteAccount] unexpected error:', err);
+      setDeleteError('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
     } finally {
       setDeleteLoading(false);
     }

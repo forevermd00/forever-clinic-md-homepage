@@ -111,7 +111,7 @@
     "errorNameRequired": "Please enter your name.",
     "errorPrivacyRequired": "You must agree to the Privacy Policy.",
     "resetPasswordTitle": "Reset Password",
-    "resetPasswordSubtitle": "Enter your email address and we'll send you a password reset link.",
+    "resetPasswordSubtitle": "Enter your registered email and phone number. We'll send a verification code via SMS.",
     "sendVerificationEmail": "Send Reset Email",
     "emailSentTitle": "Email Sent",
     "emailSentDescription": " - a password reset link has been sent. Please check your inbox.",

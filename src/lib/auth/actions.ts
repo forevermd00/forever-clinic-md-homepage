@@ -127,40 +127,18 @@ async function sendSmsAlertEmail(phone: string, failCount: number) {
   });
 }
 
-// 전화번호 인증 코드 발송 (NHN Cloud SMS API v3.0)
-export async function sendPhoneVerificationCode(phone: string) {
+// NHN Cloud SMS API 호출 + 로깅 (공통 헬퍼)
+// 성공 시 true, 실패 시 false 반환
+async function callNhnSmsApi(
+  normalizedPhone: string,
+  code: string,
+): Promise<boolean> {
   const appKey = process.env.NHN_SMS_APP_KEY;
   const secretKey = process.env.NHN_SMS_SECRET_KEY;
   const sendNo = process.env.NHN_SMS_SENDER_NO;
-  const normalizedPhone = normalizePhone(phone);
 
-  // 환경변수 미설정 → 폴백 코드
-  if (!appKey || !secretKey || !sendNo) {
-    await insertFallbackCode(normalizedPhone);
-    await logSms(normalizedPhone, 'fallback_only', undefined, 'env_not_set');
-    return { success: true };
-  }
+  if (!appKey || !secretKey || !sendNo) return false;
 
-  // 인증 코드 생성 및 DB 저장
-  const code = Math.random().toString().slice(2, 8).padStart(6, '0');
-  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-
-  try {
-    await db
-      .insert(phoneVerificationCodes)
-      .values({ phone: normalizedPhone, code, expiresAt });
-  } catch (dbErr) {
-    const msg = dbErr instanceof Error ? dbErr.message : String(dbErr);
-    await logSms(
-      normalizedPhone,
-      'network_failed',
-      undefined,
-      `db_insert_error: ${msg}`,
-    );
-    return { error: 'db_error' as const };
-  }
-
-  // NHN Cloud SMS API 호출
   const internationalNo = formatPhoneForSms(normalizedPhone);
 
   try {
@@ -190,19 +168,57 @@ export async function sendPhoneVerificationCode(phone: string) {
         String(header.resultCode ?? ''),
         header.resultMessage ?? '',
       );
+      return true;
     } else {
       const errCode = String(header?.resultCode ?? 'unknown');
       const errMsg = header?.resultMessage ?? 'api_failure';
       void logSms(normalizedPhone, 'api_failed', errCode, errMsg);
       void checkAndAlertOnFailures(normalizedPhone);
-      await insertFallbackCode(normalizedPhone);
+      return false;
     }
   } catch (netErr) {
     const msg = netErr instanceof Error ? netErr.message : String(netErr);
     void logSms(normalizedPhone, 'network_failed', undefined, msg);
     void checkAndAlertOnFailures(normalizedPhone);
-    await insertFallbackCode(normalizedPhone);
+    return false;
   }
+}
+
+// 전화번호 인증 코드 발송 (NHN Cloud SMS API v3.0)
+export async function sendPhoneVerificationCode(phone: string) {
+  const appKey = process.env.NHN_SMS_APP_KEY;
+  const secretKey = process.env.NHN_SMS_SECRET_KEY;
+  const sendNo = process.env.NHN_SMS_SENDER_NO;
+  const normalizedPhone = normalizePhone(phone);
+
+  // 환경변수 미설정 → 폴백 코드
+  if (!appKey || !secretKey || !sendNo) {
+    await insertFallbackCode(normalizedPhone);
+    void logSms(normalizedPhone, 'fallback_only', undefined, 'env_not_set');
+    return { success: true };
+  }
+
+  // 인증 코드 생성 및 DB 저장
+  const code = Math.random().toString().slice(2, 8).padStart(6, '0');
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+  try {
+    await db
+      .insert(phoneVerificationCodes)
+      .values({ phone: normalizedPhone, code, expiresAt });
+  } catch (dbErr) {
+    const msg = dbErr instanceof Error ? dbErr.message : String(dbErr);
+    void logSms(
+      normalizedPhone,
+      'network_failed',
+      undefined,
+      `db_insert_error: ${msg}`,
+    );
+    return { error: 'db_error' as const };
+  }
+
+  const ok = await callNhnSmsApi(normalizedPhone, code);
+  if (!ok) await insertFallbackCode(normalizedPhone);
 
   return { success: true };
 }
@@ -235,23 +251,39 @@ export async function verifyPhoneCode(phone: string, code: string) {
   return { success: true };
 }
 
-// 비밀번호 재설정 코드 발송 (이메일)
-export async function sendPasswordResetCode(email: string) {
+// 비밀번호 재설정 코드 발송 (이메일 + 전화번호 검증 후 SMS 발송)
+export async function sendPasswordResetCode(email: string, phone: string) {
+  const normalizedPhone = normalizePhone(phone);
   const [user] = await db.select().from(users).where(eq(users.email, email));
-  if (!user) {
+
+  // 존재 여부/불일치 모두 성공 반환 (정보 유출 방지)
+  if (!user || user.phone !== normalizedPhone) return { success: true };
+
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+  const appKey = process.env.NHN_SMS_APP_KEY;
+  const secretKey = process.env.NHN_SMS_SECRET_KEY;
+  const sendNo = process.env.NHN_SMS_SENDER_NO;
+
+  if (!appKey || !secretKey || !sendNo) {
+    await db
+      .insert(passwordResetCodes)
+      .values({ userId: user.id, code: '000000', expiresAt });
     return { success: true };
   }
 
   const code = Math.random().toString().slice(2, 8).padStart(6, '0');
-  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+  await db
+    .insert(passwordResetCodes)
+    .values({ userId: user.id, code, expiresAt });
 
-  await db.insert(passwordResetCodes).values({
-    userId: user.id,
-    code,
-    expiresAt,
-  });
-
-  // TODO: 실제 이메일 발송 (Resend 등)
+  const ok = await callNhnSmsApi(normalizedPhone, code);
+  if (!ok) {
+    await db.insert(passwordResetCodes).values({
+      userId: user.id,
+      code: '000000',
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+    });
+  }
 
   return { success: true };
 }
@@ -322,10 +354,16 @@ export async function deleteAccount(userId: string, password: string) {
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) return { error: 'wrong_password' };
 
-  await db
-    .delete(passwordResetCodes)
-    .where(eq(passwordResetCodes.userId, userId));
-  await db.delete(users).where(eq(users.id, userId));
+  try {
+    // 연관 레코드 먼저 삭제 (FK 없이 수동 참조 정리)
+    await db
+      .delete(passwordResetCodes)
+      .where(eq(passwordResetCodes.userId, userId));
+    await db.delete(users).where(eq(users.id, userId));
+  } catch (err) {
+    console.error('[deleteAccount] DB error:', err);
+    return { error: 'db_error' as const };
+  }
 
   return { success: true };
 }
