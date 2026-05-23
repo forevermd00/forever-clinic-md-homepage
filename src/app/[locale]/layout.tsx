@@ -45,6 +45,9 @@ export async function generateMetadata({
       siteName: siteNames[locale] ?? siteNames.ko,
       locale: ogLocales[locale] ?? 'ko_KR',
     },
+    verification: {
+      google: 'IotcjEEtjt4yVKvwG9Jcf-v2B9W7I7kxWMntfEAM5NQ',
+    },
   };
 }
 
