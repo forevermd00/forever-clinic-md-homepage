@@ -20,7 +20,9 @@ import {
 import {
   BASE_URL,
   getAlternates,
+  getKeywords,
   ogLocales,
+  siteDescriptions,
   siteNames,
 } from '@/lib/seo/keywords';
 import { getSectionVisibility } from '@/lib/data/visibility';
@@ -112,6 +114,13 @@ function mapCmsTreatment(
   return { category: categoryMeta, treatment };
 }
 
+const CLINIC_SUFFIX: Record<string, string> = {
+  ko: ' | 서울 명동 포에버의원',
+  en: ' | Forever Clinic Myeongdong, Seoul',
+  zh: ' | 首尔明洞永恒诊所',
+  ja: ' | ソウル明洞フォーエバークリニック',
+};
+
 export async function generateMetadata({
   params,
 }: {
@@ -124,22 +133,57 @@ export async function generateMetadata({
   const result = cmsResult ?? getTreatmentBySlug(categorySlug, slug);
   if (!result) return {};
 
-  const { treatment } = result;
-  const title = `${treatment.name} ${treatment.price}`;
-  const description = treatment.description;
+  const { category, treatment } = result;
+
+  // Title: 시술명 | 카테고리 | 클리닉명 (가격 제외)
+  const categoryLabel = getCategoryLabel(category, locale);
+  const title = `${treatment.name} | ${categoryLabel} | ${siteNames[locale] ?? siteNames.ko}`;
+
+  // Description: tagline → description → 사이트 기본값 (max 155자 + 클리닉 suffix)
+  const tagline = cmsData ? extractLocale(cmsData.tagline, locale) : '';
+  const rawDesc = tagline || treatment.description;
+  const suffix = CLINIC_SUFFIX[locale] ?? CLINIC_SUFFIX.ko;
+  const maxLen = 155 - suffix.length;
+  const trimmed =
+    rawDesc.length > maxLen ? rawDesc.slice(0, maxLen - 1) + '…' : rawDesc;
+  const description = trimmed
+    ? trimmed + suffix
+    : (siteDescriptions[locale] ?? siteDescriptions.ko);
+
+  // Keywords: 시술 고유 키워드 + 사이트 공통 키워드
+  const treatmentKeywords = cmsData
+    ? (extractLocale(cmsData.keywords, locale) || '')
+        .split(/[,，、\s]+/)
+        .map((k: string) => k.trim())
+        .filter(Boolean)
+    : [];
+  const keywords = [...treatmentKeywords, ...getKeywords(locale).slice(0, 8)];
+
   const ogImage = treatment.imageUrl
     ? [{ url: treatment.imageUrl, width: 1200, height: 630 }]
     : [{ url: '/images/heroes/brand-hero.png', width: 1200, height: 630 }];
 
+  const siteName = siteNames[locale] ?? siteNames.ko;
+  const ogTitle = `${treatment.name} | ${siteName}`;
+
   return {
     title,
     description,
+    keywords,
     alternates: getAlternates(locale, `/treatments/${categorySlug}/${slug}`),
     openGraph: {
-      title: `${treatment.name} | ${siteNames[locale] ?? siteNames.ko}`,
+      title: ogTitle,
       description,
       locale: ogLocales[locale] ?? 'ko_KR',
+      type: 'website',
+      siteName,
       images: ogImage,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: ogTitle,
+      description,
+      images: ogImage.map((img) => img.url),
     },
   };
 }
