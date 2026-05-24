@@ -29,6 +29,7 @@ export async function HeroSection({ hero }: HeroSectionProps = {}) {
 
   const title = hero?.title || t('heroTitle');
   const subtitle = hero?.subtitle || t('heroSubtitle');
+  const badge = hero?.badge ?? t('heroSince');
   const heroVideoUrl = hero?.heroVideo ? getVideoUrl(hero.heroVideo) : null;
   const heroImageUrl =
     !heroVideoUrl && hero?.heroImage
@@ -61,9 +62,11 @@ export async function HeroSection({ hero }: HeroSectionProps = {}) {
 
       {/* Content - centered */}
       <div className="relative z-10 flex flex-col items-center px-6 text-center">
-        <p className="mb-5 text-[13px] font-medium tracking-[4px] text-white/90 uppercase">
-          {t('heroSince')}
-        </p>
+        {badge && (
+          <p className="mb-5 text-[13px] font-medium tracking-[4px] text-white/90 uppercase">
+            {badge}
+          </p>
+        )}
         <h1 className="text-[32px] leading-[1.3] font-bold whitespace-pre-line text-white md:text-[40px] md:leading-[52px] lg:text-[48px] lg:leading-[62px]">
           {title}
         </h1>

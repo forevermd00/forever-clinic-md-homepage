@@ -21,6 +21,12 @@ export default defineType({
       hidden: true,
     }),
     defineField({
+      name: 'badge',
+      title: '배지 문구 (예: Since 2009)',
+      description: '제목 위 작은 강조 문구. 비워두면 숨겨집니다.',
+      type: 'localizedString',
+    }),
+    defineField({
       name: 'title',
       title: '제목',
       description: '줄바꿈이 필요하면 Enter를 누르세요',

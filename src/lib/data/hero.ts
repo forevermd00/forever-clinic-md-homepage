@@ -6,6 +6,7 @@ import { heroContentQuery, pageHeroQuery } from '@/lib/sanity/queries';
 export type HeroData = {
   title?: string;
   subtitle?: string;
+  badge?: string;
   heroVideo?: unknown;
   heroImage?: unknown;
 };

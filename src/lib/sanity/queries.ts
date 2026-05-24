@@ -168,7 +168,8 @@ export const promotionsQuery = `
 export const heroContentQuery = `
   *[_type == "pageHero" && _id == "page-hero-main"][0] {
     heroVideo, heroImage,
-    "title": title[$locale], "subtitle": subtitle[$locale]
+    "title": title[$locale], "subtitle": subtitle[$locale],
+    "badge": badge[$locale]
   }
 `;
 
