@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
 
@@ -24,18 +24,130 @@ export function EquipmentShowcase({
   const t = useTranslations('brand');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const selected = items[selectedIndex];
+  const total = items.length;
+
+  const goTo = useCallback(
+    (index: number) => {
+      setSelectedIndex(((index % total) + total) % total);
+    },
+    [total],
+  );
+
+  const prev = useCallback(
+    () => goTo(selectedIndex - 1),
+    [selectedIndex, goTo],
+  );
+  const next = useCallback(
+    () => goTo(selectedIndex + 1),
+    [selectedIndex, goTo],
+  );
+
+  // Main image drag (swipe)
+  const dragStartX = useRef<number | null>(null);
+  const handleDragStart = (clientX: number) => {
+    dragStartX.current = clientX;
+  };
+  const handleDragEnd = (clientX: number) => {
+    if (dragStartX.current === null) return;
+    const delta = dragStartX.current - clientX;
+    if (Math.abs(delta) > 40) {
+      delta > 0 ? next() : prev();
+    }
+    dragStartX.current = null;
+  };
+
+  // Thumbnail strip drag (mouse)
+  const stripRef = useRef<HTMLDivElement>(null);
+  const stripDragging = useRef(false);
+  const stripStartX = useRef(0);
+  const stripScrollLeft = useRef(0);
+
+  const onStripMouseDown = (e: React.MouseEvent) => {
+    if (!stripRef.current) return;
+    stripDragging.current = true;
+    stripStartX.current = e.pageX - stripRef.current.offsetLeft;
+    stripScrollLeft.current = stripRef.current.scrollLeft;
+  };
+  const onStripMouseMove = (e: React.MouseEvent) => {
+    if (!stripDragging.current || !stripRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - stripRef.current.offsetLeft;
+    stripRef.current.scrollLeft =
+      stripScrollLeft.current - (x - stripStartX.current);
+  };
+  const onStripMouseUp = () => {
+    stripDragging.current = false;
+  };
 
   return (
-    <div className={cn('flex flex-col gap-8', className)}>
-      {/* Main display: image left + info right */}
+    <div className={cn('relative flex flex-col gap-8', className)}>
+      {/* Arrow: left */}
+      <button
+        type="button"
+        onClick={prev}
+        aria-label="이전 장비"
+        className="absolute top-[40%] left-[-28px] z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center text-[#a83c44] transition-opacity hover:opacity-70 lg:left-[-40px]"
+      >
+        <svg
+          width="28"
+          height="52"
+          viewBox="0 0 28 52"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M26 2L2 26L26 50"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+
+      {/* Arrow: right */}
+      <button
+        type="button"
+        onClick={next}
+        aria-label="다음 장비"
+        className="absolute top-[40%] right-[-28px] z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center text-[#a83c44] transition-opacity hover:opacity-70 lg:right-[-40px]"
+      >
+        <svg
+          width="28"
+          height="52"
+          viewBox="0 0 28 52"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M2 2L26 26L2 50"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+
+      {/* Main display */}
       <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
-        {/* Selected image */}
-        <div className="h-[320px] w-full overflow-hidden rounded-[12px] bg-[#faf8f5] lg:h-[480px] lg:max-w-[560px]">
+        {/* Selected image — draggable/swipeable */}
+        <div
+          className="h-[320px] w-full cursor-grab overflow-hidden rounded-[12px] bg-[#faf8f5] select-none active:cursor-grabbing lg:h-[480px] lg:max-w-[560px]"
+          onMouseDown={(e) => handleDragStart(e.clientX)}
+          onMouseUp={(e) => handleDragEnd(e.clientX)}
+          onMouseLeave={() => {
+            dragStartX.current = null;
+          }}
+          onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
+          onTouchEnd={(e) => handleDragEnd(e.changedTouches[0].clientX)}
+        >
           {selected.image ? (
             <img
               src={selected.image.src}
               alt={selected.image.alt}
               className="h-full w-full object-contain"
+              draggable={false}
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#efe5d9] via-[#e8ddd0] to-[#d4c7bd]">
@@ -72,8 +184,15 @@ export function EquipmentShowcase({
         </div>
       </div>
 
-      {/* Thumbnail strip */}
-      <div className="scrollbar-hide flex gap-3 overflow-x-auto px-1 py-1.5">
+      {/* Thumbnail strip — mouse drag + touch scroll */}
+      <div
+        ref={stripRef}
+        className="scrollbar-hide flex cursor-grab gap-3 overflow-x-auto px-1 py-1.5 select-none active:cursor-grabbing"
+        onMouseDown={onStripMouseDown}
+        onMouseMove={onStripMouseMove}
+        onMouseUp={onStripMouseUp}
+        onMouseLeave={onStripMouseUp}
+      >
         {items.map((item, index) => (
           <button
             key={item.id}
@@ -91,6 +210,7 @@ export function EquipmentShowcase({
                 src={item.image.src}
                 alt={item.image.alt}
                 className="h-full w-full object-contain"
+                draggable={false}
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#efe5d9] to-[#d4c7bd]">

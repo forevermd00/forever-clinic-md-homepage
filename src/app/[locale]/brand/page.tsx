@@ -309,7 +309,9 @@ export default async function BrandPage({
                 {t('equipment')}
               </h2>
             </div>
-            <EquipmentShowcase items={equipment} />
+            <div className="px-10 md:px-12 lg:px-14">
+              <EquipmentShowcase items={equipment} />
+            </div>
           </div>
         </section>
       )}
