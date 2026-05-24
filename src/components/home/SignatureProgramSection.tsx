@@ -9,11 +9,13 @@ function formatPrice(won: number): string {
 interface SignatureProgramSectionProps {
   locale?: string;
   programs: SignatureProgram[];
+  showPrice?: boolean;
 }
 
 export async function SignatureProgramSection({
   locale = 'ko',
   programs,
+  showPrice = true,
 }: SignatureProgramSectionProps) {
   const t = await getTranslations('home');
 
@@ -41,6 +43,7 @@ export async function SignatureProgramSection({
                 key={program._id}
                 program={program}
                 locale={locale}
+                showPrice={showPrice}
               />
             ))}
           </div>
@@ -53,6 +56,7 @@ export async function SignatureProgramSection({
                   key={program._id}
                   program={program}
                   locale={locale}
+                  showPrice={showPrice}
                 />
               ))}
             </div>
@@ -63,6 +67,7 @@ export async function SignatureProgramSection({
                     key={program._id}
                     program={program}
                     locale={locale}
+                    showPrice={showPrice}
                   />
                 ))}
               </div>
@@ -85,9 +90,11 @@ export async function SignatureProgramSection({
 function ProgramCard({
   program,
   locale,
+  showPrice = true,
 }: {
   program: SignatureProgram;
   locale: string;
+  showPrice?: boolean;
 }) {
   const category = program.category ?? 'signature';
   const href = program.slug
@@ -118,14 +125,16 @@ function ProgramCard({
       </p>
 
       {/* 가격 */}
-      <div className="mt-auto flex flex-col gap-0.5 pt-2">
-        <span className="text-[12px] text-white/30 line-through">
-          {formatPrice(program.originalPrice)}
-        </span>
-        <span className="text-[16px] font-bold text-[#a83c44]">
-          {formatPrice(program.discountedPrice)}
-        </span>
-      </div>
+      {showPrice && (
+        <div className="mt-auto flex flex-col gap-0.5 pt-2">
+          <span className="text-[12px] text-white/30 line-through">
+            {formatPrice(program.originalPrice)}
+          </span>
+          <span className="text-[16px] font-bold text-[#a83c44]">
+            {formatPrice(program.discountedPrice)}
+          </span>
+        </div>
+      )}
 
       {/* 자세히 보기 */}
       <p className="mt-1 text-[12px] font-medium text-white/30 transition-colors group-hover:text-white/60">

@@ -140,7 +140,11 @@ export default async function HomePage({
         />
       )}
       {visibility.home.signature && signaturePrograms && (
-        <SignatureProgramSection locale={locale} programs={signaturePrograms} />
+        <SignatureProgramSection
+          locale={locale}
+          programs={signaturePrograms}
+          showPrice={visibility.treatments.showPrice}
+        />
       )}
       {visibility.home.promo && eventTreatments && (
         <PromoSection locale={locale} events={eventTreatments} />
