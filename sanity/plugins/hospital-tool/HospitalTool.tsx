@@ -110,6 +110,22 @@ interface QuickCardDoc {
   sortOrder?: number;
 }
 
+interface EquipmentRow {
+  _id: string;
+  name?: { ko?: string; en?: string; zh?: string; ja?: string };
+  description?: { ko?: string; en?: string; zh?: string; ja?: string };
+  image?: { asset?: { _ref?: string } };
+  sortOrder?: number;
+}
+
+interface FacilityRow {
+  _id: string;
+  name?: { ko?: string; en?: string; zh?: string; ja?: string };
+  description?: { ko?: string; en?: string; zh?: string; ja?: string };
+  image?: { asset?: { _ref?: string } };
+  sortOrder?: number;
+}
+
 interface SectionVisibilityDoc {
   nav?: {
     bnA?: boolean;
@@ -193,6 +209,14 @@ const QCARDS_QUERY = `*[_type == "quickEntryCard"] | order(sortOrder asc) {
 
 const SV_QUERY = `*[_type == "sectionVisibility" && _id == "sectionVisibility"][0]`;
 
+const EQUIPMENT_QUERY = `*[_type == "equipment"] | order(sortOrder asc) {
+  _id, name, description, image { asset { _ref } }, sortOrder
+}`;
+
+const FACILITY_QUERY = `*[_type == "facility"] | order(sortOrder asc) {
+  _id, name, description, image { asset { _ref } }, sortOrder
+}`;
+
 // ─── Helpers ──────────────────────────────────────────────
 
 const CLINIC_LOCALES: { key: 'ko' | 'en' | 'zh' | 'ja'; label: string }[] = [
@@ -255,7 +279,9 @@ type MainTab =
   | 'popups'
   | 'quickNav'
   | 'sections'
-  | 'legal';
+  | 'legal'
+  | 'equipment'
+  | 'facility';
 
 const MAIN_TABS: { key: MainTab; label: string }[] = [
   { key: 'doctors', label: '의료진' },
@@ -263,6 +289,8 @@ const MAIN_TABS: { key: MainTab; label: string }[] = [
   { key: 'hero', label: '히어로 배너' },
   { key: 'brand', label: '브랜드 철학' },
   { key: 'stats', label: '통계 수치' },
+  { key: 'equipment', label: '보유 장비' },
+  { key: 'facility', label: '시설 갤러리' },
   { key: 'popups', label: '이벤트 팝업' },
   { key: 'quickNav', label: '빠른 탐색' },
   { key: 'sections', label: '섹션 노출' },
@@ -2612,6 +2640,568 @@ function LegalDocPanel() {
   );
 }
 
+// ─── 보유 장비 패널 ───────────────────────────────────────
+
+function EquipmentSection() {
+  const client = useClient({ apiVersion: '2026-05-13' });
+  const [docs, setDocs] = useState<EquipmentRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const dragIndexRef = useRef<number | null>(null);
+  const [dragOver, setDragOver] = useState<number | null>(null);
+
+  useEffect(() => {
+    client.fetch<EquipmentRow[]>(EQUIPMENT_QUERY).then((data) => {
+      setDocs(data ?? []);
+      setLoading(false);
+    });
+  }, [client]);
+
+  const patch = async (id: string, fields: Record<string, unknown>) => {
+    await client.patch(id).set(fields).commit();
+    setDocs((prev) =>
+      prev.map((d) => (d._id === id ? { ...d, ...fields } : d)),
+    );
+  };
+
+  const handleImageUpload = async (
+    id: string,
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingId(id);
+    try {
+      const imageRef = await uploadImageAsset(client, file);
+      await client.patch(id).set({ image: imageRef }).commit();
+      setDocs((prev) =>
+        prev.map((d) =>
+          d._id === id
+            ? { ...d, image: { asset: { _ref: imageRef.asset._ref } } }
+            : d,
+        ),
+      );
+    } finally {
+      setUploadingId(null);
+    }
+  };
+
+  const handleAdd = async () => {
+    const newDoc = await client.create({
+      _type: 'equipment',
+      name: { ko: '' },
+      sortOrder: docs.length,
+    });
+    setDocs((prev) => [
+      ...prev,
+      { _id: newDoc._id, name: { ko: '' }, sortOrder: prev.length },
+    ]);
+    setExpandedId(newDoc._id);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('장비를 삭제하시겠습니까?')) return;
+    await client.delete(id);
+    setDocs((prev) => prev.filter((d) => d._id !== id));
+    if (expandedId === id) setExpandedId(null);
+  };
+
+  const handleDragStart = (i: number) => {
+    dragIndexRef.current = i;
+  };
+  const handleDragOver = (e: React.DragEvent, i: number) => {
+    e.preventDefault();
+    setDragOver(i);
+  };
+  const handleDragEnd = () => {
+    setDragOver(null);
+  };
+  const handleDrop = async (toIndex: number) => {
+    const fromIndex = dragIndexRef.current;
+    if (fromIndex === null || fromIndex === toIndex) {
+      dragIndexRef.current = null;
+      setDragOver(null);
+      return;
+    }
+    dragIndexRef.current = null;
+    setDragOver(null);
+    const newDocs = [...docs];
+    const [moved] = newDocs.splice(fromIndex, 1);
+    newDocs.splice(toIndex, 0, moved);
+    setDocs(newDocs);
+    setSaving(true);
+    const tx = client.transaction();
+    newDocs.forEach((doc, idx) => {
+      tx.patch(doc._id, { set: { sortOrder: idx } });
+    });
+    await tx.commit();
+    setSaving(false);
+  };
+
+  if (loading) return <div className="ht-loading">불러오는 중...</div>;
+
+  return (
+    <div className="ht-panel-section">
+      <div className="ht-toolbar" style={{ marginBottom: 12 }}>
+        <button className="ht-add-btn" onClick={handleAdd}>
+          + 장비 추가
+        </button>
+        {saving && <span className="ht-saving-indicator">저장 중…</span>}
+      </div>
+      <div className="ht-popup-list">
+        {docs.map((doc, idx) => (
+          <div
+            key={doc._id}
+            className={`ht-popup-item${dragOver === idx ? 'ht-drag-over' : ''}`}
+            draggable
+            onDragStart={() => handleDragStart(idx)}
+            onDragOver={(e) => handleDragOver(e, idx)}
+            onDragEnd={handleDragEnd}
+            onDrop={() => handleDrop(idx)}
+          >
+            <div
+              className="ht-popup-header"
+              onClick={() =>
+                setExpandedId((prev) => (prev === doc._id ? null : doc._id))
+              }
+            >
+              <span
+                className="ht-drag-handle"
+                style={{ marginRight: 8, cursor: 'grab' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                ⋮⋮
+              </span>
+              <span className="ht-popup-title">
+                {doc.name?.ko || '(이름 없음)'}
+              </span>
+              <button
+                style={{
+                  marginLeft: 'auto',
+                  background: 'none',
+                  border: 'none',
+                  color: '#ef4444',
+                  cursor: 'pointer',
+                  fontSize: 13,
+                  padding: '0 8px',
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(doc._id);
+                }}
+              >
+                삭제
+              </button>
+              <span className="ht-popup-chevron">
+                {expandedId === doc._id ? '▲' : '▼'}
+              </span>
+            </div>
+            {expandedId === doc._id && (
+              <div className="ht-popup-body">
+                <div className="ht-detail-section" style={{ marginBottom: 12 }}>
+                  <div className="ht-detail-section-title">장비 이미지</div>
+                  <div
+                    className="ht-detail-body"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: 12,
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    {doc.image?.asset?._ref ? (
+                      <img
+                        src={sanityImageUrl(
+                          'ecoamz42',
+                          'production',
+                          doc.image.asset._ref,
+                        )}
+                        alt="장비 미리보기"
+                        style={{
+                          width: 80,
+                          height: 100,
+                          objectFit: 'contain',
+                          borderRadius: 4,
+                          border: '1px solid #e5e7eb',
+                          flexShrink: 0,
+                        }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: 80,
+                          height: 100,
+                          borderRadius: 4,
+                          border: '1px dashed #d1d5db',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 11,
+                          color: '#9ca3af',
+                          flexShrink: 0,
+                        }}
+                      >
+                        이미지 없음
+                      </div>
+                    )}
+                    <label
+                      className="ht-add-btn"
+                      style={{
+                        cursor: 'pointer',
+                        display: 'inline-block',
+                        alignSelf: 'flex-end',
+                      }}
+                    >
+                      {uploadingId === doc._id ? '업로드 중…' : '이미지 업로드'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        disabled={uploadingId === doc._id}
+                        onChange={(e) => handleImageUpload(doc._id, e)}
+                      />
+                    </label>
+                  </div>
+                </div>
+                <div className="ht-detail-section" style={{ marginBottom: 12 }}>
+                  <div className="ht-detail-section-title">장비명</div>
+                  <div className="ht-detail-body">
+                    <div className="ht-detail-grid4">
+                      {CLINIC_LOCALES.map(({ key, label }) => (
+                        <div key={key} className="ht-detail-field">
+                          <label className="ht-detail-label">{label}</label>
+                          <input
+                            type="text"
+                            className="ht-text-input"
+                            defaultValue={doc.name?.[key] ?? ''}
+                            onBlur={(e) =>
+                              patch(doc._id, {
+                                [`name.${key}`]: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="ht-detail-section">
+                  <div className="ht-detail-section-title">용도 설명</div>
+                  <div className="ht-detail-body">
+                    <div className="ht-detail-grid4">
+                      {CLINIC_LOCALES.map(({ key, label }) => (
+                        <div key={key} className="ht-detail-field">
+                          <label className="ht-detail-label">{label}</label>
+                          <textarea
+                            className="ht-text-input"
+                            style={{ minHeight: 80, resize: 'vertical' }}
+                            defaultValue={doc.description?.[key] ?? ''}
+                            onBlur={(e) =>
+                              patch(doc._id, {
+                                [`description.${key}`]: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+        {docs.length === 0 && (
+          <p className="ht-empty">등록된 장비가 없습니다</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── 시설 갤러리 패널 ─────────────────────────────────────
+
+function FacilitySection() {
+  const client = useClient({ apiVersion: '2026-05-13' });
+  const [docs, setDocs] = useState<FacilityRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const dragIndexRef = useRef<number | null>(null);
+  const [dragOver, setDragOver] = useState<number | null>(null);
+
+  useEffect(() => {
+    client.fetch<FacilityRow[]>(FACILITY_QUERY).then((data) => {
+      setDocs(data ?? []);
+      setLoading(false);
+    });
+  }, [client]);
+
+  const patch = async (id: string, fields: Record<string, unknown>) => {
+    await client.patch(id).set(fields).commit();
+    setDocs((prev) =>
+      prev.map((d) => (d._id === id ? { ...d, ...fields } : d)),
+    );
+  };
+
+  const handleImageUpload = async (
+    id: string,
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingId(id);
+    try {
+      const imageRef = await uploadImageAsset(client, file);
+      await client.patch(id).set({ image: imageRef }).commit();
+      setDocs((prev) =>
+        prev.map((d) =>
+          d._id === id
+            ? { ...d, image: { asset: { _ref: imageRef.asset._ref } } }
+            : d,
+        ),
+      );
+    } finally {
+      setUploadingId(null);
+    }
+  };
+
+  const handleAdd = async () => {
+    const newDoc = await client.create({
+      _type: 'facility',
+      name: { ko: '' },
+      sortOrder: docs.length,
+    });
+    setDocs((prev) => [
+      ...prev,
+      { _id: newDoc._id, name: { ko: '' }, sortOrder: prev.length },
+    ]);
+    setExpandedId(newDoc._id);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('시설 항목을 삭제하시겠습니까?')) return;
+    await client.delete(id);
+    setDocs((prev) => prev.filter((d) => d._id !== id));
+    if (expandedId === id) setExpandedId(null);
+  };
+
+  const handleDragStart = (i: number) => {
+    dragIndexRef.current = i;
+  };
+  const handleDragOver = (e: React.DragEvent, i: number) => {
+    e.preventDefault();
+    setDragOver(i);
+  };
+  const handleDragEnd = () => {
+    setDragOver(null);
+  };
+  const handleDrop = async (toIndex: number) => {
+    const fromIndex = dragIndexRef.current;
+    if (fromIndex === null || fromIndex === toIndex) {
+      dragIndexRef.current = null;
+      setDragOver(null);
+      return;
+    }
+    dragIndexRef.current = null;
+    setDragOver(null);
+    const newDocs = [...docs];
+    const [moved] = newDocs.splice(fromIndex, 1);
+    newDocs.splice(toIndex, 0, moved);
+    setDocs(newDocs);
+    setSaving(true);
+    const tx = client.transaction();
+    newDocs.forEach((doc, idx) => {
+      tx.patch(doc._id, { set: { sortOrder: idx } });
+    });
+    await tx.commit();
+    setSaving(false);
+  };
+
+  if (loading) return <div className="ht-loading">불러오는 중...</div>;
+
+  return (
+    <div className="ht-panel-section">
+      <div className="ht-toolbar" style={{ marginBottom: 12 }}>
+        <button className="ht-add-btn" onClick={handleAdd}>
+          + 시설 추가
+        </button>
+        {saving && <span className="ht-saving-indicator">저장 중…</span>}
+      </div>
+      <div className="ht-popup-list">
+        {docs.map((doc, idx) => (
+          <div
+            key={doc._id}
+            className={`ht-popup-item${dragOver === idx ? 'ht-drag-over' : ''}`}
+            draggable
+            onDragStart={() => handleDragStart(idx)}
+            onDragOver={(e) => handleDragOver(e, idx)}
+            onDragEnd={handleDragEnd}
+            onDrop={() => handleDrop(idx)}
+          >
+            <div
+              className="ht-popup-header"
+              onClick={() =>
+                setExpandedId((prev) => (prev === doc._id ? null : doc._id))
+              }
+            >
+              <span
+                className="ht-drag-handle"
+                style={{ marginRight: 8, cursor: 'grab' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                ⋮⋮
+              </span>
+              <span className="ht-popup-title">
+                {doc.name?.ko || '(이름 없음)'}
+              </span>
+              <button
+                style={{
+                  marginLeft: 'auto',
+                  background: 'none',
+                  border: 'none',
+                  color: '#ef4444',
+                  cursor: 'pointer',
+                  fontSize: 13,
+                  padding: '0 8px',
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(doc._id);
+                }}
+              >
+                삭제
+              </button>
+              <span className="ht-popup-chevron">
+                {expandedId === doc._id ? '▲' : '▼'}
+              </span>
+            </div>
+            {expandedId === doc._id && (
+              <div className="ht-popup-body">
+                <div className="ht-detail-section" style={{ marginBottom: 12 }}>
+                  <div className="ht-detail-section-title">시설 이미지</div>
+                  <div
+                    className="ht-detail-body"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: 12,
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    {doc.image?.asset?._ref ? (
+                      <img
+                        src={sanityImageUrl(
+                          'ecoamz42',
+                          'production',
+                          doc.image.asset._ref,
+                        )}
+                        alt="시설 미리보기"
+                        style={{
+                          width: 120,
+                          height: 80,
+                          objectFit: 'cover',
+                          borderRadius: 4,
+                          border: '1px solid #e5e7eb',
+                          flexShrink: 0,
+                        }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: 120,
+                          height: 80,
+                          borderRadius: 4,
+                          border: '1px dashed #d1d5db',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 11,
+                          color: '#9ca3af',
+                          flexShrink: 0,
+                        }}
+                      >
+                        이미지 없음
+                      </div>
+                    )}
+                    <label
+                      className="ht-add-btn"
+                      style={{
+                        cursor: 'pointer',
+                        display: 'inline-block',
+                        alignSelf: 'flex-end',
+                      }}
+                    >
+                      {uploadingId === doc._id ? '업로드 중…' : '이미지 업로드'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        disabled={uploadingId === doc._id}
+                        onChange={(e) => handleImageUpload(doc._id, e)}
+                      />
+                    </label>
+                  </div>
+                </div>
+                <div className="ht-detail-section" style={{ marginBottom: 12 }}>
+                  <div className="ht-detail-section-title">공간명</div>
+                  <div className="ht-detail-body">
+                    <div className="ht-detail-grid4">
+                      {CLINIC_LOCALES.map(({ key, label }) => (
+                        <div key={key} className="ht-detail-field">
+                          <label className="ht-detail-label">{label}</label>
+                          <input
+                            type="text"
+                            className="ht-text-input"
+                            defaultValue={doc.name?.[key] ?? ''}
+                            onBlur={(e) =>
+                              patch(doc._id, {
+                                [`name.${key}`]: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="ht-detail-section">
+                  <div className="ht-detail-section-title">설명</div>
+                  <div className="ht-detail-body">
+                    <div className="ht-detail-grid4">
+                      {CLINIC_LOCALES.map(({ key, label }) => (
+                        <div key={key} className="ht-detail-field">
+                          <label className="ht-detail-label">{label}</label>
+                          <textarea
+                            className="ht-text-input"
+                            style={{ minHeight: 80, resize: 'vertical' }}
+                            defaultValue={doc.description?.[key] ?? ''}
+                            onBlur={(e) =>
+                              patch(doc._id, {
+                                [`description.${key}`]: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+        {docs.length === 0 && (
+          <p className="ht-empty">등록된 시설이 없습니다</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────
 
 export function HospitalTool() {
@@ -2666,6 +3256,8 @@ export function HospitalTool() {
           onEditCard={(id) => router.navigate({ qcardId: id })}
         />
       )}
+      {activeTab === 'equipment' && <EquipmentSection />}
+      {activeTab === 'facility' && <FacilitySection />}
       {activeTab === 'sections' && <SectionsPanel />}
       {activeTab === 'legal' && <LegalDocPanel />}
     </div>
