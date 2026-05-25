@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { SignatureProgram } from '@/lib/data/signaturePrograms';
 
-function formatPrice(won: number): string {
+function formatPrice(won: number | null | undefined): string {
+  if (won == null) return '문의';
   return won.toLocaleString('ko-KR') + '원';
 }
 
