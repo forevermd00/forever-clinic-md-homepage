@@ -165,9 +165,7 @@ export function HeroDetail({
       </div>
 
       <div className="ht-detail-section">
-        <div className="ht-detail-section-title">
-          배지 문구 (예: Since 2009)
-        </div>
+        <div className="ht-detail-section-title">배지 문구</div>
         <div className="ht-detail-body">
           <div className="ht-detail-grid4">
             {LOCALES.map(({ key, label }) => (
