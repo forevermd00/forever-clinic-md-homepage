@@ -6,6 +6,7 @@ import { PAGE_HEROES } from '../../../sanity.config';
 interface HeroDoc {
   _id?: string;
   pageName?: string;
+  badge?: { ko?: string; en?: string; zh?: string; ja?: string };
   title?: { ko?: string; en?: string; zh?: string; ja?: string };
   subtitle?: { ko?: string; en?: string; zh?: string; ja?: string };
   heroImage?: { asset?: { _ref: string } };
@@ -49,7 +50,7 @@ async function uploadFile(client: SanityClient, file: File) {
 }
 
 const QUERY = `*[_type == "pageHero" && _id == $docId][0] {
-  _id, pageName, title, subtitle,
+  _id, pageName, badge, title, subtitle,
   heroImage { asset { _ref } },
   heroVideo { asset { _ref } }
 }`;
@@ -160,6 +161,27 @@ export function HeroDetail({
             히어로 — {pageEntry?.title ?? heroKey}
           </h2>
           {saving && <span className="ht-saving-indicator">저장 중…</span>}
+        </div>
+      </div>
+
+      <div className="ht-detail-section">
+        <div className="ht-detail-section-title">
+          배지 문구 (예: Since 2009)
+        </div>
+        <div className="ht-detail-body">
+          <div className="ht-detail-grid4">
+            {LOCALES.map(({ key, label }) => (
+              <div key={key} className="ht-detail-field">
+                <label className="ht-detail-label">{label}</label>
+                <input
+                  type="text"
+                  className="ht-text-input"
+                  defaultValue={doc.badge?.[key] ?? ''}
+                  onBlur={(e) => patch({ [`badge.${key}`]: e.target.value })}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
