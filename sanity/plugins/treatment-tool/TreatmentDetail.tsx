@@ -441,21 +441,16 @@ export function TreatmentDetail({
           <h2 className="tt-detail-title">{nameKo}</h2>
           {saving && <span className="tt-saving-indicator">저장 중…</span>}
         </div>
+        {doc.tagline?.ko && (
+          <p className="tt-detail-tagline">{doc.tagline.ko}</p>
+        )}
       </div>
 
       {/* ─── 기본 설정 ─── */}
       <Section title="기본 설정">
         <div className="tt-detail-row">
           <Field label="정렬 순서">
-            <input
-              type="number"
-              className="tt-order-input"
-              defaultValue={doc.sortOrder ?? 0}
-              onBlur={(e) => {
-                const v = parseInt(e.target.value, 10);
-                if (!isNaN(v)) patch({ sortOrder: v });
-              }}
-            />
+            <span className="tt-order-display">{doc.sortOrder ?? 0}</span>
           </Field>
           <Field label="카테고리">
             <select
@@ -508,6 +503,22 @@ export function TreatmentDetail({
               onChange={(e) => patchBool('showInMenu', e.target.checked)}
             />
           </Field>
+        </div>
+      </Section>
+
+      {/* ─── 시술명 ─── */}
+      <Section title="시술명">
+        <div className="tt-detail-grid4">
+          {LOCALES.map(({ key, label }) => (
+            <Field key={key} label={label}>
+              <input
+                type="text"
+                className="tt-text-input"
+                defaultValue={doc.name?.[key] ?? ''}
+                onBlur={(e) => patch({ [`name.${key}`]: e.target.value })}
+              />
+            </Field>
+          ))}
         </div>
       </Section>
 
@@ -569,22 +580,6 @@ export function TreatmentDetail({
         </div>
       </Section>
 
-      {/* ─── 시술명 ─── */}
-      <Section title="시술명">
-        <div className="tt-detail-grid4">
-          {LOCALES.map(({ key, label }) => (
-            <Field key={key} label={label}>
-              <input
-                type="text"
-                className="tt-text-input"
-                defaultValue={doc.name?.[key] ?? ''}
-                onBlur={(e) => patch({ [`name.${key}`]: e.target.value })}
-              />
-            </Field>
-          ))}
-        </div>
-      </Section>
-
       {/* ─── 한줄 소개 ─── */}
       <Section title="한줄 소개 (태그라인)">
         <div className="tt-detail-grid4">
@@ -601,84 +596,7 @@ export function TreatmentDetail({
         </div>
       </Section>
 
-      {/* ─── 시술 정보 ─── */}
-      <Section title="시술 정보">
-        <div className="tt-detail-row tt-detail-row-wrap">
-          <Field label="시술시간">
-            <input
-              type="text"
-              className="tt-text-input tt-text-input-sm"
-              defaultValue={doc.treatmentTime ?? ''}
-              placeholder="예: 약 30분"
-              onBlur={(e) => patch({ treatmentTime: e.target.value })}
-            />
-          </Field>
-          <Field label="마취">
-            <input
-              type="text"
-              className="tt-text-input tt-text-input-sm"
-              defaultValue={doc.anesthesia?.ko ?? ''}
-              placeholder="예: 연고 마취"
-              onBlur={(e) => patch({ 'anesthesia.ko': e.target.value })}
-            />
-          </Field>
-          <Field label="다운타임">
-            <input
-              type="text"
-              className="tt-text-input tt-text-input-sm"
-              defaultValue={doc.downtime ?? ''}
-              placeholder="예: 거의 없음"
-              onBlur={(e) => patch({ downtime: e.target.value })}
-            />
-          </Field>
-          <Field label="권장횟수">
-            <input
-              type="text"
-              className="tt-text-input tt-text-input-sm"
-              defaultValue={doc.duration ?? ''}
-              placeholder="예: 4~6회"
-              onBlur={(e) => patch({ duration: e.target.value })}
-            />
-          </Field>
-        </div>
-      </Section>
-
-      {/* ─── 상세 설명 ─── */}
-      <Section title="상세 설명">
-        <div className="tt-detail-grid2">
-          {LOCALES.map(({ key, label }) => (
-            <Field key={key} label={label}>
-              <textarea
-                className="tt-text-input tt-textarea"
-                defaultValue={doc.description?.[key] ?? ''}
-                rows={4}
-                onBlur={(e) =>
-                  patch({ [`description.${key}`]: e.target.value })
-                }
-              />
-            </Field>
-          ))}
-        </div>
-      </Section>
-
-      {/* ─── 키워드 (시그니처) ─── */}
-      <Section title="키워드">
-        <div className="tt-detail-grid2">
-          {(['ko', 'en'] as const).map((key) => (
-            <Field key={key} label={key === 'ko' ? '한국어' : 'English'}>
-              <input
-                type="text"
-                className="tt-text-input"
-                defaultValue={doc.keywords?.[key] ?? ''}
-                placeholder="예: 강한 리프팅 · 턱라인"
-                onBlur={(e) => patch({ [`keywords.${key}`]: e.target.value })}
-              />
-            </Field>
-          ))}
-        </div>
-      </Section>
-
-      {/* ─── 구성 시술 (시그니처) ─── */}
+      {/* ─── 구성 시술 ─── */}
       <Section title="구성 시술">
         <div className="tt-detail-grid2">
           {(['ko', 'en'] as const).map((key) => (
@@ -696,6 +614,27 @@ export function TreatmentDetail({
         </div>
       </Section>
 
+      {/* ─── 시술 정보 ─── */}
+      <TreatmentInfoSection doc={doc} patch={patch} />
+
+      {/* ─── 시술 소개 ─── */}
+      <Section title="시술 소개">
+        <div className="tt-detail-grid2">
+          {LOCALES.map(({ key, label }) => (
+            <Field key={key} label={label}>
+              <textarea
+                className="tt-text-input tt-textarea"
+                defaultValue={doc.description?.[key] ?? ''}
+                rows={4}
+                onBlur={(e) =>
+                  patch({ [`description.${key}`]: e.target.value })
+                }
+              />
+            </Field>
+          ))}
+        </div>
+      </Section>
+
       {/* ─── 이런 고민이 있다면 ─── */}
       <Section title="이런 고민이 있다면">
         <LocalizedArrayEditor
@@ -704,8 +643,8 @@ export function TreatmentDetail({
         />
       </Section>
 
-      {/* ─── 기대효과 ─── */}
-      <Section title="기대효과">
+      {/* ─── 이런 변화를 기대할 수 있어요 ─── */}
+      <Section title="이런 변화를 기대할 수 있어요">
         <LocalizedArrayEditor
           initialItems={doc.features}
           onSave={(items) => patchArray('features', items)}
@@ -720,19 +659,19 @@ export function TreatmentDetail({
         />
       </Section>
 
-      {/* ─── 주의사항 ─── */}
-      <Section title="주의사항">
-        <LocalizedArrayEditor
-          initialItems={doc.precautions}
-          onSave={(items) => patchArray('precautions', items)}
-        />
-      </Section>
-
       {/* ─── 자주 묻는 질문 ─── */}
       <Section title="자주 묻는 질문 (FAQ)">
         <FaqEditor
           initialItems={doc.faq}
           onSave={(items) => patchArray('faq', items)}
+        />
+      </Section>
+
+      {/* ─── 주의사항 ─── */}
+      <Section title="주의사항">
+        <LocalizedArrayEditor
+          initialItems={doc.precautions}
+          onSave={(items) => patchArray('precautions', items)}
         />
       </Section>
 
@@ -742,6 +681,112 @@ export function TreatmentDetail({
           <strong>{CATEGORY_LABEL[doc.category] || doc.category}</strong>
         </div>
       )}
+    </div>
+  );
+}
+
+function TreatmentInfoSection({
+  doc,
+  patch,
+}: {
+  doc: FullDoc;
+  patch: (fields: Record<string, unknown>) => Promise<void>;
+}) {
+  const [showAllInfo, setShowAllInfo] = useState(false);
+
+  const hasTime = !!doc.treatmentTime;
+  const hasAnesthesia = !!doc.anesthesia?.ko;
+  const hasDowntime = !!doc.downtime;
+  const hasDuration = !!doc.duration;
+
+  const showTime = showAllInfo || hasTime;
+  const showAnesthesia = showAllInfo || hasAnesthesia;
+  const showDowntime = showAllInfo || hasDowntime;
+  const showDuration = showAllInfo || hasDuration;
+
+  return (
+    <div className="tt-detail-section">
+      <div
+        className="tt-detail-section-title"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <span>시술 정보</span>
+        <label
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            fontWeight: 400,
+            fontSize: 11,
+            cursor: 'pointer',
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={showAllInfo}
+            onChange={(e) => setShowAllInfo(e.target.checked)}
+            style={{ cursor: 'pointer' }}
+          />
+          값 없는 항목 표시
+        </label>
+      </div>
+      <div style={{ padding: 14 }}>
+        <div className="tt-detail-row tt-detail-row-wrap">
+          {showTime && (
+            <Field label="시술시간">
+              <input
+                type="text"
+                className="tt-text-input tt-text-input-sm"
+                defaultValue={doc.treatmentTime ?? ''}
+                placeholder="예: 약 30분"
+                onBlur={(e) => patch({ treatmentTime: e.target.value })}
+              />
+            </Field>
+          )}
+          {showAnesthesia && (
+            <Field label="마취">
+              <input
+                type="text"
+                className="tt-text-input tt-text-input-sm"
+                defaultValue={doc.anesthesia?.ko ?? ''}
+                placeholder="예: 연고 마취"
+                onBlur={(e) => patch({ 'anesthesia.ko': e.target.value })}
+              />
+            </Field>
+          )}
+          {showDowntime && (
+            <Field label="다운타임">
+              <input
+                type="text"
+                className="tt-text-input tt-text-input-sm"
+                defaultValue={doc.downtime ?? ''}
+                placeholder="예: 거의 없음"
+                onBlur={(e) => patch({ downtime: e.target.value })}
+              />
+            </Field>
+          )}
+          {showDuration && (
+            <Field label="권장횟수">
+              <input
+                type="text"
+                className="tt-text-input tt-text-input-sm"
+                defaultValue={doc.duration ?? ''}
+                placeholder="예: 4~6회"
+                onBlur={(e) => patch({ duration: e.target.value })}
+              />
+            </Field>
+          )}
+          {!showTime && !showAnesthesia && !showDowntime && !showDuration && (
+            <span style={{ color: 'var(--card-muted-fg-color)', fontSize: 12 }}>
+              입력된 항목 없음
+            </span>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -25,7 +25,7 @@ export default defineType({
       options: { hotspot: true },
     }),
     defineField({ name: 'excerpt', title: '발췌', type: 'localizedString' }),
-    defineField({ name: 'body', title: '본문', type: 'localizedText' }),
+    defineField({ name: 'body', title: '본문', type: 'localizedBlockContent' }),
     defineField({ name: 'category', title: '카테고리', type: 'string' }),
     defineField({ name: 'publishedAt', title: '게시일', type: 'date' }),
     defineField({

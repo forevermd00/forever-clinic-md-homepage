@@ -531,3 +531,40 @@
   color: var(--card-muted-fg-color);
   margin: 0 0 6px;
 }
+
+/* ===== Detail tagline ===== */
+.tt-detail-tagline {
+  font-size: 13px;
+  color: var(--card-muted-fg-color);
+  margin: 2px 0 0 0;
+}
+
+/* ===== Sort order display ===== */
+.tt-order-display {
+  display: inline-block;
+  padding: 4px 8px;
+  background: var(--card-bg-color);
+  border: 1px solid var(--card-border-color);
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--card-muted-fg-color);
+  min-width: 60px;
+}
+
+/* ===== Add treatment button (toolbar) ===== */
+.tt-add-treatment-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 4px;
+  background: var(--card-fg-color);
+  color: var(--card-bg-color);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+
+.tt-add-treatment-btn:hover {
+  opacity: 0.8;
+}

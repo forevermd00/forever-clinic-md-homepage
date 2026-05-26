@@ -606,3 +606,41 @@
   font-size: 12px;
   text-align: center;
 }
+
+/* ===== Hidden Mode ===== */
+.ct-btn-hidden {
+  background: var(--card-badge-default-bg-color, #f3f4f6);
+  color: var(--card-fg-color, #374151);
+  border: 1px solid var(--card-border-color, #e5e7eb);
+  padding: 5px 12px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  height: 32px;
+}
+
+.ct-btn-hidden:hover {
+  background: var(--card-border-color, #e5e7eb);
+}
+
+.ct-hidden-header {
+  padding: 8px 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--card-muted-fg-color);
+}
+
+.ct-btn-unhide {
+  padding: 4px 10px;
+  font-size: 11px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 4px;
+  background: var(--card-bg-color);
+  color: var(--card-fg-color);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ct-btn-unhide:hover {
+  background: var(--card-bg2-color, var(--card-bg-color));
+}

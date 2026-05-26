@@ -239,8 +239,10 @@ export const pressArticlesQuery = `
 `;
 
 export const youtubeVideosQuery = `
-  *[_type == "youtubeVideo" && isVisible != false] | order(publishedAt desc) {
-    _id, "title": title[$locale], youtubeId, youtubeUrl, thumbnail, "description": description[$locale], publishedAt
+  *[_type == "youtubeVideo" && isVisible != false && (
+    !defined(displayLanguages) || count(displayLanguages) == 0 || $locale in displayLanguages
+  )] | order(publishedAt desc) {
+    _id, "title": title[$locale], youtubeId, youtubeUrl, thumbnail, "description": description[$locale], publishedAt, displayLanguages
   }
 `;
 

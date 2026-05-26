@@ -10,6 +10,7 @@ interface VideoDoc {
   description?: { ko?: string; en?: string; zh?: string; ja?: string };
   publishDate?: string;
   thumbnail?: { asset?: { _ref: string } };
+  displayLanguages?: string[];
 }
 
 const LOCALES: { key: 'ko' | 'en' | 'zh' | 'ja'; label: string }[] = [
@@ -39,7 +40,7 @@ async function uploadImage(client: SanityClient, file: File) {
 }
 
 const QUERY = `*[_type == "youtubeVideo" && _id == $id][0] {
-  _id, title, youtubeId, youtubeUrl, description, publishDate,
+  _id, title, youtubeId, youtubeUrl, description, publishDate, displayLanguages,
   thumbnail { asset { _ref } }
 }`;
 
@@ -238,6 +239,68 @@ export function VideoDetail({
               onChange={handleImageUpload}
             />
           </label>
+        </div>
+      </div>
+
+      <div className="mt-detail-section">
+        <div className="mt-detail-section-title">표시 언어</div>
+        <div className="mt-detail-body">
+          <p className="mt-detail-hint">
+            선택한 언어에서만 표시됩니다. 아무것도 선택하지 않으면 모든 언어에
+            표시.
+          </p>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {LOCALES.map(({ key, label }) => {
+              const isOn = doc.displayLanguages?.includes(key) ?? false;
+              const toggle = async () => {
+                const current = doc.displayLanguages ?? [];
+                const next = isOn
+                  ? current.filter((l) => l !== key)
+                  : [...current, key];
+                const value = next.length > 0 ? next : null;
+                await client
+                  .patch(id)
+                  .set({ displayLanguages: value })
+                  .commit();
+                setDoc((prev) =>
+                  prev
+                    ? {
+                        ...prev,
+                        displayLanguages: next.length > 0 ? next : undefined,
+                      }
+                    : prev,
+                );
+              };
+              return (
+                <label
+                  key={key}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '4px 10px',
+                    border: `1px solid ${isOn ? 'var(--card-focus-ring-color, #2563eb)' : 'var(--card-border-color, #d1d5db)'}`,
+                    borderRadius: 4,
+                    cursor: 'pointer',
+                    background: isOn
+                      ? 'var(--card-focus-ring-color, #2563eb)'
+                      : 'transparent',
+                    color: isOn ? 'white' : 'var(--card-fg-color, #374151)',
+                    fontSize: 13,
+                    userSelect: 'none',
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isOn}
+                    onChange={toggle}
+                    style={{ display: 'none' }}
+                  />
+                  {label}
+                </label>
+              );
+            })}
+          </div>
         </div>
       </div>
 

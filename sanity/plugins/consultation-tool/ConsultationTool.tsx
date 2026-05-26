@@ -7,6 +7,7 @@ import './consultation-tool.css';
 const QUERY = `*[_type == "contactInquiry"] | order(createdAt desc) {
   _id, _createdAt, name, phone, email, message, source,
   status, consultNote, createdAt, preferredDate, preferredTime,
+  isHidden,
   "treatments": selectedTreatments[]{ name, packageLabel, quantity }
 }`;
 
@@ -90,6 +91,7 @@ export function ConsultationTool() {
   const [editingMemoValue, setEditingMemoValue] = useState('');
   const [columns, setColumns] = useState<Column[]>(loadColumnOrder);
   const [dragCol, setDragCol] = useState<number | null>(null);
+  const [showHidden, setShowHidden] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -107,7 +109,13 @@ export function ConsultationTool() {
   const allDocs = docs;
 
   const filtered = useMemo(() => {
-    const result = allDocs.filter((d) => {
+    const pool = showHidden
+      ? allDocs.filter((d) => d.isHidden === true)
+      : allDocs.filter((d) => d.isHidden !== true);
+
+    if (showHidden) return pool;
+
+    const result = pool.filter((d) => {
       if (statusFilters.size > 0 && !statusFilters.has(d.status)) return false;
       if (search) {
         const q = search.toLowerCase();
@@ -131,7 +139,7 @@ export function ConsultationTool() {
     });
 
     return result;
-  }, [allDocs, statusFilters, search, sortKey, sortDir]);
+  }, [allDocs, statusFilters, search, sortKey, sortDir, showHidden]);
 
   const stats = useMemo(() => {
     const counts: Record<string, number> = { all: allDocs.length };
@@ -185,17 +193,29 @@ export function ConsultationTool() {
     [client],
   );
 
-  const handleDelete = useCallback(
+  const handleHide = useCallback(
     async (id: string) => {
       if (
         !window.confirm(
-          '이 상담 데이터를 삭제하시겠습니까?\n\n삭제하면 되돌릴 수 없습니다.',
+          '이 상담을 숨기겠습니까?\n(숨김 목록에서 복원 가능합니다)',
         )
       )
         return;
-      await client.delete(id);
-      setDocs((prev) => prev.filter((d) => d._id !== id));
+      await client.patch(id).set({ isHidden: true }).commit();
+      setDocs((prev) =>
+        prev.map((d) => (d._id === id ? { ...d, isHidden: true } : d)),
+      );
       setSelectedId(null);
+    },
+    [client],
+  );
+
+  const handleUnhide = useCallback(
+    async (id: string) => {
+      await client.patch(id).set({ isHidden: false }).commit();
+      setDocs((prev) =>
+        prev.map((d) => (d._id === id ? { ...d, isHidden: false } : d)),
+      );
     },
     [client],
   );
@@ -273,37 +293,48 @@ export function ConsultationTool() {
 
       {/* Toolbar */}
       <div className="ct-toolbar">
-        <div className="ct-status-filters">
-          {STATUS_OPTIONS.map((s) => (
-            <label key={s.value} className="ct-checkbox-label">
-              <input
-                type="checkbox"
-                checked={statusFilters.has(s.value)}
-                onChange={() => toggleStatusFilter(s.value)}
-              />
-              <StatusBadge status={s.value} />
-            </label>
-          ))}
-        </div>
-        <input
-          className="ct-search"
-          placeholder="이름, 연락처, 시술명 검색"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        {!showHidden && (
+          <>
+            <div className="ct-status-filters">
+              {STATUS_OPTIONS.map((s) => (
+                <label key={s.value} className="ct-checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={statusFilters.has(s.value)}
+                    onChange={() => toggleStatusFilter(s.value)}
+                  />
+                  <StatusBadge status={s.value} />
+                </label>
+              ))}
+            </div>
+            <input
+              className="ct-search"
+              placeholder="이름, 연락처, 시술명 검색"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <button
+              className={`ct-btn ct-btn-expand ${expanded ? 'active' : ''}`}
+              onClick={() => setExpanded((v) => !v)}
+              title={expanded ? '한 줄로 보기' : '늘려서 보기'}
+            >
+              {expanded ? '한 줄' : '펼침'}
+            </button>
+            <button className="ct-btn ct-btn-export" onClick={handleExportCsv}>
+              CSV 내보내기
+            </button>
+          </>
+        )}
         <button
-          className={`ct-btn ct-btn-expand ${expanded ? 'active' : ''}`}
-          onClick={() => setExpanded((v) => !v)}
-          title={expanded ? '한 줄로 보기' : '늘려서 보기'}
+          className="ct-btn ct-btn-hidden"
+          onClick={() => setShowHidden((v) => !v)}
         >
-          {expanded ? '한 줄' : '펼침'}
-        </button>
-        <button className="ct-btn ct-btn-export" onClick={handleExportCsv}>
-          CSV 내보내기
+          {showHidden ? '← 돌아가기' : '숨김 목록'}
         </button>
       </div>
 
       {/* Table */}
+      {showHidden && <div className="ct-hidden-header">숨김 목록</div>}
       {loading ? (
         <div className="ct-loading">불러오는 중...</div>
       ) : (
@@ -311,37 +342,85 @@ export function ConsultationTool() {
           <table className="ct-table">
             <thead>
               <tr>
-                {columns.map((col, idx) => (
-                  <th
-                    key={col.key}
-                    style={{ width: col.width }}
-                    className={`ct-th-sortable ${dragCol !== null ? 'ct-th-dragging' : ''}`}
-                    draggable
-                    onDragStart={() => setDragCol(idx)}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={() => handleColumnDrop(idx)}
-                    onDragEnd={() => setDragCol(null)}
-                    onClick={() => handleSort(col.key)}
-                  >
-                    {col.label}
-                    <span className="ct-sort-icon">
-                      {sortKey === col.key
-                        ? sortDir === 'asc'
-                          ? ' ↑'
-                          : ' ↓'
-                        : ''}
-                    </span>
-                  </th>
-                ))}
+                {!showHidden ? (
+                  columns.map((col, idx) => (
+                    <th
+                      key={col.key}
+                      style={{ width: col.width }}
+                      className={`ct-th-sortable ${dragCol !== null ? 'ct-th-dragging' : ''}`}
+                      draggable
+                      onDragStart={() => setDragCol(idx)}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={() => handleColumnDrop(idx)}
+                      onDragEnd={() => setDragCol(null)}
+                      onClick={() => handleSort(col.key)}
+                    >
+                      {col.label}
+                      <span className="ct-sort-icon">
+                        {sortKey === col.key
+                          ? sortDir === 'asc'
+                            ? ' ↑'
+                            : ' ↓'
+                          : ''}
+                      </span>
+                    </th>
+                  ))
+                ) : (
+                  <>
+                    <th style={{ width: '10%' }} className="ct-th-sortable">
+                      문의일시
+                    </th>
+                    <th style={{ width: '8%' }} className="ct-th-sortable">
+                      이름
+                    </th>
+                    <th style={{ width: '11%' }} className="ct-th-sortable">
+                      연락처
+                    </th>
+                    <th style={{ width: '8%' }} className="ct-th-sortable">
+                      상태
+                    </th>
+                    <th style={{ width: '20%' }} className="ct-th-sortable">
+                      문의 내용
+                    </th>
+                    <th style={{ width: '8%' }} className="ct-th-sortable"></th>
+                  </>
+                )}
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={columns.length} className="ct-empty">
-                    상담 내역이 없습니다
+                  <td
+                    colSpan={showHidden ? 6 : columns.length}
+                    className="ct-empty"
+                  >
+                    {showHidden
+                      ? '숨김 처리된 상담이 없습니다'
+                      : '상담 내역이 없습니다'}
                   </td>
                 </tr>
+              ) : showHidden ? (
+                filtered.map((doc) => (
+                  <tr key={doc._id}>
+                    <td>{formatDate(doc.createdAt || doc._createdAt)}</td>
+                    <td className="ct-td-bold">{doc.name}</td>
+                    <td>{doc.phone}</td>
+                    <td>
+                      <StatusBadge status={doc.status} />
+                    </td>
+                    <td className="ct-ellipsis ct-td-muted">
+                      {doc.message || '-'}
+                    </td>
+                    <td>
+                      <button
+                        className="ct-btn ct-btn-unhide"
+                        onClick={() => handleUnhide(doc._id)}
+                      >
+                        숨김 취소
+                      </button>
+                    </td>
+                  </tr>
+                ))
               ) : (
                 filtered.map((doc) => (
                   <tr
@@ -386,7 +465,7 @@ export function ConsultationTool() {
           doc={selectedDoc}
           onClose={() => setSelectedId(null)}
           onPatch={handlePatch}
-          onDelete={handleDelete}
+          onHide={handleHide}
           isExample={false}
         />
       )}

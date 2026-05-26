@@ -11,7 +11,7 @@ interface Props {
   doc: ConsultationDoc;
   onClose: () => void;
   onPatch: (id: string, fields: Record<string, unknown>) => Promise<void>;
-  onDelete: (id: string) => Promise<void>;
+  onHide: (id: string) => Promise<void>;
   isExample?: boolean;
 }
 
@@ -19,7 +19,7 @@ export function DetailModal({
   doc,
   onClose,
   onPatch,
-  onDelete,
+  onHide,
   isExample,
 }: Props) {
   const [status, setStatus] = useState(doc.status);
@@ -49,10 +49,10 @@ export function DetailModal({
             {!isExample && (
               <button
                 className="ct-delete-btn"
-                onClick={() => onDelete(doc._id)}
-                title="삭제"
+                onClick={() => onHide(doc._id)}
+                title="숨기기"
               >
-                삭제
+                숨기기
               </button>
             )}
             <button className="ct-close-btn" onClick={onClose}>

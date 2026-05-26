@@ -43,6 +43,7 @@ interface SanityYoutubeVideo {
   thumbnail?: unknown;
   description?: string;
   publishedAt?: string;
+  displayLanguages?: string[];
 }
 
 interface SanityNotice {

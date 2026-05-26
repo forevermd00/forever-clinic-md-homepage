@@ -36,6 +36,17 @@ export function BnaTool() {
     };
   }, [client]);
 
+  const refetch = useCallback(() => {
+    client.fetch<BnaDoc[]>(QUERY).then((data) => {
+      setDocs(data);
+    });
+  }, [client]);
+
+  const handleAdd = useCallback(async () => {
+    const newDoc = await client.create({ _type: 'baCase', isVisible: true });
+    router.navigate({ selectedId: newDoc._id });
+  }, [client, router]);
+
   const patch = useCallback(
     async (id: string, fields: Record<string, unknown>) => {
       setSaving((s) => new Set(s).add(id));
@@ -82,11 +93,24 @@ export function BnaTool() {
   );
 
   if (selectedId) {
-    return <BnaDetail id={selectedId} onBack={() => router.navigate({})} />;
+    return (
+      <BnaDetail
+        id={selectedId}
+        onBack={() => {
+          router.navigate({});
+          refetch();
+        }}
+      />
+    );
   }
 
   return (
     <div className="bn-container">
+      <div className="bn-toolbar">
+        <button className="bn-add-btn" onClick={handleAdd}>
+          + 추가
+        </button>
+      </div>
       {loading ? (
         <div className="bn-loading">불러오는 중...</div>
       ) : (

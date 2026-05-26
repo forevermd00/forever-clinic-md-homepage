@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useClient } from 'sanity';
 import type { SanityClient } from 'sanity';
+import type { PortableTextBlock } from '@sanity/types';
+import { BlogEditor } from './BlogEditor';
 
 interface BlogDoc {
   _id: string;
@@ -8,15 +10,10 @@ interface BlogDoc {
   slug?: { current?: string };
   category?: string;
   body?: {
-    ko?: Array<{
-      _type: string;
-      _key: string;
-      style?: string;
-      children?: Array<{ _type: string; _key: string; text?: string }>;
-    }>;
-    en?: unknown;
-    zh?: unknown;
-    ja?: unknown;
+    ko?: PortableTextBlock[];
+    en?: PortableTextBlock[];
+    zh?: PortableTextBlock[];
+    ja?: PortableTextBlock[];
   };
   publishedAt?: string;
   thumbnail?: { asset?: { _ref: string } };
@@ -48,14 +45,6 @@ async function uploadImage(client: SanityClient, file: File) {
   };
 }
 
-function generateKey(): string {
-  return Math.random().toString(36).slice(2, 10);
-}
-
-function extractBodyText(doc: BlogDoc): string {
-  return doc.body?.ko?.[0]?.children?.[0]?.text ?? '';
-}
-
 const QUERY = `*[_type == "blogPost" && _id == $id][0] {
   _id, title, slug, category, publishedAt,
   body { ko, en, zh, ja },
@@ -67,6 +56,7 @@ export function BlogDetail({ id, onBack }: { id: string; onBack: () => void }) {
   const [doc, setDoc] = useState<BlogDoc | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [activeLang, setActiveLang] = useState<'ko' | 'en' | 'zh' | 'ja'>('ko');
 
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
@@ -108,16 +98,6 @@ export function BlogDetail({ id, onBack }: { id: string; onBack: () => void }) {
     if (!confirm('이 블로그 포스트를 삭제하시겠습니까?')) return;
     await client.delete(id);
     onBack();
-  };
-
-  const handleBodySave = async (text: string) => {
-    const block = {
-      _type: 'block',
-      _key: generateKey(),
-      style: 'normal',
-      children: [{ _type: 'span', _key: generateKey(), text }],
-    };
-    await patch({ 'body.ko': [block] });
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -208,17 +188,40 @@ export function BlogDetail({ id, onBack }: { id: string; onBack: () => void }) {
       </div>
 
       <div className="mt-detail-section">
-        <div className="mt-detail-section-title">본문 (한국어)</div>
-        <div className="mt-detail-body">
-          <div className="mt-detail-field">
-            <label className="mt-detail-label">내용</label>
-            <textarea
-              className="mt-text-input mt-textarea mt-textarea-lg"
-              defaultValue={extractBodyText(doc)}
-              rows={8}
-              onBlur={(e) => handleBodySave(e.target.value)}
-            />
+        <div
+          className="mt-detail-section-title"
+          style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+        >
+          본문
+          <div style={{ display: 'flex', gap: 4, marginLeft: 8 }}>
+            {LOCALES.map(({ key, label }) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setActiveLang(key)}
+                style={{
+                  padding: '2px 8px',
+                  fontSize: 11,
+                  border: `1px solid ${activeLang === key ? '#6b7280' : '#d1d5db'}`,
+                  borderRadius: 4,
+                  background: activeLang === key ? '#f3f4f6' : 'white',
+                  cursor: 'pointer',
+                  fontWeight: activeLang === key ? 700 : 400,
+                  color: activeLang === key ? '#111827' : '#6b7280',
+                }}
+              >
+                {label}
+              </button>
+            ))}
           </div>
+        </div>
+        <div className="mt-detail-body">
+          <BlogEditor
+            key={`${id}-${activeLang}`}
+            client={client}
+            value={doc.body?.[activeLang] ?? []}
+            onChange={(blocks) => patch({ [`body.${activeLang}`]: blocks })}
+          />
         </div>
       </div>
 

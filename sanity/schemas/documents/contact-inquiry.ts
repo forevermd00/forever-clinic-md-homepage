@@ -75,5 +75,11 @@ export default defineType({
       type: 'datetime',
       readOnly: true,
     }),
+    defineField({
+      name: 'isHidden',
+      title: '숨김',
+      type: 'boolean',
+      initialValue: false,
+    }),
   ],
 });

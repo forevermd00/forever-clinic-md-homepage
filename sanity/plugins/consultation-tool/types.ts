@@ -12,6 +12,7 @@ export interface ConsultationDoc {
   createdAt?: string;
   preferredDate?: string;
   preferredTime?: string;
+  isHidden?: boolean;
 }
 
 export const STATUS_OPTIONS = [

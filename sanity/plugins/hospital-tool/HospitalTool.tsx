@@ -148,6 +148,7 @@ interface SectionVisibilityDoc {
     stats?: boolean;
     brandPhilosophy?: boolean;
     doctors?: boolean;
+    press?: boolean;
     location?: boolean;
     contact?: boolean;
   };
@@ -268,29 +269,30 @@ async function uploadImageAsset(client: SanityClient, file: File) {
   };
 }
 
-// ─── Main Tabs ────────────────────────────────────────────
+// ─── Tabs ─────────────────────────────────────────────────
 
-type MainTab =
+type BrandTab =
   | 'doctors'
-  | 'clinicInfo'
   | 'hero'
   | 'brand'
   | 'stats'
-  | 'popups'
-  | 'quickNav'
-  | 'sections'
-  | 'legal'
+  | 'facility'
   | 'equipment'
-  | 'facility';
+  | 'clinicInfo';
 
-const MAIN_TABS: { key: MainTab; label: string }[] = [
+type SettingsTab = 'popups' | 'quickNav' | 'sections' | 'legal';
+
+const BRAND_TABS: { key: BrandTab; label: string }[] = [
   { key: 'doctors', label: '의료진' },
-  { key: 'clinicInfo', label: '병원 정보' },
   { key: 'hero', label: '히어로 배너' },
   { key: 'brand', label: '브랜드 철학' },
   { key: 'stats', label: '통계 수치' },
-  { key: 'equipment', label: '보유 장비' },
   { key: 'facility', label: '시설 갤러리' },
+  { key: 'equipment', label: '보유 장비' },
+  { key: 'clinicInfo', label: '병원 정보' },
+];
+
+const SETTINGS_TABS: { key: SettingsTab; label: string }[] = [
   { key: 'popups', label: '이벤트 팝업' },
   { key: 'quickNav', label: '빠른 탐색' },
   { key: 'sections', label: '섹션 노출' },
@@ -2290,6 +2292,12 @@ function SectionsPanel() {
           onToggle={toggle}
         />
         <ToggleRow
+          label="언론보도"
+          path="home.press"
+          value={doc.home?.press}
+          onToggle={toggle}
+        />
+        <ToggleRow
           label="문의"
           path="home.contact"
           value={doc.home?.contact}
@@ -3204,33 +3212,45 @@ function FacilitySection() {
 
 // ─── Main Component ───────────────────────────────────────
 
-export function HospitalTool() {
+export function BrandTool() {
   const router = useRouter();
   const routerState = useRouterState() as {
     selectedId?: string;
     heroKey?: string;
-    qcardId?: string;
-    tab?: MainTab;
+    tab?: BrandTab;
   } | null;
   const selectedId = routerState?.selectedId;
   const heroKey = routerState?.heroKey;
-  const qcardId = routerState?.qcardId;
-  const activeTab: MainTab = routerState?.tab ?? 'doctors';
+  const activeTab: BrandTab = routerState?.tab ?? BRAND_TABS[0].key;
+
+  useEffect(() => {
+    if (!routerState?.tab && !selectedId && !heroKey) {
+      router.navigate({ tab: BRAND_TABS[0].key });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (selectedId) {
-    return <DoctorDetail id={selectedId} onBack={() => router.navigate({})} />;
+    return (
+      <DoctorDetail
+        id={selectedId}
+        onBack={() => router.navigate({ tab: 'doctors' })}
+      />
+    );
   }
   if (heroKey) {
-    return <HeroDetail heroKey={heroKey} onBack={() => router.navigate({})} />;
-  }
-  if (qcardId) {
-    return <QuickCardDetail id={qcardId} onBack={() => router.navigate({})} />;
+    return (
+      <HeroDetail
+        heroKey={heroKey}
+        onBack={() => router.navigate({ tab: 'hero' })}
+      />
+    );
   }
 
   return (
     <div className="ht-container">
       <div className="ht-tabs">
-        {MAIN_TABS.map((tab) => (
+        {BRAND_TABS.map((tab) => (
           <button
             key={tab.key}
             className={`ht-tab ${activeTab === tab.key ? 'active' : ''}`}
@@ -3244,20 +3264,63 @@ export function HospitalTool() {
       {activeTab === 'doctors' && (
         <DoctorsPanel onEdit={(id) => router.navigate({ selectedId: id })} />
       )}
-      {activeTab === 'clinicInfo' && <ClinicInfoPanel />}
       {activeTab === 'hero' && (
         <HeroBannerPanel onEdit={(key) => router.navigate({ heroKey: key })} />
       )}
       {activeTab === 'brand' && <BrandSection />}
       {activeTab === 'stats' && <StatsSection />}
+      {activeTab === 'facility' && <FacilitySection />}
+      {activeTab === 'equipment' && <EquipmentSection />}
+      {activeTab === 'clinicInfo' && <ClinicInfoPanel />}
+    </div>
+  );
+}
+
+export function SettingsTool() {
+  const router = useRouter();
+  const routerState = useRouterState() as {
+    qcardId?: string;
+    tab?: SettingsTab;
+  } | null;
+  const qcardId = routerState?.qcardId;
+  const activeTab: SettingsTab = routerState?.tab ?? SETTINGS_TABS[0].key;
+
+  useEffect(() => {
+    if (!routerState?.tab && !qcardId) {
+      router.navigate({ tab: SETTINGS_TABS[0].key });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (qcardId) {
+    return (
+      <QuickCardDetail
+        id={qcardId}
+        onBack={() => router.navigate({ tab: 'quickNav' })}
+      />
+    );
+  }
+
+  return (
+    <div className="ht-container">
+      <div className="ht-tabs">
+        {SETTINGS_TABS.map((tab) => (
+          <button
+            key={tab.key}
+            className={`ht-tab ${activeTab === tab.key ? 'active' : ''}`}
+            onClick={() => router.navigate({ tab: tab.key })}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
       {activeTab === 'popups' && <PopupsSection />}
       {activeTab === 'quickNav' && (
         <QuickNavSection
           onEditCard={(id) => router.navigate({ qcardId: id })}
         />
       )}
-      {activeTab === 'equipment' && <EquipmentSection />}
-      {activeTab === 'facility' && <FacilitySection />}
       {activeTab === 'sections' && <SectionsPanel />}
       {activeTab === 'legal' && <LegalDocPanel />}
     </div>

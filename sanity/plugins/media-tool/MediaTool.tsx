@@ -24,6 +24,7 @@ interface VideoDoc {
   youtubeId?: string;
   publishedAt?: string;
   isVisible?: boolean;
+  displayLanguages?: string[];
 }
 
 interface BlogDoc {
@@ -59,7 +60,7 @@ const VIDEO_QUERY = `
   *[_type == "youtubeVideo"] | order(publishedAt desc) {
     _id,
     "title": coalesce(title.ko, title.en, "(제목 없음)"),
-    youtubeId, publishedAt, isVisible
+    youtubeId, publishedAt, isVisible, displayLanguages
   }
 `;
 
@@ -274,7 +275,7 @@ function VideoPanel({ onEdit }: { onEdit: (id: string) => void }) {
             <tr>
               <th>No.</th>
               <th>제목</th>
-              <th>YouTube ID</th>
+              <th>표시 언어</th>
               <th>날짜</th>
               <th style={{ textAlign: 'center' }}>노출</th>
             </tr>
@@ -297,15 +298,32 @@ function VideoPanel({ onEdit }: { onEdit: (id: string) => void }) {
                   <td>
                     <span className="mt-title">{doc.title}</span>
                   </td>
-                  <td
-                    className="mt-meta"
-                    style={{
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {doc.youtubeId || '—'}
+                  <td className="mt-meta">
+                    {doc.displayLanguages && doc.displayLanguages.length > 0 ? (
+                      <span
+                        style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}
+                      >
+                        {doc.displayLanguages.map((lang) => (
+                          <span
+                            key={lang}
+                            style={{
+                              fontSize: 10,
+                              padding: '1px 5px',
+                              borderRadius: 3,
+                              background: '#e5e7eb',
+                              color: '#374151',
+                              fontWeight: 600,
+                            }}
+                          >
+                            {lang}
+                          </span>
+                        ))}
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: 11, color: '#9ca3af' }}>
+                        전체
+                      </span>
+                    )}
                   </td>
                   <td className="mt-meta">{formatDate(doc.publishedAt)}</td>
                   <td style={{ textAlign: 'center' }}>

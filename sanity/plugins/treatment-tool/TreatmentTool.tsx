@@ -42,6 +42,14 @@ export function TreatmentTool() {
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [saving, setSaving] = useState<Set<string>>(new Set());
 
+  const refetch = useCallback(() => {
+    setLoading(true);
+    client.fetch(QUERY).then((data: TreatmentDoc[]) => {
+      setDocs(data);
+      setLoading(false);
+    });
+  }, [client]);
+
   useEffect(() => {
     let cancelled = false;
     client.fetch(QUERY).then((data: TreatmentDoc[]) => {
@@ -164,9 +172,24 @@ export function TreatmentTool() {
   const sortIcon = (key: SortKey) =>
     sortKey === key ? (sortDir === 'asc' ? ' ↑' : ' ↓') : '';
 
+  const handleAdd = async () => {
+    const newDoc = await client.create({
+      _type: 'treatment',
+      name: { ko: '' },
+      isVisible: true,
+    });
+    router.navigate({ selectedId: newDoc._id });
+  };
+
   if (selectedId) {
     return (
-      <TreatmentDetail id={selectedId} onBack={() => router.navigate({})} />
+      <TreatmentDetail
+        id={selectedId}
+        onBack={() => {
+          router.navigate({});
+          refetch();
+        }}
+      />
     );
   }
 
@@ -198,6 +221,9 @@ export function TreatmentTool() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+        <button className="tt-add-treatment-btn" onClick={handleAdd}>
+          + 추가
+        </button>
         <span className="tt-count">{filtered.length}개 시술</span>
       </div>
 

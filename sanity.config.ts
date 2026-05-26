@@ -4,7 +4,8 @@ import { consultationTool } from './sanity/plugins/consultation-tool';
 import { treatmentTool } from './sanity/plugins/treatment-tool';
 import { bnaAdminTool } from './sanity/plugins/bna-tool';
 import { mediaAdminTool } from './sanity/plugins/media-tool';
-import { hospitalAdminTool } from './sanity/plugins/hospital-tool';
+import { brandAdminTool } from './sanity/plugins/brand-tool';
+import { settingsAdminTool } from './sanity/plugins/settings-tool';
 import { fontPlugin } from './sanity/plugins/font-plugin';
 
 export const PAGE_HEROES = [
@@ -38,9 +39,10 @@ export default defineConfig({
   plugins: [
     bnaAdminTool(),
     treatmentTool(),
+    brandAdminTool(),
     mediaAdminTool(),
     consultationTool(),
-    hospitalAdminTool(),
+    settingsAdminTool(),
     fontPlugin(),
   ],
   schema: {

@@ -1,6 +1,7 @@
 // Objects
 import localizedString from './objects/localized-string';
 import localizedText from './objects/localized-text';
+import localizedBlockContent from './objects/localized-block-content';
 import localizedSimpleText from './objects/localized-simple-text';
 import localizedImage from './objects/localized-image';
 import priceOption from './objects/price-option';
@@ -34,6 +35,7 @@ export const schemaTypes = [
   // Objects
   localizedString,
   localizedText,
+  localizedBlockContent,
   localizedSimpleText,
   localizedImage,
   priceOption,

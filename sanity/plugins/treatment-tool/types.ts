@@ -34,7 +34,6 @@ export interface TreatmentFullDoc extends TreatmentDoc {
 export const CATEGORIES: { slug: string; label: string }[] = [
   { slug: 'all', label: '전체' },
   { slug: '_event', label: '이벤트' },
-  { slug: 'signature', label: '시그니처' },
   { slug: 'lifting-laser', label: '리프팅·레이저' },
   { slug: 'petit-lifting', label: '쁘띠·실리프팅' },
   { slug: 'skincare', label: '피부 관리' },
@@ -44,7 +43,6 @@ export const CATEGORIES: { slug: string; label: string }[] = [
 ];
 
 export const CATEGORY_LABEL: Record<string, string> = {
-  signature: '시그니처',
   'lifting-laser': '리프팅·레이저',
   'petit-lifting': '쁘띠·실리프팅',
   skincare: '피부 관리',
