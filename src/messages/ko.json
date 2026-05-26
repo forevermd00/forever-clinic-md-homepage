@@ -36,7 +36,8 @@
     "submit": "문의하기",
     "addedToEstimate": "견적에 추가되었습니다",
     "dismissToday": "오늘 다시 열지 않음",
-    "popupSlide": "팝업 {n}"
+    "popupSlide": "팝업 {n}",
+    "inquire": "문의"
   },
   "nav": {
     "beforeAfter": "Before & After",

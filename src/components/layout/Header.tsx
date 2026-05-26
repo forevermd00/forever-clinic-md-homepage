@@ -177,6 +177,7 @@ export function Header({
   const currentLocale = pathname.split('/')[1] as Locale;
   const tNav = useTranslations('nav');
   const tCommon = useTranslations('common');
+  const tHeader = useTranslations('header');
   const tFooter = useTranslations('footer');
   const tMega = useTranslations('megamenu');
 
@@ -805,7 +806,7 @@ export function Header({
                 </svg>
                 <CartBadge />
               </span>
-              {tCommon('estimate')}
+              {tHeader('estimate')}
             </Link>
 
             {/* CTA */}

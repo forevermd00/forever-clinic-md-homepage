@@ -36,7 +36,8 @@
     "submit": "提交",
     "addedToEstimate": "已添加到报价单",
     "dismissToday": "今日不再显示",
-    "popupSlide": "弹窗 {n}"
+    "popupSlide": "弹窗 {n}",
+    "inquire": "咨询"
   },
   "nav": {
     "beforeAfter": "前后对比",

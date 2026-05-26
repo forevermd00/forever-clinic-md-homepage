@@ -36,7 +36,8 @@
     "submit": "送信",
     "addedToEstimate": "見積もりに追加しました",
     "dismissToday": "今日は表示しない",
-    "popupSlide": "ポップアップ {n}"
+    "popupSlide": "ポップアップ {n}",
+    "inquire": "お問い合わせ"
   },
   "nav": {
     "beforeAfter": "ビフォーアフター",

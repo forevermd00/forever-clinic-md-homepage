@@ -2,11 +2,6 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { SignatureProgram } from '@/lib/data/signaturePrograms';
 
-function formatPrice(won: number | null | undefined): string {
-  if (won == null) return '문의';
-  return won.toLocaleString('ko-KR') + '원';
-}
-
 interface SignatureProgramSectionProps {
   locale?: string;
   programs: SignatureProgram[];
@@ -19,6 +14,9 @@ export async function SignatureProgramSection({
   showPrice = true,
 }: SignatureProgramSectionProps) {
   const t = await getTranslations('home');
+  const tc = await getTranslations('common');
+  const inquireText = tc('inquire');
+  const viewMoreText = tc('viewMore');
 
   if (!programs || programs.length === 0) return null;
 
@@ -45,6 +43,8 @@ export async function SignatureProgramSection({
                 program={program}
                 locale={locale}
                 showPrice={showPrice}
+                inquireText={inquireText}
+                viewMoreText={viewMoreText}
               />
             ))}
           </div>
@@ -58,6 +58,8 @@ export async function SignatureProgramSection({
                   program={program}
                   locale={locale}
                   showPrice={showPrice}
+                  inquireText={inquireText}
+                  viewMoreText={viewMoreText}
                 />
               ))}
             </div>
@@ -69,6 +71,8 @@ export async function SignatureProgramSection({
                     program={program}
                     locale={locale}
                     showPrice={showPrice}
+                    inquireText={inquireText}
+                    viewMoreText={viewMoreText}
                   />
                 ))}
               </div>
@@ -92,11 +96,20 @@ function ProgramCard({
   program,
   locale,
   showPrice = true,
+  inquireText,
+  viewMoreText,
 }: {
   program: SignatureProgram;
   locale: string;
   showPrice?: boolean;
+  inquireText: string;
+  viewMoreText: string;
 }) {
+  function formatPrice(won: number | null | undefined): string {
+    if (won == null) return inquireText;
+    return won.toLocaleString('ko-KR') + '원';
+  }
+
   const category = program.category ?? 'signature';
   const href = program.slug
     ? `/${locale}/treatments/${category}/${program.slug}`
@@ -137,9 +150,8 @@ function ProgramCard({
         </div>
       )}
 
-      {/* 자세히 보기 */}
       <p className="mt-1 text-[12px] font-medium text-white/30 transition-colors group-hover:text-white/60">
-        자세히 보기 &rarr;
+        {viewMoreText} &rarr;
       </p>
     </Link>
   );

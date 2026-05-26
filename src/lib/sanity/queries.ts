@@ -251,8 +251,8 @@ export const blogPostsQuery = `
 `;
 
 export const noticesQuery = `
-  *[_type == "notice" && isVisible != false] | order(isPinned desc, publishedAt desc) {
-    _id, "title": title[$locale], publishedAt, isPinned, views
+  *[_type == "notice" && isVisible != false] | order(isPinned desc, coalesce(publishedAt, _createdAt) desc) {
+    _id, "title": title[$locale], "publishedAt": coalesce(publishedAt, _createdAt), isPinned, views
   }
 `;
 

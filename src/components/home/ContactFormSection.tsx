@@ -51,6 +51,27 @@ function getTodayStr(): string {
   return new Date().toLocaleDateString('en-CA');
 }
 
+const DATE_PLACEHOLDER: Record<string, string> = {
+  ko: '연도. 월. 일.',
+  en: 'MM / DD / YYYY',
+  zh: '年 / 月 / 日',
+  ja: '年 / 月 / 日',
+};
+
+function formatDateForLocale(iso: string, locale: string): string {
+  const [year, month, day] = iso.split('-');
+  switch (locale) {
+    case 'en':
+      return `${month} / ${day} / ${year}`;
+    case 'zh':
+      return `${year} / ${month} / ${day}`;
+    case 'ja':
+      return `${year} / ${month} / ${day}`;
+    default:
+      return `${year}. ${month}. ${day}.`;
+  }
+}
+
 function formatPhone(digits: string): string {
   const d = digits.slice(0, 11);
   if (d.length <= 3) return d;
@@ -391,28 +412,60 @@ export function ContactFormSection({
                   <div className="flex min-h-[80px] gap-5">
                     {/* 좌: 날짜 선택 */}
                     <div className="flex w-[180px] shrink-0 flex-col gap-1.5">
-                      <input
-                        type="date"
-                        value={preferredDate}
-                        min={getTodayStr()}
-                        onChange={(e) => {
-                          setPreferredDate(e.target.value);
-                          setPreferredTime('');
-                        }}
-                        className="h-[44px] w-full rounded-[6px] border border-[#d9d9d9] bg-white px-3 py-2.5 text-[14px] text-[#2b2b2b]"
-                      />
+                      <div className="relative h-[44px] w-full rounded-[6px] border border-[#d9d9d9] bg-white">
+                        {/* 로케일별 포맷 표시 */}
+                        <div className="pointer-events-none absolute inset-0 flex items-center justify-between px-3">
+                          <span className="text-[14px] text-[#2b2b2b]">
+                            {preferredDate ? (
+                              formatDateForLocale(preferredDate, locale)
+                            ) : (
+                              <span className="text-[#bbb]">
+                                {DATE_PLACEHOLDER[locale] ??
+                                  DATE_PLACEHOLDER.ko}
+                              </span>
+                            )}
+                          </span>
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#999"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <rect
+                              x="3"
+                              y="4"
+                              width="18"
+                              height="18"
+                              rx="2"
+                              ry="2"
+                            />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                          </svg>
+                        </div>
+                        {/* 실제 date input — 투명하게 올려서 picker 동작 */}
+                        <input
+                          type="date"
+                          value={preferredDate}
+                          min={getTodayStr()}
+                          onChange={(e) => {
+                            setPreferredDate(e.target.value);
+                            setPreferredTime('');
+                          }}
+                          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                        />
+                      </div>
                     </div>
                     {/* 우: 시간 슬롯 */}
                     <div className="flex flex-1 flex-wrap content-start gap-1.5">
                       {(() => {
                         if (!preferredDate) {
-                          return (
-                            <div className="flex h-[44px] items-center">
-                              <p className="text-[13px] text-[#ccc]">
-                                {t('selectDateFirst')}
-                              </p>
-                            </div>
-                          );
+                          return null;
                         }
                         const slots = getTimeSlots(preferredDate, hours);
                         if (slots.length === 0) {

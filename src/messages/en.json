@@ -36,7 +36,8 @@
     "submit": "Submit",
     "addedToEstimate": "Added to estimate",
     "dismissToday": "Don't show today",
-    "popupSlide": "Popup {n}"
+    "popupSlide": "Popup {n}",
+    "inquire": "Inquire"
   },
   "nav": {
     "beforeAfter": "Before & After",

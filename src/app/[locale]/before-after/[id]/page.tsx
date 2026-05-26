@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
@@ -57,26 +58,42 @@ export default async function BADetailPage({
             {t('sessions', { count: detail.sessionCount })}
           </h2>
 
-          {/* Before / After image pair with arrows */}
-          <div className="flex items-center justify-center gap-4">
-            {/* Left arrow */}
-            <button
-              className="shrink-0 rounded-[24px] border border-[#f0e5d9] px-3 py-1 text-lg shadow transition-colors hover:bg-neutral-50"
-              aria-label={tc('previous')}
-            >
-              &#8249;
-            </button>
-
-            {/* Images */}
-            <div className="flex w-full max-w-4xl gap-4">
-              {/* Before - locked for Korean locale if not logged in */}
-              <div className="flex-1">
-                <BALockOverlay
-                  locale={locale}
-                  className="h-[300px] md:h-[400px]"
+          {/* Before / After — arrows on sides, images side-by-side (desktop) / stacked (mobile) */}
+          <div className="flex items-center gap-2 md:gap-4">
+            {/* Left arrow — always takes space to keep images centered */}
+            <div className="flex w-10 shrink-0 justify-center">
+              {detail.prevId && (
+                <Link
+                  href={`/${locale}/before-after/${detail.prevId}`}
+                  className="flex size-10 items-center justify-center rounded-full border border-[#f0e5d9] text-xl shadow transition-colors hover:bg-neutral-50"
+                  aria-label={tc('previous')}
                 >
-                  <div className="h-[300px] rounded-[8px] bg-[#d4c7bd] md:h-[400px]" />
-                </BALockOverlay>
+                  &#8249;
+                </Link>
+              )}
+            </div>
+
+            {/* Image pair */}
+            <div className="flex flex-1 flex-col gap-4 md:flex-row">
+              {/* Before */}
+              <div className="flex-1">
+                <div className="relative mx-auto aspect-[4/3] w-full max-w-[480px]">
+                  <BALockOverlay
+                    locale={locale}
+                    className="absolute inset-0 rounded-[8px]"
+                  >
+                    {detail.beforeImage ? (
+                      <Image
+                        src={detail.beforeImage}
+                        alt="Before"
+                        fill
+                        className="rounded-[8px] object-cover"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 rounded-[8px] bg-[#d4c7bd]" />
+                    )}
+                  </BALockOverlay>
+                </div>
                 <p className="mt-2 text-center text-[13px] font-bold text-[#999]">
                   BEFORE
                 </p>
@@ -84,7 +101,18 @@ export default async function BADetailPage({
 
               {/* After */}
               <div className="flex-1">
-                <div className="h-[300px] rounded-[8px] bg-[#f0e5d9] md:h-[400px]" />
+                <div className="relative mx-auto aspect-[4/3] w-full max-w-[480px]">
+                  {detail.afterImage ? (
+                    <Image
+                      src={detail.afterImage}
+                      alt="After"
+                      fill
+                      className="rounded-[8px] object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 rounded-[8px] bg-[#f0e5d9]" />
+                  )}
+                </div>
                 <p className="mt-2 text-center text-[13px] font-bold text-[#a83d45]">
                   AFTER
                 </p>
@@ -92,12 +120,17 @@ export default async function BADetailPage({
             </div>
 
             {/* Right arrow */}
-            <button
-              className="shrink-0 rounded-[24px] border border-[#f0e5d9] px-3 py-1 text-lg shadow transition-colors hover:bg-neutral-50"
-              aria-label={tc('next')}
-            >
-              &#8250;
-            </button>
+            <div className="flex w-10 shrink-0 justify-center">
+              {detail.nextId && (
+                <Link
+                  href={`/${locale}/before-after/${detail.nextId}`}
+                  className="flex size-10 items-center justify-center rounded-full border border-[#f0e5d9] text-xl shadow transition-colors hover:bg-neutral-50"
+                  aria-label={tc('next')}
+                >
+                  &#8250;
+                </Link>
+              )}
+            </div>
           </div>
 
           {/* Back to list */}
