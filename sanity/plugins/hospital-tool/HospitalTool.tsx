@@ -41,6 +41,8 @@ interface SnsLinkItem {
   platform?: string;
   url?: string;
   label?: string;
+  logoRef?: string;
+  displayLocales?: string[];
 }
 
 interface ClinicInfoDoc {
@@ -69,6 +71,7 @@ interface BrandValue {
 interface BrandDoc {
   slogan?: { ko?: string; en?: string; zh?: string; ja?: string };
   subtitle?: { ko?: string; en?: string; zh?: string; ja?: string };
+  badge?: string;
   values?: BrandValue[];
 }
 
@@ -105,7 +108,7 @@ interface QuickCardDoc {
   _id: string;
   title?: { ko?: string };
   slug?: { current?: string };
-  tab?: { label?: { ko?: string } };
+  tab?: { _id?: string; label?: { ko?: string } };
   isVisible?: boolean;
   sortOrder?: number;
 }
@@ -184,11 +187,11 @@ const CLINIC_INFO_QUERY = `*[_type == "clinicInfo" && _id == "forever-myeongdong
   businessHours[] { _key, dayOfWeek, day, open, close, note },
   closedDayNotice, walkingGuide,
   snsLinks[] { _key, platform, url, label },
-  messengerLinks[] { _key, platform, url, label }
+  messengerLinks[] { _key, platform, url, label, "logoRef": logo.asset._ref, displayLocales }
 }`;
 
 const BRAND_QUERY = `*[_type == "brandPhilosophy" && _id == "brand-philosophy"][0] {
-  slogan, subtitle,
+  slogan, subtitle, badge,
   values[] { _key, title, description, image { asset { _ref } } }
 }`;
 
@@ -205,7 +208,7 @@ const QTABS_QUERY = `*[_type == "quickEntryTab"] | order(sortOrder asc) {
 }`;
 
 const QCARDS_QUERY = `*[_type == "quickEntryCard"] | order(sortOrder asc) {
-  _id, title, slug, "tab": tab->{ label }, isVisible, sortOrder
+  _id, title, slug, "tab": tab->{ _id, label }, isVisible, sortOrder
 }`;
 
 const SV_QUERY = `*[_type == "sectionVisibility" && _id == "sectionVisibility"][0]`;
@@ -273,18 +276,16 @@ async function uploadImageAsset(client: SanityClient, file: File) {
 
 type BrandTab =
   | 'doctors'
-  | 'hero'
   | 'brand'
   | 'stats'
   | 'facility'
   | 'equipment'
   | 'clinicInfo';
 
-type SettingsTab = 'popups' | 'quickNav' | 'sections' | 'legal';
+type SettingsTab = 'hero' | 'popups' | 'quickNav' | 'sections' | 'legal';
 
 const BRAND_TABS: { key: BrandTab; label: string }[] = [
   { key: 'doctors', label: '의료진' },
-  { key: 'hero', label: '히어로 배너' },
   { key: 'brand', label: '브랜드 철학' },
   { key: 'stats', label: '통계 수치' },
   { key: 'facility', label: '시설 갤러리' },
@@ -293,6 +294,7 @@ const BRAND_TABS: { key: BrandTab; label: string }[] = [
 ];
 
 const SETTINGS_TABS: { key: SettingsTab; label: string }[] = [
+  { key: 'hero', label: '히어로 배너' },
   { key: 'popups', label: '이벤트 팝업' },
   { key: 'quickNav', label: '빠른 탐색' },
   { key: 'sections', label: '섹션 노출' },
@@ -467,6 +469,9 @@ function ClinicInfoPanel() {
   const [hours, setHours] = useState<BusinessHoursItem[]>([]);
   const [sns, setSns] = useState<SnsLinkItem[]>([]);
   const [messenger, setMessenger] = useState<SnsLinkItem[]>([]);
+  const [messengerUploading, setMessengerUploading] = useState<string | null>(
+    null,
+  );
   const initialized = useRef(false);
 
   useEffect(() => {
@@ -559,9 +564,41 @@ function ClinicInfoPanel() {
     setSaving(true);
     await client
       .patch('forever-myeongdong-clinic-info')
-      .set({ messengerLinks: newMsg })
+      .set({
+        messengerLinks: newMsg.map((m) => ({
+          _key: m._key,
+          platform: m.platform,
+          url: m.url,
+          label: m.label,
+          displayLocales: m.displayLocales,
+          ...(m.logoRef
+            ? {
+                logo: {
+                  _type: 'image',
+                  asset: { _type: 'reference', _ref: m.logoRef },
+                },
+              }
+            : {}),
+        })),
+      })
       .commit();
     setSaving(false);
+  };
+
+  const uploadMessengerLogo = async (key: string, file: File) => {
+    setMessengerUploading(key);
+    try {
+      const asset = await client.assets.upload('image', file, {
+        filename: file.name,
+      });
+      const updated = messenger.map((m) =>
+        m._key === key ? { ...m, logoRef: asset._id } : m,
+      );
+      setMessenger(updated);
+      saveMessenger(updated);
+    } finally {
+      setMessengerUploading(null);
+    }
   };
 
   const updateHour = (
@@ -896,7 +933,19 @@ function ClinicInfoPanel() {
 
       {/* ── SNS 링크 ── */}
       <div className="ht-detail-section">
-        <div className="ht-detail-section-title">SNS 링크</div>
+        <div className="ht-detail-section-title">
+          SNS 링크
+          <span
+            style={{
+              fontSize: 11,
+              color: '#9ca3af',
+              fontWeight: 400,
+              marginLeft: 8,
+            }}
+          >
+            ※ 홈페이지 위치 정보 섹션에 표시됩니다
+          </span>
+        </div>
         <div className="ht-detail-body">
           <div className="ht-array-editor">
             {sns.map((s, i) => (
@@ -1018,7 +1067,10 @@ function ClinicInfoPanel() {
                     ✕
                   </button>
                 </div>
-                <div className="ht-detail-row">
+                <div
+                  className="ht-detail-row"
+                  style={{ flexWrap: 'wrap', gap: 8 }}
+                >
                   <div className="ht-detail-field">
                     <label className="ht-detail-label">플랫폼</label>
                     <select
@@ -1093,6 +1145,90 @@ function ClinicInfoPanel() {
                         )
                       }
                     />
+                  </div>
+                </div>
+                <div className="ht-detail-row" style={{ marginTop: 8 }}>
+                  <div className="ht-detail-field">
+                    <label className="ht-detail-label">로고 이미지</label>
+                    {s.logoRef && (
+                      <img
+                        src={`https://cdn.sanity.io/images/ecoamz42/production/${s.logoRef.replace('image-', '').replace(/-(\w+)$/, '.$1')}`}
+                        alt="logo"
+                        style={{
+                          width: 32,
+                          height: 32,
+                          objectFit: 'contain',
+                          marginBottom: 4,
+                        }}
+                      />
+                    )}
+                    <label
+                      className="ht-upload-btn"
+                      style={{ fontSize: 11, padding: '2px 8px' }}
+                    >
+                      {messengerUploading === s._key
+                        ? '업로드 중…'
+                        : '로고 선택'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        disabled={messengerUploading === s._key}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) uploadMessengerLogo(s._key, file);
+                        }}
+                      />
+                    </label>
+                  </div>
+                  <div className="ht-detail-field">
+                    <label className="ht-detail-label">표시 언어</label>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      {[
+                        { key: 'ko', label: '한' },
+                        { key: 'en', label: '영' },
+                        { key: 'zh', label: '중' },
+                        { key: 'ja', label: '일' },
+                      ].map(({ key, label }) => (
+                        <label
+                          key={key}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 3,
+                            fontSize: 12,
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={
+                              s.displayLocales
+                                ? s.displayLocales.includes(key)
+                                : true
+                            }
+                            onChange={(e) => {
+                              const current = s.displayLocales ?? [
+                                'ko',
+                                'en',
+                                'zh',
+                                'ja',
+                              ];
+                              const updated = e.target.checked
+                                ? [...current.filter((l) => l !== key), key]
+                                : current.filter((l) => l !== key);
+                              const updatedList = messenger.map((m) =>
+                                m._key === s._key
+                                  ? { ...m, displayLocales: updated }
+                                  : m,
+                              );
+                              setMessenger(updatedList);
+                              saveMessenger(updatedList);
+                            }}
+                          />
+                          {label}
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1301,6 +1437,24 @@ function BrandSection() {
         </div>
       </div>
 
+      {/* ── 배지 텍스트 ── */}
+      <div className="ht-detail-section">
+        <div className="ht-detail-section-title">배지 텍스트</div>
+        <div className="ht-detail-body">
+          <input
+            type="text"
+            className="ht-text-input"
+            style={{ maxWidth: 240 }}
+            defaultValue={doc.badge ?? 'Since 2008'}
+            placeholder="Since 2008"
+            onBlur={(e) => patch({ badge: e.target.value })}
+          />
+          <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 4 }}>
+            홈페이지 브랜드 섹션 및 브랜드 페이지에 표시됩니다
+          </p>
+        </div>
+      </div>
+
       {/* ── 서브 슬로건 ── */}
       <div className="ht-detail-section">
         <div className="ht-detail-section-title">서브 슬로건</div>
@@ -1461,6 +1615,8 @@ function StatsSection() {
   const [saving, setSaving] = useState(false);
   const initialized = useRef(false);
   const [items, setItems] = useState<StatsItem[]>([]);
+  const dragIndexRef = useRef<number | null>(null);
+  const [dragOver, setDragOver] = useState<number | null>(null);
 
   useEffect(() => {
     client.fetch<StatsDoc>(STATS_QUERY).then((data) => {
@@ -1580,15 +1736,57 @@ function StatsSection() {
     });
   };
 
+  const handleDragStart = (i: number) => {
+    dragIndexRef.current = i;
+  };
+  const handleDragOver = (e: React.DragEvent, i: number) => {
+    e.preventDefault();
+    setDragOver(i);
+  };
+  const handleDragEnd = () => {
+    setDragOver(null);
+  };
+  const handleDrop = async (toIndex: number) => {
+    const fromIndex = dragIndexRef.current;
+    if (fromIndex === null || fromIndex === toIndex) {
+      dragIndexRef.current = null;
+      setDragOver(null);
+      return;
+    }
+    dragIndexRef.current = null;
+    setDragOver(null);
+    const newItems = [...items];
+    const [moved] = newItems.splice(fromIndex, 1);
+    newItems.splice(toIndex, 0, moved);
+    setItems(newItems);
+    save(newItems);
+  };
+
   if (!doc) return <div className="ht-loading">불러오는 중...</div>;
 
   return (
     <div className="ht-panel-section">
       {saving && <span className="ht-saving-indicator">저장 중…</span>}
       <div className="ht-array-editor" style={{ marginTop: 12 }}>
+        <div className="ht-toolbar" style={{ marginBottom: 8 }}>
+          <button className="ht-add-btn" onClick={addItem}>
+            + 항목 추가
+          </button>
+        </div>
         {items.map((item, i) => (
-          <div key={item._key} className="ht-array-item">
+          <div
+            key={item._key}
+            className={`ht-array-item${dragOver === i ? 'ht-drag-over' : ''}`}
+            draggable
+            onDragStart={() => handleDragStart(i)}
+            onDragOver={(e) => handleDragOver(e, i)}
+            onDragEnd={handleDragEnd}
+            onDrop={() => handleDrop(i)}
+          >
             <div className="ht-array-item-header">
+              <div className="ht-drag-handle" style={{ marginBottom: 4 }}>
+                ⋮⋮
+              </div>
               <span className="ht-array-num">{i + 1}</span>
               <button className="ht-remove-btn" onClick={() => removeItem(i)}>
                 ✕
@@ -1647,9 +1845,6 @@ function StatsSection() {
             </div>
           </div>
         ))}
-        <button className="ht-add-btn" onClick={addItem}>
-          + 항목 추가
-        </button>
       </div>
     </div>
   );
@@ -1903,8 +2098,11 @@ function QuickNavSection({ onEditCard }: { onEditCard: (id: string) => void }) {
   const [cards, setCards] = useState<QuickCardDoc[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const dragIndexRef = useRef<number | null>(null);
-  const [dragOver, setDragOver] = useState<number | null>(null);
+  const tabDragFrom = useRef<{ tab: string; idx: number } | null>(null);
+  const [tabDragOver, setTabDragOver] = useState<{
+    tab: string;
+    idx: number;
+  } | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -1936,35 +2134,25 @@ function QuickNavSection({ onEditCard }: { onEditCard: (id: string) => void }) {
     onEditCard(newDoc._id);
   };
 
-  const handleDragStart = (i: number) => {
-    dragIndexRef.current = i;
-  };
-  const handleDragOver = (e: React.DragEvent, i: number) => {
-    e.preventDefault();
-    setDragOver(i);
-  };
-  const handleDragEnd = () => {
-    setDragOver(null);
-  };
-
-  const handleDrop = async (toIndex: number) => {
-    const fromIndex = dragIndexRef.current;
-    if (fromIndex === null || fromIndex === toIndex) {
-      dragIndexRef.current = null;
-      setDragOver(null);
+  const handleTabDrop = async (tabId: string, toIndex: number) => {
+    const from = tabDragFrom.current;
+    if (!from || from.tab !== tabId || from.idx === toIndex) {
+      tabDragFrom.current = null;
+      setTabDragOver(null);
       return;
     }
-    dragIndexRef.current = null;
-    setDragOver(null);
-
-    const newCards = [...cards];
-    const [moved] = newCards.splice(fromIndex, 1);
-    newCards.splice(toIndex, 0, moved);
+    tabDragFrom.current = null;
+    setTabDragOver(null);
+    const tabCards = cards.filter((c) => c.tab?._id === tabId);
+    const otherCards = cards.filter((c) => c.tab?._id !== tabId);
+    const newTabCards = [...tabCards];
+    const [moved] = newTabCards.splice(from.idx, 1);
+    newTabCards.splice(toIndex, 0, moved);
+    const newCards = [...otherCards, ...newTabCards];
     setCards(newCards);
-
     setSaving(true);
     const tx = client.transaction();
-    newCards.forEach((card, idx) => {
+    newTabCards.forEach((card, idx) => {
       tx.patch(card._id, { set: { sortOrder: idx } });
     });
     await tx.commit();
@@ -2023,77 +2211,88 @@ function QuickNavSection({ onEditCard }: { onEditCard: (id: string) => void }) {
               + 카드 추가
             </button>
           </div>
-          <div className="ht-table-wrap">
-            <table className="ht-table">
-              <colgroup>
-                <col style={{ width: '32px' }} />
-                <col style={{ width: '44px' }} />
-                <col />
-                <col style={{ width: '120px' }} />
-                <col style={{ width: '120px' }} />
-                <col style={{ width: '70px' }} />
-              </colgroup>
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>No.</th>
-                  <th>제목 (ko)</th>
-                  <th>slug</th>
-                  <th>탭</th>
-                  <th style={{ textAlign: 'center' }}>노출</th>
-                </tr>
-              </thead>
-              <tbody>
-                {cards.map((card, idx) => (
-                  <tr
-                    key={card._id}
-                    className={`ht-row-clickable${dragOver === idx ? 'ht-drag-over' : ''}`}
-                    draggable
-                    onDragStart={() => handleDragStart(idx)}
-                    onDragOver={(e) => handleDragOver(e, idx)}
-                    onDragEnd={handleDragEnd}
-                    onDrop={() => handleDrop(idx)}
-                    onClick={() => onEditCard(card._id)}
-                  >
-                    <td
-                      className="ht-drag-handle"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      ⋮⋮
-                    </td>
-                    <td className="ht-row-num">{idx + 1}</td>
-                    <td>
-                      <span className="ht-row-name">
-                        {card.title?.ko || '—'}
-                      </span>
-                    </td>
-                    <td className="ht-row-meta">{card.slug?.current || '—'}</td>
-                    <td className="ht-row-meta">
-                      {card.tab?.label?.ko || '—'}
-                    </td>
-                    <td
-                      style={{ textAlign: 'center' }}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <input
-                        type="checkbox"
-                        className="tt-toggle"
-                        checked={!!card.isVisible}
-                        onChange={(e) => toggleCard(card._id, e.target.checked)}
-                      />
-                    </td>
-                  </tr>
-                ))}
-                {cards.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="ht-empty">
-                      카드가 없습니다
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          {tabs.map((tab) => {
+            const tabCards = cards.filter((c) => c.tab?._id === tab._id);
+            return (
+              <div
+                key={tab._id}
+                className="ht-detail-section"
+                style={{ marginTop: 16 }}
+              >
+                <div className="ht-detail-section-title">
+                  {tab.label?.ko || tab.key || '—'}
+                </div>
+                <div className="ht-detail-body">
+                  <table className="ht-table">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>No.</th>
+                        <th>제목</th>
+                        <th>slug</th>
+                        <th style={{ textAlign: 'center' }}>노출</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {tabCards.map((card, idx) => (
+                        <tr
+                          key={card._id}
+                          className={`ht-row-clickable${tabDragOver?.tab === tab._id && tabDragOver?.idx === idx ? 'ht-drag-over' : ''}`}
+                          draggable
+                          onDragStart={() => {
+                            tabDragFrom.current = { tab: tab._id, idx };
+                          }}
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            setTabDragOver({ tab: tab._id, idx });
+                          }}
+                          onDragEnd={() => setTabDragOver(null)}
+                          onDrop={() => handleTabDrop(tab._id, idx)}
+                          onClick={() => onEditCard(card._id)}
+                        >
+                          <td
+                            className="ht-drag-handle"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            ⋮⋮
+                          </td>
+                          <td className="ht-row-num">{idx + 1}</td>
+                          <td>
+                            <span className="ht-row-name">
+                              {card.title?.ko || '—'}
+                            </span>
+                          </td>
+                          <td className="ht-row-meta">
+                            {card.slug?.current || '—'}
+                          </td>
+                          <td
+                            style={{ textAlign: 'center' }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <input
+                              type="checkbox"
+                              className="tt-toggle"
+                              checked={!!card.isVisible}
+                              onChange={(e) =>
+                                toggleCard(card._id, e.target.checked)
+                              }
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                      {tabCards.length === 0 && (
+                        <tr>
+                          <td colSpan={5} className="ht-empty">
+                            카드 없음
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -2128,15 +2327,155 @@ function ToggleRow({
 
 // ─── 섹션 노출 패널 ───────────────────────────────────────
 
+const HOME_ITEMS = [
+  { key: 'hero', label: '히어로' },
+  { key: 'quickEntry', label: '퀵엔트리' },
+  { key: 'signature', label: '시그니처' },
+  { key: 'promo', label: '프로모션' },
+  { key: 'bnA', label: 'B&A' },
+  { key: 'press', label: '언론보도' },
+  { key: 'stats', label: '통계' },
+  { key: 'brandPhilosophy', label: '브랜드 철학' },
+  { key: 'doctors', label: '의료진' },
+  { key: 'location', label: '위치' },
+  { key: 'contact', label: '문의' },
+];
+const BRAND_ITEMS = [
+  { key: 'philosophy', label: '철학' },
+  { key: 'doctors', label: '의료진' },
+  { key: 'facilities', label: '시설' },
+  { key: 'equipment', label: '장비' },
+  { key: 'location', label: '위치' },
+];
+const MEDIA_ITEMS = [
+  { key: 'press', label: '보도자료' },
+  { key: 'video', label: '영상' },
+  { key: 'blog', label: '블로그' },
+  { key: 'notice', label: '공지사항' },
+];
+
+function DraggableGroup({
+  title,
+  items,
+  order,
+  setOrder,
+  doc,
+  onToggle,
+  togglePath,
+  saveOrder,
+}: {
+  title: string;
+  items: { key: string; label: string }[];
+  order: string[];
+  setOrder: (o: string[]) => void;
+  doc: SectionVisibilityDoc | null;
+  onToggle: (path: string, value: boolean) => void;
+  togglePath: string;
+  saveOrder: (o: string[]) => void;
+}) {
+  const dragFrom = useRef<number | null>(null);
+  const [dragOver, setDragOver] = useState<number | null>(null);
+
+  const orderedItems: { key: string; label: string }[] = order
+    .map((k) => items.find((i) => i.key === k))
+    .filter((i): i is { key: string; label: string } => i !== undefined);
+  items.forEach((i) => {
+    if (!orderedItems.find((o) => o.key === i.key)) orderedItems.push(i);
+  });
+
+  const handleDrop = (toIdx: number) => {
+    const fromIdx = dragFrom.current;
+    if (fromIdx === null || fromIdx === toIdx) {
+      dragFrom.current = null;
+      setDragOver(null);
+      return;
+    }
+    dragFrom.current = null;
+    setDragOver(null);
+    const newOrder = orderedItems.map((i) => i.key);
+    const [moved] = newOrder.splice(fromIdx, 1);
+    newOrder.splice(toIdx, 0, moved);
+    setOrder(newOrder);
+    saveOrder(newOrder);
+  };
+
+  const getVal = (key: string): boolean | undefined => {
+    const d = doc as unknown as Record<string, Record<string, boolean>>;
+    return d?.[togglePath]?.[key];
+  };
+
+  return (
+    <div className="ht-sv-group">
+      <div className="ht-sv-group-title">{title}</div>
+      {orderedItems.map((item, idx) => (
+        <div
+          key={item.key}
+          draggable
+          className={`ht-sv-drag-row${dragOver === idx ? 'ht-drag-over' : ''}`}
+          onDragStart={() => {
+            dragFrom.current = idx;
+          }}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragOver(idx);
+          }}
+          onDragEnd={() => setDragOver(null)}
+          onDrop={() => handleDrop(idx)}
+          style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+        >
+          <span
+            className="ht-drag-handle"
+            style={{ cursor: 'grab', color: '#9ca3af', userSelect: 'none' }}
+          >
+            ⋮⋮
+          </span>
+          <ToggleRow
+            label={item.label}
+            path={`${togglePath}.${item.key}`}
+            value={getVal(item.key)}
+            onToggle={onToggle}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function SectionsPanel() {
   const client = useClient({ apiVersion: '2026-05-13' });
   const [doc, setDoc] = useState<SectionVisibilityDoc | null>(null);
   const [saving, setSaving] = useState(false);
+  const [homeOrder, setHomeOrder] = useState<string[]>([]);
+  const [brandOrder, setBrandOrder] = useState<string[]>([]);
+  const [mediaOrder, setMediaOrder] = useState<string[]>([]);
 
   useEffect(() => {
-    client.fetch<SectionVisibilityDoc>(SV_QUERY).then((data) => {
-      setDoc(data ?? {});
-    });
+    client
+      .fetch<
+        SectionVisibilityDoc & {
+          homeOrder?: string[];
+          brandOrder?: string[];
+          mediaOrder?: string[];
+        }
+      >(SV_QUERY)
+      .then((data) => {
+        setDoc(data ?? {});
+        setHomeOrder(
+          data?.homeOrder?.length
+            ? data.homeOrder
+            : HOME_ITEMS.map((i) => i.key),
+        );
+        setBrandOrder(
+          data?.brandOrder?.length
+            ? data.brandOrder
+            : BRAND_ITEMS.map((i) => i.key),
+        );
+        setMediaOrder(
+          data?.mediaOrder?.length
+            ? data.mediaOrder
+            : MEDIA_ITEMS.map((i) => i.key),
+        );
+      });
   }, [client]);
 
   const toggle = async (path: string, value: boolean) => {
@@ -2159,6 +2498,15 @@ function SectionsPanel() {
       }
       return prev;
     });
+  };
+
+  const saveOrderField = async (field: string, order: string[]) => {
+    setSaving(true);
+    await client
+      .patch('sectionVisibility')
+      .set({ [field]: order })
+      .commit();
+    setSaving(false);
   };
 
   if (!doc) return <div className="ht-loading">불러오는 중...</div>;
@@ -2235,137 +2583,38 @@ function SectionsPanel() {
         />
       </div>
 
-      <div className="ht-sv-group">
-        <div className="ht-sv-group-title">메인 홈 섹션</div>
-        <ToggleRow
-          label="히어로"
-          path="home.hero"
-          value={doc.home?.hero}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="퀵엔트리"
-          path="home.quickEntry"
-          value={doc.home?.quickEntry}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="시그니처"
-          path="home.signature"
-          value={doc.home?.signature}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="프로모션"
-          path="home.promo"
-          value={doc.home?.promo}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="B&A"
-          path="home.bnA"
-          value={doc.home?.bnA}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="통계"
-          path="home.stats"
-          value={doc.home?.stats}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="브랜드 철학"
-          path="home.brandPhilosophy"
-          value={doc.home?.brandPhilosophy}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="의료진"
-          path="home.doctors"
-          value={doc.home?.doctors}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="위치"
-          path="home.location"
-          value={doc.home?.location}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="언론보도"
-          path="home.press"
-          value={doc.home?.press}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="문의"
-          path="home.contact"
-          value={doc.home?.contact}
-          onToggle={toggle}
-        />
-      </div>
+      <DraggableGroup
+        title="메인 홈 섹션"
+        items={HOME_ITEMS}
+        order={homeOrder}
+        setOrder={setHomeOrder}
+        doc={doc}
+        onToggle={toggle}
+        togglePath="home"
+        saveOrder={(o) => saveOrderField('homeOrder', o)}
+      />
 
-      <div className="ht-sv-group">
-        <div className="ht-sv-group-title">브랜드 페이지</div>
-        <ToggleRow
-          label="철학"
-          path="brand.philosophy"
-          value={doc.brand?.philosophy}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="의료진"
-          path="brand.doctors"
-          value={doc.brand?.doctors}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="시설"
-          path="brand.facilities"
-          value={doc.brand?.facilities}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="장비"
-          path="brand.equipment"
-          value={doc.brand?.equipment}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="위치"
-          path="brand.location"
-          value={doc.brand?.location}
-          onToggle={toggle}
-        />
-      </div>
+      <DraggableGroup
+        title="브랜드 페이지"
+        items={BRAND_ITEMS}
+        order={brandOrder}
+        setOrder={setBrandOrder}
+        doc={doc}
+        onToggle={toggle}
+        togglePath="brand"
+        saveOrder={(o) => saveOrderField('brandOrder', o)}
+      />
 
-      <div className="ht-sv-group">
-        <div className="ht-sv-group-title">미디어 탭</div>
-        <ToggleRow
-          label="보도자료"
-          path="media.press"
-          value={doc.media?.press}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="영상"
-          path="media.video"
-          value={doc.media?.video}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="블로그"
-          path="media.blog"
-          value={doc.media?.blog}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="공지사항"
-          path="media.notice"
-          value={doc.media?.notice}
-          onToggle={toggle}
-        />
-      </div>
+      <DraggableGroup
+        title="미디어 탭"
+        items={MEDIA_ITEMS}
+        order={mediaOrder}
+        setOrder={setMediaOrder}
+        doc={doc}
+        onToggle={toggle}
+        togglePath="media"
+        saveOrder={(o) => saveOrderField('mediaOrder', o)}
+      />
 
       <div className="ht-sv-group">
         <div className="ht-sv-group-title">기타</div>
@@ -3216,15 +3465,13 @@ export function BrandTool() {
   const router = useRouter();
   const routerState = useRouterState() as {
     selectedId?: string;
-    heroKey?: string;
     tab?: BrandTab;
   } | null;
   const selectedId = routerState?.selectedId;
-  const heroKey = routerState?.heroKey;
   const activeTab: BrandTab = routerState?.tab ?? BRAND_TABS[0].key;
 
   useEffect(() => {
-    if (!routerState?.tab && !selectedId && !heroKey) {
+    if (!routerState?.tab && !selectedId) {
       router.navigate({ tab: BRAND_TABS[0].key });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -3235,14 +3482,6 @@ export function BrandTool() {
       <DoctorDetail
         id={selectedId}
         onBack={() => router.navigate({ tab: 'doctors' })}
-      />
-    );
-  }
-  if (heroKey) {
-    return (
-      <HeroDetail
-        heroKey={heroKey}
-        onBack={() => router.navigate({ tab: 'hero' })}
       />
     );
   }
@@ -3264,9 +3503,6 @@ export function BrandTool() {
       {activeTab === 'doctors' && (
         <DoctorsPanel onEdit={(id) => router.navigate({ selectedId: id })} />
       )}
-      {activeTab === 'hero' && (
-        <HeroBannerPanel onEdit={(key) => router.navigate({ heroKey: key })} />
-      )}
       {activeTab === 'brand' && <BrandSection />}
       {activeTab === 'stats' && <StatsSection />}
       {activeTab === 'facility' && <FacilitySection />}
@@ -3280,13 +3516,15 @@ export function SettingsTool() {
   const router = useRouter();
   const routerState = useRouterState() as {
     qcardId?: string;
+    heroKey?: string;
     tab?: SettingsTab;
   } | null;
   const qcardId = routerState?.qcardId;
+  const heroKey = routerState?.heroKey;
   const activeTab: SettingsTab = routerState?.tab ?? SETTINGS_TABS[0].key;
 
   useEffect(() => {
-    if (!routerState?.tab && !qcardId) {
+    if (!routerState?.tab && !qcardId && !heroKey) {
       router.navigate({ tab: SETTINGS_TABS[0].key });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -3297,6 +3535,15 @@ export function SettingsTool() {
       <QuickCardDetail
         id={qcardId}
         onBack={() => router.navigate({ tab: 'quickNav' })}
+      />
+    );
+  }
+
+  if (heroKey) {
+    return (
+      <HeroDetail
+        heroKey={heroKey}
+        onBack={() => router.navigate({ tab: 'hero' })}
       />
     );
   }
@@ -3315,6 +3562,9 @@ export function SettingsTool() {
         ))}
       </div>
 
+      {activeTab === 'hero' && (
+        <HeroBannerPanel onEdit={(key) => router.navigate({ heroKey: key })} />
+      )}
       {activeTab === 'popups' && <PopupsSection />}
       {activeTab === 'quickNav' && (
         <QuickNavSection

@@ -46,13 +46,6 @@ export default defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: 'linkUrl',
-      title: '링크 URL',
-      description:
-        '카드 클릭 시 이동할 경로 (예: /treatments/lifting). 비워두면 slug로 자동 생성됩니다.',
-      type: 'string',
-    }),
-    defineField({
       name: 'linkedTreatments',
       title: '연결 시술',
       description: '이 카드와 연결된 시술들',

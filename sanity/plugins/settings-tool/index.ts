@@ -11,6 +11,7 @@ export const settingsAdminTool = definePlugin({
       component: SettingsTool,
       router: route.create('/', [
         route.create('/qcard/:qcardId'),
+        route.create('/hero/:heroKey'),
         route.create('/:tab'),
       ]),
     },

@@ -31,6 +31,8 @@ const BLOG_SCHEMA = {
         decorators: [
           { title: 'Bold', value: 'strong' },
           { title: 'Italic', value: 'em' },
+          { title: 'Underline', value: 'underline' },
+          { title: 'Strike', value: 'strike-through' },
         ],
         annotations: [
           {
@@ -202,8 +204,8 @@ function Toolbar({
 
   const isBold = !!PortableTextEditor.isMarkActive(editor, 'strong');
   const isItalic = !!PortableTextEditor.isMarkActive(editor, 'em');
-  const isH3 = !!PortableTextEditor.hasBlockStyle(editor, 'h3');
-  const isH4 = !!PortableTextEditor.hasBlockStyle(editor, 'h4');
+  const isUnderline = !!PortableTextEditor.isMarkActive(editor, 'underline');
+  const isStrike = !!PortableTextEditor.isMarkActive(editor, 'strike-through');
   const isBullet = !!PortableTextEditor.hasListStyle(editor, 'bullet');
   const isNumber = !!PortableTextEditor.hasListStyle(editor, 'number');
 
@@ -238,48 +240,74 @@ function Toolbar({
         alignItems: 'center',
       }}
     >
-      <TBtn
-        active={isH3}
-        title="소제목 (h3)"
-        onMouseDown={md(() =>
-          PortableTextEditor.toggleBlockStyle(editor, 'h3'),
-        )}
+      {/* Style selector */}
+      <select
+        style={{
+          fontSize: 12,
+          padding: '2px 6px',
+          border: '1px solid #d1d5db',
+          borderRadius: 4,
+          cursor: 'pointer',
+          height: 26,
+        }}
+        onMouseDown={(e) => e.preventDefault()}
+        onChange={(e) => {
+          PortableTextEditor.toggleBlockStyle(editor, e.target.value);
+          PortableTextEditor.focus(editor);
+        }}
+        value="normal"
       >
-        소제목
-      </TBtn>
-      <TBtn
-        active={isH4}
-        title="소소제목 (h4)"
-        onMouseDown={md(() =>
-          PortableTextEditor.toggleBlockStyle(editor, 'h4'),
-        )}
-      >
-        소소제목
-      </TBtn>
+        <option value="normal">본문</option>
+        <option value="h3">소제목</option>
+        <option value="h4">소소제목</option>
+      </select>
+
       <div
         style={{ width: 1, height: 16, background: '#e5e7eb', margin: '0 2px' }}
       />
+
       <TBtn
         active={isBold}
-        title="굵게"
+        title="굵게 (Ctrl+B)"
         onMouseDown={md(() => PortableTextEditor.toggleMark(editor, 'strong'))}
       >
         <strong>B</strong>
       </TBtn>
       <TBtn
         active={isItalic}
-        title="기울임"
+        title="기울임 (Ctrl+I)"
         onMouseDown={md(() => PortableTextEditor.toggleMark(editor, 'em'))}
       >
         <em>I</em>
       </TBtn>
-      <ColorPicker onSelect={handleColorSelect} />
+      <TBtn
+        active={isUnderline}
+        title="밑줄 (Ctrl+U)"
+        onMouseDown={md(() =>
+          PortableTextEditor.toggleMark(editor, 'underline'),
+        )}
+        style={{ textDecoration: 'underline' }}
+      >
+        U
+      </TBtn>
+      <TBtn
+        active={isStrike}
+        title="취소선"
+        onMouseDown={md(() =>
+          PortableTextEditor.toggleMark(editor, 'strike-through'),
+        )}
+        style={{ textDecoration: 'line-through' }}
+      >
+        S
+      </TBtn>
+
       <div
         style={{ width: 1, height: 16, background: '#e5e7eb', margin: '0 2px' }}
       />
+
       <TBtn
         active={isBullet}
-        title="점 목록"
+        title="글머리 목록"
         onMouseDown={md(() => PortableTextEditor.toggleList(editor, 'bullet'))}
       >
         • 목록
@@ -291,9 +319,17 @@ function Toolbar({
       >
         1. 목록
       </TBtn>
+
       <div
         style={{ width: 1, height: 16, background: '#e5e7eb', margin: '0 2px' }}
       />
+
+      <ColorPicker onSelect={handleColorSelect} />
+
+      <div
+        style={{ width: 1, height: 16, background: '#e5e7eb', margin: '0 2px' }}
+      />
+
       <TBtn
         title="이미지 삽입"
         onMouseDown={(e) => {
@@ -301,7 +337,24 @@ function Toolbar({
           onInsertImage();
         }}
       >
-        {uploading ? '업로드 중…' : '이미지 삽입'}
+        {uploading ? '업로드 중…' : '🖼 이미지'}
+      </TBtn>
+
+      <div
+        style={{ width: 1, height: 16, background: '#e5e7eb', margin: '0 2px' }}
+      />
+
+      <TBtn
+        title="실행취소 (Ctrl+Z)"
+        onMouseDown={md(() => PortableTextEditor.undo(editor))}
+      >
+        ↩
+      </TBtn>
+      <TBtn
+        title="다시실행 (Ctrl+Y)"
+        onMouseDown={md(() => PortableTextEditor.redo(editor))}
+      >
+        ↪
       </TBtn>
     </div>
   );
@@ -403,6 +456,12 @@ function EditableArea({
         }
         if (props.value === 'em') {
           return <em>{props.children}</em>;
+        }
+        if (props.value === 'underline') {
+          return <u>{props.children}</u>;
+        }
+        if (props.value === 'strike-through') {
+          return <s>{props.children}</s>;
         }
         return <>{props.children}</>;
       }}

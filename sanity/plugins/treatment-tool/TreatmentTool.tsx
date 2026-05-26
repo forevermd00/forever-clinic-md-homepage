@@ -41,6 +41,8 @@ export function TreatmentTool() {
   const [sortKey, setSortKey] = useState<SortKey>('sortOrder');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [saving, setSaving] = useState<Set<string>>(new Set());
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
 
   const refetch = useCallback(() => {
     setLoading(true);
@@ -172,6 +174,31 @@ export function TreatmentTool() {
   const sortIcon = (key: SortKey) =>
     sortKey === key ? (sortDir === 'asc' ? ' ↑' : ' ↓') : '';
 
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (filtered.every((d) => selected.has(d._id))) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(filtered.map((d) => d._id)));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = [...selected];
+    await Promise.all(ids.map((id) => client.delete(id)));
+    setDocs((prev) => prev.filter((d) => !selected.has(d._id)));
+    setSelected(new Set());
+    setDeleteConfirm(false);
+  };
+
   const handleAdd = async () => {
     const newDoc = await client.create({
       _type: 'treatment',
@@ -224,6 +251,14 @@ export function TreatmentTool() {
         <button className="tt-add-treatment-btn" onClick={handleAdd}>
           + 추가
         </button>
+        {selected.size > 0 && (
+          <button
+            className="tt-delete-btn"
+            onClick={() => setDeleteConfirm(true)}
+          >
+            선택 {selected.size}개 삭제
+          </button>
+        )}
         <span className="tt-count">{filtered.length}개 시술</span>
       </div>
 
@@ -234,6 +269,7 @@ export function TreatmentTool() {
         <div className="tt-table-wrap">
           <table className="tt-table">
             <colgroup>
+              <col style={{ width: '32px' }} />
               <col style={{ width: '32px' }} />
               <col style={{ width: '44px' }} />
               <col style={{ width: '26%' }} />
@@ -246,6 +282,17 @@ export function TreatmentTool() {
             <thead>
               <tr>
                 <th style={{ cursor: 'default' }}>⠿</th>
+                <th style={{ cursor: 'default', textAlign: 'center' }}>
+                  <input
+                    type="checkbox"
+                    className="tt-checkbox"
+                    checked={
+                      filtered.length > 0 &&
+                      filtered.every((d) => selected.has(d._id))
+                    }
+                    onChange={toggleSelectAll}
+                  />
+                </th>
                 <th style={{ cursor: 'default' }}>No.</th>
                 <th onClick={() => handleSort('name')}>
                   시술명
@@ -264,7 +311,7 @@ export function TreatmentTool() {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="tt-empty">
+                  <td colSpan={9} className="tt-empty">
                     시술이 없습니다
                   </td>
                 </tr>
@@ -275,6 +322,8 @@ export function TreatmentTool() {
                     doc={doc}
                     rowNum={idx + 1}
                     saving={saving.has(doc._id)}
+                    selected={selected.has(doc._id)}
+                    onToggleSelect={() => toggleSelect(doc._id)}
                     onPatch={patch}
                     onEdit={() => router.navigate({ selectedId: doc._id })}
                     onDragStart={(e) => handleDragStart(e, idx)}
@@ -287,6 +336,30 @@ export function TreatmentTool() {
           </table>
         </div>
       )}
+
+      {/* Delete confirmation popup */}
+      {deleteConfirm && (
+        <div className="tt-modal-overlay">
+          <div className="tt-modal">
+            <h3 className="tt-modal-title">시술 삭제</h3>
+            <p className="tt-modal-body">
+              선택한 {selected.size}개의 시술을 삭제하시겠습니까?
+              <br />이 작업은 되돌릴 수 없습니다.
+            </p>
+            <div className="tt-modal-actions">
+              <button
+                className="tt-modal-cancel"
+                onClick={() => setDeleteConfirm(false)}
+              >
+                취소
+              </button>
+              <button className="tt-modal-delete" onClick={handleBulkDelete}>
+                삭제하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -295,6 +368,8 @@ function TreatmentRow({
   doc,
   rowNum,
   saving,
+  selected,
+  onToggleSelect,
   onPatch,
   onEdit,
   onDragStart,
@@ -304,6 +379,8 @@ function TreatmentRow({
   doc: TreatmentDoc;
   rowNum: number;
   saving: boolean;
+  selected: boolean;
+  onToggleSelect: () => void;
   onPatch: (id: string, fields: Record<string, unknown>) => Promise<void>;
   onEdit: () => void;
   onDragStart: (e: React.DragEvent) => void;
@@ -318,7 +395,10 @@ function TreatmentRow({
   return (
     <tr
       className="tt-row-clickable"
-      style={{ opacity: saving ? 0.5 : 1 }}
+      style={{
+        opacity: saving ? 0.5 : 1,
+        background: selected ? 'var(--card-bg2-color)' : undefined,
+      }}
       draggable
       onDragStart={(e) => {
         isDragging.current = true;
@@ -341,6 +421,15 @@ function TreatmentRow({
         onClick={(e) => e.stopPropagation()}
       >
         ⠿
+      </td>
+
+      <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+        <input
+          type="checkbox"
+          className="tt-checkbox"
+          checked={selected}
+          onChange={onToggleSelect}
+        />
       </td>
 
       <td className="tt-row-num">{rowNum}</td>

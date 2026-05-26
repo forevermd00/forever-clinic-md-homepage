@@ -349,6 +349,38 @@
   box-sizing: border-box;
 }
 
+/* ===== Category Tabs ===== */
+.bn-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 12px 0 8px;
+  flex-wrap: wrap;
+}
+
+.bn-tab {
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--card-border-color);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--card-muted-fg-color);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.12s;
+}
+
+.bn-tab:hover {
+  background: var(--card-bg2-color);
+  color: var(--card-fg-color);
+}
+
+.bn-tab.active {
+  background: var(--card-fg-color);
+  color: var(--card-bg-color);
+  border-color: var(--card-fg-color);
+}
+
 /* ===== Toolbar ===== */
 .bn-toolbar {
   padding: 8px 0;
@@ -357,16 +389,170 @@
   gap: 8px;
 }
 
+.bn-search {
+  padding: 6px 10px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 4px;
+  background: var(--card-bg-color);
+  color: var(--card-fg-color);
+  font-size: 13px;
+  font-family: inherit;
+  width: 200px;
+}
+
+.bn-search:focus {
+  outline: 1px solid var(--card-fg-color);
+}
+
 .bn-add-btn {
   padding: 6px 14px;
   font-size: 13px;
-  background: var(--card-focus-ring-color, #3b82f6);
-  color: white;
+  background: var(--card-fg-color, #1a1a1a);
+  color: var(--card-bg-color, #fff);
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
 .bn-add-btn:hover {
+  opacity: 0.85;
+}
+
+.bn-delete-btn {
+  padding: 6px 14px;
+  font-size: 13px;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.bn-delete-btn:hover {
+  opacity: 0.85;
+}
+
+.bn-count {
+  font-size: 12px;
+  color: var(--card-muted-fg-color);
+  margin-left: 4px;
+}
+
+/* ===== Checkbox ===== */
+.bn-checkbox {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  accent-color: var(--card-fg-color);
+}
+
+/* ===== Category checkboxes in detail ===== */
+.bn-category-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px;
+}
+
+.bn-category-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--card-fg-color);
+}
+
+.bn-category-item input[type='checkbox'] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--card-fg-color);
+  cursor: pointer;
+}
+
+/* ===== Delete button in detail ===== */
+.bn-detail-delete-btn {
+  margin-left: auto;
+  padding: 5px 12px;
+  font-size: 12px;
+  background: transparent;
+  color: #dc2626;
+  border: 1px solid #dc2626;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.bn-detail-delete-btn:hover {
+  background: #dc2626;
+  color: white;
+}
+
+/* ===== Modal ===== */
+.bn-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.bn-modal {
+  background: var(--card-bg-color);
+  border: 1px solid var(--card-border-color);
+  border-radius: 8px;
+  padding: 24px;
+  min-width: 320px;
+  max-width: 400px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.bn-modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 12px;
+  color: var(--card-fg-color);
+}
+
+.bn-modal-body {
+  font-size: 13px;
+  color: var(--card-fg-color);
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+
+.bn-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.bn-modal-cancel {
+  padding: 7px 16px;
+  font-size: 13px;
+  background: transparent;
+  color: var(--card-fg-color);
+  border: 1px solid var(--card-border-color);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.bn-modal-cancel:hover {
+  background: var(--card-bg2-color);
+}
+
+.bn-modal-delete {
+  padding: 7px 16px;
+  font-size: 13px;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.bn-modal-delete:hover {
   opacity: 0.85;
 }

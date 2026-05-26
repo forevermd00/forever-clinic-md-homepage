@@ -12,6 +12,7 @@ interface Props {
   onClose: () => void;
   onPatch: (id: string, fields: Record<string, unknown>) => Promise<void>;
   onHide: (id: string) => Promise<void>;
+  onUnhide?: (id: string) => Promise<void>;
   isExample?: boolean;
 }
 
@@ -20,6 +21,7 @@ export function DetailModal({
   onClose,
   onPatch,
   onHide,
+  onUnhide,
   isExample,
 }: Props) {
   const [status, setStatus] = useState(doc.status);
@@ -46,7 +48,16 @@ export function DetailModal({
             <span className="ct-modal-title">{doc.name}</span>
           </div>
           <div className="ct-modal-header-right">
-            {!isExample && (
+            {!isExample && doc.isHidden && onUnhide && (
+              <button
+                className="ct-delete-btn"
+                onClick={() => onUnhide(doc._id)}
+                title="숨김 취소"
+              >
+                숨김 취소
+              </button>
+            )}
+            {!isExample && !doc.isHidden && (
               <button
                 className="ct-delete-btn"
                 onClick={() => onHide(doc._id)}

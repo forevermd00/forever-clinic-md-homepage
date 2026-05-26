@@ -47,5 +47,27 @@ export default defineType({
       title: '표시명',
       type: 'string',
     }),
+    defineField({
+      name: 'logo',
+      title: '로고 이미지',
+      description: '메신저 아이콘/로고 이미지',
+      type: 'image',
+      options: { hotspot: false },
+    }),
+    defineField({
+      name: 'displayLocales',
+      title: '표시 언어',
+      description: '이 메신저를 표시할 언어 (비워두면 전체 표시)',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        list: [
+          { title: '한국어', value: 'ko' },
+          { title: 'English', value: 'en' },
+          { title: '中文', value: 'zh' },
+          { title: '日本語', value: 'ja' },
+        ],
+      },
+    }),
   ],
 });

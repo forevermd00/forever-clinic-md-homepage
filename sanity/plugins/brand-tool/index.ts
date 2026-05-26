@@ -11,7 +11,6 @@ export const brandAdminTool = definePlugin({
       component: BrandTool,
       router: route.create('/', [
         route.create('/doctor/:selectedId'),
-        route.create('/hero/:heroKey'),
         route.create('/:tab'),
       ]),
     },

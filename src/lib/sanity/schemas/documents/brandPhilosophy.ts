@@ -28,6 +28,13 @@ export default defineType({
       type: 'localizedString',
     }),
     defineField({
+      name: 'badge',
+      title: '배지 텍스트',
+      description: '예: Since 2008',
+      type: 'string',
+      initialValue: 'Since 2008',
+    }),
+    defineField({
       name: 'backgroundImage',
       title: '배경 이미지',
       type: 'image',

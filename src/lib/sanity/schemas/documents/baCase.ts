@@ -1,24 +1,50 @@
 import { defineType, defineField } from 'sanity';
 
+const CATEGORY_OPTIONS = [
+  { title: '리프팅·레이저', value: 'lifting-laser' },
+  { title: '쁘띠·실리프팅', value: 'petit-lifting' },
+  { title: '피부 관리', value: 'skincare' },
+  { title: '스킨부스터', value: 'skin-booster' },
+  { title: '제모', value: 'hair-removal' },
+  { title: '마취', value: 'anesthesia' },
+];
+
 export default defineType({
   name: 'baCase',
   title: 'Before & After 사례',
   type: 'document',
   preview: {
     select: {
-      title: 'treatment.name.ko',
+      titleKo: 'title.ko',
+      titleEn: 'title.en',
       subtitle: 'sessions',
       media: 'afterImage',
     },
-    prepare({ title, subtitle, media }) {
+    prepare({ titleKo, titleEn, subtitle, media }) {
       return {
-        title: title || '(시술 미선택)',
+        title: titleKo || titleEn || '(제목 없음)',
         subtitle: subtitle ? `${subtitle}회 시술` : '',
         media,
       };
     },
   },
   fields: [
+    defineField({
+      name: 'title',
+      title: '제목',
+      description: '리스트에 표시되는 제목 (언어별 입력)',
+      type: 'localizedString',
+    }),
+    defineField({
+      name: 'categories',
+      title: '카테고리',
+      description: '복수 선택 가능',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        list: CATEGORY_OPTIONS,
+      },
+    }),
     defineField({
       name: 'beforeImage',
       title: 'Before 이미지',
@@ -32,13 +58,6 @@ export default defineType({
       type: 'image',
       options: { hotspot: true },
       validation: (rule) => rule.required(),
-    }),
-    defineField({
-      name: 'treatment',
-      title: '시술',
-      description: '해당 사례의 시술을 선택하세요',
-      type: 'reference',
-      to: [{ type: 'treatment' }],
     }),
     defineField({
       name: 'sessions',

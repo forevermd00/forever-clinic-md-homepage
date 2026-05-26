@@ -401,7 +401,11 @@ export function ConsultationTool() {
                 </tr>
               ) : showHidden ? (
                 filtered.map((doc) => (
-                  <tr key={doc._id}>
+                  <tr
+                    key={doc._id}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setSelectedId(doc._id)}
+                  >
                     <td>{formatDate(doc.createdAt || doc._createdAt)}</td>
                     <td className="ct-td-bold">{doc.name}</td>
                     <td>{doc.phone}</td>
@@ -411,7 +415,7 @@ export function ConsultationTool() {
                     <td className="ct-ellipsis ct-td-muted">
                       {doc.message || '-'}
                     </td>
-                    <td>
+                    <td onClick={(e) => e.stopPropagation()}>
                       <button
                         className="ct-btn ct-btn-unhide"
                         onClick={() => handleUnhide(doc._id)}
@@ -466,6 +470,7 @@ export function ConsultationTool() {
           onClose={() => setSelectedId(null)}
           onPatch={handlePatch}
           onHide={handleHide}
+          onUnhide={handleUnhide}
           isExample={false}
         />
       )}

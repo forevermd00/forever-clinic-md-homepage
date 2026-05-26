@@ -6,8 +6,8 @@ import type { BnaFullDoc } from './types';
 const FULL_QUERY = `
   *[_type == "baCase" && _id == $id][0] {
     _id, _updatedAt,
-    "treatmentName": coalesce(treatment->name.ko, treatment->name.en, "(미연결)"),
-    "treatmentRef": treatment,
+    "title": title,
+    categories,
     sessions,
     "elapsed": elapsed,
     "description": description,
@@ -23,6 +23,15 @@ const LOCALE_LABELS: Record<string, string> = {
   zh: '中文',
   ja: '日本語',
 };
+
+const CATEGORY_OPTIONS = [
+  { value: 'lifting-laser', label: '리프팅·레이저' },
+  { value: 'petit-lifting', label: '쁘띠·실리프팅' },
+  { value: 'skincare', label: '피부 관리' },
+  { value: 'skin-booster', label: '스킨부스터' },
+  { value: 'hair-removal', label: '제모' },
+  { value: 'anesthesia', label: '마취' },
+];
 
 function sanityImageUrl(ref: string): string {
   const id = ref.replace('image-', '').replace(/-(\w+)$/, '.$1');
@@ -75,6 +84,7 @@ export function BnaDetail({ id, onBack }: { id: string; onBack: () => void }) {
   const [saving, setSaving] = useState(false);
   const [uploadingBefore, setUploadingBefore] = useState(false);
   const [uploadingAfter, setUploadingAfter] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
   const saved = useRef(false);
 
   useEffect(() => {
@@ -121,6 +131,15 @@ export function BnaDetail({ id, onBack }: { id: string; onBack: () => void }) {
     setDoc((prev) => (prev ? { ...prev, [field]: value } : prev));
   };
 
+  const handleCategoryToggle = (value: string) => {
+    const current = doc?.categories ?? [];
+    const next = current.includes(value)
+      ? current.filter((c) => c !== value)
+      : [...current, value];
+    patch({ categories: next });
+    setDoc((prev) => (prev ? { ...prev, categories: next } : prev));
+  };
+
   const handleBeforeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -147,6 +166,11 @@ export function BnaDetail({ id, onBack }: { id: string; onBack: () => void }) {
     }
   };
 
+  const handleDelete = async () => {
+    await client.delete(id);
+    onBack();
+  };
+
   if (!doc) {
     return (
       <div className="bn-container">
@@ -158,6 +182,7 @@ export function BnaDetail({ id, onBack }: { id: string; onBack: () => void }) {
     );
   }
 
+  const titleDisplay = doc.title?.ko || doc.title?.en || '(제목 없음)';
   const beforeRef = doc.beforeImage?.asset?._ref;
   const afterRef = doc.afterImage?.asset?._ref;
 
@@ -169,8 +194,14 @@ export function BnaDetail({ id, onBack }: { id: string; onBack: () => void }) {
           ← 목록으로
         </button>
         <div className="bn-detail-title-row">
-          <h2 className="bn-detail-title">{doc.treatmentName}</h2>
+          <h2 className="bn-detail-title">{titleDisplay}</h2>
           {saving && <span className="bn-saving-indicator">저장 중…</span>}
+          <button
+            className="bn-detail-delete-btn"
+            onClick={() => setDeleteConfirm(true)}
+          >
+            삭제
+          </button>
         </div>
       </div>
 
@@ -207,15 +238,35 @@ export function BnaDetail({ id, onBack }: { id: string; onBack: () => void }) {
         </div>
       </Section>
 
-      {/* ─── 시술 연결 ─── */}
-      <Section title="시술 연결">
-        <div className="bn-detail-row">
-          <Field label="연결된 시술">
-            <div className="bn-ref-readonly">{doc.treatmentName}</div>
-            <div className="bn-ref-hint">
-              시술 연결 변경은 콘텐츠 탭에서 직접 편집하세요.
-            </div>
-          </Field>
+      {/* ─── 제목 ─── */}
+      <Section title="제목">
+        <div className="bn-detail-grid4">
+          {(['ko', 'en', 'zh', 'ja'] as const).map((locale) => (
+            <Field key={locale} label={LOCALE_LABELS[locale]}>
+              <input
+                type="text"
+                className="bn-text-input"
+                defaultValue={doc.title?.[locale] ?? ''}
+                onBlur={(e) => patch({ [`title.${locale}`]: e.target.value })}
+              />
+            </Field>
+          ))}
+        </div>
+      </Section>
+
+      {/* ─── 카테고리 ─── */}
+      <Section title="카테고리">
+        <div className="bn-category-group">
+          {CATEGORY_OPTIONS.map((opt) => (
+            <label key={opt.value} className="bn-category-item">
+              <input
+                type="checkbox"
+                checked={doc.categories?.includes(opt.value) ?? false}
+                onChange={() => handleCategoryToggle(opt.value)}
+              />
+              <span>{opt.label}</span>
+            </label>
+          ))}
         </div>
       </Section>
 
@@ -279,6 +330,7 @@ export function BnaDetail({ id, onBack }: { id: string; onBack: () => void }) {
           <div className="bn-detail-field">
             <label className="bn-detail-label">Before 이미지</label>
             {beforeRef && (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={sanityImageUrl(beforeRef)}
                 alt="before"
@@ -298,6 +350,7 @@ export function BnaDetail({ id, onBack }: { id: string; onBack: () => void }) {
           <div className="bn-detail-field">
             <label className="bn-detail-label">After 이미지</label>
             {afterRef && (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={sanityImageUrl(afterRef)}
                 alt="after"
@@ -316,6 +369,30 @@ export function BnaDetail({ id, onBack }: { id: string; onBack: () => void }) {
           </div>
         </div>
       </Section>
+
+      {/* Delete confirmation popup */}
+      {deleteConfirm && (
+        <div className="bn-modal-overlay">
+          <div className="bn-modal">
+            <h3 className="bn-modal-title">케이스 삭제</h3>
+            <p className="bn-modal-body">
+              이 케이스를 삭제하시겠습니까?
+              <br />이 작업은 되돌릴 수 없습니다.
+            </p>
+            <div className="bn-modal-actions">
+              <button
+                className="bn-modal-cancel"
+                onClick={() => setDeleteConfirm(false)}
+              >
+                취소
+              </button>
+              <button className="bn-modal-delete" onClick={handleDelete}>
+                삭제하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

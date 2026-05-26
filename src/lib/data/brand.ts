@@ -20,6 +20,7 @@ function sanityImageUrl(source: unknown): string | undefined {
 interface SanityBrandPhilosophy {
   slogan?: string;
   subtitle?: string;
+  badge?: string;
   values?: {
     _key: string;
     titleKo?: string;
@@ -42,6 +43,7 @@ export type BrandValue = {
 export type BrandPhilosophy = {
   slogan?: string;
   subtitle?: string;
+  badge?: string;
   values: BrandValue[];
 };
 
@@ -59,6 +61,7 @@ export async function getBrandPhilosophy(
   return {
     slogan: data.slogan,
     subtitle: data.subtitle,
+    badge: data.badge,
     values:
       data.values?.map((v) => ({
         key: v._key,

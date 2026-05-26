@@ -207,6 +207,25 @@ export const sectionVisibility = defineType({
         }),
       ],
     }),
+    defineField({
+      name: 'homeOrder',
+      title: '메인 홈 섹션 순서',
+      description: '섹션 표시 순서 (비워두면 기본 순서)',
+      type: 'array',
+      of: [{ type: 'string' }],
+    }),
+    defineField({
+      name: 'brandOrder',
+      title: '브랜드 페이지 섹션 순서',
+      type: 'array',
+      of: [{ type: 'string' }],
+    }),
+    defineField({
+      name: 'mediaOrder',
+      title: '미디어 탭 순서',
+      type: 'array',
+      of: [{ type: 'string' }],
+    }),
   ],
   preview: {
     prepare: () => ({ title: '섹션 노출 설정' }),

@@ -159,6 +159,7 @@ export default async function HomePage({
           locale={locale}
           slogan={brandPhilosophy.slogan}
           subtitle={brandPhilosophy.subtitle}
+          badge={brandPhilosophy.badge}
           values={brandPhilosophy.values}
         />
       )}

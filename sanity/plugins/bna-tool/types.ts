@@ -1,7 +1,8 @@
 export interface BnaDoc {
   _id: string;
   _updatedAt: string;
-  treatmentName: string;
+  title?: { ko?: string; en?: string; zh?: string; ja?: string };
+  categories?: string[];
   sessions?: number;
   showOnMain: boolean;
   isVisible: boolean;
@@ -11,8 +12,8 @@ export interface BnaDoc {
 export interface BnaFullDoc {
   _id: string;
   _updatedAt: string;
-  treatmentRef?: { _ref: string; _type: string };
-  treatmentName: string;
+  title?: { ko?: string; en?: string; zh?: string; ja?: string };
+  categories?: string[];
   sessions?: number;
   elapsed?: { ko?: string; en?: string; zh?: string; ja?: string };
   description?: { ko?: string; en?: string; zh?: string; ja?: string };

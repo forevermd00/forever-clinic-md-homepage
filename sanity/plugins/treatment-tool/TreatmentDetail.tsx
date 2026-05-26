@@ -353,6 +353,7 @@ export function TreatmentDetail({
   const client = useClient({ apiVersion: '2026-05-13' });
   const [doc, setDoc] = useState<FullDoc | null>(null);
   const [saving, setSaving] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
   const saved = useRef(false);
 
   useEffect(() => {
@@ -440,6 +441,12 @@ export function TreatmentDetail({
         <div className="tt-detail-title-row">
           <h2 className="tt-detail-title">{nameKo}</h2>
           {saving && <span className="tt-saving-indicator">저장 중…</span>}
+          <button
+            className="tt-detail-delete-btn"
+            onClick={() => setDeleteConfirm(true)}
+          >
+            삭제
+          </button>
         </div>
         {doc.tagline?.ko && (
           <p className="tt-detail-tagline">{doc.tagline.ko}</p>
@@ -679,6 +686,36 @@ export function TreatmentDetail({
         <div className="tt-detail-footer">
           현재 카테고리:{' '}
           <strong>{CATEGORY_LABEL[doc.category] || doc.category}</strong>
+        </div>
+      )}
+
+      {/* Delete confirmation popup */}
+      {deleteConfirm && (
+        <div className="tt-modal-overlay">
+          <div className="tt-modal">
+            <h3 className="tt-modal-title">시술 삭제</h3>
+            <p className="tt-modal-body">
+              이 시술을 삭제하시겠습니까?
+              <br />이 작업은 되돌릴 수 없습니다.
+            </p>
+            <div className="tt-modal-actions">
+              <button
+                className="tt-modal-cancel"
+                onClick={() => setDeleteConfirm(false)}
+              >
+                취소
+              </button>
+              <button
+                className="tt-modal-delete"
+                onClick={async () => {
+                  await client.delete(id);
+                  onBack();
+                }}
+              >
+                삭제하기
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

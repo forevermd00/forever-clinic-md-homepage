@@ -15,7 +15,6 @@ interface SanityQuickEntryCard {
   title?: string;
   description?: string;
   icon?: { asset?: { _ref: string } };
-  linkUrl?: string;
   linkedTreatments?: SanityLinkedTreatment[];
 }
 
@@ -56,7 +55,7 @@ function mapToPageShape(
     image: card.icon
       ? urlFor(card.icon)?.width(400).height(300).url() || ''
       : '',
-    linkUrl: card.linkUrl || deriveLinkUrl(card.linkedTreatments),
+    linkUrl: deriveLinkUrl(card.linkedTreatments),
   }));
 }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useClient } from 'sanity';
 import { useRouter, useRouterState } from 'sanity/router';
 import type { BnaDoc } from './types';
@@ -8,10 +8,25 @@ import './bna-tool.css';
 const QUERY = `
   *[_type == "baCase"] | order(sortOrder asc, _createdAt asc) {
     _id, _updatedAt,
-    "treatmentName": coalesce(treatment->name.ko, treatment->name.en, "(미연결)"),
+    "title": title,
+    categories,
     sessions, showOnMain, isVisible, sortOrder
   }
 `;
+
+const BNA_CATEGORIES: { slug: string; label: string }[] = [
+  { slug: 'all', label: '전체' },
+  { slug: 'lifting-laser', label: '리프팅·레이저' },
+  { slug: 'petit-lifting', label: '쁘띠·실리프팅' },
+  { slug: 'skincare', label: '피부 관리' },
+  { slug: 'skin-booster', label: '스킨부스터' },
+  { slug: 'hair-removal', label: '제모' },
+  { slug: 'anesthesia', label: '마취' },
+];
+
+function docTitle(doc: BnaDoc): string {
+  return doc.title?.ko || doc.title?.en || '(제목 없음)';
+}
 
 export function BnaTool() {
   const client = useClient({ apiVersion: '2026-05-13' });
@@ -22,6 +37,16 @@ export function BnaTool() {
   const [docs, setDocs] = useState<BnaDoc[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState('all');
+  const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+
+  const refetch = useCallback(() => {
+    client.fetch<BnaDoc[]>(QUERY).then((data) => {
+      setDocs(data);
+    });
+  }, [client]);
 
   useEffect(() => {
     let cancelled = false;
@@ -36,11 +61,27 @@ export function BnaTool() {
     };
   }, [client]);
 
-  const refetch = useCallback(() => {
-    client.fetch<BnaDoc[]>(QUERY).then((data) => {
-      setDocs(data);
+  const filtered = useMemo(() => {
+    let result = [...docs];
+    if (activeTab !== 'all') {
+      result = result.filter((d) => d.categories?.includes(activeTab));
+    }
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter((d) => docTitle(d).toLowerCase().includes(q));
+    }
+    return result;
+  }, [docs, activeTab, search]);
+
+  const counts = useMemo(() => {
+    const c: Record<string, number> = { all: docs.length };
+    docs.forEach((d) => {
+      d.categories?.forEach((cat) => {
+        c[cat] = (c[cat] || 0) + 1;
+      });
     });
-  }, [client]);
+    return c;
+  }, [docs]);
 
   const handleAdd = useCallback(async () => {
     const newDoc = await client.create({ _type: 'baCase', isVisible: true });
@@ -72,7 +113,7 @@ export function BnaTool() {
       const from = parseInt(e.dataTransfer.getData('dragIdx'), 10);
       if (isNaN(from) || from === dropIdx) return;
 
-      const reordered = [...docs];
+      const reordered = [...filtered];
       const [moved] = reordered.splice(from, 1);
       reordered.splice(dropIdx, 0, moved);
 
@@ -81,7 +122,12 @@ export function BnaTool() {
         sortOrder: i * 10,
       }));
 
-      setDocs(reordered.map((doc, i) => ({ ...doc, sortOrder: i * 10 })));
+      setDocs((prev) => {
+        const map = new Map(updates.map((u) => [u.id, u.sortOrder]));
+        return prev.map((d) =>
+          map.has(d._id) ? { ...d, sortOrder: map.get(d._id)! } : d,
+        );
+      });
 
       await Promise.all(
         updates.map(({ id, sortOrder }) =>
@@ -89,8 +135,33 @@ export function BnaTool() {
         ),
       );
     },
-    [client, docs],
+    [client, filtered],
   );
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selected.size === filtered.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(filtered.map((d) => d._id)));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = [...selected];
+    await Promise.all(ids.map((id) => client.delete(id)));
+    setDocs((prev) => prev.filter((d) => !selected.has(d._id)));
+    setSelected(new Set());
+    setDeleteConfirm(false);
+  };
 
   if (selectedId) {
     return (
@@ -104,13 +175,51 @@ export function BnaTool() {
     );
   }
 
+  const allFilteredSelected =
+    filtered.length > 0 && filtered.every((d) => selected.has(d._id));
+
   return (
     <div className="bn-container">
+      {/* Category Tabs */}
+      <div className="bn-tabs">
+        {BNA_CATEGORIES.map((cat) => (
+          <button
+            key={cat.slug}
+            className={`bn-tab${activeTab === cat.slug ? 'active' : ''}`}
+            onClick={() => setActiveTab(cat.slug)}
+          >
+            {cat.label}
+            {counts[cat.slug] !== undefined && (
+              <span style={{ marginLeft: 4, opacity: 0.6 }}>
+                {counts[cat.slug]}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Toolbar */}
       <div className="bn-toolbar">
+        <input
+          className="bn-search"
+          placeholder="제목 검색"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
         <button className="bn-add-btn" onClick={handleAdd}>
           + 추가
         </button>
+        {selected.size > 0 && (
+          <button
+            className="bn-delete-btn"
+            onClick={() => setDeleteConfirm(true)}
+          >
+            선택 {selected.size}개 삭제
+          </button>
+        )}
+        <span className="bn-count">{filtered.length}개 케이스</span>
       </div>
+
       {loading ? (
         <div className="bn-loading">불러오는 중...</div>
       ) : (
@@ -118,36 +227,49 @@ export function BnaTool() {
           <table className="bn-table">
             <colgroup>
               <col style={{ width: '32px' }} />
+              <col style={{ width: '32px' }} />
               <col style={{ width: '44px' }} />
               <col />
+              <col style={{ width: '120px' }} />
               <col style={{ width: '70px' }} />
               <col style={{ width: '70px' }} />
               <col style={{ width: '60px' }} />
             </colgroup>
             <thead>
               <tr>
-                <th>⠿</th>
+                <th style={{ cursor: 'default' }}>⠿</th>
+                <th style={{ cursor: 'default', textAlign: 'center' }}>
+                  <input
+                    type="checkbox"
+                    className="bn-checkbox"
+                    checked={allFilteredSelected}
+                    onChange={toggleSelectAll}
+                  />
+                </th>
                 <th>No.</th>
-                <th>시술명</th>
+                <th>제목</th>
+                <th>카테고리</th>
                 <th style={{ textAlign: 'center' }}>횟수</th>
                 <th style={{ textAlign: 'center' }}>메인노출</th>
                 <th style={{ textAlign: 'center' }}>노출</th>
               </tr>
             </thead>
             <tbody>
-              {docs.length === 0 ? (
+              {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="bn-empty">
+                  <td colSpan={8} className="bn-empty">
                     BnA 케이스가 없습니다
                   </td>
                 </tr>
               ) : (
-                docs.map((doc, idx) => (
+                filtered.map((doc, idx) => (
                   <BnaRow
                     key={doc._id}
                     doc={doc}
                     rowNum={idx + 1}
                     saving={saving.has(doc._id)}
+                    selected={selected.has(doc._id)}
+                    onToggleSelect={() => toggleSelect(doc._id)}
                     onPatch={patch}
                     onEdit={() => router.navigate({ selectedId: doc._id })}
                     onDragStart={(e) => handleDragStart(e, idx)}
@@ -160,6 +282,30 @@ export function BnaTool() {
           </table>
         </div>
       )}
+
+      {/* Delete confirmation popup */}
+      {deleteConfirm && (
+        <div className="bn-modal-overlay">
+          <div className="bn-modal">
+            <h3 className="bn-modal-title">케이스 삭제</h3>
+            <p className="bn-modal-body">
+              선택한 {selected.size}개의 케이스를 삭제하시겠습니까?
+              <br />이 작업은 되돌릴 수 없습니다.
+            </p>
+            <div className="bn-modal-actions">
+              <button
+                className="bn-modal-cancel"
+                onClick={() => setDeleteConfirm(false)}
+              >
+                취소
+              </button>
+              <button className="bn-modal-delete" onClick={handleBulkDelete}>
+                삭제하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -168,6 +314,8 @@ function BnaRow({
   doc,
   rowNum,
   saving,
+  selected,
+  onToggleSelect,
   onPatch,
   onEdit,
   onDragStart,
@@ -177,6 +325,8 @@ function BnaRow({
   doc: BnaDoc;
   rowNum: number;
   saving: boolean;
+  selected: boolean;
+  onToggleSelect: () => void;
   onPatch: (id: string, fields: Record<string, unknown>) => Promise<void>;
   onEdit: () => void;
   onDragStart: (e: React.DragEvent) => void;
@@ -185,10 +335,22 @@ function BnaRow({
 }) {
   const isDragging = useRef(false);
 
+  const CATEGORY_LABEL: Record<string, string> = {
+    'lifting-laser': '리프팅·레이저',
+    'petit-lifting': '쁘띠·실리프팅',
+    skincare: '피부 관리',
+    'skin-booster': '스킨부스터',
+    'hair-removal': '제모',
+    anesthesia: '마취',
+  };
+
   return (
     <tr
       className="bn-row-clickable"
-      style={{ opacity: saving ? 0.5 : 1 }}
+      style={{
+        opacity: saving ? 0.5 : 1,
+        background: selected ? 'var(--card-bg2-color)' : undefined,
+      }}
       draggable
       onDragStart={(e) => {
         isDragging.current = true;
@@ -213,11 +375,24 @@ function BnaRow({
         ⠿
       </td>
 
+      <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+        <input
+          type="checkbox"
+          className="bn-checkbox"
+          checked={selected}
+          onChange={onToggleSelect}
+        />
+      </td>
+
       <td className="bn-row-num">{rowNum}</td>
 
       <td>
-        <span className="bn-treatment-name">
-          {doc.treatmentName || '(미연결)'}
+        <span className="bn-treatment-name">{docTitle(doc)}</span>
+      </td>
+
+      <td>
+        <span style={{ fontSize: 11, color: 'var(--card-muted-fg-color)' }}>
+          {doc.categories?.map((c) => CATEGORY_LABEL[c] || c).join(', ') || '—'}
         </span>
       </td>
 

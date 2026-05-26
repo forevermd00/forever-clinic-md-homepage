@@ -7,7 +7,6 @@ interface CardDoc {
   title?: { ko?: string; en?: string; zh?: string; ja?: string };
   description?: { ko?: string; en?: string; zh?: string; ja?: string };
   slug?: string;
-  linkUrl?: string;
   sortOrder?: number;
   isVisible?: boolean;
   icon?: { asset?: { _ref: string } };
@@ -38,7 +37,6 @@ const CARD_QUERY = `*[_type == "quickEntryCard" && _id == $id][0] {
   title,
   description,
   "slug": slug.current,
-  linkUrl,
   sortOrder,
   isVisible,
   icon { asset { _ref } },
@@ -282,16 +280,6 @@ export function QuickCardDetail({
                   {slugError}
                 </span>
               )}
-            </div>
-            <div className="ht-detail-field" style={{ flex: 2, minWidth: 200 }}>
-              <label className="ht-detail-label">링크 URL</label>
-              <input
-                type="text"
-                className="ht-text-input"
-                defaultValue={doc.linkUrl ?? ''}
-                placeholder={`/treatments?cat=${doc.slug ?? '{slug}'}`}
-                onBlur={(e) => patch({ linkUrl: e.target.value })}
-              />
             </div>
             <div className="ht-detail-field">
               <label className="ht-detail-label">정렬 순서</label>
