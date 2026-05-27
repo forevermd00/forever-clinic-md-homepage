@@ -164,14 +164,153 @@ function MegaColumn({
   );
 }
 
+function MobileNavSection({
+  navItem,
+  allColumns,
+  expandedMenu,
+  expandedCategory,
+  setExpandedMenu,
+  setExpandedCategory,
+  setIsMobileMenuOpen,
+  currentLocale,
+  tNav,
+  tMega,
+  tFooter,
+}: {
+  navItem: (typeof ALL_NAV_ITEMS)[number];
+  allColumns: MegaColumn[];
+  expandedMenu: string | null;
+  expandedCategory: string | null;
+  setExpandedMenu: (v: string | null) => void;
+  setExpandedCategory: (v: string | null) => void;
+  setIsMobileMenuOpen: (v: boolean) => void;
+  currentLocale: string;
+  tNav: (key: string) => string;
+  tMega: (key: string) => string;
+  tFooter: (key: string) => string;
+}) {
+  const isExpanded = expandedMenu === navItem.group;
+  const groupColumns = allColumns.filter((c) => c.group === navItem.group);
+
+  return (
+    <>
+      <div className="flex items-center">
+        <Link
+          href={`/${currentLocale}${navItem.href}`}
+          onClick={() => setIsMobileMenuOpen(false)}
+          className={cn(
+            'flex-1 py-3.5 text-[16px] font-medium',
+            isExpanded ? 'text-[#a83c44]' : 'text-[#2b2b2b]',
+          )}
+        >
+          {tNav(navItem.labelKey)}
+        </Link>
+        <button
+          onClick={() => {
+            setExpandedMenu(isExpanded ? null : navItem.group);
+            setExpandedCategory(null);
+          }}
+          className="flex h-12 w-12 items-center justify-center text-[14px] text-[#706263]"
+        >
+          {isExpanded ? '▾' : '▸'}
+        </button>
+      </div>
+      <div
+        className={cn(
+          'grid transition-[grid-template-rows] duration-300 ease-out',
+          isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+        )}
+      >
+        <div className="overflow-hidden pl-4">
+          {navItem.group === 'treatments'
+            ? groupColumns.map((cat) => {
+                const catLabel =
+                  cat.titleNs === 'footer'
+                    ? tFooter(cat.titleKey)
+                    : tMega(cat.titleKey);
+                return (
+                  <div key={cat.titleKey}>
+                    <div className="flex items-center">
+                      <Link
+                        href={`/${currentLocale}${cat.href}`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={cn(
+                          'flex-1 py-2.5 text-[14px] font-bold',
+                          expandedCategory === cat.titleKey
+                            ? 'text-[#a83c44]'
+                            : 'text-[#2b2b2b]',
+                        )}
+                      >
+                        {catLabel}
+                      </Link>
+                      <button
+                        onClick={() =>
+                          setExpandedCategory(
+                            expandedCategory === cat.titleKey
+                              ? null
+                              : cat.titleKey,
+                          )
+                        }
+                        className="flex h-10 w-12 items-center justify-center text-[12px] text-[#706263]"
+                      >
+                        {expandedCategory === cat.titleKey ? '▾' : '▸'}
+                      </button>
+                    </div>
+                    <div
+                      className={cn(
+                        'grid transition-[grid-template-rows] duration-300 ease-out',
+                        expandedCategory === cat.titleKey
+                          ? 'grid-rows-[1fr]'
+                          : 'grid-rows-[0fr]',
+                      )}
+                    >
+                      <div className="overflow-hidden pl-4">
+                        {cat.items.map((item) => (
+                          <Link
+                            key={item.href}
+                            href={`/${currentLocale}${item.href}`}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="block py-2 text-[13px] text-[#706263]"
+                          >
+                            {item.directName ??
+                              (item.tKey ? tMega(item.tKey) : '')}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            : groupColumns
+                .flatMap((c) => c.items)
+                .map((item) => (
+                  <Link
+                    key={item.href}
+                    href={`/${currentLocale}${item.href}`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block py-2 text-[13px] text-[#706263]"
+                  >
+                    {item.directName ?? (item.tKey ? tMega(item.tKey) : '')}
+                  </Link>
+                ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
 interface HeaderProps {
   navVisibility?: SectionVisibility['nav'];
   navTreatments?: NavTreatment[];
+  navOrder?: string[];
+  megaMenuOrder?: string[];
 }
 
 export function Header({
   navVisibility,
   navTreatments = [],
+  navOrder,
+  megaMenuOrder,
 }: HeaderProps = {}) {
   const pathname = usePathname();
   const currentLocale = pathname.split('/')[1] as Locale;
@@ -188,7 +327,13 @@ export function Header({
       if (!grouped.has(t.category)) grouped.set(t.category, []);
       grouped.get(t.category)!.push(t);
     }
-    const cats = CATEGORY_ORDER.filter((cat) => {
+    const orderedCategories = megaMenuOrder?.length
+      ? [
+          ...megaMenuOrder.filter((k) => CATEGORY_ORDER.includes(k)),
+          ...CATEGORY_ORDER.filter((k) => !megaMenuOrder.includes(k)),
+        ]
+      : CATEGORY_ORDER;
+    const cats = orderedCategories.filter((cat) => {
       if (!grouped.has(cat)) return false;
       const visKey = CATEGORY_VIS_KEYS[cat];
       if (visKey && navVisibility && navVisibility[visKey] === false)
@@ -207,7 +352,7 @@ export function Header({
       })),
       dividerAfter: idx === cats.length - 1,
     }));
-  }, [navTreatments, currentLocale, navVisibility]);
+  }, [navTreatments, currentLocale, navVisibility, megaMenuOrder]);
 
   const allColumns = useMemo<MegaColumn[]>(
     () => [
@@ -293,9 +438,21 @@ export function Header({
     window.location.assign(segments.join('/'));
   };
 
-  const navItems = ALL_NAV_ITEMS.filter(
-    (item) => !navVisibility || navVisibility[item.visKey] !== false,
-  );
+  const navItems = useMemo(() => {
+    const ordered = navOrder?.length
+      ? [
+          ...navOrder
+            .map((k) => ALL_NAV_ITEMS.find((i) => i.visKey === k))
+            .filter(
+              (i): i is (typeof ALL_NAV_ITEMS)[number] => i !== undefined,
+            ),
+          ...ALL_NAV_ITEMS.filter((i) => !navOrder.includes(i.visKey)),
+        ]
+      : ALL_NAV_ITEMS;
+    return ordered.filter(
+      (item) => !navVisibility || navVisibility[item.visKey] !== false,
+    );
+  }, [navVisibility, navOrder]);
 
   const isMegaOpen = hoveredGroup !== null;
   const filteredColumns = allColumns.filter(
@@ -488,273 +645,22 @@ export function Header({
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 overflow-y-auto bg-white pt-16 md:hidden">
           <nav className="flex flex-col px-6 py-8">
-            {/* Before & After */}
-            {(!navVisibility || navVisibility.bnA !== false) && (
-              <>
-                <div className="flex items-center">
-                  <Link
-                    href={`/${currentLocale}/before-after`}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={cn(
-                      'flex-1 py-3.5 text-[16px] font-medium',
-                      expandedMenu === 'ba'
-                        ? 'text-[#a83c44]'
-                        : 'text-[#2b2b2b]',
-                    )}
-                  >
-                    {tNav('beforeAfter')}
-                  </Link>
-                  <button
-                    onClick={() => {
-                      setExpandedMenu(expandedMenu === 'ba' ? null : 'ba');
-                      setExpandedCategory(null);
-                    }}
-                    className="flex h-12 w-12 items-center justify-center text-[14px] text-[#706263]"
-                  >
-                    {expandedMenu === 'ba' ? '▾' : '▸'}
-                  </button>
-                </div>
-                <div
-                  className={cn(
-                    'grid transition-[grid-template-rows] duration-300 ease-out',
-                    expandedMenu === 'ba'
-                      ? 'grid-rows-[1fr]'
-                      : 'grid-rows-[0fr]',
-                  )}
-                >
-                  <div className="overflow-hidden pl-4">
-                    {allColumns
-                      .filter((c) => c.group === 'ba')
-                      .flatMap((c) => c.items)
-                      .map((item) => (
-                        <Link
-                          key={item.href}
-                          href={`/${currentLocale}${item.href}`}
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className="block py-2 text-[13px] text-[#706263]"
-                        >
-                          {item.directName ??
-                            (item.tKey ? tMega(item.tKey) : '')}
-                        </Link>
-                      ))}
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* 시술 */}
-            {(!navVisibility || navVisibility.treatments !== false) && (
-              <>
-                <div className="flex items-center">
-                  <Link
-                    href={`/${currentLocale}/treatments`}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={cn(
-                      'flex-1 py-3.5 text-[16px] font-medium',
-                      expandedMenu === 'treatments'
-                        ? 'text-[#a83c44]'
-                        : 'text-[#2b2b2b]',
-                    )}
-                  >
-                    {tNav('treatments')}
-                  </Link>
-                  <button
-                    onClick={() => {
-                      setExpandedMenu(
-                        expandedMenu === 'treatments' ? null : 'treatments',
-                      );
-                      setExpandedCategory(null);
-                    }}
-                    className="flex h-12 w-12 items-center justify-center text-[14px] text-[#706263]"
-                  >
-                    {expandedMenu === 'treatments' ? '▾' : '▸'}
-                  </button>
-                </div>
-                <div
-                  className={cn(
-                    'grid transition-[grid-template-rows] duration-300 ease-out',
-                    expandedMenu === 'treatments'
-                      ? 'grid-rows-[1fr]'
-                      : 'grid-rows-[0fr]',
-                  )}
-                >
-                  <div className="overflow-hidden pl-4">
-                    {allColumns
-                      .filter((c) => c.group === 'treatments')
-                      .map((cat) => {
-                        const catLabel =
-                          cat.titleNs === 'footer'
-                            ? tFooter(cat.titleKey)
-                            : tMega(cat.titleKey);
-                        return (
-                          <div key={cat.titleKey}>
-                            <div className="flex items-center">
-                              <Link
-                                href={`/${currentLocale}${cat.href}`}
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className={cn(
-                                  'flex-1 py-2.5 text-[14px] font-bold',
-                                  expandedCategory === cat.titleKey
-                                    ? 'text-[#a83c44]'
-                                    : 'text-[#2b2b2b]',
-                                )}
-                              >
-                                {catLabel}
-                              </Link>
-                              <button
-                                onClick={() =>
-                                  setExpandedCategory(
-                                    expandedCategory === cat.titleKey
-                                      ? null
-                                      : cat.titleKey,
-                                  )
-                                }
-                                className="flex h-10 w-12 items-center justify-center text-[12px] text-[#706263]"
-                              >
-                                {expandedCategory === cat.titleKey ? '▾' : '▸'}
-                              </button>
-                            </div>
-                            <div
-                              className={cn(
-                                'grid transition-[grid-template-rows] duration-300 ease-out',
-                                expandedCategory === cat.titleKey
-                                  ? 'grid-rows-[1fr]'
-                                  : 'grid-rows-[0fr]',
-                              )}
-                            >
-                              <div className="overflow-hidden pl-4">
-                                {cat.items.map((item) => (
-                                  <Link
-                                    key={item.href}
-                                    href={`/${currentLocale}${item.href}`}
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    className="block py-2 text-[13px] text-[#706263]"
-                                  >
-                                    {item.directName ??
-                                      (item.tKey ? tMega(item.tKey) : '')}
-                                  </Link>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* 브랜드 */}
-            {(!navVisibility || navVisibility.brand !== false) && (
-              <>
-                <div className="flex items-center">
-                  <Link
-                    href={`/${currentLocale}/brand`}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={cn(
-                      'flex-1 py-3.5 text-[16px] font-medium',
-                      expandedMenu === 'brand'
-                        ? 'text-[#a83c44]'
-                        : 'text-[#2b2b2b]',
-                    )}
-                  >
-                    {tNav('brand')}
-                  </Link>
-                  <button
-                    onClick={() => {
-                      setExpandedMenu(
-                        expandedMenu === 'brand' ? null : 'brand',
-                      );
-                      setExpandedCategory(null);
-                    }}
-                    className="flex h-12 w-12 items-center justify-center text-[14px] text-[#706263]"
-                  >
-                    {expandedMenu === 'brand' ? '▾' : '▸'}
-                  </button>
-                </div>
-                <div
-                  className={cn(
-                    'grid transition-[grid-template-rows] duration-300 ease-out',
-                    expandedMenu === 'brand'
-                      ? 'grid-rows-[1fr]'
-                      : 'grid-rows-[0fr]',
-                  )}
-                >
-                  <div className="overflow-hidden pl-4">
-                    {allColumns
-                      .filter((c) => c.group === 'brand')
-                      .flatMap((c) => c.items)
-                      .map((item) => (
-                        <Link
-                          key={item.href}
-                          href={`/${currentLocale}${item.href}`}
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className="block py-2 text-[13px] text-[#706263]"
-                        >
-                          {item.directName ??
-                            (item.tKey ? tMega(item.tKey) : '')}
-                        </Link>
-                      ))}
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* 미디어 */}
-            {(!navVisibility || navVisibility.media !== false) && (
-              <>
-                <div className="flex items-center">
-                  <Link
-                    href={`/${currentLocale}/media/press`}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={cn(
-                      'flex-1 py-3.5 text-[16px] font-medium',
-                      expandedMenu === 'media'
-                        ? 'text-[#a83c44]'
-                        : 'text-[#2b2b2b]',
-                    )}
-                  >
-                    {tNav('media')}
-                  </Link>
-                  <button
-                    onClick={() => {
-                      setExpandedMenu(
-                        expandedMenu === 'media' ? null : 'media',
-                      );
-                      setExpandedCategory(null);
-                    }}
-                    className="flex h-12 w-12 items-center justify-center text-[14px] text-[#706263]"
-                  >
-                    {expandedMenu === 'media' ? '▾' : '▸'}
-                  </button>
-                </div>
-                <div
-                  className={cn(
-                    'grid transition-[grid-template-rows] duration-300 ease-out',
-                    expandedMenu === 'media'
-                      ? 'grid-rows-[1fr]'
-                      : 'grid-rows-[0fr]',
-                  )}
-                >
-                  <div className="overflow-hidden pl-4">
-                    {allColumns
-                      .filter((c) => c.group === 'media')
-                      .flatMap((c) => c.items)
-                      .map((item) => (
-                        <Link
-                          key={item.href}
-                          href={`/${currentLocale}${item.href}`}
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className="block py-2 text-[13px] text-[#706263]"
-                        >
-                          {item.directName ??
-                            (item.tKey ? tMega(item.tKey) : '')}
-                        </Link>
-                      ))}
-                  </div>
-                </div>
-              </>
-            )}
+            {navItems.map((navItem) => (
+              <MobileNavSection
+                key={navItem.visKey}
+                navItem={navItem}
+                allColumns={allColumns}
+                expandedMenu={expandedMenu}
+                expandedCategory={expandedCategory}
+                setExpandedMenu={setExpandedMenu}
+                setExpandedCategory={setExpandedCategory}
+                setIsMobileMenuOpen={setIsMobileMenuOpen}
+                currentLocale={currentLocale}
+                tNav={tNav}
+                tMega={tMega}
+                tFooter={tFooter}
+              />
+            ))}
 
             {/* Divider */}
             <div className="my-4 h-px bg-[#efe5d9]" />

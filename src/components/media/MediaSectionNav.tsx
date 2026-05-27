@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
 import type { SectionVisibility } from '@/lib/data/visibility';
+import { resolveTabOrder } from '@/lib/data/mediaRedirect';
 
 const ALL_MEDIA_TABS = [
   { key: 'press', path: 'press' },
@@ -17,13 +18,22 @@ type MediaTabKey = (typeof ALL_MEDIA_TABS)[number]['key'];
 
 interface MediaSectionNavProps {
   mediaVisibility: SectionVisibility['media'];
+  mediaOrder?: string[] | null;
 }
 
-export function MediaSectionNav({ mediaVisibility }: MediaSectionNavProps) {
+export function MediaSectionNav({
+  mediaVisibility,
+  mediaOrder,
+}: MediaSectionNavProps) {
   const pathname = usePathname();
   const t = useTranslations('media');
 
-  const visibleTabs = ALL_MEDIA_TABS.filter(
+  const orderedKeys = resolveTabOrder(mediaOrder);
+  const orderedTabs = orderedKeys
+    .map((k) => ALL_MEDIA_TABS.find((t) => t.key === k))
+    .filter((t): t is (typeof ALL_MEDIA_TABS)[number] => t !== undefined);
+
+  const visibleTabs = orderedTabs.filter(
     (tab) => mediaVisibility[tab.key as MediaTabKey] !== false,
   );
 

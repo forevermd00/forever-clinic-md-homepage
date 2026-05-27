@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import type { Doctor } from '@/components/brand/DoctorCard';
+import { DoctorGrid } from '@/components/brand/DoctorGrid';
 
 interface DoctorSectionProps {
   doctors?: Doctor[];
@@ -20,43 +21,7 @@ export async function DoctorSection({ doctors }: DoctorSectionProps = {}) {
           <h2 className="text-[28px] font-bold">{t('doctorsTitle')}</h2>
         </div>
 
-        {/* Doctor cards - fixed width, wrap */}
-        <div className="flex flex-wrap justify-center gap-6">
-          {doctors.map((doctor) => (
-            <div
-              key={doctor.name}
-              className="w-[270px] overflow-hidden rounded-[8px] bg-white"
-            >
-              {doctor.photo ? (
-                <img
-                  src={doctor.photo.src}
-                  alt={doctor.photo.alt}
-                  className="w-full object-contain"
-                />
-              ) : (
-                <div className="h-[220px] w-full bg-[#efe5d9]" />
-              )}
-              <div className="flex flex-col gap-2 p-5">
-                <h3 className="text-[18px] font-bold">{doctor.name}</h3>
-                <span className="text-[13px] font-medium text-[#d4c8bd]">
-                  {doctor.specialty}
-                </span>
-                {doctor.careers && doctor.careers.length > 0 && (
-                  <ul className="mt-1 flex flex-col gap-0.5">
-                    {doctor.careers.slice(0, 3).map((c, i) => (
-                      <li
-                        key={i}
-                        className="text-[12px] leading-relaxed text-[#808080]"
-                      >
-                        {c}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+        <DoctorGrid doctors={doctors} />
       </div>
     </section>
   );

@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { FilterTabs } from '@/components/common/FilterTabs';
 import type { SectionVisibility } from '@/lib/data/visibility';
 
-const ALL_SECTION_IDS = [
+const DEFAULT_SECTION_IDS = [
   'philosophy',
   'doctors',
   'facilities',
@@ -13,7 +13,7 @@ const ALL_SECTION_IDS = [
   'location',
 ] as const;
 
-type SectionId = (typeof ALL_SECTION_IDS)[number];
+type SectionId = (typeof DEFAULT_SECTION_IDS)[number];
 
 const SECTION_KEYS: Record<SectionId, string> = {
   philosophy: 'sectionPhilosophy',
@@ -25,12 +25,25 @@ const SECTION_KEYS: Record<SectionId, string> = {
 
 interface BrandSectionNavProps {
   brandVisibility: SectionVisibility['brand'];
+  brandOrder?: string[] | null;
 }
 
-export function BrandSectionNav({ brandVisibility }: BrandSectionNavProps) {
+export function BrandSectionNav({
+  brandVisibility,
+  brandOrder,
+}: BrandSectionNavProps) {
   const t = useTranslations('brand');
 
-  const visibleSections = ALL_SECTION_IDS.filter(
+  const orderedIds: SectionId[] = brandOrder?.length
+    ? [
+        ...brandOrder.filter((k): k is SectionId =>
+          DEFAULT_SECTION_IDS.includes(k as SectionId),
+        ),
+        ...DEFAULT_SECTION_IDS.filter((k) => !brandOrder.includes(k)),
+      ]
+    : [...DEFAULT_SECTION_IDS];
+
+  const visibleSections = orderedIds.filter(
     (id) => brandVisibility[id] !== false,
   );
 

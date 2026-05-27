@@ -1,15 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useClient } from 'sanity';
-import type { SanityClient } from 'sanity';
 
 interface VideoDoc {
   _id: string;
   title?: { ko?: string; en?: string; zh?: string; ja?: string };
   youtubeId?: string;
   youtubeUrl?: string;
-  description?: { ko?: string; en?: string; zh?: string; ja?: string };
-  publishDate?: string;
-  thumbnail?: { asset?: { _ref: string } };
+  publishedAt?: string;
   displayLanguages?: string[];
 }
 
@@ -20,28 +17,8 @@ const LOCALES: { key: 'ko' | 'en' | 'zh' | 'ja'; label: string }[] = [
   { key: 'ja', label: '日本語' },
 ];
 
-function sanityImageUrl(
-  projectId: string,
-  dataset: string,
-  ref: string,
-): string {
-  const id = ref.replace('image-', '').replace(/-(\w+)$/, '.$1');
-  return `https://cdn.sanity.io/images/${projectId}/${dataset}/${id}`;
-}
-
-async function uploadImage(client: SanityClient, file: File) {
-  const asset = await client.assets.upload('image', file, {
-    filename: file.name,
-  });
-  return {
-    _type: 'image' as const,
-    asset: { _type: 'reference' as const, _ref: asset._id },
-  };
-}
-
 const QUERY = `*[_type == "youtubeVideo" && _id == $id][0] {
-  _id, title, youtubeId, youtubeUrl, description, publishDate, displayLanguages,
-  thumbnail { asset { _ref } }
+  _id, title, youtubeId, youtubeUrl, publishedAt, displayLanguages
 }`;
 
 export function VideoDetail({
@@ -54,7 +31,6 @@ export function VideoDetail({
   const client = useClient({ apiVersion: '2026-05-13' });
   const [doc, setDoc] = useState<VideoDoc | null>(null);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
@@ -98,24 +74,8 @@ export function VideoDetail({
     onBack();
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const imageRef = await uploadImage(client, file);
-      await client.patch(id).set({ thumbnail: imageRef }).commit();
-      setDoc((prev) => (prev ? { ...prev, thumbnail: imageRef } : prev));
-    } finally {
-      setUploading(false);
-    }
-  };
-
   if (!doc) return <div className="mt-loading">불러오는 중...</div>;
 
-  const projectId = 'ecoamz42';
-  const dataset = 'production';
-  const imageRef = doc.thumbnail?.asset?._ref;
   const youtubeId = doc.youtubeId || null;
 
   return (
@@ -189,56 +149,17 @@ export function VideoDetail({
       </div>
 
       <div className="mt-detail-section">
-        <div className="mt-detail-section-title">설명</div>
+        <div className="mt-detail-section-title">게시일</div>
         <div className="mt-detail-body">
-          <div className="mt-detail-grid4">
-            {LOCALES.map(({ key, label }) => (
-              <div key={key} className="mt-detail-field">
-                <label className="mt-detail-label">{label}</label>
-                <textarea
-                  className="mt-text-input mt-textarea"
-                  defaultValue={doc.description?.[key] ?? ''}
-                  rows={3}
-                  onBlur={(e) =>
-                    patch({ [`description.${key}`]: e.target.value })
-                  }
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-detail-section">
-        <div className="mt-detail-section-title">게시일 / 썸네일</div>
-        <div className="mt-detail-body">
-          <div className="mt-detail-row" style={{ marginBottom: 12 }}>
-            <div className="mt-detail-field">
-              <label className="mt-detail-label">게시일</label>
-              <input
-                type="date"
-                className="mt-text-input"
-                defaultValue={doc.publishDate ?? ''}
-                onBlur={(e) => patch({ publishDate: e.target.value || null })}
-              />
-            </div>
-          </div>
-          {imageRef && (
-            <img
-              src={sanityImageUrl(projectId, dataset, imageRef)}
-              alt="thumbnail"
-              className="mt-thumb-preview"
-            />
-          )}
-          <label className="mt-upload-btn">
-            {uploading ? '업로드 중…' : '이미지 선택'}
+          <div className="mt-detail-field">
+            <label className="mt-detail-label">게시일</label>
             <input
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={handleImageUpload}
+              type="date"
+              className="mt-text-input"
+              defaultValue={doc.publishedAt ?? ''}
+              onBlur={(e) => patch({ publishedAt: e.target.value || null })}
             />
-          </label>
+          </div>
         </div>
       </div>
 

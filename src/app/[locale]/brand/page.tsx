@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
-import { DoctorCard } from '@/components/brand/DoctorCard';
+import { DoctorGrid } from '@/components/brand/DoctorGrid';
 import { GalleryCarousel } from '@/components/brand/GalleryCarousel';
 import { EquipmentShowcase } from '@/components/brand/EquipmentShowcase';
 import { LocationInfo } from '@/components/brand/LocationInfo';
@@ -21,6 +21,7 @@ import { getMedicalBusinessJsonLd } from '@/lib/seo/jsonld';
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
 import { getSectionVisibility } from '@/lib/data/visibility';
 
+import { Fragment, type ReactNode } from 'react';
 import type { Metadata } from 'next';
 
 const brandTitles: Record<string, string> = {
@@ -151,237 +152,262 @@ export default async function BrandPage({
       />
 
       {/* Section Tabs (sticky) - client component */}
-      <BrandSectionNav brandVisibility={bv} />
+      <BrandSectionNav
+        brandVisibility={bv}
+        brandOrder={visibility.brandOrder}
+      />
 
-      {/* Philosophy Section */}
-      {bv.philosophy && (
-        <section id="philosophy" className="scroll-mt-[120px] bg-[#faf8f5]">
-          {/* Section Header */}
-          <div className="flex flex-col items-center gap-3 px-4 pt-16 pb-8 lg:pt-20 lg:pb-12">
-            <span className="text-[12px] font-medium tracking-[2px] text-[#d4c8bd]">
-              {brandPhilosophy?.badge || 'BRAND PHILOSOPHY · Since 2008'}
-            </span>
-            <h2 className="text-[28px] font-bold text-[#2b2b2b]">
-              {brandPhilosophy?.slogan || t('smartBoutiquePhilosophy')}
-            </h2>
-            <p className="text-center text-[14px] text-[#706263]">
-              {brandPhilosophy?.subtitle || t('philosophyDescription')}
-            </p>
-          </div>
-
-          {/* Philosophy Values - dynamically rendered from CMS with fallback */}
-          {philosophyValues.map((value, index) => {
-            const isEven = index % 2 === 0;
-            const bgColor = isEven ? 'bg-white' : 'bg-[#f9f6f3]';
-            const imgSrc = typeof value.image === 'string' ? value.image : '';
-
-            return (
-              <div key={value.key} className={bgColor}>
-                {/* Desktop layout */}
-                <div className="mx-auto hidden max-w-[1440px] items-center justify-center gap-[60px] px-[100px] py-[60px] lg:flex">
-                  {isEven ? (
-                    <>
-                      <div className="flex flex-col gap-3">
-                        <p className="text-[28px] font-bold text-[#2b2b2b]">
-                          {value.title}
-                        </p>
-                        <p className="text-[14px] whitespace-pre-line text-[#706263]">
-                          {value.descriptionDesktop}
-                        </p>
-                      </div>
-                      {imgSrc ? (
-                        <img
-                          src={imgSrc}
-                          alt={value.title}
-                          className="h-[400px] w-[620px] shrink-0 rounded-[8px] object-cover"
-                        />
-                      ) : (
-                        <div className="h-[400px] w-[620px] shrink-0 rounded-[8px] bg-[#efe5d9]" />
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      {imgSrc ? (
-                        <img
-                          src={imgSrc}
-                          alt={value.title}
-                          className="h-[400px] w-[620px] shrink-0 rounded-[8px] object-cover"
-                        />
-                      ) : (
-                        <div className="h-[400px] w-[620px] shrink-0 rounded-[8px] bg-[#efe5d9]" />
-                      )}
-                      <div className="flex flex-col gap-3">
-                        <p className="text-[28px] font-bold text-[#2b2b2b]">
-                          {value.title}
-                        </p>
-                        <p className="text-[14px] whitespace-pre-line text-[#706263]">
-                          {value.descriptionDesktop}
-                        </p>
-                      </div>
-                    </>
-                  )}
-                </div>
-                {/* Mobile layout */}
-                <div className="flex flex-col pb-4 lg:hidden">
-                  {imgSrc ? (
-                    <img
-                      src={imgSrc}
-                      alt={value.title}
-                      className="h-[220px] w-full object-cover"
-                    />
-                  ) : (
-                    <div className="h-[220px] w-full bg-[#efe5d9]" />
-                  )}
-                  <div className="flex flex-col gap-2 px-5 pt-4">
-                    <p className="text-[20px] font-bold text-[#2b2b2b]">
-                      {value.title}
-                    </p>
-                    <p className="text-[12px] text-[#706263]">
-                      {value.description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </section>
-      )}
-
-      {/* Stats Strip */}
+      {/* Stats Strip — always before ordered sections */}
       {stats && stats.length > 0 && <StatsStripSection stats={stats} />}
 
-      {/* Doctors Section */}
-      {bv.doctors && doctors && (
-        <section
-          id="doctors"
-          className="scroll-mt-[120px] bg-[#faf8f5] px-4 py-20 md:px-6 lg:px-12"
-        >
-          <div className="mx-auto max-w-[var(--container-max)]">
-            <div className="mb-10 text-center">
-              <span className="mb-2 block text-[12px] tracking-wider text-[#d4c8bd]">
-                OUR DOCTORS
-              </span>
-              <h2 className="text-[28px] font-bold text-[#2b2b2b]">
-                {t('doctors')}
-              </h2>
-            </div>
-            <div className="flex flex-wrap justify-center gap-6">
-              {doctors.map((doctor) => (
-                <DoctorCard key={doctor.name} doctor={doctor} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* Ordered brand sections */}
+      {(() => {
+        const DEFAULT_BRAND_ORDER = [
+          'philosophy',
+          'doctors',
+          'facilities',
+          'equipment',
+          'location',
+        ];
+        const brandOrder = visibility.brandOrder?.length
+          ? visibility.brandOrder
+          : DEFAULT_BRAND_ORDER;
+        const orderedKeys = [
+          ...brandOrder.filter((k) => DEFAULT_BRAND_ORDER.includes(k)),
+          ...DEFAULT_BRAND_ORDER.filter((k) => !brandOrder.includes(k)),
+        ];
 
-      {/* Facility Gallery */}
-      {bv.facilities && facilities && (
-        <section
-          id="facilities"
-          className="scroll-mt-[120px] bg-white px-4 py-20 md:px-6 lg:px-12"
-        >
-          <div className="mx-auto max-w-[var(--container-max)]">
-            <div className="mb-10 text-center">
-              <span className="mb-2 block text-[12px] font-medium tracking-[2px] text-[#d4c8bd]">
-                FACILITIES
-              </span>
-              <h2 className="text-[28px] font-bold text-[#2b2b2b]">
-                {t('facilityGallery')}
-              </h2>
-            </div>
-            <GalleryCarousel items={facilities} />
-          </div>
-        </section>
-      )}
-
-      {/* Equipment Gallery */}
-      {bv.equipment && equipment && (
-        <section
-          id="equipment"
-          className="scroll-mt-[120px] bg-[#faf8f5] px-4 py-20 md:px-6 lg:px-12"
-        >
-          <div className="mx-auto max-w-[var(--container-max)]">
-            <div className="mb-10 text-center">
-              <span className="mb-2 block text-[12px] font-medium tracking-[2px] text-[#d4c8bd]">
-                EQUIPMENT
-              </span>
-              <h2 className="text-[28px] font-bold text-[#2b2b2b]">
-                {t('equipment')}
-              </h2>
-            </div>
-            <div className="px-10 md:px-12 lg:px-14">
-              <EquipmentShowcase items={equipment} />
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Location Section */}
-      {bv.location && clinicInfo && (
-        <section
-          id="location"
-          className="scroll-mt-[120px] bg-white px-4 py-20 md:px-6 lg:px-12"
-        >
-          <div className="mx-auto max-w-[var(--container-max)]">
-            <div className="mb-10 text-center">
-              <span className="mb-2 block text-[12px] font-medium tracking-[2px] text-[#d4c8bd]">
-                LOCATION
-              </span>
-              <h2 className="text-[28px] font-bold text-[#2b2b2b]">
-                {t('location')}
-              </h2>
-            </div>
-            <div className="flex flex-col gap-8 lg:flex-row">
-              {/* Map */}
-              <div className="relative h-[320px] w-full overflow-hidden rounded-[12px] bg-[#efe5d9] lg:h-[480px] lg:flex-1">
-                {clinicInfo.latitude && clinicInfo.longitude ? (
-                  <>
-                    <GoogleMap
-                      lat={clinicInfo.latitude}
-                      lng={clinicInfo.longitude}
-                      className="h-full w-full"
-                      locale={locale}
-                    />
-                    <Link
-                      href={buildGoogleMapsUrl(
-                        clinicInfo.latitude,
-                        clinicInfo.longitude,
+        const brandSections: Record<string, ReactNode> = {
+          philosophy: bv.philosophy ? (
+            <section
+              key="philosophy"
+              id="philosophy"
+              className="scroll-mt-[120px] bg-[#faf8f5]"
+            >
+              <div className="flex flex-col items-center gap-3 px-4 pt-16 pb-8 lg:pt-20 lg:pb-12">
+                <span className="text-[12px] font-medium tracking-[2px] text-[#d4c8bd]">
+                  {brandPhilosophy?.badge || 'BRAND PHILOSOPHY · Since 2008'}
+                </span>
+                <h2 className="text-[28px] font-bold text-[#2b2b2b]">
+                  {brandPhilosophy?.slogan || t('smartBoutiquePhilosophy')}
+                </h2>
+                <p className="text-center text-[14px] text-[#706263]">
+                  {brandPhilosophy?.subtitle || t('philosophyDescription')}
+                </p>
+              </div>
+              {philosophyValues.map((value, index) => {
+                const isEven = index % 2 === 0;
+                const bgColor = isEven ? 'bg-white' : 'bg-[#f9f6f3]';
+                const imgSrc =
+                  typeof value.image === 'string' ? value.image : '';
+                return (
+                  <div key={value.key} className={bgColor}>
+                    <div className="mx-auto hidden max-w-[1440px] items-center justify-center gap-[60px] px-[100px] py-[60px] lg:flex">
+                      {isEven ? (
+                        <>
+                          <div className="flex flex-col gap-3">
+                            <p className="text-[28px] font-bold text-[#2b2b2b]">
+                              {value.title}
+                            </p>
+                            <p className="text-[14px] whitespace-pre-line text-[#706263]">
+                              {value.descriptionDesktop}
+                            </p>
+                          </div>
+                          {imgSrc ? (
+                            <img
+                              src={imgSrc}
+                              alt={value.title}
+                              className="h-[400px] w-[620px] shrink-0 rounded-[8px] object-cover"
+                            />
+                          ) : (
+                            <div className="h-[400px] w-[620px] shrink-0 rounded-[8px] bg-[#efe5d9]" />
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          {imgSrc ? (
+                            <img
+                              src={imgSrc}
+                              alt={value.title}
+                              className="h-[400px] w-[620px] shrink-0 rounded-[8px] object-cover"
+                            />
+                          ) : (
+                            <div className="h-[400px] w-[620px] shrink-0 rounded-[8px] bg-[#efe5d9]" />
+                          )}
+                          <div className="flex flex-col gap-3">
+                            <p className="text-[28px] font-bold text-[#2b2b2b]">
+                              {value.title}
+                            </p>
+                            <p className="text-[14px] whitespace-pre-line text-[#706263]">
+                              {value.descriptionDesktop}
+                            </p>
+                          </div>
+                        </>
                       )}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="absolute top-3 left-3 flex items-center gap-1.5 rounded-[6px] bg-white/90 px-3 py-1.5 text-[12px] font-medium text-[#2b2b2b] shadow-sm backdrop-blur-sm hover:bg-white"
-                    >
-                      <svg
-                        width="13"
-                        height="13"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                        <polyline points="15 3 21 3 21 9" />
-                        <line x1="10" y1="14" x2="21" y2="3" />
-                      </svg>
-                      지도에서 열기
-                    </Link>
-                  </>
-                ) : (
-                  <div className="flex h-full min-h-[360px] items-center justify-center text-[13px] text-[#808080]">
-                    {t('mapArea')}
+                    </div>
+                    <div className="flex flex-col pb-4 lg:hidden">
+                      {imgSrc ? (
+                        <img
+                          src={imgSrc}
+                          alt={value.title}
+                          className="h-[220px] w-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-[220px] w-full bg-[#efe5d9]" />
+                      )}
+                      <div className="flex flex-col gap-2 px-5 pt-4">
+                        <p className="text-[20px] font-bold text-[#2b2b2b]">
+                          {value.title}
+                        </p>
+                        <p className="text-[12px] text-[#706263]">
+                          {value.description}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                )}
-              </div>
-              {/* Clinic Info */}
-              <div className="flex flex-1 items-center">
-                <LocationInfo clinicInfo={clinicInfo} />
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
+                );
+              })}
+            </section>
+          ) : null,
+
+          doctors:
+            bv.doctors && doctors ? (
+              <section
+                key="doctors"
+                id="doctors"
+                className="scroll-mt-[120px] bg-[#faf8f5] px-4 py-20 md:px-6 lg:px-12"
+              >
+                <div className="mx-auto max-w-[var(--container-max)]">
+                  <div className="mb-10 text-center">
+                    <span className="mb-2 block text-[12px] tracking-wider text-[#d4c8bd]">
+                      OUR DOCTORS
+                    </span>
+                    <h2 className="text-[28px] font-bold text-[#2b2b2b]">
+                      {t('doctors')}
+                    </h2>
+                  </div>
+                  <DoctorGrid doctors={doctors} />
+                </div>
+              </section>
+            ) : null,
+
+          facilities:
+            bv.facilities && facilities ? (
+              <section
+                key="facilities"
+                id="facilities"
+                className="scroll-mt-[120px] bg-white px-4 py-20 md:px-6 lg:px-12"
+              >
+                <div className="mx-auto max-w-[var(--container-max)]">
+                  <div className="mb-10 text-center">
+                    <span className="mb-2 block text-[12px] font-medium tracking-[2px] text-[#d4c8bd]">
+                      FACILITIES
+                    </span>
+                    <h2 className="text-[28px] font-bold text-[#2b2b2b]">
+                      {t('facilityGallery')}
+                    </h2>
+                  </div>
+                  <GalleryCarousel items={facilities} />
+                </div>
+              </section>
+            ) : null,
+
+          equipment:
+            bv.equipment && equipment ? (
+              <section
+                key="equipment"
+                id="equipment"
+                className="scroll-mt-[120px] bg-[#faf8f5] px-4 py-20 md:px-6 lg:px-12"
+              >
+                <div className="mx-auto max-w-[var(--container-max)]">
+                  <div className="mb-10 text-center">
+                    <span className="mb-2 block text-[12px] font-medium tracking-[2px] text-[#d4c8bd]">
+                      EQUIPMENT
+                    </span>
+                    <h2 className="text-[28px] font-bold text-[#2b2b2b]">
+                      {t('equipment')}
+                    </h2>
+                  </div>
+                  <div className="px-10 md:px-12 lg:px-14">
+                    <EquipmentShowcase items={equipment} />
+                  </div>
+                </div>
+              </section>
+            ) : null,
+
+          location:
+            bv.location && clinicInfo ? (
+              <section
+                key="location"
+                id="location"
+                className="scroll-mt-[120px] bg-white px-4 py-20 md:px-6 lg:px-12"
+              >
+                <div className="mx-auto max-w-[var(--container-max)]">
+                  <div className="mb-10 text-center">
+                    <span className="mb-2 block text-[12px] font-medium tracking-[2px] text-[#d4c8bd]">
+                      LOCATION
+                    </span>
+                    <h2 className="text-[28px] font-bold text-[#2b2b2b]">
+                      {t('location')}
+                    </h2>
+                  </div>
+                  <div className="flex flex-col gap-8 lg:flex-row">
+                    <div className="relative h-[320px] w-full overflow-hidden rounded-[12px] bg-[#efe5d9] lg:h-[480px] lg:flex-1">
+                      {clinicInfo.latitude && clinicInfo.longitude ? (
+                        <>
+                          <GoogleMap
+                            lat={clinicInfo.latitude}
+                            lng={clinicInfo.longitude}
+                            className="h-full w-full"
+                            locale={locale}
+                          />
+                          <Link
+                            href={buildGoogleMapsUrl(
+                              clinicInfo.latitude,
+                              clinicInfo.longitude,
+                            )}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="absolute top-3 left-3 flex items-center gap-1.5 rounded-[6px] bg-white/90 px-3 py-1.5 text-[12px] font-medium text-[#2b2b2b] shadow-sm backdrop-blur-sm hover:bg-white"
+                          >
+                            <svg
+                              width="13"
+                              height="13"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                              <polyline points="15 3 21 3 21 9" />
+                              <line x1="10" y1="14" x2="21" y2="3" />
+                            </svg>
+                            지도에서 열기
+                          </Link>
+                        </>
+                      ) : (
+                        <div className="flex h-full min-h-[360px] items-center justify-center text-[13px] text-[#808080]">
+                          {t('mapArea')}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-1 items-center">
+                      <LocationInfo clinicInfo={clinicInfo} />
+                    </div>
+                  </div>
+                </div>
+              </section>
+            ) : null,
+        };
+
+        return orderedKeys.map((key) =>
+          brandSections[key] ? (
+            <Fragment key={key}>{brandSections[key]}</Fragment>
+          ) : null,
+        );
+      })()}
     </>
   );
 }

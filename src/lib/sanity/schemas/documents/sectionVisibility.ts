@@ -208,6 +208,20 @@ export const sectionVisibility = defineType({
       ],
     }),
     defineField({
+      name: 'navOrder',
+      title: '메뉴 노출 순서',
+      description: '메뉴 항목 표시 순서 (비워두면 기본 순서)',
+      type: 'array',
+      of: [{ type: 'string' }],
+    }),
+    defineField({
+      name: 'megaMenuOrder',
+      title: '메가메뉴 시술 카테고리 순서',
+      description: '시술 카테고리 표시 순서 (비워두면 기본 순서)',
+      type: 'array',
+      of: [{ type: 'string' }],
+    }),
+    defineField({
       name: 'homeOrder',
       title: '메인 홈 섹션 순서',
       description: '섹션 표시 순서 (비워두면 기본 순서)',

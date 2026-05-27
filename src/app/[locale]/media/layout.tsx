@@ -55,7 +55,11 @@ export default async function MediaLayout({
   };
 
   return (
-    <MediaLayoutClient heroData={heroData} mediaVisibility={visibility.media}>
+    <MediaLayoutClient
+      heroData={heroData}
+      mediaVisibility={visibility.media}
+      mediaOrder={visibility.mediaOrder}
+    >
       {children}
     </MediaLayoutClient>
   );

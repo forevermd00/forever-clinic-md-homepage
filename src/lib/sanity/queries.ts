@@ -87,6 +87,25 @@ export const treatmentsByQuickEntryQuery = `
   } | order(sortOrder asc)
 `;
 
+export const quickEntryCardBySlugQuery = `
+  *[_type == "quickEntryCard" && slug.current == $slug][0] {
+    _id,
+    "title": title[$locale],
+    "slug": slug.current,
+    "treatments": linkedTreatments[]-> {
+      _id,
+      "name": name[$locale],
+      "tagline": tagline[$locale],
+      "slug": slug.current,
+      category,
+      "imageUrl": thumbnail.asset->url,
+      priceOptions[] { price, discountPrice },
+      isEvent,
+      isVisible
+    }
+  }
+`;
+
 export const treatmentDetailQuery = `
   *[_type == "treatment" && slug.current == $slug][0] {
     _id,
@@ -222,6 +241,7 @@ export const quickEntryCardsQuery = `
     _id,
     "title": title[$locale],
     "description": description[$locale],
+    "cardSlug": slug.current,
     icon,
     "linkedTreatments": linkedTreatments[]->{
       "slug": slug.current,
@@ -240,10 +260,10 @@ export const pressArticlesQuery = `
 `;
 
 export const youtubeVideosQuery = `
-  *[_type == "youtubeVideo" && isVisible != false && (
-    !defined(displayLanguages) || count(displayLanguages) == 0 || $locale in displayLanguages
-  )] | order(publishedAt desc) {
-    _id, "title": title[$locale], youtubeId, youtubeUrl, thumbnail, "description": description[$locale], publishedAt, displayLanguages
+  *[_type == "youtubeVideo" && isVisible != false
+    && defined(displayLanguages) && count(displayLanguages) > 0 && $locale in displayLanguages
+  ] | order(publishedAt desc) {
+    _id, "title": title[$locale], youtubeId, youtubeUrl, publishedAt, displayLanguages
   }
 `;
 

@@ -12,6 +12,9 @@ export default async function MediaPage({ params }: PageProps) {
   if (!visibility.nav.media) {
     redirect(`/${locale}`);
   }
-  const firstTab = getFirstVisibleMediaTab(visibility.media);
+  const firstTab = getFirstVisibleMediaTab(
+    visibility.media,
+    visibility.mediaOrder,
+  );
   redirect(`/${locale}/media/${firstTab ?? 'press'}`);
 }

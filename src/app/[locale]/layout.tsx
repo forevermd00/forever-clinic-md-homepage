@@ -92,6 +92,8 @@ export default async function LocaleLayout({
             <Header
               navVisibility={visibility.nav}
               navTreatments={navTreatments ?? []}
+              navOrder={visibility.navOrder ?? undefined}
+              megaMenuOrder={visibility.megaMenuOrder ?? undefined}
             />
             <main>{children}</main>
             <Footer locale={locale} clinicInfo={clinicInfo ?? undefined} />

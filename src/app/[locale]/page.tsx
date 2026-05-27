@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
+import { Suspense, Fragment, type ReactNode } from 'react';
 import { HeroSection } from '@/components/home/HeroSection';
 import { QuickEntrySection } from '@/components/home/QuickEntrySection';
 import { SignatureProgramSection } from '@/components/home/SignatureProgramSection';
@@ -129,32 +129,58 @@ export default async function HomePage({
     situation: qeSituation ?? [],
   };
 
-  return (
-    <>
-      <EventPopupModal popups={popupList} imageUrls={popupImageUrls} />
-      {visibility.home.hero && hero && <HeroSection hero={hero} />}
-      {visibility.home.quickEntry && (
-        <QuickEntrySection
-          cardsByTab={cardsByTab}
-          tabs={quickEntryTabs ?? []}
-        />
-      )}
-      {visibility.home.signature && signaturePrograms && (
+  const DEFAULT_HOME_ORDER = [
+    'hero',
+    'quickEntry',
+    'signature',
+    'promo',
+    'bnA',
+    'press',
+    'stats',
+    'brandPhilosophy',
+    'doctors',
+    'location',
+    'contact',
+  ];
+  const homeOrder = visibility.homeOrder?.length
+    ? visibility.homeOrder
+    : DEFAULT_HOME_ORDER;
+  const orderedHomeKeys = [
+    ...homeOrder.filter((k) => DEFAULT_HOME_ORDER.includes(k)),
+    ...DEFAULT_HOME_ORDER.filter((k) => !homeOrder.includes(k)),
+  ];
+
+  const homeSections: Record<string, ReactNode> = {
+    hero: visibility.home.hero && hero ? <HeroSection hero={hero} /> : null,
+    quickEntry: visibility.home.quickEntry ? (
+      <QuickEntrySection cardsByTab={cardsByTab} tabs={quickEntryTabs ?? []} />
+    ) : null,
+    signature:
+      visibility.home.signature && signaturePrograms ? (
         <SignatureProgramSection
           locale={locale}
           programs={signaturePrograms}
           showPrice={visibility.treatments.showPrice}
         />
-      )}
-      {visibility.home.promo && eventTreatments && (
+      ) : null,
+    promo:
+      visibility.home.promo && eventTreatments ? (
         <PromoSection locale={locale} events={eventTreatments} />
-      )}
-      {visibility.home.bnA && baCases && <BAPreviewSection cases={baCases} />}
-      {visibility.home.press && pressItems && pressItems.length > 0 && (
+      ) : null,
+    bnA:
+      visibility.home.bnA && baCases ? (
+        <BAPreviewSection cases={baCases} />
+      ) : null,
+    press:
+      visibility.home.press && pressItems && pressItems.length > 0 ? (
         <HomePressSection locale={locale} items={pressItems as never} />
-      )}
-      {visibility.home.stats && stats && <StatsStripSection stats={stats} />}
-      {visibility.home.brandPhilosophy && brandPhilosophy && (
+      ) : null,
+    stats:
+      visibility.home.stats && stats ? (
+        <StatsStripSection stats={stats} />
+      ) : null,
+    brandPhilosophy:
+      visibility.home.brandPhilosophy && brandPhilosophy ? (
         <BrandPhilosophySection
           locale={locale}
           slogan={brandPhilosophy.slogan}
@@ -162,14 +188,17 @@ export default async function HomePage({
           badge={brandPhilosophy.badge}
           values={brandPhilosophy.values}
         />
-      )}
-      {visibility.home.doctors && doctors && (
+      ) : null,
+    doctors:
+      visibility.home.doctors && doctors ? (
         <DoctorSection doctors={doctors} />
-      )}
-      {visibility.home.location && clinicInfo && (
+      ) : null,
+    location:
+      visibility.home.location && clinicInfo ? (
         <LocationSection clinicInfo={clinicInfo} locale={locale} />
-      )}
-      {visibility.home.contact && contactConfig && businessHours && (
+      ) : null,
+    contact:
+      visibility.home.contact && contactConfig && businessHours ? (
         <Suspense fallback={<div className="h-[600px] bg-[#faf8f5]" />}>
           <ContactFormSection
             config={contactConfig}
@@ -178,6 +207,16 @@ export default async function HomePage({
             bannerImageUrl={contactBannerUrl}
           />
         </Suspense>
+      ) : null,
+  };
+
+  return (
+    <>
+      <EventPopupModal popups={popupList} imageUrls={popupImageUrls} />
+      {orderedHomeKeys.map((key) =>
+        homeSections[key] ? (
+          <Fragment key={key}>{homeSections[key]}</Fragment>
+        ) : null,
       )}
     </>
   );

@@ -21,12 +21,14 @@ interface MediaLayoutClientProps {
     { title?: string; subtitle?: string; imageSrc?: string }
   >;
   mediaVisibility: SectionVisibility['media'];
+  mediaOrder?: string[] | null;
   children: React.ReactNode;
 }
 
 export function MediaLayoutClient({
   heroData,
   mediaVisibility,
+  mediaOrder,
   children,
 }: MediaLayoutClientProps) {
   const pathname = usePathname();
@@ -48,7 +50,10 @@ export function MediaLayoutClient({
         imageSrc={hero?.imageSrc}
         className={hero?.imageSrc ? '!h-[280px] !max-h-[280px]' : ''}
       />
-      <MediaSectionNav mediaVisibility={mediaVisibility} />
+      <MediaSectionNav
+        mediaVisibility={mediaVisibility}
+        mediaOrder={mediaOrder}
+      />
       {children}
     </>
   );

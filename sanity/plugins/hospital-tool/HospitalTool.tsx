@@ -2119,6 +2119,12 @@ function QuickNavSection({ onEditCard }: { onEditCard: (id: string) => void }) {
                 </div>
                 <div className="ht-detail-body">
                   <table className="ht-table">
+                    <colgroup>
+                      <col style={{ width: 56 }} />
+                      <col />
+                      <col style={{ width: '30%' }} />
+                      <col style={{ width: 60 }} />
+                    </colgroup>
                     <thead>
                       <tr>
                         <th>No.</th>
@@ -2178,10 +2184,15 @@ function QuickNavSection({ onEditCard }: { onEditCard: (id: string) => void }) {
                 </div>
                 <div className="ht-detail-body">
                   <table className="ht-table">
+                    <colgroup>
+                      <col style={{ width: 56 }} />
+                      <col />
+                      <col style={{ width: '30%' }} />
+                      <col style={{ width: 60 }} />
+                    </colgroup>
                     <thead>
                       <tr>
-                        <th></th>
-                        <th>No.</th>
+                        <th>⠿ No.</th>
                         <th>제목</th>
                         <th>slug</th>
                         <th style={{ textAlign: 'center' }}>노출</th>
@@ -2206,11 +2217,18 @@ function QuickNavSection({ onEditCard }: { onEditCard: (id: string) => void }) {
                         >
                           <td
                             className="ht-drag-handle"
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 4,
+                            }}
                             onClick={(e) => e.stopPropagation()}
                           >
-                            ⋮⋮
+                            <span>⋮⋮</span>
+                            <span className="ht-row-num" style={{ margin: 0 }}>
+                              {idx + 1}
+                            </span>
                           </td>
-                          <td className="ht-row-num">{idx + 1}</td>
                           <td>
                             <span className="ht-row-name">
                               {card.title?.ko || '—'}
@@ -2281,6 +2299,20 @@ function ToggleRow({
 
 // ─── 섹션 노출 패널 ───────────────────────────────────────
 
+const NAV_ITEMS = [
+  { key: 'bnA', label: 'B&A' },
+  { key: 'treatments', label: '시술' },
+  { key: 'brand', label: '브랜드' },
+  { key: 'media', label: '미디어' },
+];
+const MEGAMENU_ITEMS = [
+  { key: 'catLiftingLaser', label: '리프팅·레이저' },
+  { key: 'catPetitLifting', label: '쁘띠·실리프팅' },
+  { key: 'catSkincare', label: '스킨케어' },
+  { key: 'catSkinBooster', label: '스킨부스터' },
+  { key: 'catHairRemoval', label: '제모클리닉' },
+  { key: 'catAnesthesia', label: '마취클리닉' },
+];
 const HOME_ITEMS = [
   { key: 'hero', label: '히어로' },
   { key: 'quickEntry', label: '퀵엔트리' },
@@ -2410,6 +2442,8 @@ function SectionsPanel() {
   const client = useClient({ apiVersion: '2026-05-13' });
   const [doc, setDoc] = useState<SectionVisibilityDoc | null>(null);
   const [saving, setSaving] = useState(false);
+  const [navOrder, setNavOrder] = useState<string[]>([]);
+  const [megaMenuOrder, setMegaMenuOrder] = useState<string[]>([]);
   const [homeOrder, setHomeOrder] = useState<string[]>([]);
   const [brandOrder, setBrandOrder] = useState<string[]>([]);
   const [mediaOrder, setMediaOrder] = useState<string[]>([]);
@@ -2418,6 +2452,8 @@ function SectionsPanel() {
     client
       .fetch<
         SectionVisibilityDoc & {
+          navOrder?: string[];
+          megaMenuOrder?: string[];
           homeOrder?: string[];
           brandOrder?: string[];
           mediaOrder?: string[];
@@ -2425,6 +2461,14 @@ function SectionsPanel() {
       >(SV_QUERY)
       .then((data) => {
         setDoc(data ?? {});
+        setNavOrder(
+          data?.navOrder?.length ? data.navOrder : NAV_ITEMS.map((i) => i.key),
+        );
+        setMegaMenuOrder(
+          data?.megaMenuOrder?.length
+            ? data.megaMenuOrder
+            : MEGAMENU_ITEMS.map((i) => i.key),
+        );
         setHomeOrder(
           data?.homeOrder?.length
             ? data.homeOrder
@@ -2480,73 +2524,27 @@ function SectionsPanel() {
     <div className="ht-panel-section">
       {saving && <span className="ht-saving-indicator">저장 중…</span>}
 
-      <div className="ht-sv-group">
-        <div className="ht-sv-group-title">메뉴 노출</div>
-        <ToggleRow
-          label="B&A"
-          path="nav.bnA"
-          value={doc.nav?.bnA}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="시술"
-          path="nav.treatments"
-          value={doc.nav?.treatments}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="브랜드"
-          path="nav.brand"
-          value={doc.nav?.brand}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="미디어"
-          path="nav.media"
-          value={doc.nav?.media}
-          onToggle={toggle}
-        />
-      </div>
+      <DraggableGroup
+        title="메뉴 노출"
+        items={NAV_ITEMS}
+        order={navOrder}
+        setOrder={setNavOrder}
+        doc={doc}
+        onToggle={toggle}
+        togglePath="nav"
+        saveOrder={(o) => saveOrderField('navOrder', o)}
+      />
 
-      <div className="ht-sv-group">
-        <div className="ht-sv-group-title">메가메뉴 시술 카테고리</div>
-        <ToggleRow
-          label="리프팅·레이저"
-          path="nav.catLiftingLaser"
-          value={doc.nav?.catLiftingLaser}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="쁘띠 & 실리프팅"
-          path="nav.catPetitLifting"
-          value={doc.nav?.catPetitLifting}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="스킨케어"
-          path="nav.catSkincare"
-          value={doc.nav?.catSkincare}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="스킨부스터"
-          path="nav.catSkinBooster"
-          value={doc.nav?.catSkinBooster}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="제모클리닉"
-          path="nav.catHairRemoval"
-          value={doc.nav?.catHairRemoval}
-          onToggle={toggle}
-        />
-        <ToggleRow
-          label="마취클리닉"
-          path="nav.catAnesthesia"
-          value={doc.nav?.catAnesthesia}
-          onToggle={toggle}
-        />
-      </div>
+      <DraggableGroup
+        title="메가메뉴 시술 카테고리"
+        items={MEGAMENU_ITEMS}
+        order={megaMenuOrder}
+        setOrder={setMegaMenuOrder}
+        doc={doc}
+        onToggle={toggle}
+        togglePath="nav"
+        saveOrder={(o) => saveOrderField('megaMenuOrder', o)}
+      />
 
       <DraggableGroup
         title="메인 홈 섹션"

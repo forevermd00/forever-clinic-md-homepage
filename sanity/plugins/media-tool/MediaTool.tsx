@@ -250,6 +250,7 @@ function VideoPanel({ onEdit }: { onEdit: (id: string) => void }) {
       title: { ko: '' },
       isVisible: true,
       displayLanguages: ['ko', 'en', 'zh', 'ja'],
+      publishedAt: new Date().toISOString().slice(0, 10),
     });
     onEdit(newDoc._id);
   };
