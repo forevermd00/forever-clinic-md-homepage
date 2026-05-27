@@ -10,83 +10,158 @@ const sanityClient = createClient({
   useCdn: false,
 });
 
+type PageEntry = {
+  path: string;
+  lastModified: Date;
+  changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'];
+  priority: number;
+};
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = BASE_URL;
   const locales = ['ko', 'en', 'zh', 'ja'];
+  const now = new Date();
 
-  const staticPages = [
-    '',
-    '/before-after',
-    '/treatments',
-    '/brand',
-    '/promotions',
-    '/contact',
-    '/media/press',
-    '/media/video',
-    '/media/blog',
-    '/media/notice',
+  const staticEntries: PageEntry[] = [
+    { path: '', lastModified: now, changeFrequency: 'daily', priority: 1.0 },
+    {
+      path: '/treatments',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      path: '/brand',
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      path: '/before-after',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      path: '/promotions',
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
+      path: '/contact',
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      path: '/media/press',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      path: '/media/video',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.6,
+    },
+    {
+      path: '/media/blog',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      path: '/media/notice',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.5,
+    },
   ];
 
-  // Category pages
-  const categoryPages = TREATMENT_CATEGORIES.map(
-    (c) => `/treatments/${c.slug}`,
-  );
+  const categoryEntries: PageEntry[] = TREATMENT_CATEGORIES.map((c) => ({
+    path: `/treatments/${c.slug}`,
+    lastModified: now,
+    changeFrequency: 'weekly',
+    priority: 0.85,
+  }));
 
-  // Treatment detail pages from Sanity
-  let treatmentPages: string[] = [];
-  let pressPages: string[] = [];
-  let blogPages: string[] = [];
+  let dynamicEntries: PageEntry[] = [];
   try {
     const [treatments, pressArticles, blogPosts] = await Promise.all([
-      sanityClient.fetch<{ slug: string; category: string }[]>(
-        `*[_type == "treatment" && isVisible == true]{"slug": slug.current, category}`,
+      sanityClient.fetch<
+        { slug: string; category: string; updatedAt: string }[]
+      >(
+        `*[_type == "treatment" && isVisible == true]{
+          "slug": slug.current,
+          category,
+          "updatedAt": _updatedAt
+        }`,
       ),
-      sanityClient.fetch<{ slug: string }[]>(
-        `*[_type == "pressArticle" && isVisible != false]{"slug": _id}`,
+      sanityClient.fetch<{ slug: string; updatedAt: string }[]>(
+        `*[_type == "pressArticle" && isVisible != false]{
+          "slug": _id,
+          "updatedAt": coalesce(publishedAt, _updatedAt)
+        }`,
       ),
-      sanityClient.fetch<{ slug: string }[]>(
-        `*[_type == "blogPost" && isVisible != false]{"slug": slug.current}`,
+      sanityClient.fetch<{ slug: string; updatedAt: string }[]>(
+        `*[_type == "blogPost" && isVisible != false]{
+          "slug": slug.current,
+          "updatedAt": coalesce(publishedAt, _updatedAt)
+        }`,
       ),
     ]);
-    treatmentPages = treatments
+
+    const treatmentEntries: PageEntry[] = treatments
       .filter((t) => t.slug && t.category)
-      .map((t) => `/treatments/${t.category}/${t.slug}`);
-    pressPages = pressArticles
+      .map((t) => ({
+        path: `/treatments/${t.category}/${t.slug}`,
+        lastModified: new Date(t.updatedAt),
+        changeFrequency: 'monthly' as const,
+        priority: 0.9,
+      }));
+
+    const pressEntries: PageEntry[] = pressArticles
       .filter((p) => p.slug)
-      .map((p) => `/media/press/${p.slug}`);
-    blogPages = blogPosts
+      .map((p) => ({
+        path: `/media/press/${p.slug}`,
+        lastModified: new Date(p.updatedAt),
+        changeFrequency: 'monthly' as const,
+        priority: 0.65,
+      }));
+
+    const blogEntries: PageEntry[] = blogPosts
       .filter((b) => b.slug)
-      .map((b) => `/media/blog/${b.slug}`);
+      .map((b) => ({
+        path: `/media/blog/${b.slug}`,
+        lastModified: new Date(b.updatedAt),
+        changeFrequency: 'monthly' as const,
+        priority: 0.7,
+      }));
+
+    dynamicEntries = [...treatmentEntries, ...pressEntries, ...blogEntries];
   } catch {
     // fall back to empty if Sanity is unreachable
   }
 
-  const allPages = [
-    ...staticPages,
-    ...categoryPages,
-    ...treatmentPages,
-    ...pressPages,
-    ...blogPages,
-  ];
+  const allEntries = [...staticEntries, ...categoryEntries, ...dynamicEntries];
 
-  const entries: MetadataRoute.Sitemap = allPages.flatMap((page) =>
-    locales.map((locale) => ({
-      url: `${baseUrl}/${locale}${page}`,
-      lastModified: new Date(),
-      changeFrequency:
-        page === ''
-          ? ('daily' as const)
-          : page === '/promotions'
-            ? ('daily' as const)
-            : ('weekly' as const),
-      priority: page === '' ? 1.0 : page.startsWith('/treatments') ? 0.9 : 0.8,
-      alternates: {
-        languages: Object.fromEntries(
-          locales.map((l) => [l, `${baseUrl}/${l}${page}`]),
-        ),
-      },
-    })),
+  return allEntries.flatMap(
+    ({ path, lastModified, changeFrequency, priority }) =>
+      locales.map((locale) => ({
+        url: `${baseUrl}/${locale}${path}`,
+        lastModified,
+        changeFrequency,
+        priority,
+        alternates: {
+          languages: {
+            'x-default': `${baseUrl}/ko${path}`,
+            ...Object.fromEntries(
+              locales.map((l) => [l, `${baseUrl}/${l}${path}`]),
+            ),
+          },
+        },
+      })),
   );
-
-  return entries;
 }
