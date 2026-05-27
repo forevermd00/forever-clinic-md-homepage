@@ -42,24 +42,31 @@ export function QuickEntrySection({
   const allCards = cardsByTab ?? {};
 
   // 탭 목록: Sanity 탭 우선, 없으면 fallback
-  const resolvedTabs: { key: string; label: string }[] =
+  const resolvedTabs: { id: string; key: string; label: string }[] =
     tabs && tabs.length > 0
-      ? tabs.map((tb) => ({ key: tb.key, label: tb.label || tb.key }))
+      ? tabs.map((tb) => ({
+          id: tb.id,
+          key: tb.key,
+          label: tb.label || tb.key,
+        }))
       : FALLBACK_TAB_KEYS.map((ft) => ({
+          id: ft.key,
           key: ft.key,
           label: t(ft.i18nKey),
         }));
 
-  // 카드가 있는 탭만 표시 (데이터 없는 탭은 숨김)
-  const visibleTabs = resolvedTabs.filter(
-    (tb) => (allCards[tb.key] ?? []).length > 0,
+  const firstKey = resolvedTabs[0]?.id ?? '';
+  const [activeTabId, setActiveTabId] = useState(firstKey);
+
+  // 카드 조회: tab._id(reference 방식) 우선, 없으면 tab.key(string 방식) fallback
+  function getCards(tab: { id: string; key: string }): QuickEntryCard[] {
+    return allCards[tab.id] ?? allCards[tab.key] ?? [];
+  }
+
+  const cards = getCards(
+    resolvedTabs.find((t) => t.id === activeTabId) ??
+      resolvedTabs[0] ?? { id: '', key: '' },
   );
-
-  const firstKey = visibleTabs[0]?.key ?? resolvedTabs[0]?.key ?? '';
-  const [activeTab, setActiveTab] = useState(firstKey);
-
-  const cards = allCards[activeTab] ?? [];
-  const displayTabs = visibleTabs.length > 0 ? visibleTabs : resolvedTabs;
 
   return (
     <section className="bg-[#faf8f5]">
@@ -67,19 +74,16 @@ export function QuickEntrySection({
         <h2 className="text-center text-[36px] font-bold text-[#2b2b2b]">
           {t('quickEntryTitle')}
         </h2>
-        <p className="mt-2 text-center text-[14px] text-[#706263]">
-          {t('quickEntrySubtitle')}
-        </p>
 
         {/* Tabs */}
         <div className="flex flex-wrap justify-center gap-0">
-          {displayTabs.map((tb) => (
+          {resolvedTabs.map((tb) => (
             <button
-              key={tb.key}
-              onClick={() => setActiveTab(tb.key)}
+              key={tb.id}
+              onClick={() => setActiveTabId(tb.id)}
               className={cn(
                 'px-6 py-3 text-[14px] font-medium transition-colors',
-                activeTab === tb.key
+                activeTabId === tb.id
                   ? 'bg-[#a83c44] text-white'
                   : 'bg-transparent text-[#2b2b2b] hover:bg-[#2b2b2b]/5',
               )}

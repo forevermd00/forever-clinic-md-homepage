@@ -14,7 +14,8 @@ interface SanityQuickEntryCard {
   _id: string;
   title?: string;
   description?: string;
-  tabKey?: string;
+  /** tab->_id (reference) or raw tab string ('treatment' etc.) */
+  tabLookup?: string;
   cardSlug?: string;
   icon?: { asset?: { _ref: string } };
   linkedTreatments?: SanityLinkedTreatment[];
@@ -79,10 +80,10 @@ export async function getQuickEntryCardsByTab(
 
   const result: Record<string, QuickEntryCard[]> = {};
   for (const card of data) {
-    const key = card.tabKey;
-    if (!key) continue;
-    if (!result[key]) result[key] = [];
-    result[key].push({
+    const lookup = card.tabLookup;
+    if (!lookup || typeof lookup !== 'string') continue;
+    if (!result[lookup]) result[lookup] = [];
+    result[lookup].push({
       id: card._id,
       title: card.title || '',
       description: card.description || '',
