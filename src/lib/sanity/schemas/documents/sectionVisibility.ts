@@ -73,7 +73,7 @@ export const sectionVisibility = defineType({
         }),
         defineField({
           name: 'stats',
-          title: '통계 스트립',
+          title: '지표 스트립',
           type: 'boolean',
           initialValue: true,
         }),
@@ -135,6 +135,12 @@ export const sectionVisibility = defineType({
         defineField({
           name: 'location',
           title: '위치',
+          type: 'boolean',
+          initialValue: true,
+        }),
+        defineField({
+          name: 'stats',
+          title: '지표',
           type: 'boolean',
           initialValue: true,
         }),

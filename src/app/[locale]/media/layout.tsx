@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { getPageHero } from '@/lib/data/hero';
 import { urlFor } from '@/lib/sanity/image';
 import { MediaLayoutClient } from '@/components/media/MediaLayoutClient';

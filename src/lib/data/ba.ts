@@ -12,17 +12,14 @@ interface SanityBACase {
   _id: string;
   beforeImage?: unknown;
   afterImage?: unknown;
-  treatment?: {
-    name: string;
-    slug: string;
-    category: string;
-  };
+  title?: string;
+  treatmentName?: string;
+  description?: string;
   sessions?: string;
-  elapsed?: string;
+  categories?: string[];
 }
 
 interface SanityBACaseDetail extends SanityBACase {
-  description?: string;
   prevCase?: { _id: string };
   nextCase?: { _id: string };
 }
@@ -33,22 +30,22 @@ export type BACase = {
   _id: string;
   beforeImage?: string;
   afterImage?: string;
-  treatment?: {
-    name: string;
-    slug: string;
-    category: string;
-  };
+  title: string;
+  description?: string;
   sessions?: string;
-  elapsed?: string;
+  categories?: string[];
 };
 
 export type BACaseDetail = BACase & {
-  description?: string;
   prevCase?: { _id: string };
   nextCase?: { _id: string };
 };
 
 /* ─── Mapping helpers ─── */
+
+function resolveTitle(raw: SanityBACase): string {
+  return raw.title || raw.treatmentName || '';
+}
 
 function mapBACase(raw: SanityBACase): BACase {
   return {
@@ -59,9 +56,10 @@ function mapBACase(raw: SanityBACase): BACase {
     afterImage: raw.afterImage
       ? urlFor(raw.afterImage)?.width(600).height(400).url() || undefined
       : undefined,
-    treatment: raw.treatment,
+    title: resolveTitle(raw),
+    description: raw.description,
     sessions: raw.sessions,
-    elapsed: raw.elapsed,
+    categories: raw.categories,
   };
 }
 
@@ -105,7 +103,6 @@ export async function getBADetail(
   if (!data) return null;
   return {
     ...mapBACase(data),
-    description: data.description,
     prevCase: data.prevCase,
     nextCase: data.nextCase,
   };

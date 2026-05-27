@@ -48,15 +48,18 @@ export const homeQuickEntryQuery = `*[_type == "quickEntryCard" && isVisible == 
 export const homePromoQuery = `*[_type == "promotion" && showOnMain == true] | order(sortOrder asc)[0...3]`;
 
 export const homeEventTreatmentsQuery = `
-  *[_type == "treatment" && isVisible == true && isEvent == true && showOnMain == true] | order(sortOrder asc) {
+  *[_type == "treatment" && isVisible == true && isEvent == true && showInMenu == true] | order(sortOrder asc) {
     _id, name, "slug": slug.current, category, tagline, priceOptions, isEvent
   }
 `;
 
 export const homeBACasesQuery = `*[_type == "baCase" && showOnMain == true && isVisible == true] | order(_createdAt desc)[0...3] {
   _id, beforeImage, afterImage,
-  "treatment": treatment-> { _id, "name": name[$locale], "slug": slug.current, category },
-  "sessions": sessions[$locale], "elapsed": elapsed[$locale]
+  "title": coalesce(title[$locale], title.ko),
+  "treatmentName": treatment->name[$locale],
+  "description": coalesce(description[$locale], description.ko),
+  "sessions": sessions[$locale],
+  categories
 }`;
 
 export const homeBrandQuery = `*[_type == "brandPhilosophy"][0]{ slogan, subtitle, badge, values }`;
@@ -90,6 +93,7 @@ export const quickEntryCardBySlugQuery = `
   *[_type == "quickEntryCard" && slug.current == $slug][0] {
     _id,
     "title": title[$locale],
+    "description": description[$locale],
     "slug": slug.current,
     "treatments": linkedTreatments[]-> {
       _id,
@@ -158,8 +162,10 @@ export const baCasesFilteredQuery = `
   ] | order(sortOrder asc) {
     _id, beforeImage, afterImage,
     "title": coalesce(title[$locale], title.ko),
+    "treatmentName": treatment->name[$locale],
+    "description": coalesce(description[$locale], description.ko),
     categories,
-    "sessions": sessions[$locale], "elapsed": elapsed[$locale]
+    "sessions": sessions[$locale]
   }
 `;
 
@@ -167,9 +173,10 @@ export const baCaseDetailQuery = `
   *[_type == "baCase" && _id == $id && isVisible == true][0] {
     _id, beforeImage, afterImage,
     "title": coalesce(title[$locale], title.ko),
+    "treatmentName": treatment->name[$locale],
+    "description": coalesce(description[$locale], description.ko),
     categories,
-    "sessions": sessions[$locale], "elapsed": elapsed[$locale],
-    "description": description[$locale],
+    "sessions": sessions[$locale],
     "prevCase": *[_type == "baCase" && isVisible == true && sortOrder < ^.sortOrder] | order(sortOrder desc)[0] { _id },
     "nextCase": *[_type == "baCase" && isVisible == true && sortOrder > ^.sortOrder] | order(sortOrder asc)[0] { _id }
   }

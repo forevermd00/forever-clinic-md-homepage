@@ -16,7 +16,12 @@ import type { NavTreatment } from '@/lib/sanity/queries';
    Megamenu types & static columns (BA / Brand / Media)
    Treatment columns are built dynamically from Sanity navTreatments.
    ---------------------------------------------------------------- */
-type MegaItem = { tKey?: string; directName?: string; href: string };
+type MegaItem = {
+  tKey?: string;
+  directName?: string;
+  href: string;
+  titleNs?: 'megamenu' | 'nav' | 'footer';
+};
 type MegaColumn = {
   group: string;
   titleKey: string;
@@ -32,42 +37,75 @@ const STATIC_BA_COLUMN: MegaColumn = {
   titleNs: 'nav',
   href: '/before-after',
   items: [
-    { tKey: 'baAll', href: '/before-after' },
-    { tKey: 'baLifting', href: '/before-after?cat=lifting' },
-    { tKey: 'baSkincare', href: '/before-after?cat=skincare' },
-    { tKey: 'baToning', href: '/before-after?cat=toning' },
-    { tKey: 'baBotox', href: '/before-after?cat=botox' },
+    {
+      tKey: 'liftingLaser',
+      href: '/before-after?cat=lifting-laser',
+      titleNs: 'footer',
+    },
+    {
+      tKey: 'petitLifting',
+      href: '/before-after?cat=petit-lifting',
+      titleNs: 'footer',
+    },
+    {
+      tKey: 'skincareCat',
+      href: '/before-after?cat=skincare',
+      titleNs: 'footer',
+    },
+    {
+      tKey: 'skinBooster',
+      href: '/before-after?cat=skin-booster',
+      titleNs: 'footer',
+    },
+    {
+      tKey: 'hairRemoval',
+      href: '/before-after?cat=hair-removal',
+      titleNs: 'footer',
+    },
+    {
+      tKey: 'anesthesia',
+      href: '/before-after?cat=anesthesia',
+      titleNs: 'footer',
+    },
   ],
   dividerAfter: true,
 };
 
-const STATIC_BRAND_COLUMN: MegaColumn = {
-  group: 'brand',
-  titleKey: 'brand',
-  titleNs: 'footer',
-  href: '/brand',
-  items: [
-    { tKey: 'brandPhilosophy', href: '/brand#philosophy' },
-    { tKey: 'doctors', href: '/brand#doctors' },
-    { tKey: 'facilities', href: '/brand#facilities' },
-    { tKey: 'equipment', href: '/brand#equipment' },
-    { tKey: 'location', href: '/brand#location' },
-  ],
-  dividerAfter: true,
-};
+// stats는 메뉴에 표시하지 않음
+const ALL_BRAND_ITEMS = [
+  {
+    key: 'philosophy',
+    visKey: 'philosophy',
+    tKey: 'brandPhilosophy',
+    href: '/brand#philosophy',
+  },
+  {
+    key: 'doctors',
+    visKey: 'doctors',
+    tKey: 'doctors',
+    href: '/brand#doctors',
+  },
+  {
+    key: 'facilities',
+    visKey: 'facilities',
+    tKey: 'facilities',
+    href: '/brand#facilities',
+  },
+  {
+    key: 'equipment',
+    visKey: 'equipment',
+    tKey: 'equipment',
+    href: '/brand#equipment',
+  },
+  {
+    key: 'location',
+    visKey: 'location',
+    tKey: 'location',
+    href: '/brand#location',
+  },
+] as const;
 
-const STATIC_MEDIA_COLUMN: MegaColumn = {
-  group: 'media',
-  titleKey: 'media',
-  titleNs: 'footer',
-  href: '/media',
-  items: [
-    { tKey: 'press', href: '/media/press' },
-    { tKey: 'video', href: '/media/video' },
-    { tKey: 'blog', href: '/media/blog' },
-    { tKey: 'notice', href: '/media/notice' },
-  ],
-};
+const DEFAULT_BRAND_ITEMS_ORDER = ALL_BRAND_ITEMS.map((b) => b.key);
 
 const CATEGORY_ORDER = [
   'lifting-laser',
@@ -157,7 +195,14 @@ function MegaColumn({
           scroll={true}
           className="py-[5px] text-[13px] text-[#555] transition-colors hover:text-[#a83c44]"
         >
-          {item.directName ?? (item.tKey ? tMega(item.tKey) : '')}
+          {item.directName ??
+            (item.tKey
+              ? (item.titleNs === 'footer'
+                  ? tFooter
+                  : item.titleNs === 'nav'
+                    ? tNav
+                    : tMega)(item.tKey)
+              : '')}
         </Link>
       ))}
     </div>
@@ -290,7 +335,14 @@ function MobileNavSection({
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="block py-2 text-[13px] text-[#706263]"
                   >
-                    {item.directName ?? (item.tKey ? tMega(item.tKey) : '')}
+                    {item.directName ??
+                      (item.tKey
+                        ? (item.titleNs === 'footer'
+                            ? tFooter
+                            : item.titleNs === 'nav'
+                              ? tNav
+                              : tMega)(item.tKey)
+                        : '')}
                   </Link>
                 ))}
         </div>
@@ -299,18 +351,35 @@ function MobileNavSection({
   );
 }
 
+const ALL_MEDIA_ITEMS = [
+  { key: 'press', href: '/media/press' },
+  { key: 'video', href: '/media/video' },
+  { key: 'blog', href: '/media/blog' },
+  { key: 'notice', href: '/media/notice' },
+] as const;
+
+const DEFAULT_MEDIA_ORDER = ALL_MEDIA_ITEMS.map((m) => m.key);
+
 interface HeaderProps {
   navVisibility?: SectionVisibility['nav'];
+  mediaVisibility?: SectionVisibility['media'];
+  brandVisibility?: SectionVisibility['brand'];
   navTreatments?: NavTreatment[];
   navOrder?: string[];
   megaMenuOrder?: string[];
+  brandOrder?: string[];
+  mediaOrder?: string[];
 }
 
 export function Header({
   navVisibility,
+  mediaVisibility,
+  brandVisibility,
   navTreatments = [],
   navOrder,
   megaMenuOrder,
+  brandOrder,
+  mediaOrder,
 }: HeaderProps = {}) {
   const pathname = usePathname();
   const currentLocale = pathname.split('/')[1] as Locale;
@@ -354,6 +423,55 @@ export function Header({
     }));
   }, [navTreatments, currentLocale, navVisibility, megaMenuOrder]);
 
+  const brandColumn = useMemo<MegaColumn>(() => {
+    const orderedKeys = brandOrder?.length
+      ? [
+          ...brandOrder.filter((k) =>
+            DEFAULT_BRAND_ITEMS_ORDER.includes(
+              k as (typeof DEFAULT_BRAND_ITEMS_ORDER)[number],
+            ),
+          ),
+          ...DEFAULT_BRAND_ITEMS_ORDER.filter((k) => !brandOrder.includes(k)),
+        ]
+      : DEFAULT_BRAND_ITEMS_ORDER;
+    const visibleItems = orderedKeys
+      .map((k) => ALL_BRAND_ITEMS.find((b) => b.key === k))
+      .filter((b): b is (typeof ALL_BRAND_ITEMS)[number] => b !== undefined)
+      .filter((b) => !brandVisibility || brandVisibility[b.visKey] !== false);
+    return {
+      group: 'brand',
+      titleKey: 'brand',
+      titleNs: 'footer' as const,
+      href: '/brand',
+      items: visibleItems.map((b) => ({ tKey: b.tKey, href: b.href })),
+      dividerAfter: true,
+    };
+  }, [brandOrder, brandVisibility]);
+
+  const mediaColumn = useMemo<MegaColumn>(() => {
+    const orderedKeys = mediaOrder?.length
+      ? [
+          ...mediaOrder.filter((k) =>
+            DEFAULT_MEDIA_ORDER.includes(
+              k as (typeof DEFAULT_MEDIA_ORDER)[number],
+            ),
+          ),
+          ...DEFAULT_MEDIA_ORDER.filter((k) => !mediaOrder.includes(k)),
+        ]
+      : DEFAULT_MEDIA_ORDER;
+    const visibleItems = orderedKeys
+      .map((k) => ALL_MEDIA_ITEMS.find((m) => m.key === k))
+      .filter((m): m is (typeof ALL_MEDIA_ITEMS)[number] => m !== undefined)
+      .filter((m) => !mediaVisibility || mediaVisibility[m.key] !== false);
+    return {
+      group: 'media',
+      titleKey: 'media',
+      titleNs: 'footer' as const,
+      href: '/media',
+      items: visibleItems.map((m) => ({ tKey: m.key, href: m.href })),
+    };
+  }, [mediaOrder, mediaVisibility]);
+
   const allColumns = useMemo<MegaColumn[]>(
     () => [
       ...(!navVisibility || navVisibility.bnA !== false
@@ -362,14 +480,10 @@ export function Header({
       ...(!navVisibility || navVisibility.treatments !== false
         ? treatmentColumns
         : []),
-      ...(!navVisibility || navVisibility.brand !== false
-        ? [STATIC_BRAND_COLUMN]
-        : []),
-      ...(!navVisibility || navVisibility.media !== false
-        ? [STATIC_MEDIA_COLUMN]
-        : []),
+      ...(!navVisibility || navVisibility.brand !== false ? [brandColumn] : []),
+      ...(!navVisibility || navVisibility.media !== false ? [mediaColumn] : []),
     ],
-    [treatmentColumns, navVisibility],
+    [treatmentColumns, navVisibility, brandColumn, mediaColumn],
   );
 
   const [isScrolled, setIsScrolled] = useState(false);

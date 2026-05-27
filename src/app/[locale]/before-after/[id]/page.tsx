@@ -8,13 +8,6 @@ import { BALockOverlay } from '@/components/ba/BALockOverlay';
 import { getPageHero } from '@/lib/data/hero';
 import { urlFor } from '@/lib/sanity/image';
 
-const DUMMY_DETAIL = {
-  id: '1',
-  treatmentName: '울쎄라 리프팅',
-  sessionCount: 3,
-  totalSessions: 5,
-};
-
 export default async function BADetailPage({
   params,
 }: {
@@ -36,11 +29,9 @@ export default async function BADetailPage({
 
   const detail = {
     id: cmsDetail._id,
-    treatmentName: cmsDetail.treatment?.name ?? DUMMY_DETAIL.treatmentName,
-    sessionCount: cmsDetail.sessions
-      ? parseInt(cmsDetail.sessions, 10) || DUMMY_DETAIL.sessionCount
-      : DUMMY_DETAIL.sessionCount,
-    totalSessions: DUMMY_DETAIL.totalSessions,
+    displayTitle: [cmsDetail.title, cmsDetail.sessions]
+      .filter(Boolean)
+      .join(' — '),
     description: cmsDetail.description,
     beforeImage: cmsDetail.beforeImage,
     afterImage: cmsDetail.afterImage,
@@ -63,10 +54,11 @@ export default async function BADetailPage({
       <section className="bg-white px-5 py-12 md:px-10 lg:px-[120px]">
         <div className="mx-auto max-w-[var(--container-max)]">
           {/* Title */}
-          <h2 className="text-forever-charcoal mb-10 text-center text-[24px] font-bold">
-            {detail.treatmentName} &mdash;{' '}
-            {t('sessions', { count: detail.sessionCount })}
-          </h2>
+          {detail.displayTitle && (
+            <h2 className="text-forever-charcoal mb-10 text-center text-[24px] font-bold">
+              {detail.displayTitle}
+            </h2>
+          )}
 
           {/* Before / After — arrows on sides, images side-by-side (desktop) / stacked (mobile) */}
           <div className="flex items-center gap-2 md:gap-4">

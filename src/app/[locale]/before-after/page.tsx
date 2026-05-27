@@ -47,9 +47,9 @@ function mapCmsCases(
 ): BACase[] {
   return cmsCases.map((c) => ({
     id: c._id,
-    treatmentName: c.treatment?.name ?? '',
-    sessionCount: c.sessions ? parseInt(c.sessions, 10) || 0 : 0,
-    category: c.treatment?.category ?? '',
+    title: c.title,
+    sessions: c.sessions,
+    category: c.categories?.[0] ?? '',
     beforeImage: c.beforeImage,
     afterImage: c.afterImage,
   }));

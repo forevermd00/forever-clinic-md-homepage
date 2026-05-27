@@ -39,7 +39,7 @@ function deriveLinkUrl(
   cardSlug?: string,
   linked?: SanityLinkedTreatment[],
 ): string {
-  if (cardSlug) return `/quick-entry/${cardSlug}`;
+  if (cardSlug) return `/treatments/${cardSlug}`;
   if (!linked || linked.length === 0) return '/treatments';
   if (linked.length === 1) {
     return `/treatments/${linked[0].category}/${linked[0].slug}`;

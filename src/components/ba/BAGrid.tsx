@@ -7,10 +7,12 @@ import { cn } from '@/lib/utils/cn';
 
 const FILTER_TABS = [
   { id: 'all', key: 'filterAll' },
-  { id: 'lifting', key: 'filterLifting' },
+  { id: 'lifting-laser', key: 'filterLiftingLaser' },
+  { id: 'petit-lifting', key: 'filterPetitLifting' },
   { id: 'skincare', key: 'filterSkincare' },
-  { id: 'toning', key: 'filterToning' },
-  { id: 'botox-filler', key: 'filterBotox' },
+  { id: 'skin-booster', key: 'filterSkinBooster' },
+  { id: 'hair-removal', key: 'filterHairRemoval' },
+  { id: 'anesthesia', key: 'filterAnesthesia' },
 ] as const;
 
 interface BAGridProps {

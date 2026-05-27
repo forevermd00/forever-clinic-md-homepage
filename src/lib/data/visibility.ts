@@ -32,6 +32,7 @@ export interface SectionVisibility {
     facilities: boolean;
     equipment: boolean;
     location: boolean;
+    stats: boolean;
   };
   media: {
     press: boolean;
@@ -85,11 +86,29 @@ export const DEFAULT_VISIBILITY: SectionVisibility = {
     facilities: true,
     equipment: true,
     location: true,
+    stats: true,
   },
   media: { press: true, blog: true, notice: true, video: true },
   treatments: { detail: true, showPrice: true },
   contact: { showPreferredDatetime: true },
 };
+
+// Admin saves catXxx keys (catLiftingLaser), but consuming code uses slugs (lifting-laser)
+const MEGA_MENU_KEY_TO_SLUG: Record<string, string> = {
+  catLiftingLaser: 'lifting-laser',
+  catPetitLifting: 'petit-lifting',
+  catSkincare: 'skincare',
+  catSkinBooster: 'skin-booster',
+  catHairRemoval: 'hair-removal',
+  catAnesthesia: 'anesthesia',
+};
+
+function normalizeMegaMenuOrder(
+  order: string[] | null | undefined,
+): string[] | null {
+  if (!order?.length) return null;
+  return order.map((k) => MEGA_MENU_KEY_TO_SLUG[k] ?? k);
+}
 
 const QUERY = `*[_type == "sectionVisibility" && _id == "sectionVisibility"][0]{
   nav,
@@ -158,6 +177,7 @@ export async function getSectionVisibility(): Promise<SectionVisibility> {
       facilities: raw.brand?.facilities ?? true,
       equipment: raw.brand?.equipment ?? true,
       location: raw.brand?.location ?? true,
+      stats: raw.brand?.stats ?? true,
     },
     media: {
       press: raw.media?.press ?? true,
@@ -173,7 +193,7 @@ export async function getSectionVisibility(): Promise<SectionVisibility> {
       showPreferredDatetime: raw.contact?.showPreferredDatetime ?? true,
     },
     navOrder: raw.navOrder ?? null,
-    megaMenuOrder: raw.megaMenuOrder ?? null,
+    megaMenuOrder: normalizeMegaMenuOrder(raw.megaMenuOrder),
     homeOrder: raw.homeOrder ?? null,
     brandOrder: raw.brandOrder ?? null,
     mediaOrder: raw.mediaOrder ?? null,

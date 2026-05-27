@@ -91,7 +91,7 @@ export default async function BrandPage({
     bv.location ? getClinicInfo(locale) : null,
     bv.philosophy ? getBrandPhilosophy(locale) : null,
     getPageHero('brand', locale),
-    getStats(locale),
+    bv.stats !== false ? getStats(locale) : null,
   ]);
   const heroImageUrl = hero?.heroImage
     ? urlFor(hero.heroImage)?.width(1200).height(630).url() || undefined
@@ -157,9 +157,6 @@ export default async function BrandPage({
         brandOrder={visibility.brandOrder}
       />
 
-      {/* Stats Strip — always before ordered sections */}
-      {stats && stats.length > 0 && <StatsStripSection stats={stats} />}
-
       {/* Ordered brand sections */}
       {(() => {
         const DEFAULT_BRAND_ORDER = [
@@ -168,6 +165,7 @@ export default async function BrandPage({
           'facilities',
           'equipment',
           'location',
+          'stats',
         ];
         const brandOrder = visibility.brandOrder?.length
           ? visibility.brandOrder
@@ -399,6 +397,12 @@ export default async function BrandPage({
                   </div>
                 </div>
               </section>
+            ) : null,
+          stats:
+            bv.stats !== false && stats && stats.length > 0 ? (
+              <div key="stats" id="stats" className="scroll-mt-[120px]">
+                <StatsStripSection stats={stats} />
+              </div>
             ) : null,
         };
 

@@ -57,48 +57,56 @@ export function BAPreviewSection({ cases }: BAPreviewSectionProps = {}) {
           {cases
             .map((c) => ({
               id: c._id,
-              treatment: c.treatment?.name || '',
+              title: c.title,
               sessions: c.sessions || '',
+              description: c.description,
               beforeImage: c.beforeImage,
               afterImage: c.afterImage,
-              category: c.treatment?.category,
+              category: c.categories?.[0],
             }))
             .filter(
               (card) =>
                 activeFilter === 'all' || card.category === activeFilter,
             )
-            .map((card) => (
-              <Link
-                key={card.id}
-                href={`/${locale}/before-after/${card.id}`}
-                className="block w-[311px] overflow-hidden rounded-[8px] border border-[#efe5d9] shadow-[0px_1px_2px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-md"
-              >
-                <div className="flex h-[250px]">
-                  <div className="flex-1 overflow-hidden">
-                    <BALockOverlay locale={locale} className="h-[250px] w-full">
-                      {card.beforeImage ? (
-                        <img
-                          src={card.beforeImage}
-                          alt="BEFORE"
-                          className="h-[250px] w-full object-cover"
-                        />
-                      ) : (
-                        <div className="h-[250px] w-full bg-[#f3eee6]" />
-                      )}
-                    </BALockOverlay>
+            .map((card) => {
+              const displayTitle = [card.title, card.sessions]
+                .filter(Boolean)
+                .join(' — ');
+              return (
+                <Link
+                  key={card.id}
+                  href={`/${locale}/before-after/${card.id}`}
+                  className="block w-[311px] overflow-hidden rounded-[8px] border border-[#efe5d9] shadow-[0px_1px_2px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-md"
+                >
+                  <div className="flex h-[250px]">
+                    <div className="flex-1 overflow-hidden">
+                      <BALockOverlay
+                        locale={locale}
+                        className="h-[250px] w-full"
+                      >
+                        {card.beforeImage ? (
+                          <img
+                            src={card.beforeImage}
+                            alt="BEFORE"
+                            className="h-[250px] w-full object-cover"
+                          />
+                        ) : (
+                          <div className="h-[250px] w-full bg-[#f3eee6]" />
+                        )}
+                      </BALockOverlay>
+                    </div>
+                    <div className="flex-1 bg-[#e0d2b6]" />
                   </div>
-                  <div className="flex-1 bg-[#e0d2b6]" />
-                </div>
-                <div className="flex items-center justify-between px-3 py-2">
-                  <span className="text-forever-charcoal text-[15px] font-bold">
-                    {card.treatment}
-                  </span>
-                  <span className="text-[13px] text-[#706263]">
-                    {card.sessions}
-                  </span>
-                </div>
-              </Link>
-            ))}
+                  {displayTitle && (
+                    <div className="px-3 py-3">
+                      <p className="text-forever-charcoal text-[15px] leading-snug font-bold">
+                        {displayTitle}
+                      </p>
+                    </div>
+                  )}
+                </Link>
+              );
+            })}
         </div>
 
         {/* CTA button */}

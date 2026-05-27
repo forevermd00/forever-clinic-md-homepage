@@ -22,7 +22,7 @@ export default defineType({
       name: 'slug',
       title: '슬러그',
       type: 'slug',
-      description: '설정 시 /quick-entry/{slug} 페이지로 연결됩니다',
+      description: '설정 시 /treatments/{slug} 페이지로 연결됩니다',
       options: { source: 'title.ko' },
     }),
     defineField({ name: 'icon', title: '아이콘/이미지', type: 'image' }),

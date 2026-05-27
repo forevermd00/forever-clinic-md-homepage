@@ -91,12 +91,25 @@ export default async function LocaleLayout({
           <NextIntlClientProvider messages={messages}>
             <Header
               navVisibility={visibility.nav}
+              mediaVisibility={visibility.media}
+              brandVisibility={visibility.brand}
               navTreatments={navTreatments ?? []}
               navOrder={visibility.navOrder ?? undefined}
               megaMenuOrder={visibility.megaMenuOrder ?? undefined}
+              brandOrder={visibility.brandOrder ?? undefined}
+              mediaOrder={visibility.mediaOrder ?? undefined}
             />
             <main>{children}</main>
-            <Footer locale={locale} clinicInfo={clinicInfo ?? undefined} />
+            <Footer
+              locale={locale}
+              clinicInfo={clinicInfo ?? undefined}
+              navVisibility={visibility.nav}
+              brandVisibility={visibility.brand}
+              mediaVisibility={visibility.media}
+              megaMenuOrder={visibility.megaMenuOrder}
+              brandOrder={visibility.brandOrder}
+              mediaOrder={visibility.mediaOrder}
+            />
             <FloatingCTA />
           </NextIntlClientProvider>
         </SessionProvider>

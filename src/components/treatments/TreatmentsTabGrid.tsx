@@ -44,6 +44,7 @@ interface TreatmentsTabGridProps {
   categories?: TreatmentCategory[];
   showDetail?: boolean;
   showPrice?: boolean;
+  tabsOnly?: boolean;
 }
 
 export function TreatmentsTabGrid({
@@ -51,6 +52,7 @@ export function TreatmentsTabGrid({
   categories = TREATMENT_CATEGORIES,
   showDetail = true,
   showPrice = true,
+  tabsOnly = false,
 }: TreatmentsTabGridProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -130,14 +132,20 @@ export function TreatmentsTabGrid({
   }, [slugFilter, labelParam, descParam, categories]);
 
   // searchParams에서 직접 파생 — useEffect + setState 패턴 제거
-  const activeCategory = filteredCategory
-    ? '__filtered__'
-    : (() => {
-        const cat = searchParams.get('cat');
-        return cat && allTabs.find((c) => c.slug === cat) ? cat : EVENT_SLUG;
-      })();
+  const activeCategory = tabsOnly
+    ? '__none__'
+    : filteredCategory
+      ? '__filtered__'
+      : (() => {
+          const cat = searchParams.get('cat');
+          return cat && allTabs.find((c) => c.slug === cat) ? cat : EVENT_SLUG;
+        })();
 
   const handleTabChange = (slug: string) => {
+    if (tabsOnly) {
+      router.push(`/${locale}/treatments?cat=${slug}`);
+      return;
+    }
     const params = new URLSearchParams();
     params.set('cat', slug);
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
@@ -158,7 +166,7 @@ export function TreatmentsTabGrid({
       >
         <div className="flex w-full flex-wrap items-center justify-center gap-y-1 px-4 py-2">
           {allTabs.map((cat, idx) => {
-            const isActive = cat.slug === activeCategory;
+            const isActive = !tabsOnly && cat.slug === activeCategory;
             const isEventTab = cat.slug === EVENT_SLUG;
             const isSignatureTab = cat.slug === SIGNATURE_SLUG;
             const isSpecialTab = isEventTab || isSignatureTab;
@@ -255,7 +263,7 @@ export function TreatmentsTabGrid({
       </nav>
 
       {/* 탭 패널 */}
-      {currentCategory && (
+      {!tabsOnly && currentCategory && (
         <div
           id={`panel-${currentCategory.slug}`}
           role="tabpanel"
@@ -376,20 +384,22 @@ export function TreatmentsTabGrid({
       )}
 
       {/* 하단 상담 CTA */}
-      <section className="bg-[#5c1f24] py-12 text-center">
-        <h2 className="text-[22px] font-bold text-white lg:text-[26px]">
-          {tc('startConsultation')}
-        </h2>
-        <p className="mt-2 text-[13px] text-[rgba(255,255,255,0.6)]">
-          {tc('findRightTreatment')}
-        </p>
-        <Link
-          href={`/${locale}/contact`}
-          className="mt-6 inline-flex items-center justify-center rounded-[4px] border border-white px-8 py-3 text-[13px] font-medium text-white transition-colors hover:bg-white/10"
-        >
-          {tc('consultationReservation')}
-        </Link>
-      </section>
+      {!tabsOnly && (
+        <section className="bg-[#5c1f24] py-12 text-center">
+          <h2 className="text-[22px] font-bold text-white lg:text-[26px]">
+            {tc('startConsultation')}
+          </h2>
+          <p className="mt-2 text-[13px] text-[rgba(255,255,255,0.6)]">
+            {tc('findRightTreatment')}
+          </p>
+          <Link
+            href={`/${locale}/contact`}
+            className="mt-6 inline-flex items-center justify-center rounded-[4px] border border-white px-8 py-3 text-[13px] font-medium text-white transition-colors hover:bg-white/10"
+          >
+            {tc('consultationReservation')}
+          </Link>
+        </section>
+      )}
     </div>
   );
 }

@@ -37,9 +37,29 @@ export default defineType({
       description: '예: 2개월 경과',
     }),
     defineField({
+      name: 'title',
+      title: '카드 제목',
+      type: 'localizedString',
+      description: '카드 하단에 표시되는 제목 (미입력 시 연결 시술명 사용)',
+    }),
+    defineField({
       name: 'description',
       title: '케이스 설명',
       type: 'localizedString',
+    }),
+    defineField({
+      name: 'categories',
+      title: '카테고리',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        list: [
+          { title: '리프팅', value: 'lifting' },
+          { title: '피부케어', value: 'skincare' },
+          { title: '토닝/색소', value: 'toning' },
+          { title: '보톡스/필러', value: 'botox-filler' },
+        ],
+      },
     }),
     defineField({
       name: 'showOnMain',

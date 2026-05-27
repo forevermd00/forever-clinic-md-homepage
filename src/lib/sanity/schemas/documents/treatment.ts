@@ -165,7 +165,7 @@ export default defineType({
     }),
     defineField({
       name: 'composition',
-      title: '구성 시술',
+      title: '구성 시술 (선택)',
       description: '시그니처 프로그램 구성 시술 목록',
       type: 'localizedText',
     }),
@@ -204,7 +204,7 @@ export default defineType({
     }),
     defineField({
       name: 'showInMenu',
-      title: '메뉴 노출',
+      title: '메인 홈에 표시',
       description: '상단 네비게이션 메뉴에 표시합니다',
       type: 'boolean',
       initialValue: false,

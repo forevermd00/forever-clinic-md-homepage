@@ -2,33 +2,93 @@
 
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import type { SectionVisibility } from '@/lib/data/visibility';
 
-/* Treatment links - i18n keys (6개 카테고리, 2026-05-07 기준) */
-const treatmentLinkKeys = [
-  { key: 'liftingLaser', href: '/treatments?cat=lifting-laser' },
-  { key: 'petitLifting', href: '/treatments?cat=petit-lifting' },
-  { key: 'skincareCat', href: '/treatments?cat=skincare' },
-  { key: 'skinBooster', href: '/treatments?cat=skin-booster' },
-  { key: 'hairRemoval', href: '/treatments?cat=hair-removal' },
-  { key: 'anesthesia', href: '/treatments?cat=anesthesia' },
+const ALL_TREATMENT_LINKS = [
+  {
+    slug: 'lifting-laser',
+    visKey: 'catLiftingLaser',
+    i18nKey: 'liftingLaser',
+    href: '/treatments?cat=lifting-laser',
+  },
+  {
+    slug: 'petit-lifting',
+    visKey: 'catPetitLifting',
+    i18nKey: 'petitLifting',
+    href: '/treatments?cat=petit-lifting',
+  },
+  {
+    slug: 'skincare',
+    visKey: 'catSkincare',
+    i18nKey: 'skincareCat',
+    href: '/treatments?cat=skincare',
+  },
+  {
+    slug: 'skin-booster',
+    visKey: 'catSkinBooster',
+    i18nKey: 'skinBooster',
+    href: '/treatments?cat=skin-booster',
+  },
+  {
+    slug: 'hair-removal',
+    visKey: 'catHairRemoval',
+    i18nKey: 'hairRemoval',
+    href: '/treatments?cat=hair-removal',
+  },
+  {
+    slug: 'anesthesia',
+    visKey: 'catAnesthesia',
+    i18nKey: 'anesthesia',
+    href: '/treatments?cat=anesthesia',
+  },
 ] as const;
 
-/* Brand links use i18n keys */
-const brandLinkKeys = [
-  { key: 'brandPhilosophy', href: '/brand#philosophy' },
-  { key: 'doctors', href: '/brand#doctors' },
-  { key: 'facilities', href: '/brand#facilities' },
-  { key: 'equipment', href: '/brand#equipment' },
-  { key: 'location', href: '/brand#location' },
-] as const;
+const DEFAULT_TREATMENT_ORDER = ALL_TREATMENT_LINKS.map((l) => l.slug);
 
-/* Media links use i18n keys */
-const mediaLinkKeys = [
+const ALL_MEDIA_LINKS = [
   { key: 'press', href: '/media/press' },
   { key: 'video', href: '/media/video' },
   { key: 'blog', href: '/media/blog' },
   { key: 'notice', href: '/media/notice' },
 ] as const;
+
+const DEFAULT_MEDIA_ORDER = ALL_MEDIA_LINKS.map((l) => l.key);
+
+// stats는 footer에 표시하지 않음
+const ALL_BRAND_LINKS = [
+  {
+    key: 'philosophy',
+    visKey: 'philosophy',
+    i18nKey: 'brandPhilosophy',
+    href: '/brand#philosophy',
+  },
+  {
+    key: 'doctors',
+    visKey: 'doctors',
+    i18nKey: 'doctors',
+    href: '/brand#doctors',
+  },
+  {
+    key: 'facilities',
+    visKey: 'facilities',
+    i18nKey: 'facilities',
+    href: '/brand#facilities',
+  },
+  {
+    key: 'equipment',
+    visKey: 'equipment',
+    i18nKey: 'equipment',
+    href: '/brand#equipment',
+  },
+  {
+    key: 'location',
+    visKey: 'location',
+    i18nKey: 'location',
+    href: '/brand#location',
+  },
+] as const;
+
+const DEFAULT_BRAND_ORDER = ALL_BRAND_LINKS.map((l) => l.key);
 
 interface FooterClinicInfo {
   address?: string;
@@ -39,10 +99,73 @@ interface FooterClinicInfo {
 interface FooterProps {
   locale?: string;
   clinicInfo?: FooterClinicInfo;
+  navVisibility?: SectionVisibility['nav'];
+  brandVisibility?: SectionVisibility['brand'];
+  mediaVisibility?: SectionVisibility['media'];
+  megaMenuOrder?: string[] | null;
+  brandOrder?: string[] | null;
+  mediaOrder?: string[] | null;
 }
 
-export function Footer({ locale = 'ko', clinicInfo }: FooterProps) {
+export function Footer({
+  locale = 'ko',
+  clinicInfo,
+  navVisibility,
+  brandVisibility,
+  mediaVisibility,
+  megaMenuOrder,
+  brandOrder,
+  mediaOrder,
+}: FooterProps) {
   const t = useTranslations('footer');
+
+  // Treatment categories: apply order + visibility filter
+  const orderedTreatmentSlugs = megaMenuOrder?.length
+    ? [
+        ...megaMenuOrder.filter((k) =>
+          DEFAULT_TREATMENT_ORDER.includes(
+            k as (typeof DEFAULT_TREATMENT_ORDER)[number],
+          ),
+        ),
+        ...DEFAULT_TREATMENT_ORDER.filter((k) => !megaMenuOrder.includes(k)),
+      ]
+    : DEFAULT_TREATMENT_ORDER;
+  const visibleTreatmentLinks = orderedTreatmentSlugs
+    .map((slug) => ALL_TREATMENT_LINKS.find((l) => l.slug === slug))
+    .filter((l): l is (typeof ALL_TREATMENT_LINKS)[number] => l !== undefined)
+    .filter((l) => !navVisibility || navVisibility[l.visKey] !== false);
+
+  // Brand links: apply order + visibility filter (stats excluded)
+  const orderedBrandKeys = brandOrder?.length
+    ? [
+        ...brandOrder.filter((k) =>
+          DEFAULT_BRAND_ORDER.includes(
+            k as (typeof DEFAULT_BRAND_ORDER)[number],
+          ),
+        ),
+        ...DEFAULT_BRAND_ORDER.filter((k) => !brandOrder.includes(k)),
+      ]
+    : DEFAULT_BRAND_ORDER;
+  const visibleBrandLinks = orderedBrandKeys
+    .map((key) => ALL_BRAND_LINKS.find((l) => l.key === key))
+    .filter((l): l is (typeof ALL_BRAND_LINKS)[number] => l !== undefined)
+    .filter((l) => !brandVisibility || brandVisibility[l.visKey] !== false);
+
+  // Media tabs: apply order + visibility filter
+  const orderedMediaKeys = mediaOrder?.length
+    ? [
+        ...mediaOrder.filter((k) =>
+          DEFAULT_MEDIA_ORDER.includes(
+            k as (typeof DEFAULT_MEDIA_ORDER)[number],
+          ),
+        ),
+        ...DEFAULT_MEDIA_ORDER.filter((k) => !mediaOrder.includes(k)),
+      ]
+    : DEFAULT_MEDIA_ORDER;
+  const visibleMediaLinks = orderedMediaKeys
+    .map((key) => ALL_MEDIA_LINKS.find((l) => l.key === key))
+    .filter((l): l is (typeof ALL_MEDIA_LINKS)[number] => l !== undefined)
+    .filter((l) => !mediaVisibility || mediaVisibility[l.key] !== false);
 
   return (
     <footer className="bg-[#181818]">
@@ -67,13 +190,13 @@ export function Footer({ locale = 'ko', clinicInfo }: FooterProps) {
             <span className="text-[14px] font-bold text-white">
               {t('treatments')}
             </span>
-            {treatmentLinkKeys.map(({ key, href }) => (
+            {visibleTreatmentLinks.map(({ i18nKey, href }) => (
               <Link
                 key={href}
                 href={`/${locale}${href}`}
                 className="text-[13px] text-[#706263] transition-colors hover:text-white"
               >
-                {t(key)}
+                {t(i18nKey)}
               </Link>
             ))}
           </div>
@@ -83,13 +206,13 @@ export function Footer({ locale = 'ko', clinicInfo }: FooterProps) {
             <span className="text-[14px] font-bold text-white">
               {t('brand')}
             </span>
-            {brandLinkKeys.map(({ key, href }) => (
+            {visibleBrandLinks.map(({ i18nKey, href }) => (
               <Link
                 key={href}
                 href={`/${locale}${href}`}
                 className="text-[13px] text-[#706263] transition-colors hover:text-white"
               >
-                {t(key)}
+                {t(i18nKey)}
               </Link>
             ))}
           </div>
@@ -99,7 +222,7 @@ export function Footer({ locale = 'ko', clinicInfo }: FooterProps) {
             <span className="text-[14px] font-bold text-white">
               {t('media')}
             </span>
-            {mediaLinkKeys.map(({ key, href }) => (
+            {visibleMediaLinks.map(({ key, href }) => (
               <Link
                 key={href}
                 href={`/${locale}${href}`}

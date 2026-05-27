@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
@@ -94,11 +96,22 @@ export default async function TreatmentsPage({
 
   const t = await getTranslations('treatments');
 
-  const [hero, categories] = await Promise.all([
+  const [hero, rawCategories] = await Promise.all([
     getPageHero('treatments', locale),
     getAllCategories(locale),
   ]);
   const heroImageUrl = toImageUrl(hero?.heroImage, 1920, 400);
+
+  // Apply megaMenuOrder to category tabs (signature always stays separate)
+  const catOrder = visibility.megaMenuOrder;
+  const categories = catOrder?.length
+    ? [
+        ...catOrder
+          .map((slug) => rawCategories.find((c) => c.slug === slug))
+          .filter((c): c is NonNullable<typeof c> => c !== undefined),
+        ...rawCategories.filter((c) => !catOrder.includes(c.slug)),
+      ]
+    : rawCategories;
 
   return (
     <>

@@ -158,6 +158,7 @@ interface SectionVisibilityDoc {
     facilities?: boolean;
     equipment?: boolean;
     location?: boolean;
+    stats?: boolean;
   };
   media?: {
     press?: boolean;
@@ -2320,7 +2321,7 @@ const HOME_ITEMS = [
   { key: 'promo', label: '프로모션' },
   { key: 'bnA', label: 'B&A' },
   { key: 'press', label: '언론보도' },
-  { key: 'stats', label: '통계' },
+  { key: 'stats', label: '지표' },
   { key: 'brandPhilosophy', label: '브랜드 철학' },
   { key: 'doctors', label: '의료진' },
   { key: 'location', label: '위치' },
@@ -2332,6 +2333,7 @@ const BRAND_ITEMS = [
   { key: 'facilities', label: '시설' },
   { key: 'equipment', label: '장비' },
   { key: 'location', label: '위치' },
+  { key: 'stats', label: '지표' },
 ];
 const MEDIA_ITEMS = [
   { key: 'press', label: '보도자료' },
@@ -2536,7 +2538,7 @@ function SectionsPanel() {
       />
 
       <DraggableGroup
-        title="메가메뉴 시술 카테고리"
+        title="시술 카테고리"
         items={MEGAMENU_ITEMS}
         order={megaMenuOrder}
         setOrder={setMegaMenuOrder}

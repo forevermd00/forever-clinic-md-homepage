@@ -11,6 +11,7 @@ const DEFAULT_SECTION_IDS = [
   'facilities',
   'equipment',
   'location',
+  'stats',
 ] as const;
 
 type SectionId = (typeof DEFAULT_SECTION_IDS)[number];
@@ -21,6 +22,7 @@ const SECTION_KEYS: Record<SectionId, string> = {
   facilities: 'sectionFacilities',
   equipment: 'sectionEquipment',
   location: 'sectionLocation',
+  stats: 'sectionStats',
 };
 
 interface BrandSectionNavProps {
