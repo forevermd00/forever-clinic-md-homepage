@@ -57,7 +57,7 @@ export const homeEventTreatmentsQuery = `
 export const homeBACasesQuery = `*[_type == "baCase" && showOnMain == true && isVisible == true] | order(_createdAt desc)[0...3] {
   _id, beforeImage, afterImage,
   "treatment": treatment-> { _id, "name": name[$locale], "slug": slug.current, category },
-  sessions, "elapsed": elapsed[$locale]
+  "sessions": sessions[$locale], "elapsed": elapsed[$locale]
 }`;
 
 export const homeBrandQuery = `*[_type == "brandPhilosophy"][0]{ slogan, subtitle, badge, values }`;
@@ -141,7 +141,7 @@ export const baCasesFilteredQuery = `
     _id, beforeImage, afterImage,
     "title": coalesce(title[$locale], title.ko),
     categories,
-    sessions, "elapsed": elapsed[$locale]
+    "sessions": sessions[$locale], "elapsed": elapsed[$locale]
   }
 `;
 
@@ -150,7 +150,7 @@ export const baCaseDetailQuery = `
     _id, beforeImage, afterImage,
     "title": coalesce(title[$locale], title.ko),
     categories,
-    sessions, "elapsed": elapsed[$locale],
+    "sessions": sessions[$locale], "elapsed": elapsed[$locale],
     "description": description[$locale],
     "prevCase": *[_type == "baCase" && isVisible == true && sortOrder < ^.sortOrder] | order(sortOrder desc)[0] { _id },
     "nextCase": *[_type == "baCase" && isVisible == true && sortOrder > ^.sortOrder] | order(sortOrder asc)[0] { _id }
@@ -198,7 +198,7 @@ export const clinicInfoQuery = `
     "businessHours": businessHours[] { dayOfWeek, "day": day[$locale], open, close, "note": note[$locale] },
     "closedDayNotice": closedDayNotice[$locale],
     "walkingGuide": walkingGuide[$locale],
-    snsLinks, messengerLinks,
+    snsLinks, messengerLinks[] { _key, platform, url, label, "logo": logo { asset->{ url } }, isVisible, sortKo, sortEn, sortZh, sortJa },
     locationCoordinates
   }
 `;

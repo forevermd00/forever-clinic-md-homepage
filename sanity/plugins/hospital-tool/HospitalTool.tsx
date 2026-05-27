@@ -20,13 +20,6 @@ interface DoctorRow {
   sortOrder?: number;
 }
 
-interface HeroRow {
-  _id: string;
-  pageName: string;
-  titleKo?: string;
-  hasImage?: boolean;
-}
-
 interface BusinessHoursItem {
   _key: string;
   dayOfWeek?: string[];
@@ -42,7 +35,11 @@ interface SnsLinkItem {
   url?: string;
   label?: string;
   logoRef?: string;
-  displayLocales?: string[];
+  isVisible?: boolean;
+  sortKo?: number;
+  sortEn?: number;
+  sortZh?: number;
+  sortJa?: number;
 }
 
 interface ClinicInfoDoc {
@@ -178,16 +175,12 @@ const DOCTORS_QUERY = `*[_type == "doctor"] | order(sortOrder asc) {
   _id, "name": name.ko, "position": position.ko, isVisible, sortOrder
 }`;
 
-const HEROES_QUERY = `*[_type == "pageHero"] {
-  _id, pageName, "titleKo": title.ko, "hasImage": defined(heroImage)
-}`;
-
 const CLINIC_INFO_QUERY = `*[_type == "clinicInfo" && _id == "forever-myeongdong-clinic-info"][0] {
   address, locationCoordinates, phone, email,
   businessHours[] { _key, dayOfWeek, day, open, close, note },
   closedDayNotice, walkingGuide,
   snsLinks[] { _key, platform, url, label },
-  messengerLinks[] { _key, platform, url, label, "logoRef": logo.asset._ref, displayLocales }
+  messengerLinks[] { _key, platform, url, label, "logoRef": logo.asset._ref, isVisible, sortKo, sortEn, sortZh, sortJa }
 }`;
 
 const BRAND_QUERY = `*[_type == "brandPhilosophy" && _id == "brand-philosophy"][0] {
@@ -236,18 +229,6 @@ const BRAND_LOCALE_LABELS: Record<string, string> = {
   zh: '中文',
   ja: '日本語',
 };
-
-const SNS_PLATFORMS = [
-  { value: 'instagram', label: 'Instagram' },
-  { value: 'youtube', label: 'YouTube' },
-  { value: 'blog', label: 'Blog' },
-  { value: 'wechat', label: 'WeChat' },
-  { value: 'weibo', label: 'Weibo' },
-  { value: 'xiaohongshu', label: 'Xiaohongshu' },
-  { value: 'line', label: 'LINE' },
-  { value: 'kakao', label: 'KakaoTalk' },
-  { value: 'whatsapp', label: 'WhatsApp' },
-];
 
 function newKey(): string {
   return Math.random().toString(36).slice(2, 10);
@@ -467,7 +448,6 @@ function ClinicInfoPanel() {
   const [saving, setSaving] = useState(false);
   const [geocoding, setGeocoding] = useState(false);
   const [hours, setHours] = useState<BusinessHoursItem[]>([]);
-  const [sns, setSns] = useState<SnsLinkItem[]>([]);
   const [messenger, setMessenger] = useState<SnsLinkItem[]>([]);
   const [messengerUploading, setMessengerUploading] = useState<string | null>(
     null,
@@ -479,7 +459,6 @@ function ClinicInfoPanel() {
       setDoc(data ?? {});
       if (!initialized.current) {
         setHours(data?.businessHours ?? []);
-        setSns(data?.snsLinks ?? []);
         setMessenger(data?.messengerLinks ?? []);
         initialized.current = true;
       }
@@ -551,15 +530,6 @@ function ClinicInfoPanel() {
     setSaving(false);
   };
 
-  const saveSns = async (newSns: SnsLinkItem[]) => {
-    setSaving(true);
-    await client
-      .patch('forever-myeongdong-clinic-info')
-      .set({ snsLinks: newSns })
-      .commit();
-    setSaving(false);
-  };
-
   const saveMessenger = async (newMsg: SnsLinkItem[]) => {
     setSaving(true);
     await client
@@ -567,18 +537,18 @@ function ClinicInfoPanel() {
       .set({
         messengerLinks: newMsg.map((m) => ({
           _key: m._key,
+          _type: 'snsLink',
           platform: m.platform,
           url: m.url,
           label: m.label,
-          displayLocales: m.displayLocales,
-          ...(m.logoRef
-            ? {
-                logo: {
-                  _type: 'image',
-                  asset: { _type: 'reference', _ref: m.logoRef },
-                },
-              }
-            : {}),
+          logo: m.logoRef
+            ? { _type: 'image', asset: { _type: 'reference', _ref: m.logoRef } }
+            : undefined,
+          isVisible: m.isVisible,
+          sortKo: m.sortKo,
+          sortEn: m.sortEn,
+          sortZh: m.sortZh,
+          sortJa: m.sortJa,
         })),
       })
       .commit();
@@ -642,7 +612,7 @@ function ClinicInfoPanel() {
 
   const updateSns = (
     list: SnsLinkItem[],
-    setList: typeof setSns,
+    setList: (items: SnsLinkItem[]) => void,
     i: number,
     field: keyof SnsLinkItem,
     val: string,
@@ -653,7 +623,7 @@ function ClinicInfoPanel() {
   const saveSnsBlur = (
     list: SnsLinkItem[],
     saveList: (l: SnsLinkItem[]) => Promise<void>,
-    setList: typeof setSns,
+    setList: (items: SnsLinkItem[]) => void,
     i: number,
     field: keyof SnsLinkItem,
     val: string,
@@ -931,122 +901,6 @@ function ClinicInfoPanel() {
         </div>
       </div>
 
-      {/* ── SNS 링크 ── */}
-      <div className="ht-detail-section">
-        <div className="ht-detail-section-title">
-          SNS 링크
-          <span
-            style={{
-              fontSize: 11,
-              color: '#9ca3af',
-              fontWeight: 400,
-              marginLeft: 8,
-            }}
-          >
-            ※ 홈페이지 위치 정보 섹션에 표시됩니다
-          </span>
-        </div>
-        <div className="ht-detail-body">
-          <div className="ht-array-editor">
-            {sns.map((s, i) => (
-              <div key={s._key} className="ht-array-item">
-                <div className="ht-array-item-header">
-                  <span className="ht-array-num">{i + 1}</span>
-                  <button
-                    className="ht-remove-btn"
-                    onClick={() => {
-                      const updated = sns.filter((_, idx) => idx !== i);
-                      setSns(updated);
-                      saveSns(updated);
-                    }}
-                  >
-                    ✕
-                  </button>
-                </div>
-                <div className="ht-detail-row">
-                  <div className="ht-detail-field">
-                    <label className="ht-detail-label">플랫폼</label>
-                    <select
-                      className="ht-text-input"
-                      value={s.platform ?? ''}
-                      onChange={(e) => {
-                        const updated = sns.map((x, idx) =>
-                          idx === i ? { ...x, platform: e.target.value } : x,
-                        );
-                        setSns(updated);
-                        saveSns(updated);
-                      }}
-                    >
-                      <option value="">— 선택 —</option>
-                      {SNS_PLATFORMS.map((p) => (
-                        <option key={p.value} value={p.value}>
-                          {p.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="ht-detail-field" style={{ flex: 2 }}>
-                    <label className="ht-detail-label">URL</label>
-                    <input
-                      type="text"
-                      className="ht-text-input"
-                      value={s.url ?? ''}
-                      onChange={(e) =>
-                        updateSns(sns, setSns, i, 'url', e.target.value)
-                      }
-                      onBlur={(e) =>
-                        saveSnsBlur(
-                          sns,
-                          saveSns,
-                          setSns,
-                          i,
-                          'url',
-                          e.target.value,
-                        )
-                      }
-                    />
-                  </div>
-                  <div className="ht-detail-field">
-                    <label className="ht-detail-label">표시명</label>
-                    <input
-                      type="text"
-                      className="ht-text-input"
-                      value={s.label ?? ''}
-                      onChange={(e) =>
-                        updateSns(sns, setSns, i, 'label', e.target.value)
-                      }
-                      onBlur={(e) =>
-                        saveSnsBlur(
-                          sns,
-                          saveSns,
-                          setSns,
-                          i,
-                          'label',
-                          e.target.value,
-                        )
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-            <button
-              className="ht-add-btn"
-              onClick={() => {
-                const updated = [
-                  ...sns,
-                  { _key: newKey(), platform: '', url: '', label: '' },
-                ];
-                setSns(updated);
-                saveSns(updated);
-              }}
-            >
-              + SNS 추가
-            </button>
-          </div>
-        </div>
-      </div>
-
       {/* ── 메신저 링크 ── */}
       <div className="ht-detail-section">
         <div className="ht-detail-section-title">메신저 링크</div>
@@ -1073,24 +927,25 @@ function ClinicInfoPanel() {
                 >
                   <div className="ht-detail-field">
                     <label className="ht-detail-label">플랫폼</label>
-                    <select
+                    <input
+                      type="text"
                       className="ht-text-input"
                       value={s.platform ?? ''}
+                      placeholder="예: 카카오톡, WeChat, LINE"
                       onChange={(e) => {
+                        const updated = messenger.map((x, idx) =>
+                          idx === i ? { ...x, platform: e.target.value } : x,
+                        );
+                        setMessenger(updated);
+                      }}
+                      onBlur={(e) => {
                         const updated = messenger.map((x, idx) =>
                           idx === i ? { ...x, platform: e.target.value } : x,
                         );
                         setMessenger(updated);
                         saveMessenger(updated);
                       }}
-                    >
-                      <option value="">— 선택 —</option>
-                      {SNS_PLATFORMS.map((p) => (
-                        <option key={p.value} value={p.value}>
-                          {p.label}
-                        </option>
-                      ))}
-                    </select>
+                    />
                   </div>
                   <div className="ht-detail-field" style={{ flex: 2 }}>
                     <label className="ht-detail-label">URL / ID</label>
@@ -1182,52 +1037,74 @@ function ClinicInfoPanel() {
                     </label>
                   </div>
                   <div className="ht-detail-field">
-                    <label className="ht-detail-label">표시 언어</label>
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      {[
-                        { key: 'ko', label: '한' },
-                        { key: 'en', label: '영' },
-                        { key: 'zh', label: '중' },
-                        { key: 'ja', label: '일' },
-                      ].map(({ key, label }) => (
-                        <label
-                          key={key}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 3,
-                            fontSize: 12,
-                          }}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={
-                              s.displayLocales
-                                ? s.displayLocales.includes(key)
-                                : true
-                            }
-                            onChange={(e) => {
-                              const current = s.displayLocales ?? [
-                                'ko',
-                                'en',
-                                'zh',
-                                'ja',
-                              ];
-                              const updated = e.target.checked
-                                ? [...current.filter((l) => l !== key), key]
-                                : current.filter((l) => l !== key);
-                              const updatedList = messenger.map((m) =>
-                                m._key === s._key
-                                  ? { ...m, displayLocales: updated }
-                                  : m,
-                              );
-                              setMessenger(updatedList);
-                              saveMessenger(updatedList);
+                    <label className="ht-detail-label">노출</label>
+                    <input
+                      type="checkbox"
+                      className="tt-toggle"
+                      checked={s.isVisible !== false}
+                      onChange={(e) => {
+                        const updated = messenger.map((m) =>
+                          m._key === s._key
+                            ? { ...m, isVisible: e.target.checked }
+                            : m,
+                        );
+                        setMessenger(updated);
+                        saveMessenger(updated);
+                      }}
+                    />
+                  </div>
+                  <div className="ht-detail-field">
+                    <label className="ht-detail-label">언어별 정렬 순서</label>
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                      {(
+                        [
+                          ['ko', '한'],
+                          ['en', '영'],
+                          ['zh', '중'],
+                          ['ja', '일'],
+                        ] as const
+                      ).map(([locale, lbl]) => {
+                        const field =
+                          `sort${locale.charAt(0).toUpperCase()}${locale.slice(1)}` as
+                            | 'sortKo'
+                            | 'sortEn'
+                            | 'sortZh'
+                            | 'sortJa';
+                        return (
+                          <div
+                            key={locale}
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: 2,
                             }}
-                          />
-                          {label}
-                        </label>
-                      ))}
+                          >
+                            <span
+                              style={{
+                                fontSize: 10,
+                                color: 'var(--card-muted-fg-color)',
+                              }}
+                            >
+                              {lbl}
+                            </span>
+                            <input
+                              type="number"
+                              className="ht-text-input ht-order-input"
+                              style={{ width: 52 }}
+                              defaultValue={s[field] ?? 0}
+                              onBlur={(e) => {
+                                const updated = messenger.map((m) =>
+                                  m._key === s._key
+                                    ? { ...m, [field]: Number(e.target.value) }
+                                    : m,
+                                );
+                                setMessenger(updated);
+                                saveMessenger(updated);
+                              }}
+                            />
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -1256,41 +1133,21 @@ function ClinicInfoPanel() {
 // ─── 히어로 배너 패널 ─────────────────────────────────────
 
 function HeroBannerPanel({ onEdit }: { onEdit: (heroKey: string) => void }) {
-  const client = useClient({ apiVersion: '2026-05-13' });
-  const [heroDocs, setHeroDocs] = useState<HeroRow[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    client.fetch<HeroRow[]>(HEROES_QUERY).then((data) => {
-      setHeroDocs(data ?? []);
-      setLoading(false);
-    });
-  }, [client]);
-
-  if (loading) return <div className="ht-loading">불러오는 중...</div>;
-
-  const heroMap = new Map(heroDocs.map((h) => [h.pageName, h]));
-
   return (
     <div className="ht-table-wrap">
       <table className="ht-table">
         <colgroup>
           <col style={{ width: '44px' }} />
           <col />
-          <col />
-          <col style={{ width: '80px' }} />
         </colgroup>
         <thead>
           <tr>
             <th>No.</th>
             <th>페이지</th>
-            <th>제목 (ko)</th>
-            <th style={{ textAlign: 'center' }}>이미지</th>
           </tr>
         </thead>
         <tbody>
           {PAGE_HEROES.map((page, idx) => {
-            const heroDoc = heroMap.get(page.title) ?? heroMap.get(page.key);
             return (
               <tr
                 key={page.key}
@@ -1300,14 +1157,6 @@ function HeroBannerPanel({ onEdit }: { onEdit: (heroKey: string) => void }) {
                 <td className="ht-row-num">{idx + 1}</td>
                 <td>
                   <span className="ht-row-name">{page.title}</span>
-                </td>
-                <td className="ht-row-meta">{heroDoc?.titleKo || '—'}</td>
-                <td style={{ textAlign: 'center' }}>
-                  {heroDoc?.hasImage ? (
-                    <span className="ht-badge-yes">O</span>
-                  ) : (
-                    <span className="ht-row-meta">—</span>
-                  )}
                 </td>
               </tr>
             );
@@ -1326,6 +1175,8 @@ function BrandSection() {
   const [saving, setSaving] = useState(false);
   const [values, setValues] = useState<BrandValue[]>([]);
   const initialized = useRef(false);
+  const dragIndexRef = useRef<number | null>(null);
+  const [dragOver, setDragOver] = useState<number | null>(null);
 
   useEffect(() => {
     client.fetch<BrandDoc>(BRAND_QUERY).then((data) => {
@@ -1409,6 +1260,32 @@ function BrandSection() {
     });
   };
 
+  const handleValueDragStart = (i: number) => {
+    dragIndexRef.current = i;
+  };
+  const handleValueDragOver = (e: React.DragEvent, i: number) => {
+    e.preventDefault();
+    setDragOver(i);
+  };
+  const handleValueDragEnd = () => {
+    setDragOver(null);
+  };
+  const handleValueDrop = (toIndex: number) => {
+    const fromIndex = dragIndexRef.current;
+    if (fromIndex === null || fromIndex === toIndex) {
+      dragIndexRef.current = null;
+      setDragOver(null);
+      return;
+    }
+    dragIndexRef.current = null;
+    setDragOver(null);
+    const newValues = [...values];
+    const [moved] = newValues.splice(fromIndex, 1);
+    newValues.splice(toIndex, 0, moved);
+    setValues(newValues);
+    saveValues(newValues);
+  };
+
   if (!doc) return <div className="ht-loading">불러오는 중...</div>;
 
   return (
@@ -1445,8 +1322,8 @@ function BrandSection() {
             type="text"
             className="ht-text-input"
             style={{ maxWidth: 240 }}
-            defaultValue={doc.badge ?? 'Since 2008'}
-            placeholder="Since 2008"
+            defaultValue={doc.badge ?? 'BRAND PHILOSOPHY · Since 2008'}
+            placeholder="BRAND PHILOSOPHY · Since 2008"
             onBlur={(e) => patch({ badge: e.target.value })}
           />
           <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 4 }}>
@@ -1485,8 +1362,17 @@ function BrandSection() {
             {values.map((val, idx) => {
               const valImageRef = val.image?.asset?._ref;
               return (
-                <div key={val._key} className="ht-array-item">
+                <div
+                  key={val._key}
+                  className={`ht-array-item${dragOver === idx ? 'ht-drag-over' : ''}`}
+                  draggable
+                  onDragStart={() => handleValueDragStart(idx)}
+                  onDragOver={(e) => handleValueDragOver(e, idx)}
+                  onDragEnd={handleValueDragEnd}
+                  onDrop={() => handleValueDrop(idx)}
+                >
                   <div className="ht-array-item-header">
+                    <div className="ht-drag-handle">⋮⋮</div>
                     <span className="ht-array-num">{idx + 1}</span>
                     <button
                       className="ht-remove-btn"
@@ -1784,10 +1670,12 @@ function StatsSection() {
             onDrop={() => handleDrop(i)}
           >
             <div className="ht-array-item-header">
-              <div className="ht-drag-handle" style={{ marginBottom: 4 }}>
-                ⋮⋮
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div className="ht-drag-handle" style={{ marginBottom: 0 }}>
+                  ⋮⋮
+                </div>
+                <span className="ht-array-num">{i + 1}</span>
               </div>
-              <span className="ht-array-num">{i + 1}</span>
               <button className="ht-remove-btn" onClick={() => removeItem(i)}>
                 ✕
               </button>
@@ -2211,6 +2099,72 @@ function QuickNavSection({ onEditCard }: { onEditCard: (id: string) => void }) {
               + 카드 추가
             </button>
           </div>
+          {/* Unassigned cards */}
+          {(() => {
+            const unassigned = cards.filter((c) => !c.tab?._id);
+            if (unassigned.length === 0) return null;
+            return (
+              <div
+                className="ht-detail-section"
+                style={{
+                  marginTop: 16,
+                  borderColor: 'var(--card-border-color)',
+                }}
+              >
+                <div
+                  className="ht-detail-section-title"
+                  style={{ color: '#9ca3af' }}
+                >
+                  탭 없음 (미연결)
+                </div>
+                <div className="ht-detail-body">
+                  <table className="ht-table">
+                    <thead>
+                      <tr>
+                        <th>No.</th>
+                        <th>제목</th>
+                        <th>slug</th>
+                        <th style={{ textAlign: 'center' }}>노출</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {unassigned.map((card, idx) => (
+                        <tr
+                          key={card._id}
+                          className="ht-row-clickable"
+                          onClick={() => onEditCard(card._id)}
+                        >
+                          <td className="ht-row-num">{idx + 1}</td>
+                          <td>
+                            <span className="ht-row-name">
+                              {card.title?.ko || '—'}
+                            </span>
+                          </td>
+                          <td className="ht-row-meta">
+                            {card.slug?.current || '—'}
+                          </td>
+                          <td
+                            style={{ textAlign: 'center' }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <input
+                              type="checkbox"
+                              className="tt-toggle"
+                              checked={!!card.isVisible}
+                              onChange={(e) =>
+                                toggleCard(card._id, e.target.checked)
+                              }
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
+          })()}
+          {/* Tab-grouped cards */}
           {tabs.map((tab) => {
             const tabCards = cards.filter((c) => c.tab?._id === tab._id);
             return (
@@ -2411,7 +2365,7 @@ function DraggableGroup({
         <div
           key={item.key}
           draggable
-          className={`ht-sv-drag-row${dragOver === idx ? 'ht-drag-over' : ''}`}
+          className={`ht-sv-drag-row${dragOver === idx ? 'ht-sv-drag-over' : ''}`}
           onDragStart={() => {
             dragFrom.current = idx;
           }}
@@ -2421,19 +2375,30 @@ function DraggableGroup({
           }}
           onDragEnd={() => setDragOver(null)}
           onDrop={() => handleDrop(idx)}
-          style={{ display: 'flex', alignItems: 'center', gap: 6 }}
         >
           <span
             className="ht-drag-handle"
-            style={{ cursor: 'grab', color: '#9ca3af', userSelect: 'none' }}
+            style={{
+              cursor: 'grab',
+              color: 'var(--card-muted-fg-color)',
+              userSelect: 'none',
+              flexShrink: 0,
+            }}
           >
             ⋮⋮
           </span>
-          <ToggleRow
-            label={item.label}
-            path={`${togglePath}.${item.key}`}
-            value={getVal(item.key)}
-            onToggle={onToggle}
+          <span
+            style={{ flex: 1, fontSize: 12, color: 'var(--card-fg-color)' }}
+          >
+            {item.label}
+          </span>
+          <input
+            type="checkbox"
+            className="tt-toggle"
+            checked={!!getVal(item.key)}
+            onChange={(e) =>
+              onToggle(`${togglePath}.${item.key}`, e.target.checked)
+            }
           />
         </div>
       ))}

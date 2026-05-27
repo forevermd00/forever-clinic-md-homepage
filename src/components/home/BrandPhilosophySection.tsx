@@ -33,7 +33,7 @@ export function BrandPhilosophySection({
       {/* Header */}
       <div className="mb-8 flex flex-col items-center gap-3 px-5 text-center md:px-10 lg:px-12">
         <span className="text-[12px] font-medium tracking-[3px] text-[#706263]">
-          BRAND PHILOSOPHY · {badge || 'Since 2008'}
+          {badge || 'BRAND PHILOSOPHY · Since 2008'}
         </span>
         <h2 className="text-[28px] font-bold text-[#2b2b2b]">
           {slogan || t('smartBoutiquePhilosophy')}

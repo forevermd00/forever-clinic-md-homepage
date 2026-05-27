@@ -249,6 +249,7 @@ function VideoPanel({ onEdit }: { onEdit: (id: string) => void }) {
       _type: 'youtubeVideo',
       title: { ko: '' },
       isVisible: true,
+      displayLanguages: ['ko', 'en', 'zh', 'ja'],
     });
     onEdit(newDoc._id);
   };

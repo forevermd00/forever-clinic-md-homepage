@@ -460,3 +460,37 @@
   background: #a83c44;
   color: white;
 }
+
+/* ===== Toggle Switch ===== */
+.tt-toggle {
+  width: 28px;
+  height: 16px;
+  appearance: none;
+  background: var(--card-border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s;
+  flex-shrink: 0;
+  display: block;
+}
+
+.tt-toggle::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: left 0.15s;
+}
+
+.tt-toggle:checked {
+  background: #2ea265;
+}
+
+.tt-toggle:checked::after {
+  left: 14px;
+}

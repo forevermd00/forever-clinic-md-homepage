@@ -55,19 +55,34 @@ export default defineType({
       options: { hotspot: false },
     }),
     defineField({
-      name: 'displayLocales',
-      title: '표시 언어',
-      description: '이 메신저를 표시할 언어 (비워두면 전체 표시)',
-      type: 'array',
-      of: [{ type: 'string' }],
-      options: {
-        list: [
-          { title: '한국어', value: 'ko' },
-          { title: 'English', value: 'en' },
-          { title: '中文', value: 'zh' },
-          { title: '日本語', value: 'ja' },
-        ],
-      },
+      name: 'isVisible',
+      title: '노출',
+      type: 'boolean',
+      initialValue: true,
+    }),
+    defineField({
+      name: 'sortKo',
+      title: '정렬 순서 (한국어)',
+      type: 'number',
+      initialValue: 0,
+    }),
+    defineField({
+      name: 'sortEn',
+      title: '정렬 순서 (English)',
+      type: 'number',
+      initialValue: 0,
+    }),
+    defineField({
+      name: 'sortZh',
+      title: '정렬 순서 (中文)',
+      type: 'number',
+      initialValue: 0,
+    }),
+    defineField({
+      name: 'sortJa',
+      title: '정렬 순서 (日本語)',
+      type: 'number',
+      initialValue: 0,
     }),
   ],
 });

@@ -246,10 +246,10 @@ export function VideoDetail({
         <div className="mt-detail-section-title">표시 언어</div>
         <div className="mt-detail-body">
           <p className="mt-detail-hint">
-            선택한 언어에서만 표시됩니다. 아무것도 선택하지 않으면 모든 언어에
-            표시.
+            선택한 언어에서만 표시됩니다. 아무것도 선택하지 않으면 모든 언어에서
+            표시되지 않습니다.
           </p>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {LOCALES.map(({ key, label }) => {
               const isOn = doc.displayLanguages?.includes(key) ?? false;
               const toggle = async () => {
@@ -272,32 +272,18 @@ export function VideoDetail({
                 );
               };
               return (
-                <label
+                <div
                   key={key}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    padding: '4px 10px',
-                    border: `1px solid ${isOn ? 'var(--card-focus-ring-color, #2563eb)' : 'var(--card-border-color, #d1d5db)'}`,
-                    borderRadius: 4,
-                    cursor: 'pointer',
-                    background: isOn
-                      ? 'var(--card-focus-ring-color, #2563eb)'
-                      : 'transparent',
-                    color: isOn ? 'white' : 'var(--card-fg-color, #374151)',
-                    fontSize: 13,
-                    userSelect: 'none',
-                  }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 6 }}
                 >
+                  <span style={{ fontSize: 13, minWidth: 60 }}>{label}</span>
                   <input
                     type="checkbox"
+                    className="tt-toggle"
                     checked={isOn}
                     onChange={toggle}
-                    style={{ display: 'none' }}
                   />
-                  {label}
-                </label>
+                </div>
               );
             })}
           </div>
