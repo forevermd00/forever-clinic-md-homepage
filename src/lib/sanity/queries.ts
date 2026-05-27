@@ -240,7 +240,11 @@ export const quickEntryAllCardsQuery = `
     _id,
     "title": title[$locale],
     "description": description[$locale],
-    "tabLookup": coalesce(tab->_id, tab),
+    "tabRef": tab._ref,
+    "tabKey": tab->key,
+    "tabLabel": tab->label[$locale],
+    "tabSort": tab->sortOrder,
+    "tabVisible": tab->isVisible,
     "cardSlug": slug.current,
     icon,
     "linkedTreatments": linkedTreatments[]->{ "slug": slug.current, category }

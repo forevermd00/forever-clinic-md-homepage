@@ -22,10 +22,7 @@ import {
   siteNames,
 } from '@/lib/seo/keywords';
 import { getHeroContent } from '@/lib/data/hero';
-import {
-  getQuickEntryTabs,
-  getQuickEntryCardsByTab,
-} from '@/lib/data/quickEntry';
+import { getQuickEntryData } from '@/lib/data/quickEntry';
 import { getEventTreatments } from '@/lib/data/treatments';
 import { getHomeBACases } from '@/lib/data/ba';
 import { getStats } from '@/lib/data/stats';
@@ -76,8 +73,7 @@ export default async function HomePage({
 
   const [
     hero,
-    quickEntryTabs,
-    cardsByTab,
+    quickEntryData,
     signaturePrograms,
     eventTreatments,
     baCases,
@@ -92,8 +88,7 @@ export default async function HomePage({
     contactHero,
   ] = await Promise.all([
     visibility.home.hero ? getHeroContent(locale) : null,
-    visibility.home.quickEntry ? getQuickEntryTabs(locale) : null,
-    visibility.home.quickEntry ? getQuickEntryCardsByTab(locale) : null,
+    visibility.home.quickEntry ? getQuickEntryData(locale) : null,
     visibility.home.signature ? getSignaturePrograms(locale) : null,
     visibility.home.promo ? getEventTreatments(locale) : null,
     visibility.home.bnA ? getHomeBACases(locale) : null,
@@ -111,6 +106,9 @@ export default async function HomePage({
     sanityFetch<PopupItem[]>(eventPopupQuery, { locale }),
     visibility.home.contact ? getPageHero('contact', locale) : null,
   ]);
+
+  const quickEntryTabs = quickEntryData?.tabs ?? [];
+  const cardsByTab = quickEntryData?.cardsByTab ?? {};
 
   const contactBannerUrl = contactHero?.heroImage
     ? (urlFor(contactHero.heroImage)?.width(1600).url() ?? null)

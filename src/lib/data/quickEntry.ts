@@ -1,8 +1,5 @@
 import { sanityFetch } from '@/lib/sanity/fetch';
-import {
-  quickEntryAllCardsQuery,
-  quickEntryTabsQuery,
-} from '@/lib/sanity/queries';
+import { quickEntryAllCardsQuery } from '@/lib/sanity/queries';
 import { urlFor } from '@/lib/sanity/image';
 
 interface SanityLinkedTreatment {
@@ -14,8 +11,11 @@ interface SanityQuickEntryCard {
   _id: string;
   title?: string;
   description?: string;
-  /** tab->_id (reference) or raw tab string ('treatment' etc.) */
-  tabLookup?: string;
+  tabRef?: string;
+  tabKey?: string;
+  tabLabel?: string;
+  tabSort?: number;
+  tabVisible?: boolean;
   cardSlug?: string;
   icon?: { asset?: { _ref: string } };
   linkedTreatments?: SanityLinkedTreatment[];
@@ -27,6 +27,12 @@ export interface QuickEntryCard {
   description: string;
   image: string;
   linkUrl: string;
+}
+
+export interface QuickEntryTab {
+  id: string;
+  key: string;
+  label: string;
 }
 
 function deriveLinkUrl(
@@ -43,47 +49,50 @@ function deriveLinkUrl(
   return '/treatments';
 }
 
-export interface QuickEntryTab {
-  id: string;
-  key: string;
-  label: string;
+export interface QuickEntryData {
+  tabs: QuickEntryTab[];
+  cardsByTab: Record<string, QuickEntryCard[]>;
 }
 
-interface SanityQuickEntryTab {
-  _id: string;
-  key?: string;
-  label?: string;
-}
-
-export async function getQuickEntryTabs(
+export async function getQuickEntryData(
   locale: string,
-): Promise<QuickEntryTab[]> {
-  const data = await sanityFetch<SanityQuickEntryTab[]>(quickEntryTabsQuery, {
-    locale,
-  });
-  if (!data || data.length === 0) return [];
-  return data.map((t) => ({
-    id: t._id,
-    key: t.key ?? '',
-    label: t.label ?? '',
-  }));
-}
-
-export async function getQuickEntryCardsByTab(
-  locale: string,
-): Promise<Record<string, QuickEntryCard[]>> {
+): Promise<QuickEntryData> {
   const data = await sanityFetch<SanityQuickEntryCard[]>(
     quickEntryAllCardsQuery,
     { locale },
   );
-  if (!data || data.length === 0) return {};
 
-  const result: Record<string, QuickEntryCard[]> = {};
+  if (!data || data.length === 0) return { tabs: [], cardsByTab: {} };
+
+  // 카드에서 탭 정보를 추출해 탭 목록을 직접 구성
+  // key: tabRef (reference 방식) 또는 tabKey (string 방식)
+  const tabMap = new Map<
+    string,
+    {
+      id: string;
+      key: string;
+      label: string;
+      sort: number;
+      cards: QuickEntryCard[];
+    }
+  >();
+
   for (const card of data) {
-    const lookup = card.tabLookup;
-    if (!lookup || typeof lookup !== 'string') continue;
-    if (!result[lookup]) result[lookup] = [];
-    result[lookup].push({
+    // 그룹핑 키: tabRef(document _id) 우선, 없으면 tabKey(string)
+    const groupKey = card.tabRef ?? card.tabKey;
+    if (!groupKey) continue;
+
+    if (!tabMap.has(groupKey)) {
+      tabMap.set(groupKey, {
+        id: groupKey,
+        key: card.tabKey ?? groupKey,
+        label: card.tabLabel ?? card.tabKey ?? groupKey,
+        sort: card.tabSort ?? 999,
+        cards: [],
+      });
+    }
+
+    tabMap.get(groupKey)!.cards.push({
       id: card._id,
       title: card.title || '',
       description: card.description || '',
@@ -93,5 +102,35 @@ export async function getQuickEntryCardsByTab(
       linkUrl: deriveLinkUrl(card.cardSlug, card.linkedTreatments),
     });
   }
-  return result;
+
+  // sortOrder 기준 정렬
+  const sortedTabs = [...tabMap.values()].sort((a, b) => a.sort - b.sort);
+
+  const tabs: QuickEntryTab[] = sortedTabs.map((t) => ({
+    id: t.id,
+    key: t.key,
+    label: t.label,
+  }));
+
+  const cardsByTab: Record<string, QuickEntryCard[]> = {};
+  for (const t of sortedTabs) {
+    cardsByTab[t.id] = t.cards;
+  }
+
+  return { tabs, cardsByTab };
+}
+
+// 하위 호환 유지
+export async function getQuickEntryTabs(
+  locale: string,
+): Promise<QuickEntryTab[]> {
+  const { tabs } = await getQuickEntryData(locale);
+  return tabs;
+}
+
+export async function getQuickEntryCardsByTab(
+  locale: string,
+): Promise<Record<string, QuickEntryCard[]>> {
+  const { cardsByTab } = await getQuickEntryData(locale);
+  return cardsByTab;
 }
