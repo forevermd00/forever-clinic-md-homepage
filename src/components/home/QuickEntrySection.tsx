@@ -6,20 +6,12 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { cn } from '@/lib/utils/cn';
 
-const TAB_IDS = ['treatment', 'concern', 'situation'] as const;
-
 type QuickEntryCard = {
   id: string;
   title: string;
   description: string;
   image: string;
   linkUrl?: string;
-};
-
-const TAB_KEYS: Record<string, string> = {
-  treatment: 'tabTreatment',
-  concern: 'tabConcern',
-  situation: 'tabSituation',
 };
 
 interface SanityTab {
@@ -33,6 +25,12 @@ interface QuickEntrySectionProps {
   tabs?: SanityTab[];
 }
 
+const FALLBACK_TAB_KEYS = [
+  { key: 'treatment', i18nKey: 'tabTreatment' },
+  { key: 'concern', i18nKey: 'tabConcern' },
+  { key: 'situation', i18nKey: 'tabSituation' },
+] as const;
+
 export function QuickEntrySection({
   cardsByTab,
   tabs,
@@ -40,18 +38,28 @@ export function QuickEntrySection({
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'ko';
   const t = useTranslations('home');
-  const [activeTab, setActiveTab] = useState('treatment');
-  const allCards = cardsByTab ?? {};
-  const cards = allCards[activeTab] ?? [];
 
-  // Sanity 탭 이름이 있으면 우선 사용, fallback은 i18n
-  const getTabLabel = (tabId: string): string => {
-    if (tabs && tabs.length > 0) {
-      const found = tabs.find((tb) => tb.key === tabId);
-      if (found?.label) return found.label;
-    }
-    return t(TAB_KEYS[tabId]);
-  };
+  const allCards = cardsByTab ?? {};
+
+  // 탭 목록: Sanity 탭 우선, 없으면 fallback
+  const resolvedTabs: { key: string; label: string }[] =
+    tabs && tabs.length > 0
+      ? tabs.map((tb) => ({ key: tb.key, label: tb.label || tb.key }))
+      : FALLBACK_TAB_KEYS.map((ft) => ({
+          key: ft.key,
+          label: t(ft.i18nKey),
+        }));
+
+  // 카드가 있는 탭만 표시 (데이터 없는 탭은 숨김)
+  const visibleTabs = resolvedTabs.filter(
+    (tb) => (allCards[tb.key] ?? []).length > 0,
+  );
+
+  const firstKey = visibleTabs[0]?.key ?? resolvedTabs[0]?.key ?? '';
+  const [activeTab, setActiveTab] = useState(firstKey);
+
+  const cards = allCards[activeTab] ?? [];
+  const displayTabs = visibleTabs.length > 0 ? visibleTabs : resolvedTabs;
 
   return (
     <section className="bg-[#faf8f5]">
@@ -63,20 +71,20 @@ export function QuickEntrySection({
           {t('quickEntrySubtitle')}
         </p>
 
-        {/* Tabs - square, no border-radius */}
+        {/* Tabs */}
         <div className="flex flex-wrap justify-center gap-0">
-          {TAB_IDS.map((tabId) => (
+          {displayTabs.map((tb) => (
             <button
-              key={tabId}
-              onClick={() => setActiveTab(tabId)}
+              key={tb.key}
+              onClick={() => setActiveTab(tb.key)}
               className={cn(
                 'px-6 py-3 text-[14px] font-medium transition-colors',
-                activeTab === tabId
+                activeTab === tb.key
                   ? 'bg-[#a83c44] text-white'
                   : 'bg-transparent text-[#2b2b2b] hover:bg-[#2b2b2b]/5',
               )}
             >
-              {getTabLabel(tabId)}
+              {tb.label}
             </button>
           ))}
         </div>
@@ -86,16 +94,9 @@ export function QuickEntrySection({
           {cards.map((card) => (
             <Link
               key={card.id}
-              href={(() => {
-                const base = `/${locale}${card.linkUrl || '/treatments'}`;
-                if (card.description && card.linkUrl?.includes('slugs=')) {
-                  return `${base}&desc=${encodeURIComponent(card.description)}`;
-                }
-                return base;
-              })()}
+              href={`/${locale}${card.linkUrl || '/treatments'}`}
               className="w-[270px] overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)] transition-shadow hover:drop-shadow-[0_4px_8px_rgba(0,0,0,0.12)]"
             >
-              {/* Image */}
               <div className="h-[160px] w-full overflow-hidden">
                 <img
                   src={card.image}
@@ -103,7 +104,6 @@ export function QuickEntrySection({
                   className="h-full w-full object-cover"
                 />
               </div>
-              {/* Text */}
               <div className="flex flex-col gap-1 px-4 pt-2 pb-4">
                 <h3 className="text-[16px] font-bold text-[#2b2b2b]">
                   {card.title}

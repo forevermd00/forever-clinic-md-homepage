@@ -100,7 +100,8 @@ export type EventTreatment = {
   name: string;
   tagline: string;
   price: string;
-  imageUrl?: string;
+  originalPrice: string;
+  hasDiscount: boolean;
 };
 
 export async function getEventTreatments(
@@ -114,7 +115,6 @@ export async function getEventTreatments(
       name?: Record<string, string>;
       tagline?: Record<string, string>;
       priceOptions?: { price?: number; discountPrice?: number }[];
-      imageUrl?: string;
     }[]
   >(homeEventTreatmentsQuery, {});
 
@@ -122,7 +122,14 @@ export async function getEventTreatments(
 
   return raw.map((t) => {
     const firstPrice = t.priceOptions?.[0];
-    const effectivePrice = firstPrice?.discountPrice ?? firstPrice?.price;
+    const originalPrice = firstPrice?.price;
+    const discountedPrice = firstPrice?.discountPrice;
+    const effectivePrice = discountedPrice ?? originalPrice;
+    const hasDiscount = !!(
+      discountedPrice &&
+      originalPrice &&
+      discountedPrice < originalPrice
+    );
     return {
       _id: t._id,
       slug: t.slug || '',
@@ -130,7 +137,8 @@ export async function getEventTreatments(
       name: t.name?.[locale] || t.name?.ko || '',
       tagline: t.tagline?.[locale] || t.tagline?.ko || '',
       price: effectivePrice ? `₩${effectivePrice.toLocaleString()}` : '',
-      imageUrl: t.imageUrl,
+      originalPrice: originalPrice ? `₩${originalPrice.toLocaleString()}` : '',
+      hasDiscount,
     };
   });
 }

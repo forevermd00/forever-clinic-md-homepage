@@ -1,6 +1,6 @@
 import { sanityFetch } from '@/lib/sanity/fetch';
 import {
-  quickEntryCardsQuery,
+  quickEntryAllCardsQuery,
   quickEntryTabsQuery,
 } from '@/lib/sanity/queries';
 import { urlFor } from '@/lib/sanity/image';
@@ -14,6 +14,7 @@ interface SanityQuickEntryCard {
   _id: string;
   title?: string;
   description?: string;
+  tabKey?: string;
   cardSlug?: string;
   icon?: { asset?: { _ref: string } };
   linkedTreatments?: SanityLinkedTreatment[];
@@ -27,39 +28,18 @@ export interface QuickEntryCard {
   linkUrl: string;
 }
 
-/**
- * linkedTreatments에서 linkUrl 도출
- * - 시술 1개       → /treatments/{category}/{slug}
- * - 동일 카테고리  → /treatments?cat={category}
- * - 복수 카테고리  → /treatments
- */
-function deriveLinkUrl(linked?: SanityLinkedTreatment[]): string {
+function deriveLinkUrl(
+  cardSlug?: string,
+  linked?: SanityLinkedTreatment[],
+): string {
+  if (cardSlug) return `/quick-entry/${cardSlug}`;
   if (!linked || linked.length === 0) return '/treatments';
   if (linked.length === 1) {
     return `/treatments/${linked[0].category}/${linked[0].slug}`;
   }
   const categories = [...new Set(linked.map((t) => t.category))];
-  if (categories.length === 1) {
-    return `/treatments?cat=${categories[0]}`;
-  }
+  if (categories.length === 1) return `/treatments?cat=${categories[0]}`;
   return '/treatments';
-}
-
-function mapToPageShape(
-  data: SanityQuickEntryCard[],
-  _locale: string,
-): QuickEntryCard[] {
-  return data.map((card) => ({
-    id: card._id,
-    title: card.title || '',
-    description: card.description || '',
-    image: card.icon
-      ? urlFor(card.icon)?.width(400).height(300).url() || ''
-      : '',
-    linkUrl: card.cardSlug
-      ? `/quick-entry/${card.cardSlug}`
-      : deriveLinkUrl(card.linkedTreatments),
-  }));
 }
 
 export interface QuickEntryTab {
@@ -88,15 +68,29 @@ export async function getQuickEntryTabs(
   }));
 }
 
-export async function getQuickEntryCards(
-  tab: string,
+export async function getQuickEntryCardsByTab(
   locale: string,
-): Promise<QuickEntryCard[]> {
-  const data = await sanityFetch<SanityQuickEntryCard[]>(quickEntryCardsQuery, {
-    tab,
-    locale,
-  });
+): Promise<Record<string, QuickEntryCard[]>> {
+  const data = await sanityFetch<SanityQuickEntryCard[]>(
+    quickEntryAllCardsQuery,
+    { locale },
+  );
+  if (!data || data.length === 0) return {};
 
-  if (data && data.length > 0) return mapToPageShape(data, locale);
-  return [];
+  const result: Record<string, QuickEntryCard[]> = {};
+  for (const card of data) {
+    const key = card.tabKey;
+    if (!key) continue;
+    if (!result[key]) result[key] = [];
+    result[key].push({
+      id: card._id,
+      title: card.title || '',
+      description: card.description || '',
+      image: card.icon
+        ? urlFor(card.icon)?.width(400).height(300).url() || ''
+        : '',
+      linkUrl: deriveLinkUrl(card.cardSlug, card.linkedTreatments),
+    });
+  }
+  return result;
 }

@@ -33,10 +33,12 @@ export async function SignatureProgramSection({
           </h2>
         </div>
 
-        {/* 카드 목록 — 모바일: 가로 스크롤, 데스크탑: 그리드 */}
-        <div className="w-full">
-          {/* 모바일 가로 스크롤 */}
-          <div className="flex gap-4 overflow-x-auto pb-2 md:hidden">
+        {/* 카드 목록 — 고정 너비, vw에 따라 자동 줄바꿈 */}
+        <div className="mx-auto w-full max-w-[1272px]">
+          <div
+            className="grid justify-center gap-4"
+            style={{ gridTemplateColumns: 'repeat(auto-fill, 280px)' }}
+          >
             {programs.map((program) => (
               <ProgramCard
                 key={program._id}
@@ -47,36 +49,6 @@ export async function SignatureProgramSection({
                 viewMoreText={viewMoreText}
               />
             ))}
-          </div>
-
-          {/* 데스크탑 3+2 그리드 */}
-          <div className="hidden md:flex md:flex-col md:gap-4">
-            <div className="grid grid-cols-3 gap-4">
-              {programs.slice(0, 3).map((program) => (
-                <ProgramCard
-                  key={program._id}
-                  program={program}
-                  locale={locale}
-                  showPrice={showPrice}
-                  inquireText={inquireText}
-                  viewMoreText={viewMoreText}
-                />
-              ))}
-            </div>
-            {programs.length > 3 && (
-              <div className="grid grid-cols-2 gap-4 md:mx-auto md:w-2/3">
-                {programs.slice(3).map((program) => (
-                  <ProgramCard
-                    key={program._id}
-                    program={program}
-                    locale={locale}
-                    showPrice={showPrice}
-                    inquireText={inquireText}
-                    viewMoreText={viewMoreText}
-                  />
-                ))}
-              </div>
-            )}
           </div>
         </div>
 
@@ -118,7 +90,7 @@ function ProgramCard({
   return (
     <Link
       href={href}
-      className="group flex min-w-[260px] flex-shrink-0 flex-col gap-3 rounded-[10px] border border-white/10 bg-white/5 p-5 transition-all duration-200 hover:scale-[1.02] hover:border-white/30 hover:bg-white/10 md:min-w-0 md:flex-shrink"
+      className="group flex flex-col gap-3 rounded-[10px] border border-white/10 bg-white/5 p-5 transition-all duration-200 hover:scale-[1.02] hover:border-white/30 hover:bg-white/10"
     >
       {/* 할인 뱃지 */}
       <span className="w-fit rounded-[4px] bg-[#a83c44] px-2 py-1 text-[11px] font-bold text-white">

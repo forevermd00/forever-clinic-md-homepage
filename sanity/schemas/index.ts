@@ -16,6 +16,7 @@ import promotion from './documents/promotion';
 import doctor from './documents/doctor';
 import baCase from './documents/ba-case';
 import quickEntryCard from './documents/quick-entry-card';
+import quickEntryTab from './documents/quick-entry-tab';
 import brandPhilosophy from './documents/brand-philosophy';
 import clinicInfo from './documents/clinic-info';
 
@@ -49,6 +50,7 @@ export const schemaTypes = [
   doctor,
   baCase,
   quickEntryCard,
+  quickEntryTab,
   brandPhilosophy,
   clinicInfo,
   statsStrip,

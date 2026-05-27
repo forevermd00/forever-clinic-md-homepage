@@ -48,9 +48,8 @@ export const homeQuickEntryQuery = `*[_type == "quickEntryCard" && isVisible == 
 export const homePromoQuery = `*[_type == "promotion" && showOnMain == true] | order(sortOrder asc)[0...3]`;
 
 export const homeEventTreatmentsQuery = `
-  *[_type == "treatment" && isVisible == true && isEvent == true] | order(sortOrder asc)[0...3] {
-    _id, name, "slug": slug.current, category, tagline, priceOptions, isEvent,
-    "imageUrl": thumbnail.asset->url
+  *[_type == "treatment" && isVisible == true && isEvent == true && showOnMain == true] | order(sortOrder asc) {
+    _id, name, "slug": slug.current, category, tagline, priceOptions, isEvent
   }
 `;
 
@@ -231,22 +230,20 @@ export const contactSectionConfigQuery = `
 
 // === QuickEntry ===
 export const quickEntryTabsQuery = `
-  *[_type == "quickEntryTab"] | order(sortOrder asc) {
+  *[_type == "quickEntryTab" && isVisible != false] | order(sortOrder asc) {
     _id, key, "label": label[$locale]
   }
 `;
 
-export const quickEntryCardsQuery = `
-  *[_type == "quickEntryCard" && tab == $tab] | order(sortOrder asc) {
+export const quickEntryAllCardsQuery = `
+  *[_type == "quickEntryCard" && isVisible != false] | order(sortOrder asc) {
     _id,
     "title": title[$locale],
     "description": description[$locale],
+    "tabKey": coalesce(tab->key, tab),
     "cardSlug": slug.current,
     icon,
-    "linkedTreatments": linkedTreatments[]->{
-      "slug": slug.current,
-      category
-    }
+    "linkedTreatments": linkedTreatments[]->{ "slug": slug.current, category }
   }
 `;
 

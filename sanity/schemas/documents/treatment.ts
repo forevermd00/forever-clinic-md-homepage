@@ -98,6 +98,13 @@ export default defineType({
       initialValue: false,
     }),
     defineField({
+      name: 'showOnMain',
+      title: '메인 홈에 표시',
+      description: 'isEvent가 true일 때, 메인 홈 이벤트 섹션에 노출할지 여부',
+      type: 'boolean',
+      initialValue: false,
+    }),
+    defineField({
       name: 'eventStartDate',
       title: '이벤트 시작일',
       description: '이벤트 기간 시작일 (isEvent가 true일 때만 사용)',

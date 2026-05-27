@@ -1,10 +1,20 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { EventTreatment } from '@/lib/data/treatments';
+import { TREATMENT_CATEGORIES } from '@/components/treatments/treatmentData';
 
 interface PromoSectionProps {
   locale?: string;
   events?: EventTreatment[];
+}
+
+function getCategoryLabel(slug: string, locale: string): string {
+  const cat = TREATMENT_CATEGORIES.find((c) => c.slug === slug);
+  if (!cat) return slug;
+  if (locale === 'en') return cat.labelEn;
+  if (locale === 'zh') return cat.labelZh ?? cat.labelEn;
+  if (locale === 'ja') return cat.labelJa ?? cat.labelEn;
+  return cat.label;
 }
 
 export async function PromoSection({
@@ -23,44 +33,50 @@ export async function PromoSection({
           {t('promoTitle')}
         </h2>
 
-        <div className="flex w-full flex-wrap justify-center gap-6">
-          {events.map((event) => (
-            <Link
-              key={event._id}
-              href={
-                event.slug && event.category
-                  ? `/${locale}/treatments/${event.category}/${event.slug}`
-                  : `/${locale}/treatments?cat=event`
-              }
-              className="group w-[370px] overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)] transition-shadow hover:drop-shadow-[0_4px_8px_rgba(0,0,0,0.14)]"
-            >
-              <div className="relative h-[198px] overflow-hidden">
-                {event.imageUrl ? (
-                  <img
-                    src={event.imageUrl}
-                    alt={event.name}
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-[#efe5d9] text-[14px] text-[#706263]">
-                    {event.name}
-                  </div>
-                )}
-                <span className="absolute top-3 left-3 rounded-[4px] bg-[#a83c44] px-2 py-1 text-[11px] font-bold text-white">
-                  EVENT
-                </span>
-              </div>
-              <div className="flex flex-col gap-1 px-4 pt-2 pb-4">
-                <h3 className="text-[15px] font-bold text-[#2b2b2b]">
+        <div className="mx-auto w-full max-w-[1272px]">
+          <div
+            className="grid justify-center gap-4"
+            style={{ gridTemplateColumns: 'repeat(auto-fill, 300px)' }}
+          >
+            {events.map((event) => (
+              <Link
+                key={event._id}
+                href={
+                  event.slug && event.category
+                    ? `/${locale}/treatments/${event.category}/${event.slug}`
+                    : `/${locale}/treatments?cat=event`
+                }
+                className="group flex flex-col gap-2 rounded-[8px] border border-[#ede3d9] bg-white px-4 py-4 shadow-[0px_1px_2px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-md"
+              >
+                {/* 뱃지 행 */}
+                <div className="flex items-center gap-2">
+                  <span className="rounded-[4px] border border-[#a83c44] px-2 py-0.5 text-[11px] font-medium text-[#a83c44]">
+                    {getCategoryLabel(event.category, locale)}
+                  </span>
+                  <span className="rounded-[4px] bg-[#a83c44] px-2 py-0.5 text-[11px] font-bold text-white">
+                    EVENT
+                  </span>
+                </div>
+
+                {/* 시술명 */}
+                <h3 className="text-[15px] leading-snug font-bold text-[#2b2b2b]">
                   {event.name}
                 </h3>
-                <p className="text-[12px] text-[#706263]">{event.tagline}</p>
-                <span className="mt-1 text-[14px] font-bold text-[#a83c44]">
-                  {event.price}
-                </span>
-              </div>
-            </Link>
-          ))}
+
+                {/* 가격 */}
+                <div className="flex items-baseline gap-2">
+                  {event.hasDiscount && (
+                    <span className="text-[12px] text-[#b0b0b0] line-through">
+                      {event.originalPrice}
+                    </span>
+                  )}
+                  <span className="text-[14px] font-bold text-[#a83c44]">
+                    {event.price}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
 
         <div className="flex w-full justify-center">

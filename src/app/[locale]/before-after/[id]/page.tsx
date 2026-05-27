@@ -5,6 +5,8 @@ import { getTranslations } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
 import { getBADetail } from '@/lib/data/ba';
 import { BALockOverlay } from '@/components/ba/BALockOverlay';
+import { getPageHero } from '@/lib/data/hero';
+import { urlFor } from '@/lib/sanity/image';
 
 const DUMMY_DETAIL = {
   id: '1',
@@ -22,8 +24,15 @@ export default async function BADetailPage({
   const t = await getTranslations('ba');
   const tc = await getTranslations('common');
 
-  const cmsDetail = await getBADetail(id, locale);
+  const [cmsDetail, hero] = await Promise.all([
+    getBADetail(id, locale),
+    getPageHero('before-after', locale),
+  ]);
   if (!cmsDetail) notFound();
+
+  const heroImageUrl = hero?.heroImage
+    ? urlFor(hero.heroImage)?.width(1200).height(630).url() || undefined
+    : undefined;
 
   const detail = {
     id: cmsDetail._id,
@@ -44,8 +53,9 @@ export default async function BADetailPage({
       {/* Hero */}
       <HeroBanner
         variant="fullscreen"
-        title={t('title')}
-        subtitle={t('heroSubtitle')}
+        title={hero?.title || t('title')}
+        subtitle={hero?.subtitle || t('heroSubtitle')}
+        imageSrc={heroImageUrl}
         className="!h-[280px] !max-h-[280px]"
       />
 
@@ -65,7 +75,7 @@ export default async function BADetailPage({
               {detail.prevId && (
                 <Link
                   href={`/${locale}/before-after/${detail.prevId}`}
-                  className="flex size-10 items-center justify-center rounded-full border border-[#f0e5d9] text-xl shadow transition-colors hover:bg-neutral-50"
+                  className="flex size-7 items-center justify-center text-[18px] text-[#aaa] transition-colors hover:text-[#353535]"
                   aria-label={tc('previous')}
                 >
                   &#8249;
@@ -124,7 +134,7 @@ export default async function BADetailPage({
               {detail.nextId && (
                 <Link
                   href={`/${locale}/before-after/${detail.nextId}`}
-                  className="flex size-10 items-center justify-center rounded-full border border-[#f0e5d9] text-xl shadow transition-colors hover:bg-neutral-50"
+                  className="flex size-7 items-center justify-center text-[18px] text-[#aaa] transition-colors hover:text-[#353535]"
                   aria-label={tc('next')}
                 >
                   &#8250;

@@ -22,7 +22,10 @@ import {
   siteNames,
 } from '@/lib/seo/keywords';
 import { getHeroContent } from '@/lib/data/hero';
-import { getQuickEntryCards, getQuickEntryTabs } from '@/lib/data/quickEntry';
+import {
+  getQuickEntryTabs,
+  getQuickEntryCardsByTab,
+} from '@/lib/data/quickEntry';
 import { getEventTreatments } from '@/lib/data/treatments';
 import { getHomeBACases } from '@/lib/data/ba';
 import { getStats } from '@/lib/data/stats';
@@ -73,9 +76,8 @@ export default async function HomePage({
 
   const [
     hero,
-    qeTreatment,
-    qeConcern,
-    qeSituation,
+    quickEntryTabs,
+    cardsByTab,
     signaturePrograms,
     eventTreatments,
     baCases,
@@ -87,11 +89,11 @@ export default async function HomePage({
     contactConfig,
     businessHours,
     popups,
+    contactHero,
   ] = await Promise.all([
     visibility.home.hero ? getHeroContent(locale) : null,
-    visibility.home.quickEntry ? getQuickEntryCards('treatment', locale) : null,
-    visibility.home.quickEntry ? getQuickEntryCards('concern', locale) : null,
-    visibility.home.quickEntry ? getQuickEntryCards('situation', locale) : null,
+    visibility.home.quickEntry ? getQuickEntryTabs(locale) : null,
+    visibility.home.quickEntry ? getQuickEntryCardsByTab(locale) : null,
     visibility.home.signature ? getSignaturePrograms(locale) : null,
     visibility.home.promo ? getEventTreatments(locale) : null,
     visibility.home.bnA ? getHomeBACases(locale) : null,
@@ -107,10 +109,6 @@ export default async function HomePage({
     visibility.home.contact ? getContactSectionConfig(locale) : null,
     visibility.home.contact ? getBusinessHours() : null,
     sanityFetch<PopupItem[]>(eventPopupQuery, { locale }),
-  ]);
-
-  const [quickEntryTabs, contactHero] = await Promise.all([
-    visibility.home.quickEntry ? getQuickEntryTabs(locale) : null,
     visibility.home.contact ? getPageHero('contact', locale) : null,
   ]);
 
@@ -122,12 +120,6 @@ export default async function HomePage({
   const popupImageUrls = popupList.map((p) =>
     p.image ? (urlFor(p.image)?.width(480).url() ?? '') : '',
   );
-
-  const cardsByTab = {
-    treatment: qeTreatment ?? [],
-    concern: qeConcern ?? [],
-    situation: qeSituation ?? [],
-  };
 
   const DEFAULT_HOME_ORDER = [
     'hero',
@@ -153,7 +145,10 @@ export default async function HomePage({
   const homeSections: Record<string, ReactNode> = {
     hero: visibility.home.hero && hero ? <HeroSection hero={hero} /> : null,
     quickEntry: visibility.home.quickEntry ? (
-      <QuickEntrySection cardsByTab={cardsByTab} tabs={quickEntryTabs ?? []} />
+      <QuickEntrySection
+        cardsByTab={cardsByTab ?? {}}
+        tabs={quickEntryTabs ?? []}
+      />
     ) : null,
     signature:
       visibility.home.signature && signaturePrograms ? (
