@@ -215,10 +215,10 @@
     "blogSubtitle": "피부과 전문의가 전하는 피부 관리 정보",
     "notice": "공지사항",
     "noticeSubtitle": "포에버 클리닉의 소식을 전해드립니다",
-    "pressDescription": "포에버 클리닉 명동 보도자료 및 미디어 소식.",
-    "blogDescription": "포에버 클리닉 명동 피부 관리 팁과 시술 정보 블로그.",
-    "noticeDescription": "포에버 클리닉 명동 공지사항.",
-    "videoDescription": "포에버 클리닉 명동 시술 과정과 후기 영상."
+    "pressDescription": "포에버 클리닉 명동 언론 보도자료. 울쎄라·써마지·보톡스 관련 뉴스 및 미디어 커버리지.",
+    "blogDescription": "포에버 클리닉 명동 공식 블로그. 피부과 전문의가 알려주는 피부 관리 팁, 시술 정보, 스킨케어 가이드.",
+    "noticeDescription": "포에버 클리닉 명동 공지사항. 진료 시간 변경, 이벤트, 휴진 안내.",
+    "videoDescription": "포에버 클리닉 명동 시술 영상. 울쎄라·써마지 리프팅, 보톡스·필러 시술 과정과 환자 후기."
   },
   "noticeTable": {
     "number": "번호",

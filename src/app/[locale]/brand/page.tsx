@@ -31,10 +31,10 @@ const brandTitles: Record<string, string> = {
   ja: 'ブランドストーリー',
 };
 const brandDescriptions: Record<string, string> = {
-  ko: '포에버 클리닉 명동의 브랜드 철학, 의료진, 시설, 장비를 소개합니다. Smart-Boutique 프리미엄 피부과.',
-  en: 'Discover Forever Clinic Myeongdong brand philosophy, doctors, facilities, and equipment. Smart-Boutique premium dermatology.',
-  zh: '了解永恒诊所明洞的品牌理念、医疗团队、设施和设备。Smart-Boutique高端皮肤科。',
-  ja: 'フォーエバークリニック明洞のブランド哲学、医師、施設、設備をご紹介します。Smart-Boutiqueプレミアム皮膚科。',
+  ko: '포에버 클리닉 명동 소개. 전문의 의료진 프로필, 최신 레이저·리프팅 장비, 시술실 시설 안내. 명동역 도보 1분.',
+  en: 'About Forever Clinic Myeongdong. Our dermatologist team, state-of-the-art laser & lifting equipment, and modern facilities. 1 min from Myeongdong Station.',
+  zh: '永恒诊所明洞介绍。皮肤科专业医生团队、最新激光提升设备与现代诊疗设施。距明洞站步行1分钟。',
+  ja: 'フォーエバークリニック明洞のご紹介。皮膚科専門医チーム、最新レーザー・リフティング機器、モダンな施設案内。明洞駅から徒歩1分。',
 };
 
 export async function generateMetadata({
