@@ -1,5 +1,4 @@
 import type { MetadataRoute } from 'next';
-import { TREATMENT_CATEGORIES } from '@/components/treatments/treatmentData';
 import { BASE_URL } from '@/lib/seo/keywords';
 import { createClient } from '@sanity/client';
 
@@ -80,13 +79,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  const categoryEntries: PageEntry[] = TREATMENT_CATEGORIES.map((c) => ({
-    path: `/treatments/${c.slug}`,
-    lastModified: now,
-    changeFrequency: 'weekly',
-    priority: 0.85,
-  }));
-
   let dynamicEntries: PageEntry[] = [];
   try {
     const [treatments, pressArticles, blogPosts] = await Promise.all([
@@ -145,7 +137,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // fall back to empty if Sanity is unreachable
   }
 
-  const allEntries = [...staticEntries, ...categoryEntries, ...dynamicEntries];
+  const allEntries = [...staticEntries, ...dynamicEntries];
 
   return allEntries.flatMap(
     ({ path, lastModified, changeFrequency, priority }) =>
