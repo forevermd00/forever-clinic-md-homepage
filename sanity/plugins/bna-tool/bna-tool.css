@@ -352,26 +352,28 @@
 /* ===== Category Tabs ===== */
 .bn-tabs {
   display: flex;
-  gap: 2px;
-  padding: 12px 0 8px;
+  gap: 4px;
   flex-wrap: wrap;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--card-border-color);
+  padding-bottom: 10px;
 }
 
 .bn-tab {
-  padding: 5px 12px;
-  font-size: 12px;
-  font-weight: 500;
+  padding: 5px 14px;
+  border-radius: 20px;
   border: 1px solid var(--card-border-color);
-  border-radius: 4px;
   background: transparent;
   color: var(--card-muted-fg-color);
   cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.15s;
   white-space: nowrap;
-  transition: all 0.12s;
 }
 
 .bn-tab:hover {
-  background: var(--card-bg2-color);
+  background: var(--card-bg2-color, var(--card-bg-color));
   color: var(--card-fg-color);
 }
 

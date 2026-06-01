@@ -18,7 +18,7 @@ const BNA_CATEGORIES: { slug: string; label: string }[] = [
   { slug: 'all', label: '전체' },
   { slug: 'lifting-laser', label: '리프팅·레이저' },
   { slug: 'petit-lifting', label: '쁘띠·실리프팅' },
-  { slug: 'skincare', label: '피부 관리' },
+  { slug: 'skincare', label: '스킨케어' },
   { slug: 'skin-booster', label: '스킨부스터' },
   { slug: 'hair-removal', label: '제모' },
   { slug: 'anesthesia', label: '마취' },
@@ -185,7 +185,7 @@ export function BnaTool() {
         {BNA_CATEGORIES.map((cat) => (
           <button
             key={cat.slug}
-            className={`bn-tab${activeTab === cat.slug ? 'active' : ''}`}
+            className={`bn-tab ${activeTab === cat.slug ? 'active' : ''}`}
             onClick={() => setActiveTab(cat.slug)}
           >
             {cat.label}
@@ -338,7 +338,7 @@ function BnaRow({
   const CATEGORY_LABEL: Record<string, string> = {
     'lifting-laser': '리프팅·레이저',
     'petit-lifting': '쁘띠·실리프팅',
-    skincare: '피부 관리',
+    skincare: '스킨케어',
     'skin-booster': '스킨부스터',
     'hair-removal': '제모',
     anesthesia: '마취',
