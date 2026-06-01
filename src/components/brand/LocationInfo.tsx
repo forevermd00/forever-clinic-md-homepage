@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server';
+import { CopyAddressButton } from '@/components/common/CopyAddressButton';
 
 interface SnsLink {
   platform: string;
@@ -117,14 +118,22 @@ async function LocationInfo({ clinicInfo }: LocationInfoProps) {
             <span className="text-[12px] font-medium text-[#d4c8bd]">
               {t(row.key)}
             </span>
-            <p className="text-[14px] leading-[1.5] text-[#2b2b2b]">
-              {row.value.split('\n').map((line, i, arr) => (
-                <span key={i}>
-                  {line}
-                  {i < arr.length - 1 && <br />}
-                </span>
-              ))}
-            </p>
+            {row.key === 'locationAddress' ? (
+              <CopyAddressButton
+                address={row.value}
+                copyLabel={t('copyAddress')}
+                copiedLabel={t('copied')}
+              />
+            ) : (
+              <p className="text-[14px] leading-[1.5] text-[#2b2b2b]">
+                {row.value.split('\n').map((line, i, arr) => (
+                  <span key={i}>
+                    {line}
+                    {i < arr.length - 1 && <br />}
+                  </span>
+                ))}
+              </p>
+            )}
           </div>
         </div>
       ))}

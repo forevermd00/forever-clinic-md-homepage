@@ -9,7 +9,11 @@ import { BrandSectionNav } from '@/components/brand/BrandSectionNav';
 import { StatsStripSection } from '@/components/home/StatsStripSection';
 import { GoogleMap } from '@/components/common/GoogleMap';
 import Link from 'next/link';
-import { buildGoogleMapsUrl, buildStaticMapUrl } from '@/lib/utils/map';
+import {
+  buildAmapUrl,
+  buildGoogleMapsUrl,
+  buildStaticMapUrl,
+} from '@/lib/utils/map';
 import { getDoctors } from '@/lib/data/doctors';
 import { getStats } from '@/lib/data/stats';
 import { getClinicInfo, getFacilities, getEquipment } from '@/lib/data/clinic';
@@ -353,16 +357,43 @@ export default async function BrandPage({
                     <div className="relative h-[320px] w-full overflow-hidden rounded-[12px] bg-[#efe5d9] lg:h-[480px] lg:flex-1">
                       {clinicInfo.latitude && clinicInfo.longitude ? (
                         locale === 'zh' ? (
-                          <img
-                            src={buildStaticMapUrl(
-                              clinicInfo.latitude,
-                              clinicInfo.longitude,
-                              { w: 840, h: 480, language: 'zh-CN' },
-                            )}
-                            alt="클리닉 위치"
-                            className="h-full w-full object-cover"
-                            loading="lazy"
-                          />
+                          <>
+                            <img
+                              src={buildStaticMapUrl(
+                                clinicInfo.latitude,
+                                clinicInfo.longitude,
+                                { w: 840, h: 480, language: 'zh-CN' },
+                              )}
+                              alt="클리닉 위치"
+                              className="h-full w-full object-cover"
+                              loading="lazy"
+                            />
+                            <Link
+                              href={buildAmapUrl(
+                                clinicInfo.latitude,
+                                clinicInfo.longitude,
+                              )}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="absolute top-3 left-3 flex items-center gap-1.5 rounded-[6px] bg-white/90 px-3 py-1.5 text-[12px] font-medium text-[#2b2b2b] shadow-sm backdrop-blur-sm hover:bg-white"
+                            >
+                              <svg
+                                width="13"
+                                height="13"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                <polyline points="15 3 21 3 21 9" />
+                                <line x1="10" y1="14" x2="21" y2="3" />
+                              </svg>
+                              {t('openMap')}
+                            </Link>
+                          </>
                         ) : (
                           <>
                             <GoogleMap
@@ -394,7 +425,7 @@ export default async function BrandPage({
                                 <polyline points="15 3 21 3 21 9" />
                                 <line x1="10" y1="14" x2="21" y2="3" />
                               </svg>
-                              지도에서 열기
+                              {t('openMap')}
                             </Link>
                           </>
                         )

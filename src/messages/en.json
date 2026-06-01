@@ -204,7 +204,10 @@
     "sectionLocation": "Directions",
     "sectionStats": "Metrics",
     "brandStoryLink": "Learn More About Our Story",
-    "applicableTreatments": "Applicable Treatments"
+    "applicableTreatments": "Applicable Treatments",
+    "openMap": "Open in Maps",
+    "copyAddress": "Copy address",
+    "copied": "Copied"
   },
   "media": {
     "press": "Press",
@@ -319,7 +322,10 @@
     "signatureTitle": "Signature Programs",
     "signatureCtaAll": "Book a Consultation for All Programs",
     "pressTitle": "Press Coverage",
-    "pressViewMore": "View All Press"
+    "pressViewMore": "View All Press",
+    "openMap": "Open in Maps",
+    "copyAddress": "Copy address",
+    "copied": "Copied"
   },
   "contact": {
     "heroTitle": "Reservations & Consultations",
@@ -332,7 +338,10 @@
     "mapPlaceholder": "Map Area (Google Maps)",
     "clinicAddress": "78 Namdaemun-ro, Jung-gu, Seoul, 1-2F Timework Building",
     "clinicPhone": "02-000-0000 [Temporary]",
-    "clinicHours": "Mon-Fri 10:00-20:30 (Last reception 19:30)\nSat-Sun 10:00-18:30 (Last reception 17:30)\nOpen year-round (closed 1 day for major holidays) / No lunch break"
+    "clinicHours": "Mon-Fri 10:00-20:30 (Last reception 19:30)\nSat-Sun 10:00-18:30 (Last reception 17:30)\nOpen year-round (closed 1 day for major holidays) / No lunch break",
+    "openMap": "Open in Maps",
+    "copyAddress": "Copy address",
+    "copied": "Copied"
   },
   "promotions": {
     "heroTitle": "Events & Promotions",

@@ -19,6 +19,14 @@ export function buildGoogleMapsUrl(lat: number, lng: number): string {
 }
 
 /**
+ * 고덕(高德, Amap) 지도 링크 — 중국어 사용자용 (Google Maps는 중국에서 차단됨)
+ * position 파라미터는 경도,위도 순서
+ */
+export function buildAmapUrl(lat: number, lng: number): string {
+  return `https://uri.amap.com/marker?position=${lng},${lat}`;
+}
+
+/**
  * 주소 기반 Google Maps 링크
  */
 export function buildGoogleMapsUrlFromAddress(address: string): string {

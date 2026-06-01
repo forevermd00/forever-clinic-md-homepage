@@ -204,7 +204,10 @@
     "sectionLocation": "交通指南",
     "sectionStats": "指标",
     "brandStoryLink": "了解更多品牌故事",
-    "applicableTreatments": "适用项目"
+    "applicableTreatments": "适用项目",
+    "openMap": "高德地图导航",
+    "copyAddress": "复制地址",
+    "copied": "已复制"
   },
   "media": {
     "press": "新闻报道",
@@ -319,7 +322,10 @@
     "signatureTitle": "招牌项目",
     "signatureCtaAll": "咨询全部项目",
     "pressTitle": "媒体报道",
-    "pressViewMore": "查看全部报道"
+    "pressViewMore": "查看全部报道",
+    "openMap": "高德地图导航",
+    "copyAddress": "复制地址",
+    "copied": "已复制"
   },
   "contact": {
     "heroTitle": "预约与咨询",
@@ -332,7 +338,10 @@
     "mapPlaceholder": "地图区域 (Google Maps)",
     "clinicAddress": "首尔中区南大门路78号 Timework大厦 1-2楼",
     "clinicPhone": "02-000-0000 [临时]",
-    "clinicHours": "周一至周五 10:00-20:30（最后受理 19:30）\n周六/周日 10:00-18:30（最后受理 17:30）\n全年无休（重要节假日休1天）/ 无午休"
+    "clinicHours": "周一至周五 10:00-20:30（最后受理 19:30）\n周六/周日 10:00-18:30（最后受理 17:30）\n全年无休（重要节假日休1天）/ 无午休",
+    "openMap": "高德地图导航",
+    "copyAddress": "复制地址",
+    "copied": "已复制"
   },
   "promotions": {
     "heroTitle": "活动 & 优惠",

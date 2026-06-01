@@ -204,7 +204,10 @@
     "sectionLocation": "오시는 길",
     "sectionStats": "지표",
     "brandStoryLink": "브랜드 스토리 자세히 보기",
-    "applicableTreatments": "적용 시술"
+    "applicableTreatments": "적용 시술",
+    "openMap": "지도에서 열기",
+    "copyAddress": "주소 복사",
+    "copied": "복사됨"
   },
   "media": {
     "press": "보도자료",
@@ -319,7 +322,10 @@
     "signatureTitle": "시그니처 프로그램",
     "signatureCtaAll": "전체 프로그램 상담 신청",
     "pressTitle": "언론 보도",
-    "pressViewMore": "보도자료 전체보기"
+    "pressViewMore": "보도자료 전체보기",
+    "openMap": "지도에서 열기",
+    "copyAddress": "주소 복사",
+    "copied": "복사됨"
   },
   "contact": {
     "heroTitle": "예약 및 상담",
@@ -332,7 +338,10 @@
     "mapPlaceholder": "지도 영역 (Google Maps)",
     "clinicAddress": "서울 중구 남대문로 78 타임워크빌딩 1-2층",
     "clinicPhone": "02-000-0000 [임시]",
-    "clinicHours": "월-금 10:00-20:30 (접수마감 19:30)\n토-일 10:00-18:30 (접수마감 17:30)\n연중무휴 (중요 명절 1일 휴무) / 점심시간 없음"
+    "clinicHours": "월-금 10:00-20:30 (접수마감 19:30)\n토-일 10:00-18:30 (접수마감 17:30)\n연중무휴 (중요 명절 1일 휴무) / 점심시간 없음",
+    "openMap": "지도에서 열기",
+    "copyAddress": "주소 복사",
+    "copied": "복사됨"
   },
   "promotions": {
     "heroTitle": "이벤트 & 프로모션",

@@ -11,12 +11,14 @@ import {
 } from '@/lib/data/clinic';
 import { getSectionVisibility } from '@/lib/data/visibility';
 import {
+  buildAmapUrl,
   buildGoogleMapsUrl,
   buildGoogleMapsUrlFromAddress,
   buildMapEmbedUrl,
   buildStaticMapUrl,
 } from '@/lib/utils/map';
 import { GoogleMap } from '@/components/common/GoogleMap';
+import { CopyAddressButton } from '@/components/common/CopyAddressButton';
 
 const titles: Record<string, string> = {
   ko: '예약 및 상담',
@@ -88,16 +90,44 @@ export default async function ContactPage({
             <div className="relative h-[320px] w-full overflow-hidden rounded-[12px] bg-[#efe5d9] lg:h-[480px] lg:flex-1">
               {clinic.latitude && clinic.longitude ? (
                 locale === 'zh' ? (
-                  <img
-                    src={buildStaticMapUrl(clinic.latitude, clinic.longitude, {
-                      w: 840,
-                      h: 480,
-                      language: 'zh-CN',
-                    })}
-                    alt="클리닉 위치"
-                    className="h-full w-full object-cover"
-                    loading="lazy"
-                  />
+                  <>
+                    <img
+                      src={buildStaticMapUrl(
+                        clinic.latitude,
+                        clinic.longitude,
+                        {
+                          w: 840,
+                          h: 480,
+                          language: 'zh-CN',
+                        },
+                      )}
+                      alt="클리닉 위치"
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                    <Link
+                      href={buildAmapUrl(clinic.latitude, clinic.longitude)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-[6px] bg-white/90 px-3 py-1.5 text-[12px] font-medium text-[#2b2b2b] shadow-sm backdrop-blur-sm hover:bg-white"
+                    >
+                      <svg
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                      </svg>
+                      {t('openMap')}
+                    </Link>
+                  </>
                 ) : (
                   <>
                     <GoogleMap
@@ -129,7 +159,7 @@ export default async function ContactPage({
                         <polyline points="15 3 21 3 21 9" />
                         <line x1="10" y1="14" x2="21" y2="3" />
                       </svg>
-                      지도에서 열기
+                      {t('openMap')}
                     </Link>
                   </>
                 )
@@ -163,7 +193,7 @@ export default async function ContactPage({
                       <polyline points="15 3 21 3 21 9" />
                       <line x1="10" y1="14" x2="21" y2="3" />
                     </svg>
-                    지도에서 열기
+                    {t('openMap')}
                   </Link>
                 </>
               ) : (
@@ -197,22 +227,12 @@ export default async function ContactPage({
                     <p className="text-[12px] font-medium text-[#d4c8bd]">
                       {t('address')}
                     </p>
-                    {clinic.latitude && clinic.longitude ? (
-                      <Link
-                        href={buildGoogleMapsUrl(
-                          clinic.latitude,
-                          clinic.longitude,
-                        )}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[14px] leading-[1.5] text-[#2b2b2b] underline-offset-2 hover:underline"
-                      >
-                        {clinic.address}
-                      </Link>
-                    ) : (
-                      <p className="text-[14px] leading-[1.5] text-[#2b2b2b]">
-                        {clinic.address}
-                      </p>
+                    {clinic.address && (
+                      <CopyAddressButton
+                        address={clinic.address}
+                        copyLabel={t('copyAddress')}
+                        copiedLabel={t('copied')}
+                      />
                     )}
                   </div>
                 </div>

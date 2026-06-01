@@ -204,7 +204,10 @@
     "sectionLocation": "アクセス",
     "sectionStats": "指標",
     "brandStoryLink": "ブランドストーリーを詳しく見る",
-    "applicableTreatments": "適用施術"
+    "applicableTreatments": "適用施術",
+    "openMap": "地図で開く",
+    "copyAddress": "住所をコピー",
+    "copied": "コピーしました"
   },
   "media": {
     "press": "プレスリリース",
@@ -319,7 +322,10 @@
     "signatureTitle": "シグニチャープログラム",
     "signatureCtaAll": "全プログラムのカウンセリングを申し込む",
     "pressTitle": "メディア掲載",
-    "pressViewMore": "報道資料一覧"
+    "pressViewMore": "報道資料一覧",
+    "openMap": "地図で開く",
+    "copyAddress": "住所をコピー",
+    "copied": "コピーしました"
   },
   "contact": {
     "heroTitle": "ご予約・お問い合わせ",
@@ -332,7 +338,10 @@
     "mapPlaceholder": "地図エリア (Google Maps)",
     "clinicAddress": "ソウル市中区南大門路78番地 タイムワークビル1-2階",
     "clinicPhone": "02-000-0000 [仮]",
-    "clinicHours": "月〜金 10:00〜20:30（最終受付 19:30）\n土・日 10:00〜18:30（最終受付 17:30）\n年中無休（主要祝日1日休診）/ 昼休みなし"
+    "clinicHours": "月〜金 10:00〜20:30（最終受付 19:30）\n土・日 10:00〜18:30（最終受付 17:30）\n年中無休（主要祝日1日休診）/ 昼休みなし",
+    "openMap": "地図で開く",
+    "copyAddress": "住所をコピー",
+    "copied": "コピーしました"
   },
   "promotions": {
     "heroTitle": "イベント & キャンペーン",
