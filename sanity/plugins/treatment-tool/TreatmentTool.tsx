@@ -70,6 +70,8 @@ export function TreatmentTool() {
 
     if (activeTab === '_event') {
       result = result.filter((d) => d.isEvent);
+    } else if (activeTab === '_signature') {
+      result = result.filter((d) => d.isSignature);
     } else if (activeTab !== 'all') {
       result = result.filter((d) => d.category === activeTab);
     }
@@ -163,10 +165,15 @@ export function TreatmentTool() {
   );
 
   const counts = useMemo(() => {
-    const c: Record<string, number> = { all: docs.length, _event: 0 };
+    const c: Record<string, number> = {
+      all: docs.length,
+      _event: 0,
+      _signature: 0,
+    };
     docs.forEach((d) => {
       if (d.category) c[d.category] = (c[d.category] || 0) + 1;
       if (d.isEvent) c._event++;
+      if (d.isSignature) c._signature++;
     });
     return c;
   }, [docs]);
