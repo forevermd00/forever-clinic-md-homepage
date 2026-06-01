@@ -27,7 +27,7 @@ const LOCALE_LABELS: Record<string, string> = {
 const CATEGORY_OPTIONS = [
   { value: 'lifting-laser', label: '리프팅·레이저' },
   { value: 'petit-lifting', label: '쁘띠·실리프팅' },
-  { value: 'skincare', label: '피부 관리' },
+  { value: 'skincare', label: '스킨케어' },
   { value: 'skin-booster', label: '스킨부스터' },
   { value: 'hair-removal', label: '제모' },
   { value: 'anesthesia', label: '마취' },
