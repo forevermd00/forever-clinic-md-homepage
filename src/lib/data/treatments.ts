@@ -161,8 +161,12 @@ export async function getAllCategories(
     grouped[cat].push(t);
   }
 
+  // isSignature == true인 시술 전체 (카테고리 무관)
+  const signatureItems = raw.filter((t) => t.isSignature);
+
   return TREATMENT_CATEGORIES.map((catMeta) => {
-    const items = grouped[catMeta.slug];
+    const items =
+      catMeta.slug === 'signature' ? signatureItems : grouped[catMeta.slug];
     if (!items || items.length === 0) return catMeta;
 
     return {
