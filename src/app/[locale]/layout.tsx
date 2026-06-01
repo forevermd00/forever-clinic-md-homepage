@@ -75,6 +75,7 @@ export default async function LocaleLayout({
         platform: string;
         url?: string;
         label?: string;
+        logo?: { asset?: { url?: string } };
         isVisible?: boolean;
         sortKo?: number;
         sortEn?: number;

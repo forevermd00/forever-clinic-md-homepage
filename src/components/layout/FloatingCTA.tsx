@@ -11,6 +11,7 @@ interface MessengerLink {
   platform: string;
   url?: string;
   label?: string;
+  logo?: { asset?: { url?: string } };
   isVisible?: boolean;
   sortKo?: number;
   sortEn?: number;
@@ -18,30 +19,11 @@ interface MessengerLink {
   sortJa?: number;
 }
 
-const PLATFORM_CONFIG: Record<
-  string,
-  { bg: string; icon: string; fallbackLabel: string }
-> = {
-  wechat: {
-    bg: 'bg-[#07C160]',
-    icon: '/images/icons/wechat.svg',
-    fallbackLabel: 'WeChat',
-  },
-  line: {
-    bg: 'bg-[#06C755]',
-    icon: '/images/icons/line.svg',
-    fallbackLabel: 'LINE',
-  },
-  kakaotalk: {
-    bg: 'bg-[#FEE500]',
-    icon: '/images/icons/kakaotalk.svg',
-    fallbackLabel: 'KakaoTalk',
-  },
-  whatsapp: {
-    bg: 'bg-[#25D366]',
-    icon: '/images/icons/whatsapp.svg',
-    fallbackLabel: 'WhatsApp',
-  },
+const PLATFORM_CONFIG: Record<string, { bg: string; fallbackLabel: string }> = {
+  wechat: { bg: 'bg-[#07C160]', fallbackLabel: 'WeChat' },
+  line: { bg: 'bg-[#06C755]', fallbackLabel: 'LINE' },
+  kakaotalk: { bg: 'bg-[#FEE500]', fallbackLabel: 'KakaoTalk' },
+  whatsapp: { bg: 'bg-[#25D366]', fallbackLabel: 'WhatsApp' },
 };
 
 // 언어별 우선 채널 (맨 아래 = 메인 버튼)
@@ -106,10 +88,11 @@ export function FloatingCTA({ messengerLinks = [] }: FloatingCTAProps) {
             : 'invisible translate-y-2.5 opacity-0',
         )}
       >
-        {channels.map(({ _key, platform, url, label }, i) => {
+        {channels.map(({ _key, platform, url, label, logo }, i) => {
           const config = PLATFORM_CONFIG[platform];
           if (!config) return null;
           const displayLabel = label || config.fallbackLabel;
+          const iconUrl = logo?.asset?.url;
           return (
             <a
               key={_key}
@@ -126,13 +109,20 @@ export function FloatingCTA({ messengerLinks = [] }: FloatingCTAProps) {
                   config.bg,
                 )}
               >
-                <Image
-                  src={config.icon}
-                  alt={displayLabel}
-                  width={20}
-                  height={20}
-                  className="size-5"
-                />
+                {iconUrl ? (
+                  <Image
+                    src={iconUrl}
+                    alt={displayLabel}
+                    width={20}
+                    height={20}
+                    className="size-5"
+                    unoptimized
+                  />
+                ) : (
+                  <span className="text-[10px] font-bold text-white">
+                    {displayLabel[0]}
+                  </span>
+                )}
               </span>
               <span className="text-[14px] font-medium whitespace-nowrap text-[#353535]">
                 {displayLabel}
