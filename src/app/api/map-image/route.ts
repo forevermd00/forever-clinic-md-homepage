@@ -26,6 +26,7 @@ export async function GET(req: NextRequest) {
   const w = searchParams.get('w') ?? '800';
   const h = searchParams.get('h') ?? '500';
   const scale = searchParams.get('scale') ?? '2';
+  const language = searchParams.get('language');
 
   // 불필요한 POI 숨김 스타일
   const styles = [
@@ -47,6 +48,7 @@ export async function GET(req: NextRequest) {
     `&scale=${scale}` +
     `&markers=${marker}` +
     `${styles}` +
+    (language ? `&language=${language}` : '') +
     `&key=${apiKey}`;
 
   const res = await fetch(url, { next: { revalidate: 86400 } }); // 1일 캐시

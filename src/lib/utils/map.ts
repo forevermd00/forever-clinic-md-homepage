@@ -4,10 +4,11 @@
 export function buildStaticMapUrl(
   lat: number,
   lng: number,
-  opts?: { zoom?: number; w?: number; h?: number },
+  opts?: { zoom?: number; w?: number; h?: number; language?: string },
 ): string {
-  const { zoom = 15, w = 800, h = 500 } = opts ?? {};
-  return `/api/map-image?lat=${lat}&lng=${lng}&zoom=${zoom}&w=${w}&h=${h}&scale=2`;
+  const { zoom = 15, w = 800, h = 500, language } = opts ?? {};
+  const lang = language ? `&language=${language}` : '';
+  return `/api/map-image?lat=${lat}&lng=${lng}&zoom=${zoom}&w=${w}&h=${h}&scale=2${lang}`;
 }
 
 /**

@@ -92,6 +92,7 @@ export default async function ContactPage({
                     src={buildStaticMapUrl(clinic.latitude, clinic.longitude, {
                       w: 840,
                       h: 480,
+                      language: 'zh-CN',
                     })}
                     alt="클리닉 위치"
                     className="h-full w-full object-cover"

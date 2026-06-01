@@ -357,7 +357,7 @@ export default async function BrandPage({
                             src={buildStaticMapUrl(
                               clinicInfo.latitude,
                               clinicInfo.longitude,
-                              { w: 840, h: 480 },
+                              { w: 840, h: 480, language: 'zh-CN' },
                             )}
                             alt="클리닉 위치"
                             className="h-full w-full object-cover"
