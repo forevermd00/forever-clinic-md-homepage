@@ -440,6 +440,27 @@
   margin-left: 4px;
 }
 
+.bn-migrate-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  background: transparent;
+  color: var(--card-muted-fg-color);
+  border: 1px solid var(--card-border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.bn-migrate-btn:hover:not(:disabled) {
+  background: var(--card-bg2-color);
+  color: var(--card-fg-color);
+}
+
+.bn-migrate-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* ===== Checkbox ===== */
 .bn-checkbox {
   width: 14px;

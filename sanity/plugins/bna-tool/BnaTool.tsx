@@ -88,6 +88,59 @@ export function BnaTool() {
     router.navigate({ selectedId: newDoc._id });
   }, [client, router]);
 
+  const LEGACY_MAP: Record<string, string> = {
+    lifting: 'lifting-laser',
+    toning: 'skincare',
+    'botox-filler': 'petit-lifting',
+  };
+  const VALID_SLUGS = new Set([
+    'lifting-laser',
+    'petit-lifting',
+    'skincare',
+    'skin-booster',
+    'hair-removal',
+    'anesthesia',
+  ]);
+
+  const [migrating, setMigrating] = useState(false);
+  const handleMigrate = useCallback(async () => {
+    setMigrating(true);
+    const all = await client.fetch<{ _id: string; categories: string[] }[]>(
+      `*[_type == "baCase" && defined(categories)] { _id, categories }`,
+    );
+    let count = 0;
+    for (const doc of all) {
+      const next = [
+        ...new Set(
+          (doc.categories || [])
+            .map((c) => LEGACY_MAP[c] ?? c)
+            .filter((c) => VALID_SLUGS.has(c)),
+        ),
+      ];
+      const changed =
+        JSON.stringify([...doc.categories].sort()) !==
+        JSON.stringify([...next].sort());
+      if (changed) {
+        await client.patch(doc._id).set({ categories: next }).commit();
+        count++;
+      }
+    }
+    setDocs((prev) =>
+      prev.map((d) => {
+        const next = [
+          ...new Set(
+            (d.categories || [])
+              .map((c) => LEGACY_MAP[c] ?? c)
+              .filter((c) => VALID_SLUGS.has(c)),
+          ),
+        ];
+        return { ...d, categories: next };
+      }),
+    );
+    setMigrating(false);
+    alert(`카테고리 정리 완료: ${count}개 문서 업데이트`);
+  }, [client]);
+
   const patch = useCallback(
     async (id: string, fields: Record<string, unknown>) => {
       setSaving((s) => new Set(s).add(id));
@@ -104,13 +157,20 @@ export function BnaTool() {
     [client],
   );
 
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+
   const handleDragStart = (e: React.DragEvent, idx: number) => {
-    e.dataTransfer.setData('dragIdx', String(idx));
+    e.dataTransfer.setData('text/plain', String(idx));
+    e.dataTransfer.effectAllowed = 'move';
   };
+
+  const handleDragEnd = () => setDragOverIdx(null);
 
   const handleDrop = useCallback(
     async (e: React.DragEvent, dropIdx: number) => {
-      const from = parseInt(e.dataTransfer.getData('dragIdx'), 10);
+      e.preventDefault();
+      setDragOverIdx(null);
+      const from = parseInt(e.dataTransfer.getData('text/plain'), 10);
       if (isNaN(from) || from === dropIdx) return;
 
       const reordered = [...filtered];
@@ -218,6 +278,14 @@ export function BnaTool() {
           </button>
         )}
         <span className="bn-count">{filtered.length}개 케이스</span>
+        <button
+          className="bn-migrate-btn"
+          onClick={handleMigrate}
+          disabled={migrating}
+          title="구버전 카테고리(lifting, toning, botox-filler)를 현행 슬러그로 일괄 변환"
+        >
+          {migrating ? '정리 중…' : '카테고리 정리'}
+        </button>
       </div>
 
       {loading ? (
@@ -272,8 +340,17 @@ export function BnaTool() {
                     onToggleSelect={() => toggleSelect(doc._id)}
                     onPatch={patch}
                     onEdit={() => router.navigate({ selectedId: doc._id })}
+                    dragOver={dragOverIdx === idx}
                     onDragStart={(e) => handleDragStart(e, idx)}
-                    onDragOver={(e) => e.preventDefault()}
+                    onDragEnter={() => setDragOverIdx(idx)}
+                    onDragLeave={() =>
+                      setDragOverIdx((prev) => (prev === idx ? null : prev))
+                    }
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = 'move';
+                    }}
+                    onDragEnd={handleDragEnd}
                     onDrop={(e) => handleDrop(e, idx)}
                   />
                 ))
@@ -315,22 +392,30 @@ function BnaRow({
   rowNum,
   saving,
   selected,
+  dragOver,
   onToggleSelect,
   onPatch,
   onEdit,
   onDragStart,
+  onDragEnter,
+  onDragLeave,
   onDragOver,
+  onDragEnd,
   onDrop,
 }: {
   doc: BnaDoc;
   rowNum: number;
   saving: boolean;
   selected: boolean;
+  dragOver: boolean;
   onToggleSelect: () => void;
   onPatch: (id: string, fields: Record<string, unknown>) => Promise<void>;
   onEdit: () => void;
   onDragStart: (e: React.DragEvent) => void;
+  onDragEnter: () => void;
+  onDragLeave: () => void;
   onDragOver: (e: React.DragEvent) => void;
+  onDragEnd: () => void;
   onDrop: (e: React.DragEvent) => void;
 }) {
   const isDragging = useRef(false);
@@ -349,7 +434,13 @@ function BnaRow({
       className="bn-row-clickable"
       style={{
         opacity: saving ? 0.5 : 1,
-        background: selected ? 'var(--card-bg2-color)' : undefined,
+        background: dragOver
+          ? 'var(--card-bg2-color)'
+          : selected
+            ? 'var(--card-bg2-color)'
+            : undefined,
+        outline: dragOver ? '2px solid var(--card-fg-color)' : undefined,
+        outlineOffset: '-1px',
       }}
       draggable
       onDragStart={(e) => {
@@ -357,10 +448,13 @@ function BnaRow({
         onDragStart(e);
       }}
       onDragEnd={() => {
+        onDragEnd();
         setTimeout(() => {
           isDragging.current = false;
         }, 50);
       }}
+      onDragEnter={onDragEnter}
+      onDragLeave={onDragLeave}
       onDragOver={onDragOver}
       onDrop={onDrop}
       onClick={() => {
