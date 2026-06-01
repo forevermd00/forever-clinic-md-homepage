@@ -6,7 +6,7 @@ export function buildStaticMapUrl(
   lng: number,
   opts?: { zoom?: number; w?: number; h?: number },
 ): string {
-  const { zoom = 17, w = 800, h = 500 } = opts ?? {};
+  const { zoom = 15, w = 800, h = 500 } = opts ?? {};
   return `/api/map-image?lat=${lat}&lng=${lng}&zoom=${zoom}&w=${w}&h=${h}&scale=2`;
 }
 
