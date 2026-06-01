@@ -10,10 +10,12 @@ import type { BACase } from '@/lib/data/ba';
 
 const FILTER_KEYS = [
   { id: 'all', key: 'filterAll' },
-  { id: 'lifting', key: 'filterLifting' },
+  { id: 'lifting-laser', key: 'filterLiftingLaser' },
+  { id: 'petit-lifting', key: 'filterPetitLifting' },
   { id: 'skincare', key: 'filterSkincare' },
-  { id: 'toning', key: 'filterToning' },
-  { id: 'botox', key: 'filterBotox' },
+  { id: 'skin-booster', key: 'filterSkinBooster' },
+  { id: 'hair-removal', key: 'filterHairRemoval' },
+  { id: 'anesthesia', key: 'filterAnesthesia' },
 ] as const;
 
 interface BAPreviewSectionProps {
