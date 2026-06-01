@@ -70,6 +70,17 @@ export default async function LocaleLayout({
       address?: string;
       phone?: string;
       email?: string;
+      messengerLinks?: {
+        _key: string;
+        platform: string;
+        url?: string;
+        label?: string;
+        isVisible?: boolean;
+        sortKo?: number;
+        sortEn?: number;
+        sortZh?: number;
+        sortJa?: number;
+      }[];
     } | null>(clinicInfoQuery, { locale }),
     getSectionVisibility(),
     sanityFetch<NavTreatment[]>(navTreatmentsQuery),
@@ -110,7 +121,7 @@ export default async function LocaleLayout({
               brandOrder={visibility.brandOrder}
               mediaOrder={visibility.mediaOrder}
             />
-            <FloatingCTA />
+            <FloatingCTA messengerLinks={clinicInfo?.messengerLinks ?? []} />
           </NextIntlClientProvider>
         </SessionProvider>
       </body>

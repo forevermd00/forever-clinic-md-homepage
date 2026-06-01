@@ -6,57 +6,90 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
 import Image from 'next/image';
 
-const allChannels = [
-  {
-    id: 'wechat',
-    label: 'WeChat',
-    href: '#wechat',
+interface MessengerLink {
+  _key: string;
+  platform: string;
+  url?: string;
+  label?: string;
+  isVisible?: boolean;
+  sortKo?: number;
+  sortEn?: number;
+  sortZh?: number;
+  sortJa?: number;
+}
+
+const PLATFORM_CONFIG: Record<
+  string,
+  { bg: string; icon: string; fallbackLabel: string }
+> = {
+  wechat: {
     bg: 'bg-[#07C160]',
     icon: '/images/icons/wechat.svg',
+    fallbackLabel: 'WeChat',
   },
-  {
-    id: 'line',
-    label: 'LINE',
-    href: '#line',
+  line: {
     bg: 'bg-[#06C755]',
     icon: '/images/icons/line.svg',
+    fallbackLabel: 'LINE',
   },
-  {
-    id: 'kakao',
-    label: 'KakaoTalk',
-    href: '#kakao',
+  kakaotalk: {
     bg: 'bg-[#FEE500]',
     icon: '/images/icons/kakaotalk.svg',
+    fallbackLabel: 'KakaoTalk',
   },
-  {
-    id: 'whatsapp',
-    label: 'WhatsApp',
-    href: '#whatsapp',
+  whatsapp: {
     bg: 'bg-[#25D366]',
     icon: '/images/icons/whatsapp.svg',
+    fallbackLabel: 'WhatsApp',
   },
-];
+};
 
-// 언어별 우선 채널 (기획서 기준: ko→카카오, zh→WeChat, ja→LINE, en→WhatsApp)
-const localePriority: Record<string, string> = {
-  ko: 'kakao',
+// 언어별 우선 채널 (맨 아래 = 메인 버튼)
+const LOCALE_PRIORITY: Record<string, string> = {
+  ko: 'kakaotalk',
   zh: 'wechat',
   ja: 'line',
   en: 'whatsapp',
 };
 
-export function FloatingCTA() {
+const SORT_KEY: Record<string, keyof MessengerLink> = {
+  ko: 'sortKo',
+  en: 'sortEn',
+  zh: 'sortZh',
+  ja: 'sortJa',
+};
+
+interface FloatingCTAProps {
+  messengerLinks?: MessengerLink[];
+}
+
+export function FloatingCTA({ messengerLinks = [] }: FloatingCTAProps) {
   const t = useTranslations('floatingCta');
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'ko';
   const [isOpen, setIsOpen] = useState(true);
 
   const channels = useMemo(() => {
-    const priorityId = localePriority[locale] || 'kakao';
-    const priority = allChannels.find((c) => c.id === priorityId)!;
-    const rest = allChannels.filter((c) => c.id !== priorityId);
-    return [...rest.reverse(), priority];
-  }, [locale]);
+    const sortKey = SORT_KEY[locale] ?? 'sortKo';
+    const priorityPlatform = LOCALE_PRIORITY[locale] ?? 'kakaotalk';
+
+    const visible = messengerLinks
+      .filter(
+        (l) => l.isVisible !== false && l.url && PLATFORM_CONFIG[l.platform],
+      )
+      .sort((a, b) => {
+        const av = (a[sortKey] as number | undefined) ?? 999;
+        const bv = (b[sortKey] as number | undefined) ?? 999;
+        return av - bv;
+      });
+
+    // 우선 채널을 맨 아래(마지막)에 배치
+    const priority = visible.find((l) => l.platform === priorityPlatform);
+    const rest = visible.filter((l) => l.platform !== priorityPlatform);
+    return priority ? [...rest, priority] : visible;
+  }, [messengerLinks, locale]);
+
+  if (channels.length === 0) return null;
 
   return (
     <div
@@ -73,36 +106,43 @@ export function FloatingCTA() {
             : 'invisible translate-y-2.5 opacity-0',
         )}
       >
-        {channels.map(({ id, label, href, bg, icon }, i) => (
-          <a
-            key={id}
-            href={href}
-            title={label}
-            className="flex items-center gap-3 rounded-[8px] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.12)] transition-all duration-200 hover:shadow-[0_8px_24px_rgba(0,0,0,0.16)]"
-            style={{ transitionDelay: isOpen ? `${i * 30}ms` : '0ms' }}
-          >
-            <span
-              className={cn(
-                'flex size-8 shrink-0 items-center justify-center rounded-full',
-                bg,
-              )}
+        {channels.map(({ _key, platform, url, label }, i) => {
+          const config = PLATFORM_CONFIG[platform];
+          if (!config) return null;
+          const displayLabel = label || config.fallbackLabel;
+          return (
+            <a
+              key={_key}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={displayLabel}
+              className="flex items-center gap-3 rounded-[8px] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.12)] transition-all duration-200 hover:shadow-[0_8px_24px_rgba(0,0,0,0.16)]"
+              style={{ transitionDelay: isOpen ? `${i * 30}ms` : '0ms' }}
             >
-              <Image
-                src={icon}
-                alt={label}
-                width={20}
-                height={20}
-                className="size-5"
-              />
-            </span>
-            <span className="text-[14px] font-medium whitespace-nowrap text-[#353535]">
-              {label}
-            </span>
-          </a>
-        ))}
+              <span
+                className={cn(
+                  'flex size-8 shrink-0 items-center justify-center rounded-full',
+                  config.bg,
+                )}
+              >
+                <Image
+                  src={config.icon}
+                  alt={displayLabel}
+                  width={20}
+                  height={20}
+                  className="size-5"
+                />
+              </span>
+              <span className="text-[14px] font-medium whitespace-nowrap text-[#353535]">
+                {displayLabel}
+              </span>
+            </a>
+          );
+        })}
       </div>
 
-      {/* Main FAB button - click to toggle */}
+      {/* Main FAB button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex size-14 items-center justify-center rounded-full bg-[#840202] shadow-[0_8px_24px_rgba(0,0,0,0.16)] transition-transform duration-200 hover:scale-110"
