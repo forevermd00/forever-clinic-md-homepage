@@ -322,8 +322,8 @@ function VideoPanel({ onEdit }: { onEdit: (id: string) => void }) {
                         ))}
                       </span>
                     ) : (
-                      <span style={{ fontSize: 11, color: '#9ca3af' }}>
-                        전체
+                      <span style={{ fontSize: 11, color: '#dc2626' }}>
+                        표시 안 됨
                       </span>
                     )}
                   </td>

@@ -56,9 +56,7 @@ export function FloatingCTA({ messengerLinks = [] }: FloatingCTAProps) {
     const priorityPlatform = LOCALE_PRIORITY[locale] ?? 'kakaotalk';
 
     const visible = messengerLinks
-      .filter(
-        (l) => l.isVisible !== false && l.url && PLATFORM_CONFIG[l.platform],
-      )
+      .filter((l) => l.isVisible !== false && l.url)
       .sort((a, b) => {
         const av = (a[sortKey] as number | undefined) ?? 999;
         const bv = (b[sortKey] as number | undefined) ?? 999;
@@ -90,8 +88,7 @@ export function FloatingCTA({ messengerLinks = [] }: FloatingCTAProps) {
       >
         {channels.map(({ _key, platform, url, label, logo }, i) => {
           const config = PLATFORM_CONFIG[platform];
-          if (!config) return null;
-          const displayLabel = label || config.fallbackLabel;
+          const displayLabel = label || config?.fallbackLabel || platform;
           const iconUrl = logo?.asset?.url;
           return (
             <a
@@ -103,27 +100,27 @@ export function FloatingCTA({ messengerLinks = [] }: FloatingCTAProps) {
               className="flex items-center gap-3 rounded-[8px] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.12)] transition-all duration-200 hover:shadow-[0_8px_24px_rgba(0,0,0,0.16)]"
               style={{ transitionDelay: isOpen ? `${i * 30}ms` : '0ms' }}
             >
-              <span
-                className={cn(
-                  'flex size-8 shrink-0 items-center justify-center rounded-full',
-                  config.bg,
-                )}
-              >
-                {iconUrl ? (
-                  <Image
-                    src={iconUrl}
-                    alt={displayLabel}
-                    width={20}
-                    height={20}
-                    className="size-5"
-                    unoptimized
-                  />
-                ) : (
+              {iconUrl ? (
+                <Image
+                  src={iconUrl}
+                  alt={displayLabel}
+                  width={32}
+                  height={32}
+                  className="size-8 shrink-0 rounded-full object-cover"
+                  unoptimized
+                />
+              ) : (
+                <span
+                  className={cn(
+                    'flex size-8 shrink-0 items-center justify-center rounded-full',
+                    config?.bg ?? 'bg-[#6b7280]',
+                  )}
+                >
                   <span className="text-[10px] font-bold text-white">
                     {displayLabel[0]}
                   </span>
-                )}
-              </span>
+                </span>
+              )}
               <span className="text-[14px] font-medium whitespace-nowrap text-[#353535]">
                 {displayLabel}
               </span>

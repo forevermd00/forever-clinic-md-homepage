@@ -453,16 +453,12 @@ function ClinicInfoPanel() {
   const [messengerUploading, setMessengerUploading] = useState<string | null>(
     null,
   );
-  const initialized = useRef(false);
 
   useEffect(() => {
     client.fetch<ClinicInfoDoc>(CLINIC_INFO_QUERY).then((data) => {
       setDoc(data ?? {});
-      if (!initialized.current) {
-        setHours(data?.businessHours ?? []);
-        setMessenger(data?.messengerLinks ?? []);
-        initialized.current = true;
-      }
+      setHours(data?.businessHours ?? []);
+      setMessenger(data?.messengerLinks ?? []);
     });
   }, [client]);
 
@@ -1011,9 +1007,11 @@ function ClinicInfoPanel() {
                         src={`https://cdn.sanity.io/images/ecoamz42/production/${s.logoRef.replace('image-', '').replace(/-(\w+)$/, '.$1')}`}
                         alt="logo"
                         style={{
-                          width: 32,
-                          height: 32,
-                          objectFit: 'contain',
+                          width: 36,
+                          height: 36,
+                          objectFit: 'cover',
+                          borderRadius: '50%',
+                          border: '1px solid #e5e7eb',
                           marginBottom: 4,
                         }}
                       />
