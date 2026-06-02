@@ -52,6 +52,12 @@ export default defineType({
       type: 'localizedImage',
     }),
     defineField({
+      name: 'keywords',
+      title: '키워드 (태그)',
+      description: '시그니처 카드에 표시되는 태그. 가운데점(·)으로 구분.',
+      type: 'localizedString',
+    }),
+    defineField({
       name: 'effects',
       title: '주요 효과',
       type: 'array',
