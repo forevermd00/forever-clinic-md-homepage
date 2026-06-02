@@ -302,7 +302,7 @@
     "formEmailPlaceholder": "example@email.com",
     "formEmailNote": "＊预约受理完成的邮件将发送至您填写的邮箱，请注意查收。",
     "formPhone": "联系电话",
-    "formPhoneNote": "请输入手机号码。",
+    "formPhoneNote": "＊请输入手机号码。",
     "formRequiredError": "请填写必填项。",
     "formEmailError": "邮箱格式不正确。",
     "formBirthDateError": "请按 YYYY-MM-DD 格式填写正确的出生年月日。",

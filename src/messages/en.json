@@ -302,7 +302,7 @@
     "formEmailPlaceholder": "example@email.com",
     "formEmailNote": "*A reservation confirmation email will be sent to the address you provide, so please check your inbox.",
     "formPhone": "Phone",
-    "formPhoneNote": "Please enter your mobile number.",
+    "formPhoneNote": "*Please enter your mobile number.",
     "formRequiredError": "Please fill in all required fields.",
     "formEmailError": "Please enter a valid email address.",
     "formBirthDateError": "Please enter a valid date of birth in YYYY-MM-DD format.",

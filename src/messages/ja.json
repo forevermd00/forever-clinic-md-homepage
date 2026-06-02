@@ -302,7 +302,7 @@
     "formEmailPlaceholder": "example@email.com",
     "formEmailNote": "＊ご記入いただいたメールアドレスに予約受付完了のメールが送信されますので、ご確認ください。",
     "formPhone": "電話番号",
-    "formPhoneNote": "携帯電話番号をご入力ください。",
+    "formPhoneNote": "＊携帯電話番号をご入力ください。",
     "formRequiredError": "必須項目をご入力ください。",
     "formEmailError": "メールアドレスの形式が正しくありません。",
     "formBirthDateError": "正しい生年月日を YYYY-MM-DD 形式でご入力ください。",
