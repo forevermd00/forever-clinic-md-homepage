@@ -10,6 +10,8 @@ import nodemailer from 'nodemailer';
 ================================================================ */
 async function sendInquiryEmail(params: {
   name: string;
+  birthDate?: string;
+  email?: string;
   phone: string;
   message?: string;
   treatments?: {
@@ -91,9 +93,19 @@ async function sendInquiryEmail(params: {
                 <td style="padding:14px 16px;font-size:14px;font-weight:600;border-bottom:1px solid #eee;">${params.name}</td>
               </tr>
               <tr>
+                <td style="padding:14px 16px;color:#888;font-size:13px;border-bottom:1px solid #eee;">생년월일</td>
+                <td style="padding:14px 16px;font-size:14px;font-weight:600;border-bottom:1px solid #eee;${params.birthDate ? '' : 'color:#bbb;'}">${params.birthDate ?? '미입력'}</td>
+              </tr>
+              <tr>
                 <td style="padding:14px 16px;color:#888;font-size:13px;border-bottom:1px solid #eee;">연락처</td>
                 <td style="padding:14px 16px;font-size:14px;font-weight:600;border-bottom:1px solid #eee;">
                   <a href="tel:${params.phone}" style="color:#1a1a1a;text-decoration:none;">${params.phone}</a>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:14px 16px;color:#888;font-size:13px;border-bottom:1px solid #eee;">이메일</td>
+                <td style="padding:14px 16px;font-size:14px;font-weight:600;border-bottom:1px solid #eee;${params.email ? '' : 'color:#bbb;'}">
+                  ${params.email ? `<a href="mailto:${params.email}" style="color:#1a1a1a;text-decoration:none;">${params.email}</a>` : '미입력'}
                 </td>
               </tr>
               <tr>
@@ -177,6 +189,200 @@ async function sendInquiryEmail(params: {
   });
 }
 
+/* ================================================================
+   고객 예약접수 완료 확인 메일 — 고객이 입력한 이메일로 발송
+   locale에 맞는 언어로 발송 (ko/en/zh/ja)
+================================================================ */
+type ConfirmationContent = {
+  fromName: string;
+  subject: string;
+  heading: string;
+  greeting: (name: string) => string;
+  body: string[];
+  detailTitle: string;
+  labelDatetime: string;
+  labelTreatments: string;
+  noneDatetime: string;
+  noneTreatments: string;
+  footer: string;
+};
+
+const CONFIRMATION_CONTENT: Record<string, ConfirmationContent> = {
+  ko: {
+    fromName: '포에버의원 명동점',
+    subject: '[포에버의원 명동점] 상담 신청이 접수되었습니다',
+    heading: '상담 신청이 접수되었습니다',
+    greeting: (name) => `${name}님`,
+    body: [
+      '포에버의원 명동점에 문의해 주셔서 감사합니다.',
+      '상담 신청이 정상적으로 접수되었습니다. 담당자가 순차적으로 연락드릴 예정이니 잠시만 기다려 주세요.',
+    ],
+    detailTitle: '신청 내용',
+    labelDatetime: '희망 일시',
+    labelTreatments: '관심 시술',
+    noneDatetime: '미지정',
+    noneTreatments: '선택 없음',
+    footer: '※ 본 메일은 포에버의원 명동점 홈페이지에서 자동 발송되었습니다.',
+  },
+  ja: {
+    fromName: 'フォーエバークリニック明洞院',
+    subject: '【フォーエバークリニック明洞】ご予約・ご相談を受け付けました',
+    heading: 'ご予約・ご相談を受け付けました',
+    greeting: (name) => `${name} 様`,
+    body: [
+      'この度はフォーエバークリニック明洞院にお問い合わせいただき、誠にありがとうございます。',
+      'ご相談のお申し込みを受け付けいたしました。担当スタッフより順次ご連絡いたしますので、今しばらくお待ちください。',
+    ],
+    detailTitle: 'お申し込み内容',
+    labelDatetime: 'ご希望日時',
+    labelTreatments: '関心のある施術',
+    noneDatetime: '指定なし',
+    noneTreatments: '選択なし',
+    footer:
+      '※ 本メールはフォーエバークリニック明洞院のホームページから自動送信されています。',
+  },
+  en: {
+    fromName: 'Forever Clinic Myeongdong',
+    subject: "[Forever Clinic Myeongdong] We've received your inquiry",
+    heading: 'Your inquiry has been received',
+    greeting: (name) => `Dear ${name},`,
+    body: [
+      'Thank you for contacting Forever Clinic Myeongdong.',
+      'Your consultation request has been received successfully. Our staff will contact you shortly.',
+    ],
+    detailTitle: 'Your request',
+    labelDatetime: 'Preferred date/time',
+    labelTreatments: 'Treatments of interest',
+    noneDatetime: 'Not specified',
+    noneTreatments: 'None selected',
+    footer:
+      '※ This email was sent automatically from the Forever Clinic Myeongdong website.',
+  },
+  zh: {
+    fromName: 'Forever明洞医院',
+    subject: '【Forever明洞】您的咨询已成功受理',
+    heading: '您的咨询已成功受理',
+    greeting: (name) => `${name} 您好，`,
+    body: [
+      '感谢您咨询Forever明洞医院。',
+      '您的咨询申请已成功受理，工作人员将尽快与您联系，请您耐心等待。',
+    ],
+    detailTitle: '申请内容',
+    labelDatetime: '希望日期时间',
+    labelTreatments: '感兴趣的项目',
+    noneDatetime: '未指定',
+    noneTreatments: '未选择',
+    footer: '※ 本邮件由Forever明洞医院官网自动发送。',
+  },
+};
+
+async function sendCustomerConfirmationEmail(params: {
+  name: string;
+  email: string;
+  locale?: string;
+  treatments?: { treatmentName: string }[];
+  preferredDate?: string;
+  preferredTime?: string;
+}): Promise<void> {
+  const clientId = process.env.GMAIL_CLIENT_ID;
+  const clientSecret = process.env.GMAIL_CLIENT_SECRET;
+  const refreshToken = process.env.GMAIL_REFRESH_TOKEN;
+  const user = process.env.GMAIL_USER;
+
+  if (!clientId || !clientSecret || !refreshToken || !user) {
+    console.warn(
+      '[email] Gmail OAuth2 env vars not set — skipping customer confirmation',
+    );
+    return;
+  }
+
+  const c =
+    CONFIRMATION_CONTENT[params.locale ?? 'ko'] ?? CONFIRMATION_CONTENT.ko;
+
+  const datetimeDisplay =
+    params.preferredDate && params.preferredTime
+      ? `${params.preferredDate} ${params.preferredTime}`
+      : params.preferredDate || params.preferredTime || c.noneDatetime;
+
+  const treatmentDisplay =
+    params.treatments && params.treatments.length > 0
+      ? params.treatments.map((t) => t.treatmentName).join(', ')
+      : c.noneTreatments;
+
+  const bodyHtml = c.body
+    .map(
+      (p) =>
+        `<p style="margin:0 0 12px;font-size:14px;line-height:1.8;color:#444;">${p}</p>`,
+    )
+    .join('');
+
+  const htmlBody = `
+<!DOCTYPE html>
+<html lang="${params.locale ?? 'ko'}">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f5f5f5;font-family:'Apple SD Gothic Neo',Hiragino Sans,'Microsoft YaHei',Malgun Gothic,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;padding:32px 0;">
+    <tr><td align="center">
+      <table width="580" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+        <tr>
+          <td style="background:#1a1a1a;padding:24px 32px;">
+            <p style="margin:0;color:#c9a96e;font-size:11px;letter-spacing:2px;text-transform:uppercase;">Forever Clinic Myeongdong</p>
+            <h1 style="margin:6px 0 0;color:#fff;font-size:18px;font-weight:600;">${c.heading}</h1>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:28px 32px 8px;">
+            <p style="margin:0 0 16px;font-size:15px;font-weight:600;color:#1a1a1a;">${c.greeting(params.name)}</p>
+            ${bodyHtml}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:8px 32px 0;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#fafafa;border-radius:6px;border:1px solid #eee;">
+              <tr>
+                <td style="padding:8px 0 4px 16px;font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:1px;">${c.detailTitle}</td>
+              </tr>
+              <tr>
+                <td style="padding:0 16px 14px;">
+                  <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr>
+                      <td style="padding:6px 0;width:120px;color:#888;font-size:13px;">${c.labelDatetime}</td>
+                      <td style="padding:6px 0;font-size:14px;color:#1a1a1a;">${datetimeDisplay}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:6px 0;color:#888;font-size:13px;vertical-align:top;">${c.labelTreatments}</td>
+                      <td style="padding:6px 0;font-size:14px;color:#1a1a1a;">${treatmentDisplay}</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:28px 32px;border-top:1px solid #f0f0f0;">
+            <p style="margin:0;font-size:12px;color:#bbb;text-align:center;">${c.footer}</p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`.trim();
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: { type: 'OAuth2', user, clientId, clientSecret, refreshToken },
+  });
+
+  await transporter.sendMail({
+    from: `${c.fromName} <${user}>`,
+    to: params.email,
+    subject: c.subject,
+    html: htmlBody,
+  });
+}
+
 function getSanityClient() {
   return createClient({
     projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
@@ -189,6 +395,8 @@ function getSanityClient() {
 
 interface InquiryBody {
   name: string;
+  birthDate?: string;
+  email?: string;
   phone: string;
   message?: string;
   treatments?: {
@@ -200,6 +408,7 @@ interface InquiryBody {
   preferredDate?: string;
   preferredTime?: string;
   source?: string;
+  locale?: string;
 }
 
 export async function POST(req: NextRequest) {
@@ -250,6 +459,8 @@ export async function POST(req: NextRequest) {
     const doc = {
       _type: 'contactInquiry',
       name: body.name,
+      birthDate: body.birthDate || undefined,
+      email: body.email || undefined,
       phone: body.phone,
       message: body.message || undefined,
       selectedTreatments:
@@ -263,9 +474,11 @@ export async function POST(req: NextRequest) {
 
     const result = await sanityWriteClient.create(doc);
 
-    // 이메일 발송 (환경변수 없으면 건너뜀)
+    // 병원 알림 메일 발송 (환경변수 없으면 건너뜀)
     sendInquiryEmail({
       name: body.name,
+      birthDate: body.birthDate,
+      email: body.email,
       phone: body.phone,
       message: body.message,
       treatments: body.treatments,
@@ -275,6 +488,23 @@ export async function POST(req: NextRequest) {
       // 이메일 발송 실패가 상담 접수에 영향을 주지 않도록 에러만 로깅
       console.error('[email] Failed to send inquiry notification:', emailErr);
     });
+
+    // 고객 예약접수 완료 확인 메일 발송 (이메일 입력 시에만)
+    if (body.email) {
+      sendCustomerConfirmationEmail({
+        name: body.name,
+        email: body.email,
+        locale: body.locale,
+        treatments: body.treatments,
+        preferredDate: body.preferredDate,
+        preferredTime: body.preferredTime,
+      }).catch((emailErr) => {
+        console.error(
+          '[email] Failed to send customer confirmation:',
+          emailErr,
+        );
+      });
+    }
 
     return NextResponse.json({ success: true, id: result._id });
   } catch (err) {

@@ -38,6 +38,12 @@ export default defineType({
       type: 'string',
     }),
     defineField({
+      name: 'birthDate',
+      title: '생년월일',
+      type: 'string',
+      description: 'YYYY-MM-DD',
+    }),
+    defineField({
       name: 'phone',
       title: '전화번호',
       type: 'string',

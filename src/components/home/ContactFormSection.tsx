@@ -79,6 +79,36 @@ function formatPhone(digits: string): string {
   return `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7)}`;
 }
 
+/* 생년월일 YYYY-MM-DD 마스킹 */
+function formatBirthDate(value: string): string {
+  const d = value.replace(/\D/g, '').slice(0, 8);
+  if (d.length <= 4) return d;
+  if (d.length <= 6) return `${d.slice(0, 4)}-${d.slice(4)}`;
+  return `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}`;
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const BIRTHDATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/* 실제 달력상 유효한 생년월일인지 검증 (형식 + 월/일 유효 + 미래·과도한 과거 배제) */
+function isValidBirthDate(value: string): boolean {
+  if (!BIRTHDATE_RE.test(value)) return false;
+  const [y, m, d] = value.split('-').map(Number);
+  if (m < 1 || m > 12 || d < 1 || d > 31) return false;
+  const date = new Date(y, m - 1, d);
+  // 롤오버 검사: 2020-12-34 → 2021-01-03, 2020-02-30 → 03-01 등을 걸러냄
+  if (
+    date.getFullYear() !== y ||
+    date.getMonth() !== m - 1 ||
+    date.getDate() !== d
+  ) {
+    return false;
+  }
+  if (y < 1900) return false;
+  if (date.getTime() > Date.now()) return false; // 미래 날짜 불가
+  return true;
+}
+
 type Props = {
   config?: ContactSectionConfig;
   businessHours?: BusinessHoursEntry[];
@@ -111,8 +141,11 @@ export function ContactFormSection({
     () => false,
   );
   const [name, setName] = useState('');
+  const [birthDate, setBirthDate] = useState('');
+  const [email, setEmail] = useState('');
   const [countryCode, setCountryCode] = useState('+82');
   const [phoneDigits, setPhoneDigits] = useState('');
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const [message, setMessage] = useState(() =>
     programName ? `시그니처 프로그램 ${programName}에 대해 문의드립니다.` : '',
   );
@@ -135,8 +168,21 @@ export function ContactFormSection({
     setPhoneDigits(raw);
   };
 
+  const emailValid = EMAIL_RE.test(email.trim());
+  const birthDateValid = isValidBirthDate(birthDate);
+  const nameInvalid = !name.trim();
+  const phoneInvalid = !phoneDigits;
+  const emailInvalid = !email.trim() || !emailValid;
+  const birthDateInvalid = !birthDate || !birthDateValid;
+  const errBorder = (invalid: boolean) =>
+    attemptedSubmit && invalid ? 'border-[#a83c44]' : 'border-[#d9d9d9]';
+
   const handleSubmit = async () => {
-    if (isSubmitting || !name || !phoneDigits) return;
+    if (isSubmitting) return;
+    setAttemptedSubmit(true);
+    if (nameInvalid || phoneInvalid || emailInvalid || birthDateInvalid) {
+      return;
+    }
     if (!privacyConsent) {
       setPrivacyError(true);
       return;
@@ -157,6 +203,8 @@ export function ContactFormSection({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name,
+          birthDate,
+          email: email.trim(),
           phone: `${countryCode} ${formatPhone(phoneDigits)}`,
           message,
           treatments:
@@ -164,12 +212,15 @@ export function ContactFormSection({
           preferredDate: preferredDate || undefined,
           preferredTime: preferredTime || undefined,
           source: 'contact-form',
+          locale,
         }),
       });
 
       if (res.ok) {
         setIsSuccess(true);
         setName('');
+        setBirthDate('');
+        setEmail('');
         setPhoneDigits('');
         setMessage('');
         setCheckedIds(null);
@@ -177,6 +228,7 @@ export function ContactFormSection({
         setPreferredTime('');
         setPrivacyConsent(false);
         setPrivacyError(false);
+        setAttemptedSubmit(false);
       }
     } catch {
       // silent fail
@@ -242,23 +294,61 @@ export function ContactFormSection({
               </div>
             )}
             <div className="flex w-full flex-col gap-5">
-              {/* Row 1: Name + Phone */}
+              {/* Row 1: Name + Birthdate */}
               <div className="flex flex-col gap-5 md:flex-row">
                 <div className="flex flex-1 flex-col gap-1.5">
                   <label className="text-[13px] font-medium text-[#2b2b2b]">
                     {t('formName')}
+                    <span className="text-[#a83c44]"> *</span>
                   </label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder={t('formNamePlaceholder')}
-                    className="h-[44px] rounded-[6px] border border-[#d9d9d9] bg-white px-3 py-2.5 text-[14px] placeholder:text-[#b3b3b3]"
+                    className={cn(
+                      'h-[44px] rounded-[6px] border bg-white px-3 py-2.5 text-[14px] placeholder:text-[#b3b3b3]',
+                      errBorder(nameInvalid),
+                    )}
                   />
+                  {t('formNameNote') && (
+                    <p className="text-[11px] leading-relaxed whitespace-pre-line text-[#999]">
+                      {t('formNameNote')}
+                    </p>
+                  )}
                 </div>
                 <div className="flex flex-1 flex-col gap-1.5">
                   <label className="text-[13px] font-medium text-[#2b2b2b]">
+                    {t('formBirthDate')}
+                    <span className="text-[#a83c44]"> *</span>
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={birthDate}
+                    onChange={(e) =>
+                      setBirthDate(formatBirthDate(e.target.value))
+                    }
+                    placeholder={t('formBirthDatePlaceholder')}
+                    className={cn(
+                      'h-[44px] rounded-[6px] border bg-white px-3 py-2.5 text-[14px] placeholder:text-[#b3b3b3]',
+                      errBorder(birthDateInvalid),
+                    )}
+                  />
+                  {attemptedSubmit && birthDate && !birthDateValid && (
+                    <p className="text-[11px] text-[#a83c44]">
+                      {t('formBirthDateError')}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Row 2: Phone + Email */}
+              <div className="flex flex-col gap-5 md:flex-row">
+                <div className="flex flex-1 flex-col gap-1.5">
+                  <label className="text-[13px] font-medium text-[#2b2b2b]">
                     {t('formPhone')}
+                    <span className="text-[#a83c44]"> *</span>
                   </label>
                   <div className="flex gap-2">
                     <select
@@ -284,9 +374,44 @@ export function ContactFormSection({
                       value={formatPhone(phoneDigits)}
                       onChange={handlePhoneChange}
                       placeholder="010-0000-0000"
-                      className="h-[44px] flex-1 rounded-[6px] border border-[#d9d9d9] bg-white px-3 py-2.5 text-[14px] placeholder:text-[#b3b3b3]"
+                      className={cn(
+                        'h-[44px] flex-1 rounded-[6px] border bg-white px-3 py-2.5 text-[14px] placeholder:text-[#b3b3b3]',
+                        errBorder(phoneInvalid),
+                      )}
                     />
                   </div>
+                  {t('formPhoneNote') && (
+                    <p className="text-[11px] leading-relaxed whitespace-pre-line text-[#999]">
+                      {t('formPhoneNote')}
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-1 flex-col gap-1.5">
+                  <label className="text-[13px] font-medium text-[#2b2b2b]">
+                    {t('formEmail')}
+                    <span className="text-[#a83c44]"> *</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={t('formEmailPlaceholder')}
+                    className={cn(
+                      'h-[44px] rounded-[6px] border bg-white px-3 py-2.5 text-[14px] placeholder:text-[#b3b3b3]',
+                      errBorder(emailInvalid),
+                    )}
+                  />
+                  {attemptedSubmit && email.trim() && !emailValid ? (
+                    <p className="text-[11px] text-[#a83c44]">
+                      {t('formEmailError')}
+                    </p>
+                  ) : (
+                    t('formEmailNote') && (
+                      <p className="text-[11px] leading-relaxed whitespace-pre-line text-[#999]">
+                        {t('formEmailNote')}
+                      </p>
+                    )
+                  )}
                 </div>
               </div>
 
@@ -611,6 +736,16 @@ export function ContactFormSection({
                   {t('submitSuccess')}
                 </div>
               )}
+
+              {attemptedSubmit &&
+                (nameInvalid ||
+                  phoneInvalid ||
+                  emailInvalid ||
+                  birthDateInvalid) && (
+                  <p className="text-center text-[12px] text-[#a83c44]">
+                    {t('formRequiredError')}
+                  </p>
+                )}
 
               <div className="flex justify-center">
                 <button
