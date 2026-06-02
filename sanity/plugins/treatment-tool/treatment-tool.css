@@ -380,6 +380,16 @@
 .tt-detail-section > :not(.tt-detail-section-title) {
   padding: 14px;
 }
+.tt-detail-hint {
+  margin: 0;
+  padding: 10px 14px 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--card-muted-fg-color);
+}
+.tt-detail-hint + * {
+  padding-top: 8px;
+}
 .tt-detail-row {
   display: flex;
   align-items: flex-end;

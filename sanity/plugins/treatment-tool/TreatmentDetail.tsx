@@ -603,6 +603,26 @@ export function TreatmentDetail({
         </div>
       </Section>
 
+      {/* ─── 키워드 (태그) ─── */}
+      <Section title="키워드 (태그)">
+        <p className="tt-detail-hint">
+          시그니처 카드에 표시되는 태그입니다. 항목은 가운데점(·)으로
+          구분합니다. 예: 꺼진 볼 · 눈밑·눈물고랑 · 비대칭
+        </p>
+        <div className="tt-detail-grid4">
+          {LOCALES.map(({ key, label }) => (
+            <Field key={key} label={label}>
+              <input
+                type="text"
+                className="tt-text-input"
+                defaultValue={doc.keywords?.[key] ?? ''}
+                onBlur={(e) => patch({ [`keywords.${key}`]: e.target.value })}
+              />
+            </Field>
+          ))}
+        </div>
+      </Section>
+
       {/* ─── 구성 시술 ─── */}
       <Section title="구성 시술">
         <div className="tt-detail-grid2">
