@@ -223,7 +223,7 @@ export const clinicInfoQuery = `
     "businessHours": businessHours[] { dayOfWeek, "day": day[$locale], open, close, "note": note[$locale] },
     "closedDayNotice": closedDayNotice[$locale],
     "walkingGuide": walkingGuide[$locale],
-    snsLinks, messengerLinks[] { _key, platform, url, label, "logo": logo { asset->{ url } }, isVisible, sortKo, sortEn, sortZh, sortJa },
+    snsLinks, messengerLinks[] { _key, platform, url, label, "logo": logo { asset->{ url } }, "qr": qrCode { asset->{ url } }, isVisible, sortKo, sortEn, sortZh, sortJa },
     locationCoordinates
   }
 `;

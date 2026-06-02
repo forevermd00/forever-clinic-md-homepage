@@ -12,6 +12,7 @@ interface MessengerLink {
   url?: string;
   label?: string;
   logo?: { asset?: { url?: string } };
+  qr?: { asset?: { url?: string } };
   isVisible?: boolean;
   sortKo?: number;
   sortEn?: number;
@@ -50,6 +51,7 @@ export function FloatingCTA({ messengerLinks = [] }: FloatingCTAProps) {
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'ko';
   const [isOpen, setIsOpen] = useState(true);
+  const [hoveredKey, setHoveredKey] = useState<string | null>(null);
 
   const channels = useMemo(() => {
     const sortKey = SORT_KEY[locale] ?? 'sortKo';
@@ -86,10 +88,11 @@ export function FloatingCTA({ messengerLinks = [] }: FloatingCTAProps) {
             : 'invisible translate-y-2.5 opacity-0',
         )}
       >
-        {channels.map(({ _key, platform, url, label, logo }, i) => {
+        {channels.map(({ _key, platform, url, label, logo, qr }, i) => {
           const config = PLATFORM_CONFIG[platform];
           const displayLabel = label || config?.fallbackLabel || platform;
           const iconUrl = logo?.asset?.url;
+          const qrUrl = qr?.asset?.url;
           return (
             <a
               key={_key}
@@ -97,9 +100,45 @@ export function FloatingCTA({ messengerLinks = [] }: FloatingCTAProps) {
               target="_blank"
               rel="noopener noreferrer"
               title={displayLabel}
-              className="flex items-center gap-3 rounded-[8px] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.12)] transition-all duration-200 hover:shadow-[0_8px_24px_rgba(0,0,0,0.16)]"
+              onMouseEnter={() => setHoveredKey(_key)}
+              onMouseLeave={() => setHoveredKey((k) => (k === _key ? null : k))}
+              className="relative flex items-center gap-3 rounded-[8px] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.12)] transition-all duration-200 hover:shadow-[0_8px_24px_rgba(0,0,0,0.16)]"
               style={{ transitionDelay: isOpen ? `${i * 30}ms` : '0ms' }}
             >
+              {qrUrl && hoveredKey === _key && (
+                <span
+                  aria-hidden="true"
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    right: 'calc(100% + 12px)',
+                    transform: 'translateY(-50%)',
+                    width: 170,
+                    background: '#fff',
+                    padding: 10,
+                    borderRadius: 16,
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
+                    zIndex: 1000,
+                    lineHeight: 0,
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={qrUrl}
+                    alt={`${displayLabel} QR`}
+                    width={150}
+                    height={150}
+                    style={{
+                      display: 'block',
+                      width: 150,
+                      height: 150,
+                      maxWidth: 'none',
+                      objectFit: 'contain',
+                      borderRadius: 8,
+                    }}
+                  />
+                </span>
+              )}
               {iconUrl ? (
                 <Image
                   src={iconUrl}

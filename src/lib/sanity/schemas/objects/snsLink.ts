@@ -55,6 +55,13 @@ export default defineType({
       options: { hotspot: false },
     }),
     defineField({
+      name: 'qrCode',
+      title: 'QR 이미지',
+      description: '마우스 오버 시 노출되는 QR 코드 (등록 시에만 표시)',
+      type: 'image',
+      options: { hotspot: false },
+    }),
+    defineField({
       name: 'isVisible',
       title: '노출',
       type: 'boolean',

@@ -35,6 +35,7 @@ interface SnsLinkItem {
   url?: string;
   label?: string;
   logoRef?: string;
+  qrRef?: string;
   isVisible?: boolean;
   sortKo?: number;
   sortEn?: number;
@@ -181,7 +182,7 @@ const CLINIC_INFO_QUERY = `*[_type == "clinicInfo" && _id == "forever-myeongdong
   businessHours[] { _key, dayOfWeek, day, open, close, note },
   closedDayNotice, walkingGuide,
   snsLinks[] { _key, platform, url, label },
-  messengerLinks[] { _key, platform, url, label, "logoRef": logo.asset._ref, isVisible, sortKo, sortEn, sortZh, sortJa }
+  messengerLinks[] { _key, platform, url, label, "logoRef": logo.asset._ref, "qrRef": qrCode.asset._ref, isVisible, sortKo, sortEn, sortZh, sortJa }
 }`;
 
 const BRAND_QUERY = `*[_type == "brandPhilosophy" && _id == "brand-philosophy"][0] {
@@ -453,6 +454,9 @@ function ClinicInfoPanel() {
   const [messengerUploading, setMessengerUploading] = useState<string | null>(
     null,
   );
+  const [messengerQrUploading, setMessengerQrUploading] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     client.fetch<ClinicInfoDoc>(CLINIC_INFO_QUERY).then((data) => {
@@ -541,6 +545,9 @@ function ClinicInfoPanel() {
           logo: m.logoRef
             ? { _type: 'image', asset: { _type: 'reference', _ref: m.logoRef } }
             : undefined,
+          qrCode: m.qrRef
+            ? { _type: 'image', asset: { _type: 'reference', _ref: m.qrRef } }
+            : undefined,
           isVisible: m.isVisible,
           sortKo: m.sortKo,
           sortEn: m.sortEn,
@@ -565,6 +572,22 @@ function ClinicInfoPanel() {
       saveMessenger(updated);
     } finally {
       setMessengerUploading(null);
+    }
+  };
+
+  const uploadMessengerQr = async (key: string, file: File) => {
+    setMessengerQrUploading(key);
+    try {
+      const asset = await client.assets.upload('image', file, {
+        filename: file.name,
+      });
+      const updated = messenger.map((m) =>
+        m._key === key ? { ...m, qrRef: asset._id } : m,
+      );
+      setMessenger(updated);
+      saveMessenger(updated);
+    } finally {
+      setMessengerQrUploading(null);
     }
   };
 
@@ -1034,6 +1057,74 @@ function ClinicInfoPanel() {
                         }}
                       />
                     </label>
+                  </div>
+                  <div className="ht-detail-field">
+                    <label className="ht-detail-label">
+                      QR 이미지
+                      <span
+                        style={{
+                          fontSize: 10,
+                          color: 'var(--card-muted-fg-color)',
+                          marginLeft: 4,
+                        }}
+                      >
+                        (마우스 오버 시 노출 · 선택)
+                      </span>
+                    </label>
+                    {s.qrRef && (
+                      <img
+                        src={`https://cdn.sanity.io/images/ecoamz42/production/${s.qrRef.replace('image-', '').replace(/-(\w+)$/, '.$1')}`}
+                        alt="qr"
+                        style={{
+                          width: 48,
+                          height: 48,
+                          objectFit: 'contain',
+                          borderRadius: 6,
+                          border: '1px solid #e5e7eb',
+                          marginBottom: 4,
+                        }}
+                      />
+                    )}
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <label
+                        className="ht-upload-btn"
+                        style={{ fontSize: 11, padding: '2px 8px' }}
+                      >
+                        {messengerQrUploading === s._key
+                          ? '업로드 중…'
+                          : s.qrRef
+                            ? 'QR 변경'
+                            : 'QR 선택'}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          style={{ display: 'none' }}
+                          disabled={messengerQrUploading === s._key}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) uploadMessengerQr(s._key, file);
+                          }}
+                        />
+                      </label>
+                      {s.qrRef && (
+                        <button
+                          type="button"
+                          className="ht-upload-btn"
+                          style={{ fontSize: 11, padding: '2px 8px' }}
+                          onClick={() => {
+                            const updated = messenger.map((m) =>
+                              m._key === s._key
+                                ? { ...m, qrRef: undefined }
+                                : m,
+                            );
+                            setMessenger(updated);
+                            saveMessenger(updated);
+                          }}
+                        >
+                          QR 삭제
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <div className="ht-detail-field">
                     <label className="ht-detail-label">노출</label>
