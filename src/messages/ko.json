@@ -302,7 +302,7 @@
     "formEmailPlaceholder": "example@email.com",
     "formEmailNote": "＊입력하신 이메일로 예약 접수 완료 메일이 발송되오니 확인해 주세요.",
     "formPhone": "연락처",
-    "formPhoneNote": "휴대전화번호를 입력해 주세요.",
+    "formPhoneNote": "＊휴대전화번호를 입력해 주세요.",
     "formRequiredError": "필수 항목을 입력해 주세요.",
     "formEmailError": "이메일 형식이 올바르지 않습니다.",
     "formBirthDateError": "올바른 생년월일을 YYYY-MM-DD 형식으로 입력해 주세요.",
