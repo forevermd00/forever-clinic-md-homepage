@@ -220,6 +220,7 @@ type ConfirmationContent = {
   labelMessenger: string;
   labelDatetime: string;
   labelTreatments: string;
+  labelMessage: string;
   noneValue: string;
   noneDatetime: string;
   noneTreatments: string;
@@ -244,6 +245,7 @@ const CONFIRMATION_CONTENT: Record<string, ConfirmationContent> = {
     labelMessenger: '메신저',
     labelDatetime: '희망 일시',
     labelTreatments: '관심 시술',
+    labelMessage: '문의 내용',
     noneValue: '미입력',
     noneDatetime: '미지정',
     noneTreatments: '선택 없음',
@@ -266,6 +268,7 @@ const CONFIRMATION_CONTENT: Record<string, ConfirmationContent> = {
     labelMessenger: 'メッセンジャー',
     labelDatetime: 'ご希望日時',
     labelTreatments: '関心のある施術',
+    labelMessage: 'お問い合わせ内容',
     noneValue: '未入力',
     noneDatetime: '指定なし',
     noneTreatments: '選択なし',
@@ -289,6 +292,7 @@ const CONFIRMATION_CONTENT: Record<string, ConfirmationContent> = {
     labelMessenger: 'Messenger',
     labelDatetime: 'Preferred date/time',
     labelTreatments: 'Treatments of interest',
+    labelMessage: 'Message',
     noneValue: 'Not provided',
     noneDatetime: 'Not specified',
     noneTreatments: 'None selected',
@@ -312,6 +316,7 @@ const CONFIRMATION_CONTENT: Record<string, ConfirmationContent> = {
     labelMessenger: '通讯软件',
     labelDatetime: '希望日期时间',
     labelTreatments: '感兴趣的项目',
+    labelMessage: '咨询内容',
     noneValue: '未填写',
     noneDatetime: '未指定',
     noneTreatments: '未选择',
@@ -326,6 +331,7 @@ async function sendCustomerConfirmationEmail(params: {
   birthDate?: string;
   messengerType?: string;
   messengerId?: string;
+  message?: string;
   locale?: string;
   treatments?: { treatmentName: string }[];
   preferredDate?: string;
@@ -368,14 +374,23 @@ async function sendCustomerConfirmationEmail(params: {
                       <td style="padding:6px 0;font-size:14px;color:#1a1a1a;">${value}</td>
                     </tr>`;
 
+  const hasDatetime = Boolean(params.preferredDate || params.preferredTime);
+  const hasTreatments = Boolean(
+    params.treatments && params.treatments.length > 0,
+  );
+  const hasMessage = Boolean(params.message && params.message.trim());
+
   const detailRowsHtml = [
     detailRow(c.labelName, params.name),
     params.phone ? detailRow(c.labelPhone, params.phone) : '',
     params.email ? detailRow(c.labelEmail, params.email) : '',
     params.birthDate ? detailRow(c.labelBirthDate, params.birthDate) : '',
     params.messengerId ? detailRow(c.labelMessenger, messengerDisplay) : '',
-    detailRow(c.labelDatetime, datetimeDisplay),
-    detailRow(c.labelTreatments, treatmentDisplay),
+    hasDatetime ? detailRow(c.labelDatetime, datetimeDisplay) : '',
+    hasTreatments ? detailRow(c.labelTreatments, treatmentDisplay) : '',
+    hasMessage
+      ? detailRow(c.labelMessage, params.message!.replace(/\n/g, '<br>'))
+      : '',
   ].join('');
 
   const bodyHtml = c.body
@@ -565,6 +580,7 @@ export async function POST(req: NextRequest) {
         birthDate: body.birthDate,
         messengerType: body.messengerId ? body.messengerType : undefined,
         messengerId: body.messengerId,
+        message: body.message,
         locale: body.locale,
         treatments: body.treatments,
         preferredDate: body.preferredDate,
