@@ -1,0 +1,242 @@
+{
+  "accento": {
+    "ko": "악센토",
+    "en": "Accento",
+    "zh": "艾森托",
+    "ja": "アッチェント"
+  },
+  "airnox-sedation": {
+    "ko": "에어녹스 (반수면마취)",
+    "en": "Airnox (Conscious Sedation)",
+    "zh": "笑气麻醉（半清醒麻醉）",
+    "ja": "エアノックス（半静脈麻酔）"
+  },
+  "alltight": {
+    "ko": "올타이트",
+    "en": "Alltight",
+    "zh": "奥尔塔",
+    "ja": "オールタイト"
+  },
+  "aqua-peel": {
+    "ko": "아쿠아필",
+    "en": "Aqua Peel",
+    "zh": "水光针清洁",
+    "ja": "アクアピール"
+  },
+  "botox": {
+    "ko": "보톡스 (국산/해외)",
+    "en": "Botox (Domestic/Imported)",
+    "zh": "肉毒素（国产/进口）",
+    "ja": "ボトックス（国産/輸入）"
+  },
+  "co2-laser": {
+    "ko": "CO2 레이저",
+    "en": "CO2 Laser",
+    "zh": "CO2激光",
+    "ja": "CO2レーザー"
+  },
+  "derma-v": {
+    "ko": "더마브이",
+    "en": "Derma-V",
+    "zh": "德玛V",
+    "ja": "デルマV"
+  },
+  "fat-dissolving": {
+    "ko": "지방분해주사",
+    "en": "Fat Dissolving Injection",
+    "zh": "溶脂针",
+    "ja": "脂肪溶解注射"
+  },
+  "filler": {
+    "ko": "필러 (벨로테로/쥬비덤)",
+    "en": "Filler (Belotero/Juvederm)",
+    "zh": "玻尿酸填充（倍洛特罗/乔雅登）",
+    "ja": "フィラー（ベロテロ/ジュビダーム）"
+  },
+  "gentlemax-pro-plus": {
+    "ko": "젠틀맥스프로플러스",
+    "en": "GentleMax Pro Plus",
+    "zh": "双波激光脱毛",
+    "ja": "ジェントルマックスプロプラス"
+  },
+  "gouri": {
+    "ko": "고우리 (GOURI)",
+    "en": "GOURI",
+    "zh": "高瑞（GOURI）",
+    "ja": "ゴウリ（GOURI）"
+  },
+  "haecox": {
+    "ko": "하이쿡스",
+    "en": "Haecox",
+    "zh": "海高斯",
+    "ja": "ハイクックス"
+  },
+  "hydrafacial": {
+    "ko": "하이드로페이셜",
+    "en": "HydraFacial",
+    "zh": "水光焕肤",
+    "ja": "ハイドラフェイシャル"
+  },
+  "inmode": {
+    "ko": "인모드",
+    "en": "InMode",
+    "zh": "因莫德",
+    "ja": "インモード"
+  },
+  "intense-ultra": {
+    "ko": "인텐스울트라",
+    "en": "Intense Ultra",
+    "zh": "超声导入",
+    "ja": "インテンスウルトラ"
+  },
+  "juvelook": {
+    "ko": "쥬베룩",
+    "en": "Juvelook",
+    "zh": "朱维璐",
+    "ja": "ジュベルック"
+  },
+  "ldm": {
+    "ko": "LDM",
+    "en": "LDM",
+    "zh": "LDM超声",
+    "ja": "LDM"
+  },
+  "lucas-toning": {
+    "ko": "루카스토닝",
+    "en": "Lucas Toning",
+    "zh": "卢卡斯激光",
+    "ja": "ルカストーニング"
+  },
+  "metacell-stem-cell": {
+    "ko": "메타셀 (줄기세포)",
+    "en": "Metacell (Stem Cell)",
+    "zh": "干细胞注射",
+    "ja": "メタセル（幹細胞）"
+  },
+  "onda-lifting": {
+    "ko": "온다리프팅",
+    "en": "Onda Lifting",
+    "zh": "Onda提升",
+    "ja": "オンダリフティング"
+  },
+  "pico-toning": {
+    "ko": "피코토닝 (피코K)",
+    "en": "Pico Toning (Pico K)",
+    "zh": "皮秒激光（Pico K）",
+    "ja": "ピコトーニング（ピコK）"
+  },
+  "potenza": {
+    "ko": "포텐자",
+    "en": "Potenza",
+    "zh": "波特扎RF微针",
+    "ja": "ポテンツァ"
+  },
+  "radiesse": {
+    "ko": "래디어스",
+    "en": "Radiesse",
+    "zh": "瑞得菲",
+    "ja": "レディエッセ"
+  },
+  "rejuran": {
+    "ko": "리쥬란 (리쥬란HB / 아이리쥬란)",
+    "en": "Rejuran (HB / Eye)",
+    "zh": "利肤兰（HB/眼周）",
+    "ja": "リジュラン（HB / アイ）"
+  },
+  "retuo": {
+    "ko": "리투오",
+    "en": "Retuo",
+    "zh": "利妥奥",
+    "ja": "リトゥオ"
+  },
+  "sculptra": {
+    "ko": "스컬트라",
+    "en": "Sculptra",
+    "zh": "舒颜萃",
+    "ja": "スカルプトラ"
+  },
+  "iv-sedation": {
+    "ko": "수면마취",
+    "en": "IV Sedation",
+    "zh": "静脉麻醉",
+    "ja": "静脈麻酔"
+  },
+  "serf": {
+    "ko": "세르프",
+    "en": "Serf",
+    "zh": "赛尔夫",
+    "ja": "セルフ"
+  },
+  "shrink-universe": {
+    "ko": "슈링크 유니버스",
+    "en": "Shrink Universe",
+    "zh": "超声提升（Shrink）",
+    "ja": "シュリンクユニバース"
+  },
+  "ai-signature-lifting": {
+    "ko": "포에버 AI 시그니처 리프팅",
+    "en": "Forever AI Signature Lifting",
+    "zh": "永远AI签名提升",
+    "ja": "フォーエバーAIシグネチャーリフティング"
+  },
+  "ai-poreless-lift": {
+    "ko": "포에버 AI 포어리스 리프트",
+    "en": "Forever AI Poreless Lift",
+    "zh": "永远AI无毛孔提升",
+    "ja": "フォーエバーAIポアレスリフト"
+  },
+  "signature-design-filler": {
+    "ko": "포에버 시그니처 디자인 필러",
+    "en": "Forever Signature Design Filler",
+    "zh": "永远签名设计填充",
+    "ja": "フォーエバーシグネチャーデザインフィラー"
+  },
+  "signature-design-lift": {
+    "ko": "포에버 시그니처 디자인 리프트",
+    "en": "Forever Signature Design Lift",
+    "zh": "永远签名设计提升",
+    "ja": "フォーエバーシグネチャーデザインリフト"
+  },
+  "men-total-reboot": {
+    "ko": "포에버 MEN 토탈 리부트",
+    "en": "Forever MEN Total Reboot",
+    "zh": "永远男士全面重启",
+    "ja": "フォーエバーMENトータルリブート"
+  },
+  "thread-lifting": {
+    "ko": "실리프팅",
+    "en": "Thread Lifting",
+    "zh": "线雕提升",
+    "ja": "スレッドリフティング"
+  },
+  "skin-botox": {
+    "ko": "스킨보톡스",
+    "en": "Skin Botox",
+    "zh": "皮肤肉毒素",
+    "ja": "スキンボトックス"
+  },
+  "sylfirm-x": {
+    "ko": "실펌X",
+    "en": "Sylfirm X",
+    "zh": "秀肤生X",
+    "ja": "シルファームX"
+  },
+  "thermage-flx": {
+    "ko": "써마지 FLX",
+    "en": "Thermage FLX",
+    "zh": "热玛吉FLX",
+    "ja": "サーマクールFLX"
+  },
+  "titanium": {
+    "ko": "티타늄 (슈링크)",
+    "en": "Titanium (Ultraformer MPT)",
+    "zh": "钛提升",
+    "ja": "チタニウム"
+  },
+  "ultherapy-prime": {
+    "ko": "울쎄라피 프라임",
+    "en": "Ultherapy Prime",
+    "zh": "超声刀Prime",
+    "ja": "ウルセラピープライム"
+  }
+}

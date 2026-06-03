@@ -545,18 +545,27 @@ function PriceOptionsEditor({
             ))}
           </div>
 
-          {/* 보조 설명 (용량/횟수) — 한국어 */}
-          <div className="tt-detail-field" style={{ marginTop: 8 }}>
-            <label className="tt-detail-label">
-              보조 설명 (예: 300샷 / 1회)
-            </label>
-            <input
-              type="text"
-              className="tt-text-input"
-              value={item.caption?.ko ?? ''}
-              onChange={(e) => updateName(i, 'caption', 'ko', e.target.value)}
-              onBlur={(e) => saveNameBlur(i, 'caption', 'ko', e.target.value)}
-            />
+          {/* 보조 설명 (용량/횟수) — 4개 언어 */}
+          <p className="tt-faq-group-label" style={{ marginTop: 8 }}>
+            보조 설명 (예: 300샷 / 1회)
+          </p>
+          <div className="tt-detail-grid4">
+            {LOCALES.map(({ key, label }) => (
+              <div key={key} className="tt-detail-field">
+                <label className="tt-detail-label">{label}</label>
+                <input
+                  type="text"
+                  className="tt-text-input"
+                  value={item.caption?.[key] ?? ''}
+                  onChange={(e) =>
+                    updateName(i, 'caption', key, e.target.value)
+                  }
+                  onBlur={(e) =>
+                    saveNameBlur(i, 'caption', key, e.target.value)
+                  }
+                />
+              </div>
+            ))}
           </div>
         </div>
       ))}

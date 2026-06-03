@@ -378,9 +378,6 @@ export default async function TreatmentDetailPage({
                       ₩{minPrice.toLocaleString()}
                       <span className="text-[15px] font-medium">~</span>
                     </span>
-                    <span className="text-[12px] text-[#999]">
-                      {t('vatExcluded')}
-                    </span>
                   </div>
                 ) : (treatment.hasSignature || treatment.hasEvent) &&
                   (treatment.discountRate ?? 0) > 0 ? (
@@ -444,8 +441,7 @@ export default async function TreatmentDetailPage({
                   labels={{
                     selectTreatment: t('selectTreatment'),
                     estimatedAmount: t('estimatedAmount'),
-                    vatNote: t('vatNote'),
-                    book: t('bookTreatment'),
+                    book: t('addToEstimate'),
                     eventBadge: t('eventLabel'),
                     won: t('wonUnit'),
                   }}

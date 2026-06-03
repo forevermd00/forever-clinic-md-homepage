@@ -111,6 +111,56 @@ EVENT_TO_SLUG = {
 }
 
 
+TITLES = {}
+try:
+    TITLES = json.load(open(os.path.join(HERE, "treatment-titles.json")))
+except FileNotFoundError:
+    pass
+
+# slug별 옵션명 정리 규칙 (그룹 중복어 제거)
+import re as _re
+
+CLEAN_RULES = {
+    "botox": [
+        (r"^손/발/겨드랑이\s*다한증보톡스\s*", ""),
+        (r"^다한증보톡스\s*", ""),
+        (r"^승모근/?종아리?\s*보톡스\s*", ""),
+        (r"^승모근\s*보톡스\s*", ""),
+        (r"^침샘보톡스\s*", ""),
+        (r"^사각턱\s*보톡스\s*", ""),
+        (r"^주름보톡스\s*", ""),
+    ],
+    "filler": [
+        (r"^국산필러\s*프리미엄", "프리미엄"),
+        (r"^국산필러\s*", ""),
+        (r"^수입필러\s*", ""),
+    ],
+    "gentlemax-pro-plus": [
+        (r"^(남성|여성)\s*", ""),
+        (r"\s*제모$", ""),
+    ],
+}
+
+
+def clean_name(slug, name, area_col, grouped):
+    name = s(name)
+    # "(옵션)" / "옵션)" 접두어 제거
+    name = _re.sub(r"^\(?옵션\)\s*", "", name)
+    # 시술 제목 접두어 제거 (예: "울쎄라피 프라임 얼굴" → "얼굴", "써마지 FLX" → "")
+    title = (TITLES.get(slug) or {}).get("ko", "")
+    if title and name.startswith(title):
+        name = name[len(title) :].strip()
+    # 그룹 중복어 제거 (해당 slug 규칙 순차 적용)
+    if grouped:
+        for pat, rep in CLEAN_RULES.get(slug, []):
+            name = _re.sub(pat, rep, name)
+    name = _re.sub(r"\s{2,}", " ", name).strip(" -")
+    # 비었으면 부위로 대체
+    if not name:
+        name = s(area_col)
+    return name
+
+
 def s(v):
     return "" if v is None else str(v).strip()
 
@@ -177,8 +227,8 @@ def build():
                 area = AREA_GROUPS[slug].get(r["subcat"], "")
             else:
                 area = ""
-            # name = 시술명
-            name = r["proc"]
+            # name = 시술명 (정리 적용)
+            name = clean_name(slug, r["proc"], r["area_col"], grouped)
             # caption = 부위/용량 (시술명에 없는 정보만)
             cap_parts = []
             if r["area_col"] and r["area_col"] not in name and r["area_col"] != area:

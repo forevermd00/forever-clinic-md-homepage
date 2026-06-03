@@ -264,11 +264,9 @@
     "precautions": "注意事項",
     "selectTreatment": "施術を選択",
     "estimatedAmount": "予想金額",
-    "vatNote": "別途VAT10%",
-    "bookTreatment": "予約する",
     "priceFrom": "最安値",
-    "vatExcluded": "税別",
-    "wonUnit": "ウォン"
+    "wonUnit": "ウォン",
+    "addToEstimate": "見積もりに追加"
   },
   "hero": {
     "homeTitle": "あなたの美しさを、永遠に",

@@ -16,7 +16,6 @@ export interface SelectorOption {
 interface Labels {
   selectTreatment: string;
   estimatedAmount: string;
-  vatNote: string;
   book: string;
   eventBadge: string;
   won: string;
@@ -105,10 +104,10 @@ export function TreatmentOptionSelector({
   }
 
   return (
-    <div className="overflow-hidden rounded-[10px] border border-[#e6e6e6] bg-white">
+    <div className="overflow-hidden rounded-[12px] border border-[#ece3d8] bg-white shadow-[0_4px_24px_rgba(168,60,68,0.06)]">
       {/* Header */}
-      <div className="border-b border-[#e6e6e6] bg-[#f3efe9] px-5 py-4">
-        <h3 className="text-[16px] font-bold text-[#2b2b2b]">
+      <div className="bg-[#2b2b2b] px-5 py-2.5">
+        <h3 className="text-[14px] font-bold tracking-[0.01em] text-white">
           {labels.selectTreatment}
         </h3>
       </div>
@@ -118,7 +117,7 @@ export function TreatmentOptionSelector({
         {groups.map((group) => (
           <div key={group.area || '_'}>
             {group.area && (
-              <p className="bg-[#faf8f5] px-5 py-2 text-[12px] font-semibold tracking-[0.04em] text-[#a83c44]">
+              <p className="bg-[#faf8f5] px-5 py-1.5 text-[12px] font-semibold tracking-[0.04em] text-[#a83c44]">
                 {group.area}
               </p>
             )}
@@ -132,7 +131,7 @@ export function TreatmentOptionSelector({
               return (
                 <div
                   key={index}
-                  className={`flex items-center gap-3 border-b border-[#f0ece6] px-5 py-3.5 transition-colors ${
+                  className={`flex items-center gap-3 border-b border-[#f0ece6] px-5 py-2.5 transition-colors ${
                     active ? 'bg-[#fbf6f6]' : 'bg-white'
                   }`}
                 >
@@ -205,16 +204,11 @@ export function TreatmentOptionSelector({
       </div>
 
       {/* Estimated total */}
-      <div className="flex items-center justify-between border-t border-[#e6e6e6] bg-[#f3efe9] px-5 py-4">
-        <div>
-          <span className="text-[15px] font-bold text-[#2b2b2b]">
-            {labels.estimatedAmount}
-          </span>
-          <span className="ml-2 text-[12px] text-[#9a9a9a]">
-            {labels.vatNote}
-          </span>
-        </div>
-        <span className="text-[20px] font-bold text-[#a83c44]">
+      <div className="flex items-center justify-between border-t border-[#f0e9df] bg-[#faf7f3] px-5 py-3">
+        <span className="text-[14px] font-bold text-[#2b2b2b]">
+          {labels.estimatedAmount}
+        </span>
+        <span className="text-[19px] leading-none font-extrabold text-[#a83c44]">
           {fmt(total)}
           {labels.won}
         </span>
@@ -225,7 +219,7 @@ export function TreatmentOptionSelector({
         type="button"
         onClick={handleBook}
         disabled={selectedCount === 0}
-        className="w-full bg-[#a83c44] py-4 text-[15px] font-bold text-white transition-colors hover:bg-[#8f3038] disabled:cursor-not-allowed disabled:bg-[#cbb8ba]"
+        className="w-full bg-[#a83c44] py-3 text-[14px] font-bold text-white transition-colors hover:bg-[#8f3038] disabled:cursor-not-allowed disabled:bg-[#d8cfc4] disabled:text-white"
       >
         {labels.book}
       </button>
