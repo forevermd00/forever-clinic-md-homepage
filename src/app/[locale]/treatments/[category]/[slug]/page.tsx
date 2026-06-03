@@ -10,6 +10,10 @@ import {
 } from '@/components/treatments/treatmentData';
 import { getTreatmentDetail } from '@/lib/data/treatments';
 import { AddToCartButton } from '@/components/treatments/AddToCartButton';
+import {
+  TreatmentOptionSelector,
+  type SelectorOption,
+} from '@/components/treatments/TreatmentOptionSelector';
 import { TreatmentFAQ } from '@/components/treatments/TreatmentFAQ';
 import { JsonLd } from '@/components/seo/JsonLd';
 import {
@@ -255,7 +259,31 @@ export default async function TreatmentDetailPage({
         a: extractLocale(item.answer as unknown, locale),
       }))
     : [];
+
+  // 가격 옵션 선택기용 데이터 (GROQ에서 이미 로케일 적용됨)
+  const selectorOptions: SelectorOption[] = cmsData?.priceOptions
+    ? (cmsData.priceOptions as any[])
+        .map((o: any) => ({
+          name: extractLocale(o.name as unknown, locale),
+          caption: extractLocale(o.caption as unknown, locale) || undefined,
+          area: typeof o.area === 'string' ? o.area : undefined,
+          price: typeof o.price === 'number' ? o.price : 0,
+          discountPrice:
+            typeof o.discountPrice === 'number' ? o.discountPrice : undefined,
+          isEvent: !!o.isEvent,
+        }))
+        .filter((o: SelectorOption) => o.price > 0 || !!o.discountPrice)
+    : [];
   /* eslint-enable @typescript-eslint/no-explicit-any */
+
+  // 좌측 요약 가격: 옵션 중 최저 실가격 (부가세 별도)
+  const effectivePrices = selectorOptions.map((o) =>
+    o.discountPrice && o.discountPrice > 0 ? o.discountPrice : o.price,
+  );
+  const minPrice = effectivePrices.length
+    ? Math.min(...effectivePrices)
+    : treatment.priceNumeric;
+  const hasMultipleOptions = selectorOptions.length > 1;
 
   return (
     <>
@@ -341,8 +369,21 @@ export default async function TreatmentDetailPage({
             {/* Price */}
             {visibility.treatments.showPrice && (
               <div className="mt-8 lg:mt-auto lg:pt-8">
-                {(treatment.hasSignature || treatment.hasEvent) &&
-                (treatment.discountRate ?? 0) > 0 ? (
+                {hasMultipleOptions ? (
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[12px] text-[#999]">
+                      {t('priceFrom')}
+                    </span>
+                    <span className="text-[22px] font-bold text-[#a83c44] lg:text-[26px]">
+                      ₩{minPrice.toLocaleString()}
+                      <span className="text-[15px] font-medium">~</span>
+                    </span>
+                    <span className="text-[12px] text-[#999]">
+                      {t('vatExcluded')}
+                    </span>
+                  </div>
+                ) : (treatment.hasSignature || treatment.hasEvent) &&
+                  (treatment.discountRate ?? 0) > 0 ? (
                   <div className="flex flex-col gap-0.5">
                     <span className="text-[13px] text-[#999] line-through">
                       ₩{treatment.originalPriceNumeric?.toLocaleString()}
@@ -391,17 +432,37 @@ export default async function TreatmentDetailPage({
               ))}
             </div>
 
-            {/* CTA */}
-            <div className="mt-auto flex justify-end pt-6">
-              <AddToCartButton
-                treatmentSlug={treatment.slug}
-                treatmentName={treatment.name}
-                packageLabel={treatment.price}
-                unitPrice={treatment.priceNumeric}
-                category={category.slug}
-                label={tc('addToEstimate')}
-              />
-            </div>
+            {/* 옵션 선택기 / CTA */}
+            {visibility.treatments.showPrice && selectorOptions.length > 0 ? (
+              <div className="mt-6">
+                <TreatmentOptionSelector
+                  options={selectorOptions}
+                  treatmentSlug={treatment.slug}
+                  treatmentName={treatment.name}
+                  category={category.slug}
+                  locale={locale}
+                  labels={{
+                    selectTreatment: t('selectTreatment'),
+                    estimatedAmount: t('estimatedAmount'),
+                    vatNote: t('vatNote'),
+                    book: t('bookTreatment'),
+                    eventBadge: t('eventLabel'),
+                    won: t('wonUnit'),
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="mt-auto flex justify-end pt-6">
+                <AddToCartButton
+                  treatmentSlug={treatment.slug}
+                  treatmentName={treatment.name}
+                  packageLabel={treatment.price}
+                  unitPrice={treatment.priceNumeric}
+                  category={category.slug}
+                  label={tc('addToEstimate')}
+                />
+              </div>
+            )}
           </div>
         </div>
       </section>

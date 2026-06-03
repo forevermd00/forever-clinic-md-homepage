@@ -261,7 +261,14 @@
     "recommendedFor": "Who Is This For?",
     "procedure": "Treatment Steps",
     "faq": "FAQ",
-    "precautions": "Precautions"
+    "precautions": "Precautions",
+    "selectTreatment": "Select Treatment",
+    "estimatedAmount": "Estimated Total",
+    "vatNote": "10% VAT excluded",
+    "bookTreatment": "Book Now",
+    "priceFrom": "From",
+    "vatExcluded": "VAT excluded",
+    "wonUnit": " KRW"
   },
   "hero": {
     "homeTitle": "Your Beauty, Forever",

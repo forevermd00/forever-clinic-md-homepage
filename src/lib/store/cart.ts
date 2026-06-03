@@ -15,7 +15,9 @@ export interface CartItem {
 
 interface CartStore {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, 'quantity'>) => void;
+  addItem: (item: Omit<CartItem, 'quantity'>, quantity?: number) => void;
+  /** 여러 옵션을 한 번에 담되, 동일 id는 주어진 수량으로 "설정"(덮어쓰기)한다. 옵션 선택기에서 사용. */
+  setItems: (items: CartItem[]) => void;
   updateQuantity: (id: string, quantity: number) => void;
   removeItem: (id: string) => void;
   clearCart: () => void;
@@ -28,17 +30,34 @@ export const useCartStore = create<CartStore>()(
     (set, get) => ({
       items: [],
 
-      addItem: (item) => {
+      addItem: (item, quantity = 1) => {
         set((state) => {
           const existing = state.items.find((i) => i.id === item.id);
           if (existing) {
             return {
               items: state.items.map((i) =>
-                i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i,
+                i.id === item.id
+                  ? { ...i, quantity: i.quantity + quantity }
+                  : i,
               ),
             };
           }
-          return { items: [...state.items, { ...item, quantity: 1 }] };
+          return { items: [...state.items, { ...item, quantity }] };
+        });
+      },
+
+      setItems: (incoming) => {
+        set((state) => {
+          const next = [...state.items];
+          for (const item of incoming) {
+            const idx = next.findIndex((i) => i.id === item.id);
+            if (idx >= 0) {
+              next[idx] = { ...next[idx], ...item };
+            } else {
+              next.push(item);
+            }
+          }
+          return { items: next };
         });
       },
 

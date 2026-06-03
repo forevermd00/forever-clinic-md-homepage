@@ -126,7 +126,14 @@ export const treatmentDetailQuery = `
     downtime,
     treatmentTime,
     "imageUrl": thumbnail.asset->url,
-    priceOptions[] { price, discountPrice },
+    priceOptions[] {
+      "name": coalesce(name[$locale], name.ko),
+      "caption": coalesce(caption[$locale], caption.ko),
+      area,
+      price,
+      discountPrice,
+      isEvent
+    },
     "effects": effects[][$locale],
     "features": features[][$locale],
     "recommendedFor": recommendedFor[][$locale],

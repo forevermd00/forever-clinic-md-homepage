@@ -261,7 +261,14 @@
     "recommendedFor": "이런 고민이 있다면",
     "procedure": "시술 과정",
     "faq": "자주 묻는 질문",
-    "precautions": "주의사항"
+    "precautions": "주의사항",
+    "selectTreatment": "시술 선택",
+    "estimatedAmount": "예상금액",
+    "vatNote": "부가세 10% 별도",
+    "bookTreatment": "예약하기",
+    "priceFrom": "최저가",
+    "vatExcluded": "부가세 별도",
+    "wonUnit": "원"
   },
   "hero": {
     "homeTitle": "당신의 아름다움, 영원히",

@@ -261,7 +261,14 @@
     "recommendedFor": "适合人群",
     "procedure": "治疗步骤",
     "faq": "常见问题",
-    "precautions": "注意事项"
+    "precautions": "注意事项",
+    "selectTreatment": "选择项目",
+    "estimatedAmount": "预计金额",
+    "vatNote": "另加10%增值税",
+    "bookTreatment": "立即预约",
+    "priceFrom": "最低价",
+    "vatExcluded": "不含增值税",
+    "wonUnit": "韩元"
   },
   "hero": {
     "homeTitle": "您的美丽，永恒绽放",

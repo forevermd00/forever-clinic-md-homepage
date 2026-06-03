@@ -9,7 +9,9 @@ const FULL_QUERY = `
     "tagline": tagline,
     "slug": slug.current,
     category, isEvent, isSignature, isVisible, showInMenu, sortOrder,
-    priceOptions[] { price, discountPrice, label },
+    priceOptions[] {
+      _key, name, caption, area, price, discountPrice, isEvent
+    },
     eventStartDate, eventEndDate,
     treatmentTime,
     "anesthesia": anesthesia,
@@ -48,6 +50,17 @@ interface FaqItem {
   answer?: { ko?: string; en?: string; zh?: string; ja?: string };
 }
 
+interface PriceOptionItem {
+  _key: string;
+  _type?: string;
+  name?: { ko?: string; en?: string; zh?: string; ja?: string };
+  caption?: { ko?: string; en?: string; zh?: string; ja?: string };
+  area?: string;
+  price?: number;
+  discountPrice?: number;
+  isEvent?: boolean;
+}
+
 interface FullDoc {
   _id: string;
   name: LocalizedStr;
@@ -59,7 +72,7 @@ interface FullDoc {
   isVisible?: boolean;
   showInMenu?: boolean;
   sortOrder?: number;
-  priceOptions?: { price?: number; discountPrice?: number; label?: string }[];
+  priceOptions?: PriceOptionItem[];
   eventStartDate?: string;
   eventEndDate?: string;
   treatmentTime?: string;
@@ -343,6 +356,217 @@ function FaqEditor({
   );
 }
 
+function PriceOptionsEditor({
+  initialItems,
+  onSave,
+}: {
+  initialItems: PriceOptionItem[] | undefined;
+  onSave: (items: PriceOptionItem[]) => void;
+}) {
+  const [items, setItems] = useState<PriceOptionItem[]>([]);
+  const initialized = useRef(false);
+
+  useEffect(() => {
+    if (!initialized.current && Array.isArray(initialItems)) {
+      setItems(initialItems);
+      initialized.current = true;
+    }
+  }, [initialItems]);
+
+  const commit = (updated: PriceOptionItem[]) => {
+    setItems(updated);
+    onSave(updated);
+  };
+
+  const updateName = (
+    i: number,
+    field: 'name' | 'caption',
+    locale: 'ko' | 'en' | 'zh' | 'ja',
+    val: string,
+  ) => {
+    setItems((prev) =>
+      prev.map((it, idx) =>
+        idx === i ? { ...it, [field]: { ...it[field], [locale]: val } } : it,
+      ),
+    );
+  };
+
+  const saveNameBlur = (
+    i: number,
+    field: 'name' | 'caption',
+    locale: 'ko' | 'en' | 'zh' | 'ja',
+    val: string,
+  ) => {
+    const updated = items.map((it, idx) =>
+      idx === i ? { ...it, [field]: { ...it[field], [locale]: val } } : it,
+    );
+    commit(updated);
+  };
+
+  const remove = (i: number) => commit(items.filter((_, idx) => idx !== i));
+
+  const move = (i: number, dir: -1 | 1) => {
+    const j = i + dir;
+    if (j < 0 || j >= items.length) return;
+    const next = [...items];
+    [next[i], next[j]] = [next[j], next[i]];
+    commit(next);
+  };
+
+  const add = () =>
+    commit([
+      ...items,
+      {
+        _key: newKey(),
+        _type: 'priceOption',
+        name: { ko: '', en: '', zh: '', ja: '' },
+        caption: { ko: '', en: '', zh: '', ja: '' },
+        area: '',
+        isEvent: false,
+      },
+    ]);
+
+  return (
+    <div className="tt-array-editor">
+      {items.map((item, i) => (
+        <div key={item._key} className="tt-array-item">
+          <div className="tt-array-item-header">
+            <span className="tt-array-num">{i + 1}</span>
+            <div style={{ display: 'flex', gap: 4 }}>
+              <button
+                className="tt-remove-btn"
+                title="위로"
+                onClick={() => move(i, -1)}
+                disabled={i === 0}
+              >
+                ↑
+              </button>
+              <button
+                className="tt-remove-btn"
+                title="아래로"
+                onClick={() => move(i, 1)}
+                disabled={i === items.length - 1}
+              >
+                ↓
+              </button>
+              <button className="tt-remove-btn" onClick={() => remove(i)}>
+                ✕
+              </button>
+            </div>
+          </div>
+
+          {/* 메타 행: 부위 / 가격 / 할인가 / 이벤트 */}
+          <div className="tt-detail-row tt-detail-row-wrap">
+            <Field label="부위 그룹 (선택)">
+              <input
+                type="text"
+                className="tt-text-input tt-text-input-sm"
+                defaultValue={item.area ?? ''}
+                placeholder="얼굴 / 눈가 / 바디…"
+                onBlur={(e) =>
+                  commit(
+                    items.map((it, idx) =>
+                      idx === i ? { ...it, area: e.target.value } : it,
+                    ),
+                  )
+                }
+              />
+            </Field>
+            <Field label="가격 (₩, 부가세 별도)">
+              <input
+                type="number"
+                className="tt-text-input tt-text-input-sm"
+                defaultValue={item.price ?? ''}
+                onBlur={(e) => {
+                  const v = parseInt(e.target.value, 10);
+                  commit(
+                    items.map((it, idx) =>
+                      idx === i
+                        ? { ...it, price: isNaN(v) ? undefined : v }
+                        : it,
+                    ),
+                  );
+                }}
+              />
+            </Field>
+            <Field label="할인가 (₩)">
+              <input
+                type="number"
+                className="tt-text-input tt-text-input-sm"
+                defaultValue={item.discountPrice ?? ''}
+                placeholder="없으면 비움"
+                onBlur={(e) => {
+                  const val = e.target.value.trim();
+                  const v = parseInt(val, 10);
+                  commit(
+                    items.map((it, idx) =>
+                      idx === i
+                        ? {
+                            ...it,
+                            discountPrice:
+                              val === '' || isNaN(v) ? undefined : v,
+                          }
+                        : it,
+                    ),
+                  );
+                }}
+              />
+            </Field>
+            <Field label="이벤트">
+              <input
+                type="checkbox"
+                className="tt-toggle tt-toggle-event"
+                checked={!!item.isEvent}
+                onChange={(e) =>
+                  commit(
+                    items.map((it, idx) =>
+                      idx === i ? { ...it, isEvent: e.target.checked } : it,
+                    ),
+                  )
+                }
+              />
+            </Field>
+          </div>
+
+          {/* 옵션명 (4개 언어) */}
+          <p className="tt-faq-group-label">옵션명</p>
+          <div className="tt-detail-grid4">
+            {LOCALES.map(({ key, label }) => (
+              <div key={key} className="tt-detail-field">
+                <label className="tt-detail-label">{label}</label>
+                <input
+                  type="text"
+                  className="tt-text-input"
+                  value={item.name?.[key] ?? ''}
+                  onChange={(e) => updateName(i, 'name', key, e.target.value)}
+                  onBlur={(e) => saveNameBlur(i, 'name', key, e.target.value)}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* 보조 설명 (용량/횟수) — 한국어 */}
+          <div className="tt-detail-field" style={{ marginTop: 8 }}>
+            <label className="tt-detail-label">
+              보조 설명 (예: 300샷 / 1회)
+            </label>
+            <input
+              type="text"
+              className="tt-text-input"
+              value={item.caption?.ko ?? ''}
+              onChange={(e) => updateName(i, 'caption', 'ko', e.target.value)}
+              onBlur={(e) => saveNameBlur(i, 'caption', 'ko', e.target.value)}
+            />
+          </div>
+        </div>
+      ))}
+      <button className="tt-add-btn" onClick={add}>
+        + 옵션 추가
+      </button>
+    </div>
+  );
+}
+
 export function TreatmentDetail({
   id,
   onBack,
@@ -429,7 +653,6 @@ export function TreatmentDetail({
   }
 
   const nameKo = doc.name?.ko || '(시술명 없음)';
-  const firstPrice = doc.priceOptions?.[0];
 
   return (
     <div className="tt-container tt-detail-container">
@@ -529,62 +752,38 @@ export function TreatmentDetail({
         </div>
       </Section>
 
-      {/* ─── 가격 ─── */}
-      <Section title="가격">
-        <div className="tt-detail-row">
-          <Field label="기본가 (₩)">
-            <input
-              type="number"
-              className="tt-text-input tt-text-input-sm"
-              defaultValue={firstPrice?.price ?? ''}
-              onBlur={(e) => {
-                const v = parseInt(e.target.value, 10);
-                if (!isNaN(v)) patch({ 'priceOptions[0].price': v });
-              }}
-            />
-          </Field>
-          <Field label="할인가 (₩)">
-            <input
-              type="number"
-              className="tt-text-input tt-text-input-sm"
-              defaultValue={firstPrice?.discountPrice ?? ''}
-              placeholder="없으면 비워두세요"
-              onBlur={(e) => {
-                const val = e.target.value.trim();
-                if (val === '') {
-                  patch({ 'priceOptions[0].discountPrice': null });
-                } else {
-                  const v = parseInt(val, 10);
-                  if (!isNaN(v)) patch({ 'priceOptions[0].discountPrice': v });
+      {/* ─── 가격 옵션 ─── */}
+      <Section title="가격 옵션">
+        <p className="tt-detail-hint">
+          부위·용량별 옵션을 추가하세요. 고객은 상세 페이지에서 옵션을 선택·수량
+          조절하여 예상금액을 확인합니다. 가격은 모두 부가세 별도 기준입니다.
+        </p>
+        {doc.isEvent && (
+          <div className="tt-detail-row tt-detail-row-wrap">
+            <Field label="이벤트 시작일">
+              <input
+                type="date"
+                className="tt-text-input tt-text-input-sm"
+                defaultValue={doc.eventStartDate ?? ''}
+                onBlur={(e) =>
+                  patch({ eventStartDate: e.target.value || null })
                 }
-              }}
-            />
-          </Field>
-          {doc.isEvent && (
-            <>
-              <Field label="이벤트 시작일">
-                <input
-                  type="date"
-                  className="tt-text-input tt-text-input-sm"
-                  defaultValue={doc.eventStartDate ?? ''}
-                  onBlur={(e) =>
-                    patch({ eventStartDate: e.target.value || null })
-                  }
-                />
-              </Field>
-              <Field label="이벤트 종료일">
-                <input
-                  type="date"
-                  className="tt-text-input tt-text-input-sm"
-                  defaultValue={doc.eventEndDate ?? ''}
-                  onBlur={(e) =>
-                    patch({ eventEndDate: e.target.value || null })
-                  }
-                />
-              </Field>
-            </>
-          )}
-        </div>
+              />
+            </Field>
+            <Field label="이벤트 종료일">
+              <input
+                type="date"
+                className="tt-text-input tt-text-input-sm"
+                defaultValue={doc.eventEndDate ?? ''}
+                onBlur={(e) => patch({ eventEndDate: e.target.value || null })}
+              />
+            </Field>
+          </div>
+        )}
+        <PriceOptionsEditor
+          initialItems={doc.priceOptions}
+          onSave={(items) => patchArray('priceOptions', items)}
+        />
       </Section>
 
       {/* ─── 한줄 소개 ─── */}
