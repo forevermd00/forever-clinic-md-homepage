@@ -310,6 +310,8 @@
     "formPreferredDatetime": "희망 예약 일시",
     "selectDateFirst": "날짜를 선택해 주세요",
     "clinicClosedOnDate": "해당 날짜는 휴진입니다",
+    "formMessenger": "메신저",
+    "formMessengerPlaceholder": "검색 가능한 메신저 아이디 또는 전화번호를 입력해 주세요",
     "formMessage": "문의 내용",
     "formMessagePlaceholder": "문의하실 내용을 입력해 주세요",
     "formOptionalNote": "※ * 표시는 필수 입력 항목입니다",

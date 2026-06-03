@@ -49,6 +49,24 @@ export default defineType({
       type: 'string',
     }),
     defineField({
+      name: 'messengerType',
+      title: '메신저 유형',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'KakaoTalk', value: 'KakaoTalk' },
+          { title: 'LINE', value: 'LINE' },
+          { title: 'WeChat', value: 'WeChat' },
+          { title: 'WhatsApp', value: 'WhatsApp' },
+        ],
+      },
+    }),
+    defineField({
+      name: 'messengerId',
+      title: '메신저 아이디',
+      type: 'string',
+    }),
+    defineField({
       name: 'message',
       title: '문의 내용',
       type: 'text',

@@ -51,6 +51,9 @@ function getTodayStr(): string {
   return new Date().toLocaleDateString('en-CA');
 }
 
+/* 메신저 유형 — 라벨은 전 로케일 공통 영어 표기 */
+const MESSENGER_TYPES = ['KakaoTalk', 'LINE', 'WeChat', 'WhatsApp'] as const;
+
 const DATE_PLACEHOLDER: Record<string, string> = {
   ko: '연도. 월. 일.',
   en: 'MM / DD / YYYY',
@@ -145,6 +148,10 @@ export function ContactFormSection({
   const [email, setEmail] = useState('');
   const [countryCode, setCountryCode] = useState('+82');
   const [phoneDigits, setPhoneDigits] = useState('');
+  const [messengerType, setMessengerType] = useState<string>(
+    MESSENGER_TYPES[0],
+  );
+  const [messengerId, setMessengerId] = useState('');
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const [message, setMessage] = useState(() =>
     programName ? `시그니처 프로그램 ${programName}에 대해 문의드립니다.` : '',
@@ -206,6 +213,8 @@ export function ContactFormSection({
           birthDate,
           email: email.trim(),
           phone: `${countryCode} ${formatPhone(phoneDigits)}`,
+          messengerType: messengerId.trim() ? messengerType : undefined,
+          messengerId: messengerId.trim() || undefined,
           message,
           treatments:
             selectedTreatments.length > 0 ? selectedTreatments : undefined,
@@ -222,6 +231,8 @@ export function ContactFormSection({
         setBirthDate('');
         setEmail('');
         setPhoneDigits('');
+        setMessengerType(MESSENGER_TYPES[0]);
+        setMessengerId('');
         setMessage('');
         setCheckedIds(null);
         setPreferredDate('');
@@ -412,6 +423,33 @@ export function ContactFormSection({
                       </p>
                     )
                   )}
+                </div>
+              </div>
+
+              {/* Row 2.5: Messenger (type dropdown + ID) — optional */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[13px] font-medium text-[#2b2b2b]">
+                  {t('formMessenger')}
+                </label>
+                <div className="flex gap-2">
+                  <select
+                    value={messengerType}
+                    onChange={(e) => setMessengerType(e.target.value)}
+                    className="h-[44px] w-[130px] shrink-0 rounded-[6px] border border-[#d9d9d9] bg-white px-2 text-[13px] text-[#2b2b2b]"
+                  >
+                    {MESSENGER_TYPES.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="text"
+                    value={messengerId}
+                    onChange={(e) => setMessengerId(e.target.value)}
+                    placeholder={t('formMessengerPlaceholder')}
+                    className="h-[44px] flex-1 rounded-[6px] border border-[#d9d9d9] bg-white px-3 py-2.5 text-[14px] placeholder:text-[#b3b3b3]"
+                  />
                 </div>
               </div>
 

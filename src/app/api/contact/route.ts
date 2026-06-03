@@ -13,6 +13,8 @@ async function sendInquiryEmail(params: {
   birthDate?: string;
   email?: string;
   phone: string;
+  messengerType?: string;
+  messengerId?: string;
   message?: string;
   treatments?: {
     treatmentName: string;
@@ -44,6 +46,13 @@ async function sendInquiryEmail(params: {
   });
 
   const hasTreatments = params.treatments && params.treatments.length > 0;
+
+  const messengerDisplay =
+    params.messengerId && params.messengerType
+      ? `${params.messengerType} · ${params.messengerId}`
+      : params.messengerId
+        ? params.messengerId
+        : null;
 
   const preferredDatetimeDisplay =
     params.preferredDate && params.preferredTime
@@ -107,6 +116,10 @@ async function sendInquiryEmail(params: {
                 <td style="padding:14px 16px;font-size:14px;font-weight:600;border-bottom:1px solid #eee;${params.email ? '' : 'color:#bbb;'}">
                   ${params.email ? `<a href="mailto:${params.email}" style="color:#1a1a1a;text-decoration:none;">${params.email}</a>` : '미입력'}
                 </td>
+              </tr>
+              <tr>
+                <td style="padding:14px 16px;color:#888;font-size:13px;border-bottom:1px solid #eee;">메신저</td>
+                <td style="padding:14px 16px;font-size:14px;font-weight:600;border-bottom:1px solid #eee;${messengerDisplay ? '' : 'color:#bbb;'}">${messengerDisplay ?? '미입력'}</td>
               </tr>
               <tr>
                 <td style="padding:14px 16px;color:#888;font-size:13px;border-bottom:1px solid #eee;">접수 시각</td>
@@ -200,8 +213,14 @@ type ConfirmationContent = {
   greeting: (name: string) => string;
   body: string[];
   detailTitle: string;
+  labelName: string;
+  labelPhone: string;
+  labelEmail: string;
+  labelBirthDate: string;
+  labelMessenger: string;
   labelDatetime: string;
   labelTreatments: string;
+  noneValue: string;
   noneDatetime: string;
   noneTreatments: string;
   footer: string;
@@ -218,8 +237,14 @@ const CONFIRMATION_CONTENT: Record<string, ConfirmationContent> = {
       '상담 신청이 정상적으로 접수되었습니다. 담당자가 순차적으로 연락드릴 예정이니 잠시만 기다려 주세요.',
     ],
     detailTitle: '신청 내용',
+    labelName: '이름',
+    labelPhone: '연락처',
+    labelEmail: '이메일',
+    labelBirthDate: '생년월일',
+    labelMessenger: '메신저',
     labelDatetime: '희망 일시',
     labelTreatments: '관심 시술',
+    noneValue: '미입력',
     noneDatetime: '미지정',
     noneTreatments: '선택 없음',
     footer: '※ 본 메일은 포에버의원 명동점 홈페이지에서 자동 발송되었습니다.',
@@ -234,8 +259,14 @@ const CONFIRMATION_CONTENT: Record<string, ConfirmationContent> = {
       'ご相談のお申し込みを受け付けいたしました。担当スタッフより順次ご連絡いたしますので、今しばらくお待ちください。',
     ],
     detailTitle: 'お申し込み内容',
+    labelName: 'お名前',
+    labelPhone: '電話番号',
+    labelEmail: 'メールアドレス',
+    labelBirthDate: '生年月日',
+    labelMessenger: 'メッセンジャー',
     labelDatetime: 'ご希望日時',
     labelTreatments: '関心のある施術',
+    noneValue: '未入力',
     noneDatetime: '指定なし',
     noneTreatments: '選択なし',
     footer:
@@ -251,8 +282,14 @@ const CONFIRMATION_CONTENT: Record<string, ConfirmationContent> = {
       'Your consultation request has been received successfully. Our staff will contact you shortly.',
     ],
     detailTitle: 'Your request',
+    labelName: 'Name',
+    labelPhone: 'Phone',
+    labelEmail: 'Email',
+    labelBirthDate: 'Date of birth',
+    labelMessenger: 'Messenger',
     labelDatetime: 'Preferred date/time',
     labelTreatments: 'Treatments of interest',
+    noneValue: 'Not provided',
     noneDatetime: 'Not specified',
     noneTreatments: 'None selected',
     footer:
@@ -268,8 +305,14 @@ const CONFIRMATION_CONTENT: Record<string, ConfirmationContent> = {
       '您的咨询申请已成功受理，工作人员将尽快与您联系，请您耐心等待。',
     ],
     detailTitle: '申请内容',
+    labelName: '姓名',
+    labelPhone: '联系电话',
+    labelEmail: '电子邮箱',
+    labelBirthDate: '出生年月日',
+    labelMessenger: '通讯软件',
     labelDatetime: '希望日期时间',
     labelTreatments: '感兴趣的项目',
+    noneValue: '未填写',
     noneDatetime: '未指定',
     noneTreatments: '未选择',
     footer: '※ 本邮件由Forever明洞医院官网自动发送。',
@@ -279,6 +322,10 @@ const CONFIRMATION_CONTENT: Record<string, ConfirmationContent> = {
 async function sendCustomerConfirmationEmail(params: {
   name: string;
   email: string;
+  phone?: string;
+  birthDate?: string;
+  messengerType?: string;
+  messengerId?: string;
   locale?: string;
   treatments?: { treatmentName: string }[];
   preferredDate?: string;
@@ -308,6 +355,28 @@ async function sendCustomerConfirmationEmail(params: {
     params.treatments && params.treatments.length > 0
       ? params.treatments.map((t) => t.treatmentName).join(', ')
       : c.noneTreatments;
+
+  const messengerDisplay =
+    params.messengerId && params.messengerType
+      ? `${params.messengerType} · ${params.messengerId}`
+      : params.messengerId || c.noneValue;
+
+  // 입력값 회신 행 — 값이 있을 때만 표시 (이름·연락처는 항상)
+  const detailRow = (label: string, value: string) => `
+                    <tr>
+                      <td style="padding:6px 0;width:120px;color:#888;font-size:13px;vertical-align:top;">${label}</td>
+                      <td style="padding:6px 0;font-size:14px;color:#1a1a1a;">${value}</td>
+                    </tr>`;
+
+  const detailRowsHtml = [
+    detailRow(c.labelName, params.name),
+    params.phone ? detailRow(c.labelPhone, params.phone) : '',
+    params.email ? detailRow(c.labelEmail, params.email) : '',
+    params.birthDate ? detailRow(c.labelBirthDate, params.birthDate) : '',
+    params.messengerId ? detailRow(c.labelMessenger, messengerDisplay) : '',
+    detailRow(c.labelDatetime, datetimeDisplay),
+    detailRow(c.labelTreatments, treatmentDisplay),
+  ].join('');
 
   const bodyHtml = c.body
     .map(
@@ -344,15 +413,7 @@ async function sendCustomerConfirmationEmail(params: {
               </tr>
               <tr>
                 <td style="padding:0 16px 14px;">
-                  <table width="100%" cellpadding="0" cellspacing="0">
-                    <tr>
-                      <td style="padding:6px 0;width:120px;color:#888;font-size:13px;">${c.labelDatetime}</td>
-                      <td style="padding:6px 0;font-size:14px;color:#1a1a1a;">${datetimeDisplay}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding:6px 0;color:#888;font-size:13px;vertical-align:top;">${c.labelTreatments}</td>
-                      <td style="padding:6px 0;font-size:14px;color:#1a1a1a;">${treatmentDisplay}</td>
-                    </tr>
+                  <table width="100%" cellpadding="0" cellspacing="0">${detailRowsHtml}
                   </table>
                 </td>
               </tr>
@@ -398,6 +459,8 @@ interface InquiryBody {
   birthDate?: string;
   email?: string;
   phone: string;
+  messengerType?: string;
+  messengerId?: string;
   message?: string;
   treatments?: {
     treatmentSlug: string;
@@ -462,6 +525,8 @@ export async function POST(req: NextRequest) {
       birthDate: body.birthDate || undefined,
       email: body.email || undefined,
       phone: body.phone,
+      messengerType: body.messengerId ? body.messengerType : undefined,
+      messengerId: body.messengerId || undefined,
       message: body.message || undefined,
       selectedTreatments:
         selectedTreatments.length > 0 ? selectedTreatments : undefined,
@@ -480,6 +545,8 @@ export async function POST(req: NextRequest) {
       birthDate: body.birthDate,
       email: body.email,
       phone: body.phone,
+      messengerType: body.messengerId ? body.messengerType : undefined,
+      messengerId: body.messengerId,
       message: body.message,
       treatments: body.treatments,
       preferredDate: body.preferredDate,
@@ -494,6 +561,10 @@ export async function POST(req: NextRequest) {
       sendCustomerConfirmationEmail({
         name: body.name,
         email: body.email,
+        phone: body.phone,
+        birthDate: body.birthDate,
+        messengerType: body.messengerId ? body.messengerType : undefined,
+        messengerId: body.messengerId,
         locale: body.locale,
         treatments: body.treatments,
         preferredDate: body.preferredDate,

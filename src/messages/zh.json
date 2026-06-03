@@ -310,6 +310,8 @@
     "formPreferredDatetime": "希望预约日期和时间",
     "selectDateFirst": "请选择日期",
     "clinicClosedOnDate": "该日期诊所休诊",
+    "formMessenger": "通讯软件",
+    "formMessengerPlaceholder": "请输入可被搜索的通讯软件ID或电话号码",
     "formMessage": "咨询内容",
     "formMessagePlaceholder": "请输入咨询内容",
     "formOptionalNote": "※ 标 * 为必填项",

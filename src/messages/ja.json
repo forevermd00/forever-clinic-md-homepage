@@ -310,6 +310,8 @@
     "formPreferredDatetime": "ご希望の予約日時",
     "selectDateFirst": "日付を選択してください",
     "clinicClosedOnDate": "この日は休診日です",
+    "formMessenger": "メッセンジャー",
+    "formMessengerPlaceholder": "メッセンジャーアカウントを検索できるIDもしくは電話番号を入力してください。",
     "formMessage": "お問い合わせ内容",
     "formMessagePlaceholder": "お問い合わせ内容を入力してください",
     "formOptionalNote": "※ * は必須項目です",

@@ -310,6 +310,8 @@
     "formPreferredDatetime": "Preferred Appointment Date & Time",
     "selectDateFirst": "Please select a date",
     "clinicClosedOnDate": "The clinic is closed on this date",
+    "formMessenger": "Messenger",
+    "formMessengerPlaceholder": "Enter a searchable messenger ID or phone number",
     "formMessage": "Message",
     "formMessagePlaceholder": "Enter your message",
     "formOptionalNote": "※ Items marked * are required",
