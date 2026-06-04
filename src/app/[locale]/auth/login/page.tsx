@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -9,7 +9,7 @@ import { useTranslations } from 'next-intl';
 const inputClass =
   'h-[48px] w-full rounded-[6px] border border-[#efe5d9] bg-white pl-4 pr-4 text-[15px] text-[#2b2b2b] placeholder:text-[#bbb] focus:border-[#a83c44] focus:outline-none transition-colors';
 
-export default function LoginPage() {
+function LoginForm() {
   const pathname = usePathname();
   const locale = pathname.split('/')[1];
   const router = useRouter();
@@ -133,5 +133,14 @@ export default function LoginPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+// useSearchParams는 Suspense 경계가 필요 (Next.js 정적 렌더링)
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }
