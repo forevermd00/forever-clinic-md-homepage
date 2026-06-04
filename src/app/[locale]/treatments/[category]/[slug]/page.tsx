@@ -285,6 +285,8 @@ export default async function TreatmentDetailPage({
     ? Math.min(...effectivePrices)
     : treatment.priceNumeric;
   const hasMultipleOptions = selectorOptions.length > 1;
+  // 시그니처: 상세페이지 히어로에 다크 프리미엄 테마 적용 (홈 시그니처 섹션과 동일 #1a1a1a)
+  const isSig = treatment.hasSignature;
 
   return (
     <>
@@ -315,7 +317,7 @@ export default async function TreatmentDetailPage({
         ])}
       />
       {faqItems.length > 0 && <JsonLd data={getFaqPageJsonLd(faqItems)} />}
-      <section className="bg-[#faf8f5]">
+      <section className={isSig ? 'bg-[#1a1a1a]' : 'bg-[#faf8f5]'}>
         <div className="mx-auto flex max-w-[680px] flex-col gap-0 px-5 py-5 lg:max-w-[var(--container-max)] lg:flex-row lg:px-[120px] lg:py-16">
           {/* Left - Title */}
           <div className="flex flex-col lg:w-[340px] lg:shrink-0 lg:pr-12">
@@ -357,7 +359,9 @@ export default async function TreatmentDetailPage({
             </div>
 
             {/* Name */}
-            <h1 className="mt-3 text-[24px] font-bold break-words text-[#2b2b2b] lg:text-[28px]">
+            <h1
+              className={`mt-3 text-[24px] font-bold break-words lg:text-[28px] ${isSig ? 'text-white' : 'text-[#2b2b2b]'}`}
+            >
               {treatment.name}
             </h1>
 
@@ -387,7 +391,9 @@ export default async function TreatmentDetailPage({
                     </span>
                   </div>
                 ) : (
-                  <span className="text-forever-charcoal text-[20px] font-bold lg:text-[24px]">
+                  <span
+                    className={`text-[20px] font-bold lg:text-[24px] ${isSig ? 'text-white' : 'text-forever-charcoal'}`}
+                  >
                     {treatment.price}
                   </span>
                 )}
@@ -396,30 +402,38 @@ export default async function TreatmentDetailPage({
           </div>
 
           {/* Right - Content */}
-          <div className="mt-5 flex flex-col border-[#e6e6e6] lg:mt-0 lg:flex-1 lg:border-l lg:pt-0 lg:pl-12">
+          <div
+            className={`mt-5 flex flex-col lg:mt-0 lg:flex-1 lg:border-l lg:pt-0 lg:pl-12 ${isSig ? 'border-white/15' : 'border-[#e6e6e6]'}`}
+          >
             {/* Composition (signature only) */}
             {treatment.hasSignature && treatment.composition && (
               <div className="mb-6 rounded-[8px] border border-[#efe5d9] bg-white p-4">
                 <p className="mb-1.5 text-[11px] font-semibold tracking-[0.15em] text-[#a83c44] uppercase">
                   Composition
                 </p>
-                <p className="text-[13px] leading-[1.8] text-[#2b2b2b]">
+                <p className="text-[13px] leading-[1.8] whitespace-pre-line text-[#2b2b2b]">
                   {treatment.composition}
                 </p>
               </div>
             )}
 
             {/* Info Rows */}
-            <div className="space-y-0 border-t border-[#e6e6e6]">
+            <div
+              className={`space-y-0 border-t ${isSig ? 'border-white/15' : 'border-[#e6e6e6]'}`}
+            >
               {INFO_ROW_KEYS.filter((row) => treatment[row.key]).map((row) => (
                 <div
                   key={row.key}
-                  className="flex items-center border-b border-[#e6e6e6] py-3"
+                  className={`flex items-center border-b py-3 ${isSig ? 'border-white/15' : 'border-[#e6e6e6]'}`}
                 >
-                  <span className="w-[100px] shrink-0 text-[13px] text-[#808080]">
+                  <span
+                    className={`w-[100px] shrink-0 text-[13px] ${isSig ? 'text-white/50' : 'text-[#808080]'}`}
+                  >
                     {t(row.tKey)}
                   </span>
-                  <span className="text-forever-charcoal text-[14px]">
+                  <span
+                    className={`text-[14px] ${isSig ? 'text-white' : 'text-forever-charcoal'}`}
+                  >
                     {treatment[row.key]}
                   </span>
                 </div>
@@ -471,7 +485,7 @@ export default async function TreatmentDetailPage({
               {t('description')}
             </h2>
             <div className="mt-4 h-px w-full bg-[#e6e6e6]" />
-            <p className="mt-6 text-[14px] leading-[1.8] text-[#555]">
+            <p className="mt-6 text-[14px] leading-[1.8] whitespace-pre-line text-[#555]">
               {descriptionText}
             </p>
           </div>

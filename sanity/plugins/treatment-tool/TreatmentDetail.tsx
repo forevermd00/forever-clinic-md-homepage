@@ -831,24 +831,6 @@ export function TreatmentDetail({
         </div>
       </Section>
 
-      {/* ─── 구성 시술 ─── */}
-      <Section title="구성 시술">
-        <div className="tt-detail-grid2">
-          {(['ko', 'en'] as const).map((key) => (
-            <Field key={key} label={key === 'ko' ? '한국어' : 'English'}>
-              <textarea
-                className="tt-text-input tt-textarea"
-                defaultValue={doc.composition?.[key] ?? ''}
-                rows={3}
-                onBlur={(e) =>
-                  patch({ [`composition.${key}`]: e.target.value })
-                }
-              />
-            </Field>
-          ))}
-        </div>
-      </Section>
-
       {/* ─── 시술 정보 ─── */}
       <TreatmentInfoSection doc={doc} patch={patch} />
 
