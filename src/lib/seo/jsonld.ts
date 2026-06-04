@@ -8,12 +8,20 @@ export function getMedicalBusinessJsonLd(locale: string) {
     '@id': BASE_URL,
     name:
       locale === 'ko'
-        ? '포에버 클리닉 명동'
+        ? '포에버의원 명동점'
         : locale === 'en'
           ? 'Forever Clinic Myeongdong'
           : locale === 'zh'
             ? '永恒诊所 明洞'
             : 'フォーエバークリニック 明洞',
+    alternateName:
+      locale === 'ko'
+        ? ['포에버 클리닉 명동', '포에버의원', '포에버클리닉']
+        : locale === 'en'
+          ? 'Forever Clinic'
+          : locale === 'zh'
+            ? 'Forever Clinic 永恒诊所'
+            : 'Forever Clinic',
     url: `${BASE_URL}/${locale}`,
     telephone: process.env.NEXT_PUBLIC_CLINIC_PHONE ?? '+82-2-0000-0000',
     email: 'contact@forever-clinic.kr',
@@ -80,21 +88,67 @@ export function getTreatmentProductJsonLd(
     price: number;
     slug: string;
     category: string;
+    image?: string;
   },
   locale: string,
 ) {
+  const url = `${BASE_URL}/${locale}/treatments/${treatment.category}/${treatment.slug}`;
+  // 이미지: 시술 이미지(절대 URL) 우선, 없으면 브랜드 히어로 폴백
+  const imageUrl = treatment.image
+    ? treatment.image.startsWith('http')
+      ? treatment.image
+      : `${BASE_URL}${treatment.image}`
+    : `${BASE_URL}/images/heroes/brand-hero.png`;
+
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: treatment.name,
     description: treatment.description,
     category: treatment.category,
-    url: `${BASE_URL}/${locale}/treatments/${treatment.category}/${treatment.slug}`,
+    url,
+    image: [imageUrl],
     offers: {
       '@type': 'Offer',
       price: treatment.price,
       priceCurrency: 'KRW',
       availability: 'https://schema.org/InStock',
+      itemCondition: 'https://schema.org/NewCondition',
+      url,
+      // 의원 내원 시술 — 별도 배송 없음(무료) 명시
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingRate: {
+          '@type': 'MonetaryAmount',
+          value: 0,
+          currency: 'KRW',
+        },
+        shippingDestination: {
+          '@type': 'DefinedRegion',
+          addressCountry: 'KR',
+        },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 0,
+            maxValue: 0,
+            unitCode: 'DAY',
+          },
+          transitTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 0,
+            maxValue: 0,
+            unitCode: 'DAY',
+          },
+        },
+      },
+      // 의료 시술 — 반품 불가 정책 명시
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'KR',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
+      },
     },
     brand: { '@type': 'Brand', name: 'Forever Clinic Myeongdong' },
   };

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import {
   TREATMENT_CATEGORIES,
   getTreatmentBySlug,
@@ -192,7 +192,7 @@ export async function generateMetadata({
   };
 }
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export function generateStaticParams() {
   return TREATMENT_CATEGORIES.flatMap((c) =>
@@ -216,6 +216,7 @@ export default async function TreatmentDetailPage({
   params: Promise<{ locale: string; category: string; slug: string }>;
 }) {
   const { locale, category: categorySlug, slug } = await params;
+  setRequestLocale(locale);
 
   const visibility = await getSectionVisibility();
   if (!visibility.nav.treatments) {
@@ -295,6 +296,7 @@ export default async function TreatmentDetailPage({
             price: treatment.priceNumeric,
             slug: treatment.slug,
             category: category.slug,
+            image: treatment.imageUrl,
           },
           locale,
         )}
@@ -359,12 +361,7 @@ export default async function TreatmentDetailPage({
               {treatment.name}
             </h1>
 
-            {/* Keywords (signature only) */}
-            {treatment.hasSignature && treatment.keywords && (
-              <p className="mt-2 text-[13px] text-[#999]">
-                {treatment.keywords}
-              </p>
-            )}
+            {/* Keywords: SEO 메타 전용 (화면 비노출) */}
 
             {/* Price */}
             {visibility.treatments.showPrice && (
