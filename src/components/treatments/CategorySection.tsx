@@ -47,6 +47,7 @@ function CategorySection({
       </p>
       <Link
         href={href}
+        data-ga-id={`treatment-category-cta-${labelEn.toLowerCase().replace(/\s+/g, '-')}`}
         className="mt-5 inline-flex text-[14px] font-bold text-[#a83c44] transition-colors hover:text-[#8c2e38]"
       >
         {ctaText} →

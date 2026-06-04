@@ -344,6 +344,7 @@ export default function SignupPage() {
                 type="button"
                 onClick={handleSendCode}
                 disabled={phoneVerified || phoneSending}
+                data-ga-id="auth-signup-send-code"
                 className="h-[48px] shrink-0 rounded-[6px] bg-[#a83c44] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#8c2e38] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {phoneSending
@@ -396,6 +397,7 @@ export default function SignupPage() {
                   type="button"
                   onClick={handleVerifyCode}
                   disabled={phoneVerified}
+                  data-ga-id="auth-signup-verify-code"
                   className="h-[48px] shrink-0 rounded-[6px] bg-[#a83c44] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#8c2e38] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {t('verify')}
@@ -420,6 +422,7 @@ export default function SignupPage() {
             <span className="text-[13px] text-[#2b2b2b]">
               <Link
                 href={`/${locale}/privacy`}
+                data-ga-id="auth-signup-privacy-link"
                 className="underline underline-offset-2"
               >
                 {t('privacyAgree')}
@@ -459,6 +462,7 @@ export default function SignupPage() {
         <button
           type="submit"
           disabled={loading}
+          data-ga-id="auth-signup-submit"
           className="mt-8 h-[52px] w-full cursor-pointer rounded-[6px] bg-[#a83c44] text-[16px] font-bold text-white transition-colors hover:bg-[#8c2e38] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? '...' : t('signupButton')}
@@ -469,6 +473,7 @@ export default function SignupPage() {
           {t('alreadyHaveAccount')}{' '}
           <Link
             href={`/${locale}/auth/login${callbackUrl ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ''}`}
+            data-ga-id="auth-signup-to-login"
             className="font-medium text-[#a83c44] transition-colors hover:text-[#8c2e38]"
           >
             {tCommon('login')}

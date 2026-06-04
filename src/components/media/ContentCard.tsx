@@ -18,7 +18,11 @@ function ContentCard({
   views,
 }: ContentCardProps) {
   return (
-    <Link href={href} className="group block w-[300px]">
+    <Link
+      href={href}
+      data-ga-id={`article-card-${href.split('/').pop() ?? 'item'}`}
+      className="group block w-[300px]"
+    >
       <article className="overflow-hidden rounded-[8px] bg-white shadow-[0px_2px_2px_rgba(43,43,43,0.08)]">
         {/* Image placeholder */}
         <div className="bg-forever-ivory h-[200px] w-full overflow-hidden rounded-[8px]">

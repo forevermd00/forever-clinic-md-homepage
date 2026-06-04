@@ -48,6 +48,7 @@ export function MediaSectionNav({
             <Link
               key={tab.path}
               href={`/${pathname.split('/')[1]}/media/${tab.path}`}
+              data-ga-id={`media-nav-${tab.path}`}
               className={cn(
                 'shrink-0 px-2 py-3 text-[14px] font-medium whitespace-nowrap transition-colors duration-200 sm:px-4',
                 isActive

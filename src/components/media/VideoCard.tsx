@@ -22,6 +22,7 @@ function VideoCard({
       href={href}
       target={target}
       rel={rel}
+      data-ga-id={`video-card-${href.split('/').pop() ?? 'item'}`}
       className="group block w-[300px]"
     >
       <article className="overflow-hidden rounded-[8px] bg-white shadow-[0px_2px_2px_rgba(43,43,43,0.08)]">

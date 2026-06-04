@@ -18,6 +18,7 @@ export function DoctorGrid({ doctors }: DoctorGridProps) {
           <button
             key={doctor.name}
             onClick={() => setSelected(doctor)}
+            data-ga-id={`doctor-card-${doctor.name.replace(/\s+/g, '-').toLowerCase()}`}
             className="cursor-pointer text-left transition-transform hover:scale-[1.02]"
           >
             <DoctorCard doctor={doctor} />

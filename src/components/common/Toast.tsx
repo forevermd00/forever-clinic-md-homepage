@@ -68,6 +68,7 @@ function ToastItem({
           <button
             onClick={toast.action.onClick}
             className="shrink-0 text-sm font-semibold underline"
+            data-ga-id="toast-action"
           >
             {toast.action.label}
           </button>
@@ -76,6 +77,7 @@ function ToastItem({
           onClick={() => onDismiss(toast.id)}
           aria-label="Dismiss"
           className="ml-auto shrink-0 opacity-70 hover:opacity-100"
+          data-ga-id="toast-dismiss"
         >
           <svg
             width="14"

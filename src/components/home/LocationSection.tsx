@@ -33,7 +33,7 @@ export async function LocationSection({
   const t = await getTranslations('home');
 
   return (
-    <section className="bg-[#faf8f5]">
+    <section className="bg-[#faf8f5]" data-ga-section="location">
       <div className="mx-auto w-full max-w-[1280px] px-5 py-16 md:px-10 lg:px-12">
         <div className="mx-auto flex max-w-[840px] flex-col gap-8 lg:max-w-none lg:flex-row lg:gap-12">
           {/* Map */}

@@ -32,7 +32,7 @@ export function BAPreviewSection({ cases }: BAPreviewSectionProps = {}) {
   if (!cases || cases.length === 0) return null;
 
   return (
-    <section className="bg-white">
+    <section className="bg-white" data-ga-section="ba-preview">
       <div className="mx-auto flex w-full max-w-[1280px] flex-col items-center gap-6 px-5 py-12 md:px-10 lg:px-12">
         <h2 className="text-[28px] font-bold">{t('title')}</h2>
 
@@ -42,6 +42,7 @@ export function BAPreviewSection({ cases }: BAPreviewSectionProps = {}) {
             <button
               key={filter.id}
               onClick={() => setActiveFilter(filter.id)}
+              data-ga-id={`ba-preview-filter-${filter.id}`}
               className={cn(
                 'rounded-[20px] px-4 py-2 text-[13px] font-medium transition-colors',
                 activeFilter === filter.id
@@ -78,6 +79,7 @@ export function BAPreviewSection({ cases }: BAPreviewSectionProps = {}) {
                 <Link
                   key={card.id}
                   href={`/${locale}/before-after/${card.id}`}
+                  data-ga-id={`ba-preview-card-${card.id}`}
                   className="block w-[311px] overflow-hidden rounded-[8px] border border-[#efe5d9] shadow-[0px_1px_2px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-md"
                 >
                   <div className="flex h-[250px]">
@@ -114,6 +116,7 @@ export function BAPreviewSection({ cases }: BAPreviewSectionProps = {}) {
         {/* CTA button */}
         <Link
           href={`/${locale}/before-after`}
+          data-ga-id="ba-preview-more"
           className="rounded-[4px] border border-[#efe5d9] px-6 py-3 text-[14px] font-medium text-[#2b2b2b] transition-colors hover:bg-[#2b2b2b]/5"
         >
           {tc('baViewMore')} &rarr;

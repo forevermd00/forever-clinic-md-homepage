@@ -110,6 +110,7 @@ function LoginForm() {
         <button
           type="submit"
           disabled={loading}
+          data-ga-id="auth-login-submit"
           className="mt-8 h-[52px] w-full cursor-pointer rounded-[6px] bg-[#a83c44] text-[16px] font-bold text-white transition-colors hover:bg-[#8c2e38] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? '...' : t('loginButton')}
@@ -119,6 +120,7 @@ function LoginForm() {
         <div className="mt-8 flex items-center justify-center gap-3 text-[13px]">
           <Link
             href={`/${locale}/auth/reset-password`}
+            data-ga-id="auth-login-to-reset"
             className="text-[#999] transition-colors hover:text-[#706263]"
           >
             {t('forgotPassword')}
@@ -126,6 +128,7 @@ function LoginForm() {
           <span className="text-[#d9cfc5]">|</span>
           <Link
             href={`/${locale}/auth/signup${callbackUrl ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ''}`}
+            data-ga-id="auth-login-to-signup"
             className="font-medium text-[#a83c44] transition-colors hover:text-[#8c2e38]"
           >
             {tCommon('signup')}

@@ -202,6 +202,7 @@ export function Footer({
                 key={href}
                 href={`/${locale}${href}`}
                 className="text-[13px] text-[#706263] transition-colors hover:text-white"
+                data-ga-id={`footer-link-${href}`}
               >
                 {t(i18nKey)}
               </Link>
@@ -218,6 +219,7 @@ export function Footer({
                 key={href}
                 href={`/${locale}${href}`}
                 className="text-[13px] text-[#706263] transition-colors hover:text-white"
+                data-ga-id={`footer-link-${href}`}
               >
                 {t(i18nKey)}
               </Link>
@@ -234,6 +236,7 @@ export function Footer({
                 key={href}
                 href={`/${locale}${href}`}
                 className="text-[13px] text-[#706263] transition-colors hover:text-white"
+                data-ga-id={`footer-link-${href}`}
               >
                 {t(key)}
               </Link>
@@ -251,12 +254,14 @@ export function Footer({
             <Link
               href={`/${locale}/terms`}
               className="text-[12px] text-[#706263] transition-colors hover:text-white"
+              data-ga-id="footer-link-terms"
             >
               {t('terms')}
             </Link>
             <Link
               href={`/${locale}/privacy`}
               className="text-[12px] text-[#706263] transition-colors hover:text-white"
+              data-ga-id="footer-link-privacy"
             >
               {t('privacy')}
             </Link>

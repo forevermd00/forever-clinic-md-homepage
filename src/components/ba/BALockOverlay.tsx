@@ -49,6 +49,7 @@ export function BALockOverlay({
       </svg>
       <button
         type="button"
+        data-ga-id="ba-lock-login"
         className="rounded-[4px] bg-[#a83c44] px-3 py-1.5 text-[11px] font-medium text-white"
         onClick={(e) => {
           e.preventDefault();

@@ -53,6 +53,7 @@ async function NoticeTable({ notices, locale }: NoticeTableProps) {
             <div className="flex-1 text-left">
               <Link
                 href={`/${locale}/media/notice/${notice.slug}`}
+                data-ga-id={`notice-item-${notice.slug}`}
                 className="text-[14px] font-medium text-[#2b2b2b] hover:underline"
               >
                 {notice.title}

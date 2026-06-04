@@ -194,7 +194,11 @@ function BaseCard({
 
   if (href) {
     return (
-      <a href={href} className={cardClasses}>
+      <a
+        href={href}
+        className={cardClasses}
+        data-ga-id={`base-card-${href.replace(/^\//, '').replace(/[/?#]/g, '-')}`}
+      >
         {content}
       </a>
     );

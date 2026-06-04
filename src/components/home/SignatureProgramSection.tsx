@@ -21,7 +21,7 @@ export async function SignatureProgramSection({
   if (!programs || programs.length === 0) return null;
 
   return (
-    <section className="bg-[#1a1a1a]">
+    <section className="bg-[#1a1a1a]" data-ga-section="signature">
       <div className="mx-auto flex w-full max-w-[1280px] flex-col items-center gap-10 px-5 py-16 md:px-10 lg:px-12">
         {/* 섹션 헤더 */}
         <div className="flex flex-col items-center gap-2 text-center">
@@ -55,6 +55,7 @@ export async function SignatureProgramSection({
         {/* 전체 CTA */}
         <Link
           href={`/${locale}/contact`}
+          data-ga-id="signature-cta-all"
           className="rounded-[24px] bg-[#a83c44] px-8 py-3 text-[14px] font-semibold text-white transition-opacity hover:opacity-90"
         >
           {t('signatureCtaAll')}
@@ -95,6 +96,7 @@ function ProgramCard({
   return (
     <Link
       href={href}
+      data-ga-id={`signature-card-${program.slug ?? program._id}`}
       className="group flex flex-col gap-3 rounded-[10px] border border-white/10 bg-white/5 p-5 transition-all duration-200 hover:scale-[1.02] hover:border-white/30 hover:bg-white/10"
     >
       {/* 할인 뱃지 (할인 적용 시에만) */}

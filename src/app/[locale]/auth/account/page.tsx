@@ -186,6 +186,7 @@ export default function AccountPage() {
           <button
             type="submit"
             disabled={pwLoading}
+            data-ga-id="account-change-password-submit"
             className="mt-6 h-[48px] w-full cursor-pointer rounded-[6px] bg-[#a83c44] text-[15px] font-bold text-white transition-colors hover:bg-[#8c2e38] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {pwLoading ? '...' : t('changePassword')}
@@ -196,6 +197,7 @@ export default function AccountPage() {
         <button
           type="button"
           onClick={() => signOut({ callbackUrl: `/${locale}` })}
+          data-ga-id="account-logout"
           className="mt-10 h-[48px] w-full cursor-pointer rounded-[6px] border border-[#efe5d9] bg-white text-[15px] font-medium text-[#706263] transition-colors hover:bg-neutral-50"
         >
           {t('logout')}
@@ -214,6 +216,7 @@ export default function AccountPage() {
             <button
               type="button"
               onClick={() => setShowDeleteConfirm(true)}
+              data-ga-id="account-delete-show-confirm"
               className="mt-4 h-[48px] w-full cursor-pointer rounded-[6px] border border-[#a83c44] bg-transparent text-[15px] font-bold text-[#a83c44] transition-colors hover:bg-[#a83c44] hover:text-white"
             >
               {t('deleteAccountButton')}
@@ -246,6 +249,7 @@ export default function AccountPage() {
                     setDeletePassword('');
                     setDeleteError('');
                   }}
+                  data-ga-id="account-delete-cancel"
                   className="h-[48px] flex-1 cursor-pointer rounded-[6px] border border-[#efe5d9] bg-white text-[15px] font-medium text-[#706263] transition-colors hover:bg-neutral-50"
                 >
                   {tCommon('close')}
@@ -254,6 +258,7 @@ export default function AccountPage() {
                   type="button"
                   onClick={handleDeleteAccount}
                   disabled={deleteLoading}
+                  data-ga-id="account-delete-confirm"
                   className="h-[48px] flex-1 cursor-pointer rounded-[6px] bg-[#a83c44] text-[15px] font-bold text-white transition-colors hover:bg-[#8c2e38] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {deleteLoading ? '...' : t('deleteAccountButton')}

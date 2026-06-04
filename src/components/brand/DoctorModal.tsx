@@ -35,6 +35,7 @@ export function DoctorModal({ doctor, onClose }: DoctorModalProps) {
         <button
           onClick={onClose}
           aria-label="닫기"
+          data-ga-id="doctor-modal-close"
           className="absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center text-[#888] transition-colors hover:text-[#222]"
         >
           <svg

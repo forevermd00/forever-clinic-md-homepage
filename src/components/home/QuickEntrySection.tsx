@@ -69,7 +69,7 @@ export function QuickEntrySection({
   );
 
   return (
-    <section className="bg-[#faf8f5]">
+    <section className="bg-[#faf8f5]" data-ga-section="quick-entry">
       <div className="mx-auto flex w-full max-w-[1280px] flex-col items-center gap-8 px-5 py-16 md:px-10 lg:px-12">
         <h2 className="text-center text-[36px] font-bold text-[#2b2b2b]">
           {t('quickEntryTitle')}

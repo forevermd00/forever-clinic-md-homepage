@@ -37,7 +37,10 @@ export async function HeroSection({ hero }: HeroSectionProps = {}) {
       : null;
 
   return (
-    <section className="relative flex min-h-[calc(100dvh-4rem)] w-full items-center justify-center overflow-hidden bg-[#c4b7a9]">
+    <section
+      className="relative flex min-h-[calc(100dvh-4rem)] w-full items-center justify-center overflow-hidden bg-[#c4b7a9]"
+      data-ga-section="hero"
+    >
       {/* Background video from CMS (preferred over image) */}
       {heroVideoUrl && (
         <video

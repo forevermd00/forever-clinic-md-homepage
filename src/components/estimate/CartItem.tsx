@@ -50,6 +50,7 @@ function CartItem({
           type="button"
           onClick={() => onQuantityChange(item.id, item.quantity - 1)}
           disabled={item.quantity <= 0}
+          data-ga-id={`cart-item-qty-minus-${item.id}`}
           className="text-forever-charcoal flex size-7 items-center justify-center rounded-full bg-[#f3edea] text-[14px] font-medium transition-colors hover:bg-[#e5ddd8] disabled:opacity-30"
           aria-label={t('decreaseQuantity')}
         >
@@ -66,6 +67,7 @@ function CartItem({
         <button
           type="button"
           onClick={() => onQuantityChange(item.id, item.quantity + 1)}
+          data-ga-id={`cart-item-qty-plus-${item.id}`}
           className="text-forever-charcoal flex size-7 items-center justify-center rounded-full bg-[#f3edea] text-[14px] font-medium transition-colors hover:bg-[#e5ddd8]"
           aria-label={t('increaseQuantity')}
         >
@@ -82,6 +84,7 @@ function CartItem({
       <button
         type="button"
         onClick={() => onRemove(item.id)}
+        data-ga-id={`cart-item-remove-${item.id}`}
         className="ml-2 flex size-7 shrink-0 items-center justify-center rounded-full text-[14px] text-[#999] transition-colors hover:bg-[#f3edea] hover:text-[#2b2b2b]"
         aria-label={t('removeItem')}
       >

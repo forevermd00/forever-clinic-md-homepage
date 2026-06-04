@@ -233,6 +233,7 @@ export default function ResetPasswordPage() {
               type="button"
               onClick={handleSend}
               disabled={loading}
+              data-ga-id="auth-reset-send-code"
               className="h-[52px] w-full cursor-pointer rounded-[6px] bg-[#a83c44] text-[16px] font-bold text-white transition-colors hover:bg-[#8c2e38] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? '...' : t('sendVerificationCode')}
@@ -240,6 +241,7 @@ export default function ResetPasswordPage() {
 
             <Link
               href={`/${locale}/auth/login`}
+              data-ga-id="auth-reset-back-to-login"
               className="text-center text-[13px] text-[#999] transition-colors hover:text-[#706263]"
             >
               {t('backToLogin')}
@@ -295,6 +297,7 @@ export default function ResetPasswordPage() {
               type="button"
               onClick={handleVerifyCode}
               disabled={loading}
+              data-ga-id="auth-reset-verify-code"
               className="h-[52px] w-full cursor-pointer rounded-[6px] bg-[#a83c44] text-[16px] font-bold text-white transition-colors hover:bg-[#8c2e38] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? '...' : t('verify')}
@@ -304,6 +307,7 @@ export default function ResetPasswordPage() {
               type="button"
               onClick={handleResend}
               disabled={loading}
+              data-ga-id="auth-reset-resend-code"
               className="text-center text-[13px] font-medium text-[#a83c44] transition-colors hover:text-[#8c2e38]"
             >
               {t('resendCode')}
@@ -367,6 +371,7 @@ export default function ResetPasswordPage() {
               type="button"
               onClick={handleResetPassword}
               disabled={loading}
+              data-ga-id="auth-reset-submit"
               className="h-[52px] w-full cursor-pointer rounded-[6px] bg-[#a83c44] text-[16px] font-bold text-white transition-colors hover:bg-[#8c2e38] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? '...' : t('completeChange')}
@@ -403,6 +408,7 @@ export default function ResetPasswordPage() {
 
             <Link
               href={`/${locale}/auth/login`}
+              data-ga-id="auth-reset-success-to-login"
               className="flex h-[52px] w-full items-center justify-center rounded-[6px] bg-[#a83c44] text-[16px] font-bold text-white transition-colors hover:bg-[#8c2e38]"
             >
               {t('loginButton')}

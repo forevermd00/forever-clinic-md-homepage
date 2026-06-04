@@ -169,6 +169,7 @@ export default async function TreatmentCategoryPage({
         </p>
         <Link
           href={`/${locale}/contact`}
+          data-ga-id="treatment-category-cta-contact"
           className="mt-6 inline-flex items-center justify-center rounded-[4px] border border-white px-8 py-3 text-[13px] font-medium text-white transition-colors hover:bg-white/10"
         >
           {tc('consultationReservation')}

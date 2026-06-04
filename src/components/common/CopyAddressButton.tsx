@@ -46,6 +46,7 @@ export function CopyAddressButton({
       aria-label={copied ? copiedLabel : copyLabel}
       title={copied ? copiedLabel : copyLabel}
       className="group inline cursor-pointer text-left text-[14px] leading-[1.5] text-[#2b2b2b] underline decoration-[#d4c8bd] underline-offset-2 transition hover:decoration-[#706263]"
+      data-ga-id="copy-address-copy"
     >
       {lines.map((line, i) => (
         <span key={i}>

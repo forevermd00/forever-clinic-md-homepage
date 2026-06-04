@@ -82,6 +82,7 @@ export function EventPopupModal({ popups, imageUrls }: EventPopupModalProps) {
     <div
       className="fixed inset-0 z-50 flex items-center justify-center px-4"
       style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+      data-ga-section="event-popup"
       onClick={handleClose}
     >
       <div
@@ -92,6 +93,7 @@ export function EventPopupModal({ popups, imageUrls }: EventPopupModalProps) {
         {/* 닫기 버튼 */}
         <button
           onClick={handleClose}
+          data-ga-id="event-popup-close"
           className="absolute top-3 right-3 z-10 flex size-8 items-center justify-center rounded-full bg-black/40 text-white transition-colors hover:bg-black/60"
           aria-label={t('close')}
         >
@@ -111,7 +113,11 @@ export function EventPopupModal({ popups, imageUrls }: EventPopupModalProps) {
 
         {/* 이미지 (링크 여부에 따라 분기) */}
         {current.linkUrl ? (
-          <Link href={current.linkUrl} onClick={handleClose}>
+          <Link
+            href={current.linkUrl}
+            data-ga-id={`event-popup-image-link-${current._id}`}
+            onClick={handleClose}
+          >
             {imageContent}
           </Link>
         ) : (
@@ -123,6 +129,7 @@ export function EventPopupModal({ popups, imageUrls }: EventPopupModalProps) {
           <>
             <button
               onClick={handlePrev}
+              data-ga-id="event-popup-prev"
               className="absolute top-1/2 left-2 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/30 text-white hover:bg-black/50"
               aria-label={t('previous')}
             >
@@ -141,6 +148,7 @@ export function EventPopupModal({ popups, imageUrls }: EventPopupModalProps) {
             </button>
             <button
               onClick={handleNext}
+              data-ga-id="event-popup-next"
               className="absolute top-1/2 right-2 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/30 text-white hover:bg-black/50"
               aria-label={t('next')}
             >
@@ -168,6 +176,7 @@ export function EventPopupModal({ popups, imageUrls }: EventPopupModalProps) {
               <button
                 key={idx}
                 onClick={() => setCurrentIndex(idx)}
+                data-ga-id={`event-popup-dot-${idx}`}
                 className="rounded-full transition-all"
                 style={{
                   width: idx === currentIndex ? 20 : 8,

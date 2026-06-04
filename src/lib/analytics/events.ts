@@ -23,7 +23,8 @@ export type GaEventName =
   | 'messenger_click' // 카카오/위챗/LINE/WhatsApp 등 메신저
   | 'outbound_click' // 외부 도메인 링크
   | 'form_submit' // 폼 제출 (예약/문의)
-  | 'scroll_depth'; // 스크롤 깊이 (25/50/75/100%)
+  | 'scroll_depth' // 스크롤 깊이 (25/50/75/100%)
+  | 'section_view'; // 섹션 노출 (50% 이상 화면 진입)
 
 export function trackEvent(
   name: GaEventName | string,

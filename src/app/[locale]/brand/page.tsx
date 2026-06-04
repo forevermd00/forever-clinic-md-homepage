@@ -376,6 +376,7 @@ export default async function BrandPage({
                               )}
                               target="_blank"
                               rel="noopener noreferrer"
+                              data-ga-id="brand-open-amap"
                               className="absolute top-3 left-3 flex items-center gap-1.5 rounded-[6px] bg-white/90 px-3 py-1.5 text-[12px] font-medium text-[#2b2b2b] shadow-sm backdrop-blur-sm hover:bg-white"
                             >
                               <svg
@@ -410,6 +411,7 @@ export default async function BrandPage({
                               )}
                               target="_blank"
                               rel="noopener noreferrer"
+                              data-ga-id="brand-open-google-maps"
                               className="absolute top-3 left-3 flex items-center gap-1.5 rounded-[6px] bg-white/90 px-3 py-1.5 text-[12px] font-medium text-[#2b2b2b] shadow-sm backdrop-blur-sm hover:bg-white"
                             >
                               <svg

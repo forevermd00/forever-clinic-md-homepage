@@ -84,6 +84,7 @@ export function GalleryCarousel({ items, className }: GalleryCarouselProps) {
                 <button
                   type="button"
                   onClick={() => emblaApi?.scrollTo(index)}
+                  data-ga-id={`gallery-slide-${item.id}`}
                   className="block w-full overflow-hidden rounded-[12px]"
                   style={{
                     height: '360px',
@@ -112,6 +113,7 @@ export function GalleryCarousel({ items, className }: GalleryCarouselProps) {
           <button
             key={index}
             onClick={() => emblaApi?.scrollTo(index)}
+            data-ga-id={`gallery-indicator-${index}`}
             className={cn(
               'h-2 rounded-full transition-all duration-300',
               index === selectedIndex ? 'w-6 bg-[#2b2b2b]' : 'w-2 bg-[#d4c8bd]',

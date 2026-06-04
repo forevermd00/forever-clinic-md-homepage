@@ -76,6 +76,7 @@ export async function PressArticleDetail({
               href={article.url}
               target="_blank"
               rel="noopener noreferrer"
+              data-ga-id={`press-original-${article.slug}`}
               className="inline-flex items-center gap-2 rounded-[4px] bg-[#a83c44] px-8 py-3 text-[14px] font-medium text-white transition-colors hover:bg-[#8e2f37]"
             >
               {t('viewOriginalArticle')}
@@ -103,6 +104,7 @@ export async function PressArticleDetail({
           {prevArticle && (
             <Link
               href={`${basePath}/${prevArticle.slug}`}
+              data-ga-id={`press-prev-${prevArticle.slug}`}
               className="flex items-center gap-3 border-b border-[#efe5d9] px-4 py-4 transition-colors hover:bg-[#f3eee6]"
             >
               <span className="w-[60px] shrink-0 text-[13px] font-medium text-[#999]">
@@ -116,6 +118,7 @@ export async function PressArticleDetail({
           {nextArticle && (
             <Link
               href={`${basePath}/${nextArticle.slug}`}
+              data-ga-id={`press-next-${nextArticle.slug}`}
               className="flex items-center gap-3 border-b border-[#efe5d9] px-4 py-4 transition-colors hover:bg-[#f3eee6]"
             >
               <span className="w-[60px] shrink-0 text-[13px] font-medium text-[#999]">
@@ -132,6 +135,7 @@ export async function PressArticleDetail({
         <div className="flex justify-center pt-8">
           <Link
             href={basePath}
+            data-ga-id="press-back-to-list"
             className="rounded-[4px] border border-[#2b2b2b] px-8 py-3 text-[14px] font-medium text-[#2b2b2b] transition-colors hover:bg-[#2b2b2b] hover:text-white"
           >
             {t('backToListShort')}

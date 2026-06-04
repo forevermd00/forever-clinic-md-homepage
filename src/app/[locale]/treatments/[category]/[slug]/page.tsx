@@ -336,6 +336,7 @@ export default async function TreatmentDetailPage({
             <nav className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[12px] text-[#d4c8bd]">
               <Link
                 href={`/${locale}/treatments`}
+                data-ga-id="treatment-detail-breadcrumb-all"
                 className="transition-colors hover:text-[#a83c44]"
               >
                 {t('title')}
@@ -343,6 +344,7 @@ export default async function TreatmentDetailPage({
               <span>/</span>
               <Link
                 href={`/${locale}/treatments?cat=${category.slug}`}
+                data-ga-id="treatment-detail-breadcrumb-category"
                 className="transition-colors hover:text-[#a83c44]"
               >
                 {getCategoryLabel(category, locale)}

@@ -43,6 +43,7 @@ export function AddToCartButton({
       <button
         type="button"
         onClick={handleClick}
+        data-ga-id={`add-to-cart-${treatmentSlug}`}
         className="rounded-[4px] bg-[#2b2b2b] px-6 py-3.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#1a1a1a]"
       >
         {label}

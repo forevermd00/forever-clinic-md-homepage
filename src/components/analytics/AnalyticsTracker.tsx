@@ -94,5 +94,40 @@ export function AnalyticsTracker() {
     return () => window.removeEventListener('scroll', onScroll);
   }, [pathname]);
 
+  // ---- 섹션 노출 추적 (라우트별 리셋) ----
+  // data-ga-section 을 가진 요소가 화면에 50% 이상 노출되면 section_view 1회 발화.
+  // "어떤 섹션까지 실제로 봤는지"를 스크롤 깊이(%)보다 정밀하게 기록.
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return;
+    const seen = new Set<string>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const el = entry.target as HTMLElement;
+          const name = el.dataset.gaSection;
+          if (!name || seen.has(name)) continue;
+          seen.add(name);
+          trackEvent('section_view', {
+            ga_section: name,
+            page_path: window.location.pathname,
+          });
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0.5 },
+    );
+    // 라우트 전환 후 DOM 반영을 기다렸다가 관찰 시작
+    const raf = window.requestAnimationFrame(() => {
+      document
+        .querySelectorAll<HTMLElement>('[data-ga-section]')
+        .forEach((el) => observer.observe(el));
+    });
+    return () => {
+      window.cancelAnimationFrame(raf);
+      observer.disconnect();
+    };
+  }, [pathname]);
+
   return null;
 }

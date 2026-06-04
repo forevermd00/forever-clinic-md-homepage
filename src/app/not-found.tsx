@@ -23,6 +23,7 @@ export default function RootNotFound() {
           </p>
           <Link
             href="/ko"
+            data-ga-id="notfound-home"
             className="mt-8 inline-flex items-center justify-center rounded-[4px] bg-[#a83c44] px-8 py-3 text-[14px] font-medium text-white transition-colors hover:bg-[#8f3039]"
           >
             메인으로 돌아가기
@@ -32,6 +33,7 @@ export default function RootNotFound() {
               <Link
                 key={locale}
                 href={`/${locale}`}
+                data-ga-id={`notfound-locale-${locale}`}
                 className="text-[14px] text-[#a83c44] underline underline-offset-2 transition-colors hover:text-[#8f3039]"
               >
                 {label}

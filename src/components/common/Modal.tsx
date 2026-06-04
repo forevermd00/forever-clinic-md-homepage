@@ -100,6 +100,7 @@ function Modal({ isOpen, onClose, title, children, className }: ModalProps) {
           onClick={onClose}
           aria-label="Close"
           className="hover:text-forever-charcoal absolute top-4 right-4 inline-flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 transition-colors hover:bg-neutral-100"
+          data-ga-id="modal-close"
         >
           <svg
             width="16"

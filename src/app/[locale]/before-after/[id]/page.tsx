@@ -69,6 +69,7 @@ export default async function BADetailPage({
                   href={`/${locale}/before-after/${detail.prevId}`}
                   className="flex size-7 items-center justify-center text-[18px] text-[#aaa] transition-colors hover:text-[#353535]"
                   aria-label={tc('previous')}
+                  data-ga-id="ba-detail-prev"
                 >
                   &#8249;
                 </Link>
@@ -128,6 +129,7 @@ export default async function BADetailPage({
                   href={`/${locale}/before-after/${detail.nextId}`}
                   className="flex size-7 items-center justify-center text-[18px] text-[#aaa] transition-colors hover:text-[#353535]"
                   aria-label={tc('next')}
+                  data-ga-id="ba-detail-next"
                 >
                   &#8250;
                 </Link>
@@ -139,6 +141,7 @@ export default async function BADetailPage({
           <div className="mt-10 text-center">
             <Link
               href={`/${locale}/before-after`}
+              data-ga-id="ba-detail-back-to-list"
               className="text-[14px] text-[#706163] transition-colors hover:text-[#353535]"
             >
               &larr; {tc('backToList')}
@@ -153,6 +156,7 @@ export default async function BADetailPage({
         <p className="mt-3 text-[15px] text-[#b3b3b3]">{t('ctaDescription')}</p>
         <Link
           href={`/${locale}/contact`}
+          data-ga-id="ba-detail-cta-contact"
           className="mt-6 inline-flex items-center justify-center rounded-[4px] bg-white px-8 py-3.5 text-[15px] font-bold text-[#2b2b2b] transition-colors hover:bg-neutral-100"
         >
           {tc('consultationBooking')}

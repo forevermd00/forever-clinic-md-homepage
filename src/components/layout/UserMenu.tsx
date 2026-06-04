@@ -49,12 +49,14 @@ export function UserMenu({ locale, mobile }: UserMenuProps) {
             <Link
               href={`/${locale}/auth/account`}
               className="text-[13px] text-[#706263]"
+              data-ga-id="user-menu-mobile-account"
             >
               {tAuth('accountSettings')}
             </Link>
             <button
               onClick={() => signOut()}
               className="text-[13px] text-[#706263]"
+              data-ga-id="user-menu-mobile-logout"
             >
               {tAuth('logout')}
             </button>
@@ -66,6 +68,7 @@ export function UserMenu({ locale, mobile }: UserMenuProps) {
       <Link
         href={`/${locale}/auth/login`}
         className="py-2 text-[14px] font-medium text-[#2b2b2b]"
+        data-ga-id="user-menu-mobile-login"
       >
         {t('login')}
       </Link>
@@ -79,6 +82,7 @@ export function UserMenu({ locale, mobile }: UserMenuProps) {
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="flex items-center text-[13px] font-medium text-[#2b2b2b]"
+          data-ga-id="user-menu-toggle"
         >
           <svg
             width="18"
@@ -105,6 +109,7 @@ export function UserMenu({ locale, mobile }: UserMenuProps) {
               href={`/${locale}/auth/account`}
               onClick={() => setIsOpen(false)}
               className="block w-full px-4 py-2.5 text-left text-[13px] text-[#706263] transition-colors hover:bg-neutral-50"
+              data-ga-id="user-menu-account"
             >
               {tAuth('accountSettings')}
             </Link>
@@ -114,6 +119,7 @@ export function UserMenu({ locale, mobile }: UserMenuProps) {
                 setIsOpen(false);
               }}
               className="w-full px-4 py-2.5 text-left text-[13px] text-[#706263] transition-colors hover:bg-neutral-50"
+              data-ga-id="user-menu-logout"
             >
               {tAuth('logout')}
             </button>
@@ -128,6 +134,7 @@ export function UserMenu({ locale, mobile }: UserMenuProps) {
       href={`/${locale}/auth/login`}
       className="hidden text-[#2b2b2b] md:inline-flex"
       aria-label={t('login')}
+      data-ga-id="user-menu-login"
     >
       <svg
         width="18"
