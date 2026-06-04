@@ -587,6 +587,7 @@ export function TreatmentDetail({
   const [doc, setDoc] = useState<FullDoc | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [slugLocked, setSlugLocked] = useState(true);
   const saved = useRef(false);
 
   useEffect(() => {
@@ -617,6 +618,7 @@ export function TreatmentDetail({
   useEffect(() => {
     client.fetch(FULL_QUERY, { id }).then((data: FullDoc) => {
       setDoc(data);
+      setSlugLocked(true);
     });
   }, [client, id]);
 
@@ -768,33 +770,49 @@ export function TreatmentDetail({
           기존 링크가 깨질 수 있으니 주의하세요.
         </p>
         <Field label="슬러그">
-          <input
-            type="text"
-            className="tt-text-input"
-            defaultValue={doc.slug ?? ''}
-            placeholder="예: rejuran-healer"
-            onBlur={(e) => {
-              const v = e.target.value
-                .trim()
-                .toLowerCase()
-                .replace(/\s+/g, '-')
-                .replace(/[^a-z0-9가-힣-]/g, '')
-                .replace(/-+/g, '-')
-                .replace(/^-+|-+$/g, '');
-              e.target.value = v;
-              if (!v || v === (doc.slug ?? '')) return;
-              setSaving(true);
-              saved.current = true;
-              client
-                .patch(id)
-                .set({ slug: { _type: 'slug', current: v } })
-                .commit()
-                .then(() => {
-                  setDoc((prev) => (prev ? { ...prev, slug: v } : prev));
-                  setSaving(false);
-                });
-            }}
-          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <input
+              type="text"
+              className="tt-text-input"
+              defaultValue={doc.slug ?? ''}
+              placeholder="예: rejuran-healer"
+              disabled={slugLocked}
+              style={
+                slugLocked
+                  ? { opacity: 0.6, cursor: 'not-allowed', flex: 1 }
+                  : { flex: 1 }
+              }
+              onBlur={(e) => {
+                const v = e.target.value
+                  .trim()
+                  .toLowerCase()
+                  .replace(/\s+/g, '-')
+                  .replace(/[^a-z0-9가-힣-]/g, '')
+                  .replace(/-+/g, '-')
+                  .replace(/^-+|-+$/g, '');
+                e.target.value = v;
+                if (!v || v === (doc.slug ?? '')) return;
+                setSaving(true);
+                saved.current = true;
+                client
+                  .patch(id)
+                  .set({ slug: { _type: 'slug', current: v } })
+                  .commit()
+                  .then(() => {
+                    setDoc((prev) => (prev ? { ...prev, slug: v } : prev));
+                    setSaving(false);
+                  });
+              }}
+            />
+            <button
+              type="button"
+              className="tt-back-btn"
+              style={{ whiteSpace: 'nowrap' }}
+              onClick={() => setSlugLocked((v) => !v)}
+            >
+              {slugLocked ? '🔒 잠금 해제' : '🔓 잠금'}
+            </button>
+          </div>
         </Field>
       </Section>
 
