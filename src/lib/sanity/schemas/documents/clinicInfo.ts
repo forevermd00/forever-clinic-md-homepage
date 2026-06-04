@@ -8,7 +8,7 @@ export default defineType({
 
   preview: {
     prepare() {
-      return { title: '포에버 클리닉 명동 — 병원 정보' };
+      return { title: '포에버의원 명동점 — 병원 정보' };
     },
   },
 

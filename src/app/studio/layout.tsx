@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Sanity Studio - 포에버 클리닉',
+  title: 'Sanity Studio - 포에버의원 명동점',
   robots: { index: false, follow: false },
 };
 

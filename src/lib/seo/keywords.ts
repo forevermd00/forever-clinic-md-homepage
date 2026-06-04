@@ -1,5 +1,10 @@
 const keywordsMap: Record<string, string[]> = {
   ko: [
+    '포에버의원',
+    '포에버의원명동점',
+    '포에버의원 명동점',
+    '포에버클리닉',
+    '포에버클리닉명동',
     '명동피부과',
     '명동성형외과',
     '울쎄라명동',
@@ -87,14 +92,22 @@ export function getKeywords(locale: string): string[] {
 }
 
 export const siteNames: Record<string, string> = {
-  ko: '포에버 클리닉 명동',
+  ko: '포에버의원 명동점',
   en: 'Forever Clinic Myeongdong',
   zh: '永恒诊所 明洞',
   ja: 'フォーエバークリニック 明洞',
 };
 
+// 홈 전용 키워드 리치 타이틀 (절대 타이틀 — 템플릿 미적용)
+export const homeTitles: Record<string, string> = {
+  ko: '포에버의원 명동점 | 서울 명동 피부과 써마지 울쎄라',
+  en: 'Forever Clinic Myeongdong | Seoul Dermatology — Ultherapy & Thermage',
+  zh: '永恒诊所 明洞（Forever Clinic）| 首尔明洞皮肤科 热玛吉 超声刀',
+  ja: 'フォーエバークリニック明洞（Forever Clinic）| ソウル明洞皮膚科 サーマジ・ウルセラ',
+};
+
 export const siteDescriptions: Record<string, string> = {
-  ko: '서울 명동 피부과. 울쎄라·써마지 리프팅, 보톡스·필러, 스킨케어. 한·중·일·영 상담 가능, 외국인 환자 환영.',
+  ko: '포에버의원 명동점(포에버 클리닉). 서울 명동 피부과 — 울쎄라·써마지 리프팅, 보톡스·필러, 스킨케어. 한·중·일·영 상담 가능, 외국인 환자 환영.',
   en: 'Dermatology clinic in Myeongdong, Seoul. Ultherapy, Thermage, Botox & Filler, skincare. English, Chinese & Japanese consultation available.',
   zh: '首尔明洞皮肤科诊所。超声刀、热玛吉提升，肉毒素、玻尿酸微整形，皮肤护理。提供中文咨询，欢迎外国患者。',
   ja: 'ソウル明洞の皮膚科クリニック。ウルセラ・サーマジリフティング、ボトックス・フィラー、スキンケア。日本語対応可、外国人患者歓迎。',

@@ -24,7 +24,7 @@ export const PAGE_HEROES = [
 
 export default defineConfig({
   name: 'forever-clinic',
-  title: '포에버 클리닉 명동',
+  title: '포에버의원 명동점',
   projectId: 'ecoamz42',
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'develop',
   basePath: '/studio',
