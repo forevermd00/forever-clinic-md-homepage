@@ -65,14 +65,14 @@ auth-login.submit
 ## 5. section_view 규칙
 
 - `data-ga-section="{레지스트리 값}"`을 섹션 래퍼에 부여.
-- 화면에 **50% 이상 노출되면 `section_view` 1회** 발화 (페이지당). `ga_section` = 그 값.
+- 화면에 **50% 이상 노출되면 `section_view` 1회** 발화 (페이지당). 파라미터 `section` = 그 값.
 - 스크롤 깊이(`scroll_depth` 25/50/75/100%)와 병행 — "어디까지/무엇을 봤나" 정밀 측정.
 
 ## 6. 신규 요소 추가 시 (개발자)
 
 1. 속한 섹션의 래퍼에 `data-ga-section="{section}"`이 있는지 확인(없으면 추가).
 2. 인터랙티브 요소에 `data-ga-id="{section}.{element}"` 부여.
-3. 특수 이벤트는 `data-ga-event="messenger_click"` 등, 추가 파라미터는 `data-ga-{key}="..."`(자동 `ga_{key}` 전송).
+3. 특수 이벤트는 `data-ga-event="messenger_click"` 등, 추가 파라미터는 `data-ga-{key}="..."`(자동 `{key}` 파라미터로 전송, ga\_ 접두사 제거됨).
 4. **명시적 부여 안 해도** 트래커가 `{section-or-routeScope}.{...}` 형태로 안정 폴백 생성(언어무관). 단 명시 권장.
 
 ## 7. 이벤트 목록
