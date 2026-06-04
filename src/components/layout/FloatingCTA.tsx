@@ -108,6 +108,9 @@ export function FloatingCTA({ messengerLinks = [] }: FloatingCTAProps) {
               target="_blank"
               rel="noopener noreferrer"
               title={displayLabel}
+              data-ga-id={`cta-floating-${platform}`}
+              data-ga-event="messenger_click"
+              data-ga-platform={platform}
               onMouseEnter={() => setHoveredKey(_key)}
               onMouseLeave={() => setHoveredKey((k) => (k === _key ? null : k))}
               className="relative flex items-center gap-3 rounded-[8px] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.12)] transition-all duration-200 hover:shadow-[0_8px_24px_rgba(0,0,0,0.16)]"
@@ -179,6 +182,7 @@ export function FloatingCTA({ messengerLinks = [] }: FloatingCTAProps) {
       {/* Main FAB button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
+        data-ga-id="cta-floating-toggle"
         className="flex size-14 items-center justify-center rounded-full bg-[#840202] shadow-[0_8px_24px_rgba(0,0,0,0.16)] transition-transform duration-200 hover:scale-110"
         aria-label={isOpen ? t('closeChat') : t('openChat')}
       >

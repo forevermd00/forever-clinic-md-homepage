@@ -59,6 +59,8 @@ export async function LocationSection({
                     )}
                     target="_blank"
                     rel="noopener noreferrer"
+                    data-ga-id="location-open-map"
+                    data-ga-provider="amap"
                     className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-[6px] bg-white/90 px-3 py-1.5 text-[12px] font-medium text-[#2b2b2b] shadow-sm backdrop-blur-sm hover:bg-white"
                   >
                     <svg
@@ -93,6 +95,8 @@ export async function LocationSection({
                     )}
                     target="_blank"
                     rel="noopener noreferrer"
+                    data-ga-id="location-open-map"
+                    data-ga-provider="google"
                     className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-[6px] bg-white/90 px-3 py-1.5 text-[12px] font-medium text-[#2b2b2b] shadow-sm backdrop-blur-sm hover:bg-white"
                   >
                     <svg
@@ -127,6 +131,8 @@ export async function LocationSection({
                   href={buildGoogleMapsUrlFromAddress(clinicInfo.address)}
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-ga-id="location-open-map"
+                  data-ga-provider="google-address"
                   className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-[6px] bg-white/90 px-3 py-1.5 text-[12px] font-medium text-[#2b2b2b] shadow-sm backdrop-blur-sm hover:bg-white"
                 >
                   <svg

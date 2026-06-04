@@ -675,6 +675,7 @@ export function Header({
                 href={`/${currentLocale}/estimate`}
                 className="relative hidden text-[#2b2b2b] md:inline-flex"
                 aria-label="Cart"
+                data-ga-id="header-cart"
               >
                 <svg
                   width="18"
@@ -696,6 +697,7 @@ export function Header({
               <Link
                 href={`/${currentLocale}/contact`}
                 className="hidden rounded-[4px] bg-[#a83c44] px-4 py-2 text-[13px] text-white transition-colors hover:bg-[#8c2e38] md:inline-flex"
+                data-ga-id="header-reservation-cta"
               >
                 {tCommon('reservation')}
               </Link>

@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { cn } from '@/lib/utils/cn';
 import { useCartStore } from '@/lib/store/cart';
+import { trackFormSubmit } from '@/lib/analytics/events';
 import type {
   ContactSectionConfig,
   BusinessHoursEntry,
@@ -226,6 +227,11 @@ export function ContactFormSection({
       });
 
       if (res.ok) {
+        trackFormSubmit('contact-reservation', {
+          locale,
+          treatment_count: selectedTreatments.length,
+          has_preferred_datetime: Boolean(preferredDate),
+        });
         setIsSuccess(true);
         setName('');
         setBirthDate('');
@@ -790,6 +796,7 @@ export function ContactFormSection({
                   type="button"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
+                  data-ga-id="contact-reservation-submit"
                   className="rounded-[4px] bg-[#2b2b2b] px-12 py-4 text-[15px] font-bold text-white transition-colors hover:bg-[#1a1a1a] disabled:opacity-50"
                 >
                   {isSubmitting ? t('submitting') : tc('submit')}

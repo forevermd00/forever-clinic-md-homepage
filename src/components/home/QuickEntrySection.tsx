@@ -81,6 +81,7 @@ export function QuickEntrySection({
             <button
               key={tb.id}
               onClick={() => setActiveTabId(tb.id)}
+              data-ga-id={`quick-entry-tab-${tb.id}`}
               className={cn(
                 'px-6 py-3 text-[14px] font-medium transition-colors',
                 activeTabId === tb.id
@@ -99,6 +100,7 @@ export function QuickEntrySection({
             <Link
               key={card.id}
               href={`/${locale}${card.linkUrl || '/treatments'}`}
+              data-ga-id={`quick-entry-card-${card.id}`}
               className="w-[270px] overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)] transition-shadow hover:drop-shadow-[0_4px_8px_rgba(0,0,0,0.12)]"
             >
               <div className="h-[160px] w-full overflow-hidden">

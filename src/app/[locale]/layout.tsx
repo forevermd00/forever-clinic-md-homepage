@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
+import { GoogleAnalytics } from '@next/third-parties/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -10,6 +11,8 @@ import { FloatingCTA } from '@/components/layout/FloatingCTA';
 import { SessionProvider } from 'next-auth/react';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getMedicalBusinessJsonLd } from '@/lib/seo/jsonld';
+import { AnalyticsTracker } from '@/components/analytics/AnalyticsTracker';
+import { GA_MEASUREMENT_ID, isGAEnabled } from '@/lib/analytics/config';
 import { sanityFetch } from '@/lib/sanity/fetch';
 import {
   clinicInfoQuery,
@@ -133,8 +136,10 @@ export default async function LocaleLayout({
               mediaOrder={visibility.mediaOrder}
             />
             <FloatingCTA messengerLinks={clinicInfo?.messengerLinks ?? []} />
+            <AnalyticsTracker />
           </NextIntlClientProvider>
         </SessionProvider>
+        {isGAEnabled && <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />}
       </body>
     </html>
   );
