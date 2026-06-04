@@ -91,7 +91,22 @@ export function TreatmentTool() {
   const [importPlan, setImportPlan] = useState<ImportPlan | null>(null);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [importing, setImporting] = useState(false);
+  const [importProgress, setImportProgress] = useState<{
+    done: number;
+    total: number;
+  } | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
+
+  // 반영 중에는 실수로 창/탭을 닫지 못하도록 경고
+  useEffect(() => {
+    if (!importing) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [importing]);
 
   const refetch = useCallback(() => {
     setLoading(true);
@@ -322,9 +337,12 @@ export function TreatmentTool() {
 
   const runImport = async () => {
     if (!importPlan) return;
+    const total = importPlan.updates.length;
     setImporting(true);
+    setImportProgress({ done: 0, total });
     const failures: { slug: string; name: string; reason: string }[] = [];
     let updated = 0;
+    let done = 0;
 
     for (const u of importPlan.updates) {
       try {
@@ -337,9 +355,12 @@ export function TreatmentTool() {
           reason: '갱신 실패: ' + (e instanceof Error ? e.message : String(e)),
         });
       }
+      done++;
+      setImportProgress({ done, total });
     }
 
     setImporting(false);
+    setImportProgress(null);
     setImportPlan(null);
     importSource.current = null;
     setImportResult({
@@ -625,6 +646,33 @@ export function TreatmentTool() {
                     </li>
                   ))}
                 </ul>
+              </div>
+            )}
+
+            {importing && importProgress && (
+              <div className="tt-import-progress">
+                <span className="tt-spinner" />
+                <div className="tt-import-progress-body">
+                  <div className="tt-import-progress-text">
+                    반영 중… {importProgress.done}/{importProgress.total} 시술
+                  </div>
+                  <div className="tt-progress-bar">
+                    <div
+                      className="tt-progress-fill"
+                      style={{
+                        width: `${
+                          importProgress.total
+                            ? (importProgress.done / importProgress.total) * 100
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
+                  <div className="tt-import-progress-warn">
+                    완료될 때까지 이 창과 브라우저 탭을 닫지 마세요. 중간에
+                    닫으면 남은 시술은 반영되지 않습니다.
+                  </div>
+                </div>
               </div>
             )}
 

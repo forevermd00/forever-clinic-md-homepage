@@ -930,3 +930,65 @@
   font-weight: 400;
   opacity: 0.7;
 }
+
+/* ===== 가격표 반영 진행 표시 ===== */
+.tt-import-progress {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  margin-bottom: 14px;
+  border: 1px solid #a83c44;
+  border-radius: 8px;
+  background: rgba(168, 60, 68, 0.05);
+}
+
+.tt-import-progress-body {
+  flex: 1;
+}
+
+.tt-import-progress-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--card-fg-color);
+  margin-bottom: 8px;
+}
+
+.tt-progress-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--card-bg2-color);
+  overflow: hidden;
+}
+
+.tt-progress-fill {
+  height: 100%;
+  background: #a83c44;
+  border-radius: 4px;
+  transition: width 0.2s ease;
+}
+
+.tt-import-progress-warn {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #a83c44;
+  line-height: 1.5;
+}
+
+.tt-spinner {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  border: 3px solid rgba(168, 60, 68, 0.25);
+  border-top-color: #a83c44;
+  border-radius: 50%;
+  animation: tt-spin 0.7s linear infinite;
+}
+
+@keyframes tt-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
