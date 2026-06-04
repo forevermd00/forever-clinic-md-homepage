@@ -86,7 +86,8 @@ export function deriveClickTarget(start: HTMLElement): DerivedClick | null {
       attr.name !== 'data-ga-id' &&
       attr.name !== 'data-ga-event'
     ) {
-      extraParams[attr.name.replace('data-ga-', 'ga_')] = attr.value;
+      // GA4는 ga_ 접두사가 예약어 → 접두사 없이 매핑 (data-ga-platform → platform)
+      extraParams[attr.name.replace('data-ga-', '')] = attr.value;
     }
   }
 

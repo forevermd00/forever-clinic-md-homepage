@@ -5,13 +5,16 @@
 
 ## 1. 데이터 모델 — 한 클릭을 3차원으로 식별
 
-| 질문                 | 차원         | 출처                                                                         |
-| -------------------- | ------------ | ---------------------------------------------------------------------------- |
-| **어떤 페이지에서?** | `page_path`  | GA4 자동(page_location/page_title) + 모든 이벤트에 `page_path` 파라미터 첨부 |
-| **어떤 섹션에서?**   | `ga_section` | 클릭한 요소의 가장 가까운 `data-ga-section`에서 자동 첨부                    |
-| **어떤 버튼을?**     | `ga_id`      | 아래 ID 규칙                                                                 |
+| 질문                 | GA4 파라미터 | 출처                                                                                           |
+| -------------------- | ------------ | ---------------------------------------------------------------------------------------------- |
+| **어떤 페이지에서?** | `page_path`  | GA4 자동(page_location/page_title) + 모든 이벤트에 `page_path` 파라미터 첨부                   |
+| **어떤 섹션에서?**   | `section`    | 클릭한 요소의 가장 가까운 `data-ga-section` 값에서 자동 첨부                                   |
+| **어떤 버튼을?**     | `button_id`  | `data-ga-id` 값 (아래 ID 규칙). ⚠️ GA4가 `ga_` 접두사를 예약어로 막아 파라미터명은 `button_id` |
 
 → 세 차원이 독립이므로 GA4 탐색에서 페이지 × 섹션 × 버튼으로 자유롭게 교차 분석 가능.
+
+> **HTML 속성 vs GA4 파라미터**: 작성은 `data-ga-id` / `data-ga-section` / `data-ga-{key}` 속성으로 하고,
+> 전송되는 GA4 파라미터는 각각 `button_id` / `section` / `{key}` 이다 (`ga_` 접두사 금지 — GA4 예약어).
 
 ## 2. ga_id 포맷 — `{section}.{element}`
 
@@ -75,8 +78,10 @@ auth-login.submit
 ## 7. 이벤트 목록
 
 `page_view`(자동·유입출처 포함) · `button_click` · `messenger_click` · `tel_click` · `email_click` · `outbound_click` · `form_submit` · `scroll_depth` · `section_view`
-공통 파라미터: `ga_id` · `ga_section` · `page_path` · `link_text` · `link_url`
+공통 파라미터: `button_id` · `section` · `page_path` · `link_text` · `link_url` (+ `platform` / `provider` / `phone_number` / `percent` 상황별)
 
-## 8. GA4 콘솔 — 맞춤 측정기준 등록(필수, 소급 불가)
+## 8. GA4 콘솔 — 맞춤 측정기준 (등록 완료, 2026-06-04)
 
-`ga_id`(버튼ID) · `ga_section`(섹션) · `percent`(스크롤) · `link_text` · `link_url` · `ga_platform` · `phone_number` 를 이벤트 범위 맞춤 측정기준으로 등록해야 리포트에서 분해 가능.
+이벤트 범위 맞춤 측정기준 8종 등록 완료 (속성 540235299):
+`button_id`(버튼) · `section`(섹션) · `percent`(스크롤) · `link_text` · `link_url` · `platform` · `provider` · `phone_number`
+※ `ga_` 접두사는 GA4 예약어라 사용 불가 → `button_id`/`section`/`platform` 으로 명명.

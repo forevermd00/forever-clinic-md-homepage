@@ -45,5 +45,5 @@ export function trackFormSubmit(
   formId: string,
   params: GaEventParams = {},
 ): void {
-  trackEvent('form_submit', { ga_id: formId, ...params });
+  trackEvent('form_submit', { button_id: formId, ...params });
 }

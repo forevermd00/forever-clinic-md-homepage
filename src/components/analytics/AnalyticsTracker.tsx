@@ -26,9 +26,10 @@ export function AnalyticsTracker() {
       if (!click) return;
 
       const { gaId, section, text, href, eventOverride, extraParams } = click;
+      // GA4는 ga_ 접두사를 예약어로 막으므로 파라미터명에 ga_ 사용 금지.
       const base = {
-        ga_id: gaId,
-        ga_section: section,
+        button_id: gaId,
+        section: section,
         link_text: text,
         link_url: href,
         page_path: window.location.pathname,
@@ -110,7 +111,7 @@ export function AnalyticsTracker() {
           if (!name || seen.has(name)) continue;
           seen.add(name);
           trackEvent('section_view', {
-            ga_section: name,
+            section: name,
             page_path: window.location.pathname,
           });
           observer.unobserve(el);
