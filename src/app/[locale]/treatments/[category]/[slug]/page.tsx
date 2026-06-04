@@ -139,9 +139,9 @@ export async function generateMetadata({
 
   const { category, treatment } = result;
 
-  // Title: 시술명 | 카테고리 | 클리닉명 (가격 제외)
+  // Title: 시술명 | 카테고리 (클리닉명은 레이아웃 title template이 자동 추가 — 중복 방지)
   const categoryLabel = getCategoryLabel(category, locale);
-  const title = `${treatment.name} | ${categoryLabel} | ${siteNames[locale] ?? siteNames.ko}`;
+  const title = `${treatment.name} | ${categoryLabel}`;
 
   // Description: tagline → description → 사이트 기본값 (max 155자 + 클리닉 suffix)
   const tagline = cmsData ? extractLocale(cmsData.tagline, locale) : '';
@@ -425,40 +425,40 @@ export default async function TreatmentDetailPage({
                 </div>
               ))}
             </div>
-
-            {/* 옵션 선택기 / CTA */}
-            {visibility.treatments.showPrice && selectorOptions.length > 0 ? (
-              <div className="mt-6">
-                <TreatmentOptionSelector
-                  options={selectorOptions}
-                  treatmentSlug={treatment.slug}
-                  treatmentName={treatment.name}
-                  category={category.slug}
-                  locale={locale}
-                  labels={{
-                    selectTreatment: t('selectTreatment'),
-                    estimatedAmount: t('estimatedAmount'),
-                    book: t('addToEstimate'),
-                    eventBadge: t('eventLabel'),
-                    won: t('wonUnit'),
-                  }}
-                />
-              </div>
-            ) : (
-              <div className="mt-auto flex justify-end pt-6">
-                <AddToCartButton
-                  treatmentSlug={treatment.slug}
-                  treatmentName={treatment.name}
-                  packageLabel={treatment.price}
-                  unitPrice={treatment.priceNumeric}
-                  category={category.slug}
-                  label={tc('addToEstimate')}
-                />
-              </div>
-            )}
           </div>
         </div>
       </section>
+
+      {/* ── 시술 선택 — 옵션 있으면 하단 sticky 바, 없으면 인플로우 CTA ── */}
+      {visibility.treatments.showPrice && selectorOptions.length > 0 ? (
+        <TreatmentOptionSelector
+          options={selectorOptions}
+          treatmentSlug={treatment.slug}
+          treatmentName={treatment.name}
+          category={category.slug}
+          labels={{
+            selectTreatment: t('selectTreatment'),
+            estimatedAmount: t('estimatedAmount'),
+            book: t('addToEstimate'),
+            added: tc('addedToEstimate'),
+            eventBadge: t('eventLabel'),
+            won: t('wonUnit'),
+          }}
+        />
+      ) : (
+        <section className="bg-white pt-10 lg:pt-12">
+          <div className="mx-auto flex w-full max-w-[680px] justify-end px-5">
+            <AddToCartButton
+              treatmentSlug={treatment.slug}
+              treatmentName={treatment.name}
+              packageLabel={treatment.price}
+              unitPrice={treatment.priceNumeric}
+              category={category.slug}
+              label={tc('addToEstimate')}
+            />
+          </div>
+        </section>
+      )}
 
       {/* ── 시술 소개 ── */}
       {descriptionText && (

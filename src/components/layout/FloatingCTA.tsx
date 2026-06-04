@@ -73,9 +73,17 @@ export function FloatingCTA({ messengerLinks = [] }: FloatingCTAProps) {
 
   if (channels.length === 0) return null;
 
+  // 시술 상세에서는 하단 선택기 바 위로 올려 접힘 상태에서 가리지 않게 한다.
+  // (펼친 패널은 z-index가 더 높아 자연히 덮음 — 위치 토글이 아닌 z-index 처리)
+  const segs = pathname.split('/').filter(Boolean);
+  const isTreatmentDetail = segs[1] === 'treatments' && segs.length >= 4;
+
   return (
     <div
-      className="fixed right-6 bottom-6 z-[900] md:right-8 md:bottom-8"
+      className={cn(
+        'fixed right-6 z-[900] md:right-8',
+        isTreatmentDetail ? 'bottom-24' : 'bottom-6 md:bottom-8',
+      )}
       role="region"
       aria-label={t('contactOptions')}
     >
