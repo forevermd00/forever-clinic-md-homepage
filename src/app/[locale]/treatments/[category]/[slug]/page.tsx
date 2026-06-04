@@ -111,7 +111,7 @@ function mapCmsTreatment(
     duration: extractLocale(raw.treatmentTime, locale),
     anesthesia: extractLocale(raw.anesthesia, locale),
     recovery: extractLocale(raw.downtime, locale),
-    recommended: typeof raw.duration === 'string' ? raw.duration : '',
+    recommended: extractLocale(raw.duration, locale),
     imageUrl: raw.imageUrl || undefined,
   };
 
