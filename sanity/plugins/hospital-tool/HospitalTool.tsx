@@ -44,6 +44,8 @@ interface SnsLinkItem {
 }
 
 interface ClinicInfoDoc {
+  clinicName?: { ko?: string; en?: string; zh?: string; ja?: string };
+  logoRef?: string;
   address?: { ko?: string; en?: string; zh?: string; ja?: string };
   locationCoordinates?: {
     searchAddress?: string;
@@ -178,6 +180,7 @@ const DOCTORS_QUERY = `*[_type == "doctor"] | order(sortOrder asc) {
 }`;
 
 const CLINIC_INFO_QUERY = `*[_type == "clinicInfo" && _id == "forever-myeongdong-clinic-info"][0] {
+  clinicName, "logoRef": logo.asset._ref,
   address, locationCoordinates, phone, email,
   businessHours[] { _key, dayOfWeek, day, open, close, note },
   closedDayNotice, walkingGuide,
@@ -457,6 +460,7 @@ function ClinicInfoPanel() {
   const [messengerQrUploading, setMessengerQrUploading] = useState<
     string | null
   >(null);
+  const [logoUploading, setLogoUploading] = useState(false);
 
   useEffect(() => {
     client.fetch<ClinicInfoDoc>(CLINIC_INFO_QUERY).then((data) => {
@@ -557,6 +561,29 @@ function ClinicInfoPanel() {
       })
       .commit();
     setSaving(false);
+  };
+
+  const uploadLogo = async (file: File) => {
+    setLogoUploading(true);
+    try {
+      const asset = await client.assets.upload('image', file, {
+        filename: file.name,
+      });
+      await patch({
+        logo: {
+          _type: 'image',
+          asset: { _type: 'reference', _ref: asset._id },
+        },
+      });
+      setDoc((prev) => (prev ? { ...prev, logoRef: asset._id } : prev));
+    } finally {
+      setLogoUploading(false);
+    }
+  };
+
+  const removeLogo = async () => {
+    await patch({ logo: undefined });
+    setDoc((prev) => (prev ? { ...prev, logoRef: undefined } : prev));
   };
 
   const uploadMessengerLogo = async (key: string, file: File) => {
@@ -663,6 +690,106 @@ function ClinicInfoPanel() {
   return (
     <div className="ht-panel-section">
       {saving && <span className="ht-saving-indicator">저장 중…</span>}
+
+      {/* ── 병원명 ── */}
+      <div className="ht-detail-section">
+        <div className="ht-detail-section-title">병원명</div>
+        <div className="ht-detail-body">
+          <div className="ht-detail-grid4">
+            {CLINIC_LOCALES.map(({ key, label }) => (
+              <div key={key} className="ht-detail-field">
+                <label className="ht-detail-label">{label}</label>
+                <input
+                  type="text"
+                  className="ht-text-input"
+                  defaultValue={doc.clinicName?.[key] ?? ''}
+                  onBlur={(e) =>
+                    patch({ [`clinicName.${key}`]: e.target.value })
+                  }
+                />
+              </div>
+            ))}
+          </div>
+          <p
+            style={{
+              fontSize: 11,
+              color: 'var(--card-muted-fg-color)',
+              marginTop: 6,
+            }}
+          >
+            header 로고 대체 텍스트 · footer 병원명에 사용 · 줄바꿈은 Enter
+          </p>
+        </div>
+      </div>
+
+      {/* ── 로고 ── */}
+      <div className="ht-detail-section">
+        <div className="ht-detail-section-title">로고</div>
+        <div className="ht-detail-body">
+          <div className="ht-detail-field">
+            <label className="ht-detail-label">
+              header 로고 이미지
+              <span
+                style={{
+                  fontSize: 10,
+                  color: 'var(--card-muted-fg-color)',
+                  marginLeft: 4,
+                }}
+              >
+                (미설정 시 기본 로고)
+              </span>
+            </label>
+            {doc.logoRef && (
+              <img
+                src={`https://cdn.sanity.io/images/ecoamz42/production/${doc.logoRef.replace('image-', '').replace(/-(\w+)$/, '.$1')}`}
+                alt="logo"
+                style={{
+                  height: 40,
+                  width: 'auto',
+                  objectFit: 'contain',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: 6,
+                  padding: 4,
+                  marginBottom: 6,
+                  background: '#fff',
+                }}
+              />
+            )}
+            <div style={{ display: 'flex', gap: 6 }}>
+              <label
+                className="ht-upload-btn"
+                style={{ fontSize: 11, padding: '2px 8px' }}
+              >
+                {logoUploading
+                  ? '업로드 중…'
+                  : doc.logoRef
+                    ? '로고 변경'
+                    : '로고 선택'}
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  disabled={logoUploading}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) uploadLogo(file);
+                  }}
+                />
+              </label>
+              {doc.logoRef && (
+                <button
+                  type="button"
+                  className="ht-upload-btn"
+                  style={{ fontSize: 11, padding: '2px 8px' }}
+                  onClick={removeLogo}
+                >
+                  로고 삭제
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* ── 주소 ── */}
       <div className="ht-detail-section">
@@ -1214,6 +1341,42 @@ function ClinicInfoPanel() {
               + 메신저 추가
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* ── 전화번호 / 이메일 ── */}
+      <div className="ht-detail-section">
+        <div className="ht-detail-section-title">전화번호 · 이메일</div>
+        <div className="ht-detail-body">
+          <div className="ht-detail-row">
+            <div className="ht-detail-field">
+              <label className="ht-detail-label">전화번호</label>
+              <input
+                type="text"
+                className="ht-text-input"
+                defaultValue={doc.phone ?? ''}
+                onBlur={(e) => patch({ phone: e.target.value })}
+              />
+            </div>
+            <div className="ht-detail-field">
+              <label className="ht-detail-label">이메일</label>
+              <input
+                type="text"
+                className="ht-text-input"
+                defaultValue={doc.email ?? ''}
+                onBlur={(e) => patch({ email: e.target.value })}
+              />
+            </div>
+          </div>
+          <p
+            style={{
+              fontSize: 11,
+              color: 'var(--card-muted-fg-color)',
+              marginTop: 6,
+            }}
+          >
+            footer · 예약/상담 · 브랜드 · 메인 오시는길에 공통 사용
+          </p>
         </div>
       </div>
     </div>

@@ -91,6 +91,7 @@ const ALL_BRAND_LINKS = [
 const DEFAULT_BRAND_ORDER = ALL_BRAND_LINKS.map((l) => l.key);
 
 interface FooterClinicInfo {
+  clinicName?: string;
   address?: string;
   phone?: string;
   email?: string;
@@ -174,9 +175,15 @@ export function Footer({
         <div className="flex flex-col gap-10 md:flex-row md:gap-12">
           {/* Column 1: Clinic Info */}
           <div className="flex min-w-0 flex-1 flex-col gap-3">
-            <div className="text-[16px] leading-normal font-bold tracking-[1.5px] text-white">
-              <p>{t('clinicNameLine1')}</p>
-              <p>{t('clinicNameLine2')}</p>
+            <div className="text-[16px] leading-normal font-bold tracking-[1.5px] whitespace-pre-line text-white">
+              {clinicInfo?.clinicName ? (
+                <p>{clinicInfo.clinicName}</p>
+              ) : (
+                <>
+                  <p>{t('clinicNameLine1')}</p>
+                  <p>{t('clinicNameLine2')}</p>
+                </>
+              )}
             </div>
             <div className="flex flex-col gap-0.5 text-[13px] leading-[22px] text-[#706263]">
               <p>{clinicInfo?.address || t('clinicAddress')}</p>

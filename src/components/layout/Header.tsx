@@ -361,6 +361,8 @@ const ALL_MEDIA_ITEMS = [
 const DEFAULT_MEDIA_ORDER = ALL_MEDIA_ITEMS.map((m) => m.key);
 
 interface HeaderProps {
+  logoUrl?: string;
+  clinicName?: string;
   navVisibility?: SectionVisibility['nav'];
   mediaVisibility?: SectionVisibility['media'];
   brandVisibility?: SectionVisibility['brand'];
@@ -372,6 +374,8 @@ interface HeaderProps {
 }
 
 export function Header({
+  logoUrl,
+  clinicName,
   navVisibility,
   mediaVisibility,
   brandVisibility,
@@ -587,16 +591,25 @@ export function Header({
             <Link
               href={`/${currentLocale}`}
               className="flex items-center"
-              aria-label="Forever Clinic Myeongdong"
+              aria-label={clinicName || 'Forever Clinic Myeongdong'}
             >
-              <Image
-                src="/images/logo-horizontal.svg"
-                alt="Forever Clinic Myeongdong"
-                width={160}
-                height={75}
-                priority
-                className="h-6 w-auto"
-              />
+              {logoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={logoUrl}
+                  alt={clinicName || 'Forever Clinic Myeongdong'}
+                  className="h-6 w-auto"
+                />
+              ) : (
+                <Image
+                  src="/images/logo-horizontal.svg"
+                  alt={clinicName || 'Forever Clinic Myeongdong'}
+                  width={160}
+                  height={75}
+                  priority
+                  className="h-6 w-auto"
+                />
+              )}
             </Link>
 
             <nav

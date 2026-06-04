@@ -13,6 +13,20 @@ export default defineType({
   },
 
   fields: [
+    // ── 병원명 / 로고 (브랜드 기본 정보) ──────────────────────
+    defineField({
+      name: 'clinicName',
+      title: '병원명',
+      description: 'header 로고 대체 텍스트 · footer 병원명에 사용',
+      type: 'localizedString',
+    }),
+    defineField({
+      name: 'logo',
+      title: '로고',
+      description: 'header 로고 이미지에 사용 (미설정 시 기본 로고)',
+      type: 'image',
+      options: { hotspot: true },
+    }),
     // ── 위치 좌표 (주소 검색) ──────────────────────────────────
     defineField({
       name: 'locationCoordinates',

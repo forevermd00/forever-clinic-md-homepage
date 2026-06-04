@@ -73,6 +73,8 @@ export default async function LocaleLayout({
   const messages = await getMessages();
   const [clinicInfo, visibility, navTreatments] = await Promise.all([
     sanityFetch<{
+      clinicName?: string;
+      logoUrl?: string;
       address?: string;
       phone?: string;
       email?: string;
@@ -108,6 +110,8 @@ export default async function LocaleLayout({
         <SessionProvider>
           <NextIntlClientProvider messages={messages}>
             <Header
+              logoUrl={clinicInfo?.logoUrl}
+              clinicName={clinicInfo?.clinicName}
               navVisibility={visibility.nav}
               mediaVisibility={visibility.media}
               brandVisibility={visibility.brand}
