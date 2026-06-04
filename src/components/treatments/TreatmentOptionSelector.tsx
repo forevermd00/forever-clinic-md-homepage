@@ -27,6 +27,7 @@ interface Props {
   treatmentName: string;
   category: string;
   labels: Labels;
+  dark?: boolean;
 }
 
 function effective(opt: SelectorOption): number {
@@ -41,8 +42,30 @@ export function TreatmentOptionSelector({
   treatmentName,
   category,
   labels,
+  dark = false,
 }: Props) {
   const addItem = useCartStore((s) => s.addItem);
+  // 시그니처 등 다크 컨텍스트용 색상 토큰
+  const c = {
+    panel: dark ? 'border-white/10 bg-[#1a1a1a]' : 'border-[#ece3d8] bg-white',
+    listBorder: dark ? 'border-white/10' : 'border-[#f0ece6]',
+    groupLabel: dark ? 'bg-white/[0.06]' : 'bg-[#faf8f5]',
+    rowBorder: dark ? 'border-white/10' : 'border-[#f0ece6]',
+    rowActive: dark ? 'bg-white/10' : 'bg-[#fbf6f6]',
+    rowIdle: dark ? 'bg-transparent' : 'bg-white',
+    name: dark ? 'text-white' : 'text-[#2b2b2b]',
+    caption: dark ? 'text-white/50' : 'text-[#9a9a9a]',
+    strike: dark ? 'text-white/40' : 'text-[#bbb]',
+    pricePlain: dark ? 'text-white' : 'text-[#2b2b2b]',
+    stepperBorder: dark ? 'border-white/20' : 'border-[#ddd]',
+    stepperBtn: dark
+      ? 'text-white/70 hover:bg-white/10'
+      : 'text-[#666] hover:bg-[#f3f3f3]',
+    qty: dark ? 'text-white' : 'text-[#2b2b2b]',
+    chevron: dark ? 'text-white' : 'text-[#2b2b2b]',
+    selectLabel: dark ? 'text-white' : 'text-[#2b2b2b]',
+    estLabel: dark ? 'text-white/50' : 'text-[#999]',
+  };
   // 단일 옵션이면 1개 선택 상태로 시작 (펼치지 않아도 바로 담기 가능)
   const [qty, setQty] = useState<Record<number, number>>(
     options.length === 1 ? { 0: 1 } : {},
@@ -145,7 +168,7 @@ export function TreatmentOptionSelector({
         {/* 760px↑: max-width 고정 중앙 아일랜드 / 미만: 풀폭 하단 부착 */}
         <div
           ref={panelRef}
-          className="w-full overflow-hidden rounded-t-[16px] border-t border-[#ece3d8] bg-white shadow-[0_-6px_30px_rgba(0,0,0,0.13)] min-[760px]:mx-auto min-[760px]:max-w-[760px] min-[760px]:rounded-[16px] min-[760px]:border min-[760px]:shadow-[0_10px_40px_rgba(0,0,0,0.15)]"
+          className={`w-full overflow-hidden rounded-t-[16px] border-t shadow-[0_-6px_30px_rgba(0,0,0,0.13)] min-[760px]:mx-auto min-[760px]:max-w-[760px] min-[760px]:rounded-[16px] min-[760px]:border min-[760px]:shadow-[0_10px_40px_rgba(0,0,0,0.15)] ${c.panel}`}
         >
           {/* 펼쳐지는 옵션 목록 */}
           <div
@@ -153,11 +176,15 @@ export function TreatmentOptionSelector({
               open ? 'max-h-[55vh]' : 'max-h-0'
             }`}
           >
-            <div className="max-h-[55vh] overflow-y-auto border-b border-[#f0ece6]">
+            <div
+              className={`max-h-[55vh] overflow-y-auto border-b ${c.listBorder}`}
+            >
               {groups.map((group) => (
                 <div key={group.area || '_'}>
                   {group.area && (
-                    <p className="bg-[#faf8f5] px-5 py-1.5 text-[12px] font-semibold tracking-[0.04em] text-[#a83c44]">
+                    <p
+                      className={`px-5 py-1.5 text-[12px] font-semibold tracking-[0.04em] text-[#a83c44] ${c.groupLabel}`}
+                    >
                       {group.area}
                     </p>
                   )}
@@ -171,8 +198,8 @@ export function TreatmentOptionSelector({
                     return (
                       <div
                         key={index}
-                        className={`flex items-center gap-3 border-b border-[#f0ece6] px-5 py-2.5 transition-colors ${
-                          active ? 'bg-[#fbf6f6]' : 'bg-white'
+                        className={`flex items-center gap-3 border-b px-5 py-2.5 transition-colors ${c.rowBorder} ${
+                          active ? c.rowActive : c.rowIdle
                         }`}
                       >
                         <button
@@ -186,27 +213,29 @@ export function TreatmentOptionSelector({
                                 {labels.eventBadge}
                               </span>
                             )}
-                            <span className="text-[14px] leading-snug font-medium text-[#2b2b2b]">
+                            <span
+                              className={`text-[14px] leading-snug font-medium ${c.name}`}
+                            >
                               {opt.name}
                             </span>
                           </div>
                           {opt.caption && (
-                            <p className="mt-0.5 text-[12px] text-[#9a9a9a]">
+                            <p className={`mt-0.5 text-[12px] ${c.caption}`}>
                               {opt.caption}
                             </p>
                           )}
                           <div className="mt-1 flex items-baseline gap-1.5">
                             {hasDiscount && (
-                              <span className="text-[12px] text-[#bbb] line-through">
+                              <span
+                                className={`text-[12px] line-through ${c.strike}`}
+                              >
                                 {fmt(opt.price)}
                                 {labels.won}
                               </span>
                             )}
                             <span
                               className={`text-[15px] font-bold ${
-                                hasDiscount
-                                  ? 'text-[#a83c44]'
-                                  : 'text-[#2b2b2b]'
+                                hasDiscount ? 'text-[#a83c44]' : c.pricePlain
                               }`}
                             >
                               {fmt(effective(opt))}
@@ -216,24 +245,28 @@ export function TreatmentOptionSelector({
                         </button>
 
                         {/* Quantity stepper */}
-                        <div className="flex shrink-0 items-center rounded-[6px] border border-[#ddd]">
+                        <div
+                          className={`flex shrink-0 items-center rounded-[6px] border ${c.stepperBorder}`}
+                        >
                           <button
                             type="button"
                             aria-label="minus"
                             onClick={() => setQuantity(index, count - 1)}
-                            className="flex h-8 w-8 items-center justify-center text-[16px] text-[#666] transition-colors hover:bg-[#f3f3f3] disabled:opacity-30"
+                            className={`flex h-8 w-8 items-center justify-center text-[16px] transition-colors disabled:opacity-30 ${c.stepperBtn}`}
                             disabled={count === 0}
                           >
                             −
                           </button>
-                          <span className="min-w-[28px] text-center text-[14px] font-semibold text-[#2b2b2b]">
+                          <span
+                            className={`min-w-[28px] text-center text-[14px] font-semibold ${c.qty}`}
+                          >
                             {count}
                           </span>
                           <button
                             type="button"
                             aria-label="plus"
                             onClick={() => setQuantity(index, count + 1)}
-                            className="flex h-8 w-8 items-center justify-center text-[16px] text-[#666] transition-colors hover:bg-[#f3f3f3]"
+                            className={`flex h-8 w-8 items-center justify-center text-[16px] transition-colors ${c.stepperBtn}`}
                           >
                             +
                           </button>
@@ -264,7 +297,7 @@ export function TreatmentOptionSelector({
               viewBox="0 0 20 20"
               fill="none"
               aria-hidden
-              className={`h-4 w-4 shrink-0 text-[#2b2b2b] transition-transform duration-300 ${
+              className={`h-4 w-4 shrink-0 transition-transform duration-300 ${c.chevron} ${
                 open ? 'rotate-180' : ''
               }`}
             >
@@ -276,7 +309,9 @@ export function TreatmentOptionSelector({
                 strokeLinejoin="round"
               />
             </svg>
-            <span className="text-[13px] font-bold whitespace-nowrap text-[#2b2b2b] sm:text-[14px]">
+            <span
+              className={`text-[13px] font-bold whitespace-nowrap sm:text-[14px] ${c.selectLabel}`}
+            >
               {labels.selectTreatment}
             </span>
             {selectedCount > 0 && (
@@ -287,7 +322,7 @@ export function TreatmentOptionSelector({
 
             {/* 예상금액 — 클릭 시 토글 */}
             <span className="ml-auto flex shrink-0 flex-col items-end pr-1 leading-tight sm:pr-2">
-              <span className="text-[10px] text-[#999] sm:text-[11px]">
+              <span className={`text-[10px] sm:text-[11px] ${c.estLabel}`}>
                 {labels.estimatedAmount}
               </span>
               <span className="text-[16px] font-extrabold text-[#a83c44] sm:text-[18px]">

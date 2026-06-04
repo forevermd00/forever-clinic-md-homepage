@@ -296,7 +296,7 @@ export default async function TreatmentDetailPage({
     bodyAlt: 'text-[#444]',
     card: 'border-[#e6e6e6] bg-white',
     cardText: 'text-[#2b2b2b]',
-    circle: 'bg-[#2b2b2b]',
+    circle: 'bg-[#a83c44]',
   };
 
   return (
@@ -463,6 +463,7 @@ export default async function TreatmentDetailPage({
           treatmentSlug={treatment.slug}
           treatmentName={treatment.name}
           category={category.slug}
+          dark={isSig}
           labels={{
             selectTreatment: t('selectTreatment'),
             estimatedAmount: t('estimatedAmount'),
