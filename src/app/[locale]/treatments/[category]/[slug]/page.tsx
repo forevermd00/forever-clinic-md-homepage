@@ -285,20 +285,18 @@ export default async function TreatmentDetailPage({
     ? Math.min(...effectivePrices)
     : treatment.priceNumeric;
   const hasMultipleOptions = selectorOptions.length > 1;
-  // 시그니처: 상세페이지 전체에 다크 프리미엄 테마 적용 (시그니처 리스트와 동일 톤 #1a1a1a/#111111)
+  // 시그니처: "타이틀(히어로) 섹션"만 다크 테마. 본문 섹션은 일반과 동일한 라이트 유지.
   const isSig = treatment.hasSignature;
   const sig = {
-    bgA: isSig ? 'bg-[#1a1a1a]' : 'bg-white',
-    bgB: isSig ? 'bg-[#111111]' : 'bg-[#faf8f5]',
-    heading: isSig ? 'text-white' : 'text-[#2b2b2b]',
-    divider: isSig ? 'bg-white/10' : 'bg-[#e6e6e6]',
-    body: isSig ? 'text-white/70' : 'text-[#555]',
-    bodyAlt: isSig ? 'text-white/70' : 'text-[#444]',
-    card: isSig
-      ? 'border-white/10 bg-white/[0.04]'
-      : 'border-[#e6e6e6] bg-white',
-    cardText: isSig ? 'text-white/85' : 'text-[#2b2b2b]',
-    circle: isSig ? 'bg-[#a83c44]' : 'bg-[#2b2b2b]',
+    bgA: 'bg-white',
+    bgB: 'bg-[#faf8f5]',
+    heading: 'text-[#2b2b2b]',
+    divider: 'bg-[#e6e6e6]',
+    body: 'text-[#555]',
+    bodyAlt: 'text-[#444]',
+    card: 'border-[#e6e6e6] bg-white',
+    cardText: 'text-[#2b2b2b]',
+    circle: 'bg-[#2b2b2b]',
   };
 
   return (
@@ -355,7 +353,9 @@ export default async function TreatmentDetailPage({
 
             {/* Category + badges */}
             <div className="mt-4 flex flex-wrap items-center gap-2">
-              <span className="inline-flex self-start rounded-[4px] bg-white px-1.5 py-0.5 text-[12px] font-medium text-[#a83c44]">
+              <span
+                className={`inline-flex self-start rounded-[4px] px-1.5 py-0.5 text-[12px] font-medium text-[#a83c44] ${isSig ? 'bg-white/10' : 'bg-white'}`}
+              >
                 {getCategoryLabel(category, locale)}
               </span>
               {treatment.hasEvent && (
@@ -420,11 +420,11 @@ export default async function TreatmentDetailPage({
           >
             {/* Composition (signature only) */}
             {treatment.hasSignature && treatment.composition && (
-              <div className="mb-6 rounded-[8px] border border-[#efe5d9] bg-white p-4">
+              <div className="mb-6 rounded-[8px] border border-white/10 bg-white/5 p-4">
                 <p className="mb-1.5 text-[11px] font-semibold tracking-[0.15em] text-[#a83c44] uppercase">
                   Composition
                 </p>
-                <p className="text-[13px] leading-[1.8] whitespace-pre-line text-[#2b2b2b]">
+                <p className="text-[13px] leading-[1.8] whitespace-pre-line text-white/85">
                   {treatment.composition}
                 </p>
               </div>
@@ -618,7 +618,7 @@ export default async function TreatmentDetailPage({
             </h2>
             <div className={`mt-4 h-px w-full ${sig.divider}`} />
             <div className="mt-6">
-              <TreatmentFAQ items={faqItems} dark={isSig} />
+              <TreatmentFAQ items={faqItems} />
             </div>
           </div>
         </section>
