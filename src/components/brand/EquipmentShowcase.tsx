@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
 
@@ -58,9 +58,23 @@ export function EquipmentShowcase({
 
   // Thumbnail strip drag (mouse)
   const stripRef = useRef<HTMLDivElement>(null);
+  const thumbRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const stripDragging = useRef(false);
   const stripStartX = useRef(0);
   const stripScrollLeft = useRef(0);
+
+  // Keep the selected thumbnail visible within the strip
+  useEffect(() => {
+    const strip = stripRef.current;
+    const thumb = thumbRefs.current[selectedIndex];
+    if (!strip || !thumb) return;
+    const stripWidth = strip.clientWidth;
+    const target = thumb.offsetLeft - stripWidth / 2 + thumb.clientWidth / 2;
+    strip.scrollTo({
+      left: Math.max(0, target),
+      behavior: 'smooth',
+    });
+  }, [selectedIndex]);
 
   const onStripMouseDown = (e: React.MouseEvent) => {
     if (!stripRef.current) return;
@@ -196,6 +210,9 @@ export function EquipmentShowcase({
         {items.map((item, index) => (
           <button
             key={item.id}
+            ref={(el) => {
+              thumbRefs.current[index] = el;
+            }}
             type="button"
             onClick={() => setSelectedIndex(index)}
             className={cn(
