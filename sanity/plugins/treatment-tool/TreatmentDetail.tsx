@@ -976,50 +976,55 @@ function TreatmentInfoSection({
   doc: FullDoc;
   patch: (fields: Record<string, unknown>) => Promise<void>;
 }) {
+  const INFO_FIELDS: {
+    key: 'treatmentTime' | 'anesthesia' | 'downtime' | 'duration';
+    label: string;
+    placeholder: string;
+  }[] = [
+    { key: 'treatmentTime', label: '시술시간', placeholder: '예: 약 30분' },
+    { key: 'anesthesia', label: '마취', placeholder: '예: 연고 마취' },
+    { key: 'downtime', label: '다운타임', placeholder: '예: 거의 없음' },
+    { key: 'duration', label: '권장횟수', placeholder: '예: 4~6회' },
+  ];
+
   return (
     <div className="tt-detail-section">
       <div className="tt-detail-section-title">
         <span>시술 정보</span>
       </div>
-      <div style={{ padding: 14 }}>
-        <div className="tt-detail-row tt-detail-row-wrap">
-          <Field label="시술시간">
-            <input
-              type="text"
-              className="tt-text-input tt-text-input-sm"
-              defaultValue={doc.treatmentTime?.ko ?? ''}
-              placeholder="예: 약 30분"
-              onBlur={(e) => patch({ 'treatmentTime.ko': e.target.value })}
-            />
-          </Field>
-          <Field label="마취">
-            <input
-              type="text"
-              className="tt-text-input tt-text-input-sm"
-              defaultValue={doc.anesthesia?.ko ?? ''}
-              placeholder="예: 연고 마취"
-              onBlur={(e) => patch({ 'anesthesia.ko': e.target.value })}
-            />
-          </Field>
-          <Field label="다운타임">
-            <input
-              type="text"
-              className="tt-text-input tt-text-input-sm"
-              defaultValue={doc.downtime?.ko ?? ''}
-              placeholder="예: 거의 없음"
-              onBlur={(e) => patch({ 'downtime.ko': e.target.value })}
-            />
-          </Field>
-          <Field label="권장횟수">
-            <input
-              type="text"
-              className="tt-text-input tt-text-input-sm"
-              defaultValue={doc.duration?.ko ?? ''}
-              placeholder="예: 4~6회"
-              onBlur={(e) => patch({ 'duration.ko': e.target.value })}
-            />
-          </Field>
-        </div>
+      <div
+        style={{
+          padding: 14,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 18,
+        }}
+      >
+        {INFO_FIELDS.map((f) => (
+          <div key={f.key}>
+            <div
+              className="tt-detail-label"
+              style={{ marginBottom: 6, fontWeight: 600 }}
+            >
+              {f.label}
+            </div>
+            <div className="tt-detail-grid4">
+              {LOCALES.map(({ key, label }) => (
+                <Field key={key} label={label}>
+                  <input
+                    type="text"
+                    className="tt-text-input"
+                    defaultValue={doc[f.key]?.[key] ?? ''}
+                    placeholder={key === 'ko' ? f.placeholder : ''}
+                    onBlur={(e) =>
+                      patch({ [`${f.key}.${key}`]: e.target.value })
+                    }
+                  />
+                </Field>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
