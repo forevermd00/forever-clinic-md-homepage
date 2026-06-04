@@ -4,9 +4,10 @@ import { useState } from 'react';
 
 interface Props {
   items: { q: string; a: string }[];
+  dark?: boolean;
 }
 
-export function TreatmentFAQ({ items }: Props) {
+export function TreatmentFAQ({ items, dark = false }: Props) {
   const [openSet, setOpenSet] = useState<Set<number>>(new Set());
 
   function toggle(i: number) {
@@ -28,7 +29,7 @@ export function TreatmentFAQ({ items }: Props) {
         return (
           <div
             key={i}
-            className="cursor-pointer border-b border-[#e6e6e6] py-4"
+            className={`cursor-pointer border-b py-4 ${dark ? 'border-white/10' : 'border-[#e6e6e6]'}`}
             onClick={() => toggle(i)}
           >
             <div className="flex items-center justify-between">
@@ -36,14 +37,16 @@ export function TreatmentFAQ({ items }: Props) {
                 <span className="mr-3 shrink-0 text-[14px] font-bold text-[#a83c44]">
                   Q
                 </span>
-                <span className="flex-1 text-[14px] font-medium text-[#2b2b2b]">
+                <span
+                  className={`flex-1 text-[14px] font-medium ${dark ? 'text-white' : 'text-[#2b2b2b]'}`}
+                >
                   {item.q}
                 </span>
               </div>
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
-                className={`ml-3 h-4 w-4 shrink-0 text-[#999] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+                className={`ml-3 h-4 w-4 shrink-0 transition-transform duration-300 ${dark ? 'text-white/40' : 'text-[#999]'} ${isOpen ? 'rotate-180' : ''}`}
               >
                 <path
                   d="M6 9l6 6 6-6"
@@ -57,7 +60,9 @@ export function TreatmentFAQ({ items }: Props) {
             <div
               className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-[500px]' : 'max-h-0'}`}
             >
-              <p className="pt-3 pb-1 pl-6 text-[14px] leading-[1.8] text-[#666]">
+              <p
+                className={`pt-3 pb-1 pl-6 text-[14px] leading-[1.8] ${dark ? 'text-white/60' : 'text-[#666]'}`}
+              >
                 {item.a}
               </p>
             </div>

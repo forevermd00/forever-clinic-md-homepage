@@ -285,8 +285,21 @@ export default async function TreatmentDetailPage({
     ? Math.min(...effectivePrices)
     : treatment.priceNumeric;
   const hasMultipleOptions = selectorOptions.length > 1;
-  // 시그니처: 상세페이지 히어로에 다크 프리미엄 테마 적용 (홈 시그니처 섹션과 동일 #1a1a1a)
+  // 시그니처: 상세페이지 전체에 다크 프리미엄 테마 적용 (시그니처 리스트와 동일 톤 #1a1a1a/#111111)
   const isSig = treatment.hasSignature;
+  const sig = {
+    bgA: isSig ? 'bg-[#1a1a1a]' : 'bg-white',
+    bgB: isSig ? 'bg-[#111111]' : 'bg-[#faf8f5]',
+    heading: isSig ? 'text-white' : 'text-[#2b2b2b]',
+    divider: isSig ? 'bg-white/10' : 'bg-[#e6e6e6]',
+    body: isSig ? 'text-white/70' : 'text-[#555]',
+    bodyAlt: isSig ? 'text-white/70' : 'text-[#444]',
+    card: isSig
+      ? 'border-white/10 bg-white/[0.04]'
+      : 'border-[#e6e6e6] bg-white',
+    cardText: isSig ? 'text-white/85' : 'text-[#2b2b2b]',
+    circle: isSig ? 'bg-[#a83c44]' : 'bg-[#2b2b2b]',
+  };
 
   return (
     <>
@@ -476,16 +489,18 @@ export default async function TreatmentDetailPage({
 
       {/* ── 시술 소개 ── */}
       {descriptionText && (
-        <section className="bg-white py-12">
+        <section className={`${sig.bgA} py-12`}>
           <div className="mx-auto w-full max-w-[680px] px-5">
             <p className="text-[11px] font-medium tracking-[0.15em] text-[#a83c44] uppercase">
               {CLINIC_NAMES[locale] ?? CLINIC_NAMES.ko}
             </p>
-            <h2 className="mt-1 text-[20px] font-bold text-[#2b2b2b]">
+            <h2 className={`mt-1 text-[20px] font-bold ${sig.heading}`}>
               {t('description')}
             </h2>
-            <div className="mt-4 h-px w-full bg-[#e6e6e6]" />
-            <p className="mt-6 text-[14px] leading-[1.8] whitespace-pre-line text-[#555]">
+            <div className={`mt-4 h-px w-full ${sig.divider}`} />
+            <p
+              className={`mt-6 text-[14px] leading-[1.8] whitespace-pre-line ${sig.body}`}
+            >
               {descriptionText}
             </p>
           </div>
@@ -494,22 +509,24 @@ export default async function TreatmentDetailPage({
 
       {/* ── 이런 고민이 있다면 ── */}
       {recommendedFor.length > 0 && (
-        <section className="bg-[#faf8f5] py-12">
+        <section className={`${sig.bgB} py-12`}>
           <div className="mx-auto w-full max-w-[680px] px-5">
             <p className="text-[11px] font-medium tracking-[0.15em] text-[#a83c44] uppercase">
               {CLINIC_NAMES[locale] ?? CLINIC_NAMES.ko}
             </p>
-            <h2 className="mt-1 text-[20px] font-bold text-[#2b2b2b]">
+            <h2 className={`mt-1 text-[20px] font-bold ${sig.heading}`}>
               {t('recommendedFor')}
             </h2>
-            <div className="mt-4 h-px w-full bg-[#e6e6e6]" />
+            <div className={`mt-4 h-px w-full ${sig.divider}`} />
             <div className="mt-6 flex flex-col gap-3">
               {recommendedFor.map((item, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-3 rounded-[12px] border border-[#e6e6e6] bg-white p-4"
+                  className={`flex items-center gap-3 rounded-[12px] border p-4 ${sig.card}`}
                 >
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#2b2b2b]">
+                  <span
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${sig.circle}`}
+                  >
                     <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4">
                       <path
                         d="M5 10l4 4 6-6"
@@ -520,7 +537,7 @@ export default async function TreatmentDetailPage({
                       />
                     </svg>
                   </span>
-                  <span className="text-[14px] leading-[1.7] text-[#2b2b2b]">
+                  <span className={`text-[14px] leading-[1.7] ${sig.cardText}`}>
                     {item}
                   </span>
                 </div>
@@ -532,25 +549,27 @@ export default async function TreatmentDetailPage({
 
       {/* ── 이런 변화를 기대할 수 있어요 ── */}
       {features.length > 0 && (
-        <section className="bg-white py-12">
+        <section className={`${sig.bgA} py-12`}>
           <div className="mx-auto w-full max-w-[680px] px-5">
             <p className="text-[11px] font-medium tracking-[0.15em] text-[#a83c44] uppercase">
               {CLINIC_NAMES[locale] ?? CLINIC_NAMES.ko}
             </p>
-            <h2 className="mt-1 text-[20px] font-bold text-[#2b2b2b]">
+            <h2 className={`mt-1 text-[20px] font-bold ${sig.heading}`}>
               {t('features')}
             </h2>
-            <div className="mt-4 h-px w-full bg-[#e6e6e6]" />
+            <div className={`mt-4 h-px w-full ${sig.divider}`} />
             <div className="mt-6 flex flex-col gap-3">
               {features.map((item, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-3 rounded-[12px] border border-[#e6e6e6] bg-white p-4"
+                  className={`flex items-center gap-3 rounded-[12px] border p-4 ${sig.card}`}
                 >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#2b2b2b] text-[13px] font-bold text-white">
+                  <span
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[13px] font-bold text-white ${sig.circle}`}
+                  >
                     {i + 1}
                   </span>
-                  <span className="text-[14px] leading-[1.7] text-[#2b2b2b]">
+                  <span className={`text-[14px] leading-[1.7] ${sig.cardText}`}>
                     {item}
                   </span>
                 </div>
@@ -562,22 +581,22 @@ export default async function TreatmentDetailPage({
 
       {/* ── 시술 과정 ── */}
       {procedureSteps.length > 0 && (
-        <section className="bg-[#faf8f5] py-12">
+        <section className={`${sig.bgB} py-12`}>
           <div className="mx-auto w-full max-w-[680px] px-5">
             <p className="text-[11px] font-medium tracking-[0.15em] text-[#a83c44] uppercase">
               {CLINIC_NAMES[locale] ?? CLINIC_NAMES.ko}
             </p>
-            <h2 className="mt-1 text-[20px] font-bold text-[#2b2b2b]">
+            <h2 className={`mt-1 text-[20px] font-bold ${sig.heading}`}>
               {t('procedure')}
             </h2>
-            <div className="mt-4 h-px w-full bg-[#e6e6e6]" />
+            <div className={`mt-4 h-px w-full ${sig.divider}`} />
             <ol className="mt-6 space-y-3">
               {procedureSteps.map((step, i) => (
                 <li key={i} className="flex items-center gap-3">
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#a83c44] text-[13px] font-bold text-white">
                     {i + 1}
                   </span>
-                  <span className="text-[14px] leading-[1.7] text-[#444]">
+                  <span className={`text-[14px] leading-[1.7] ${sig.bodyAlt}`}>
                     {step}
                   </span>
                 </li>
@@ -589,17 +608,17 @@ export default async function TreatmentDetailPage({
 
       {/* ── 자주 묻는 질문 ── */}
       {faqItems.length > 0 && (
-        <section className="bg-white py-12">
+        <section className={`${sig.bgA} py-12`}>
           <div className="mx-auto w-full max-w-[680px] px-5">
             <p className="text-[11px] font-medium tracking-[0.15em] text-[#a83c44] uppercase">
               {CLINIC_NAMES[locale] ?? CLINIC_NAMES.ko}
             </p>
-            <h2 className="mt-1 text-[20px] font-bold text-[#2b2b2b]">
+            <h2 className={`mt-1 text-[20px] font-bold ${sig.heading}`}>
               {t('faq')}
             </h2>
-            <div className="mt-4 h-px w-full bg-[#e6e6e6]" />
+            <div className={`mt-4 h-px w-full ${sig.divider}`} />
             <div className="mt-6">
-              <TreatmentFAQ items={faqItems} />
+              <TreatmentFAQ items={faqItems} dark={isSig} />
             </div>
           </div>
         </section>
@@ -607,20 +626,20 @@ export default async function TreatmentDetailPage({
 
       {/* ── 주의사항 ── */}
       {precautions.length > 0 && (
-        <section className="bg-[#faf8f5] py-12">
+        <section className={`${sig.bgB} py-12`}>
           <div className="mx-auto w-full max-w-[680px] px-5">
             <p className="text-[11px] font-medium tracking-[0.15em] text-[#a83c44] uppercase">
               {CLINIC_NAMES[locale] ?? CLINIC_NAMES.ko}
             </p>
-            <h2 className="mt-1 text-[20px] font-bold text-[#2b2b2b]">
+            <h2 className={`mt-1 text-[20px] font-bold ${sig.heading}`}>
               {t('precautions')}
             </h2>
-            <div className="mt-4 h-px w-full bg-[#e6e6e6]" />
+            <div className={`mt-4 h-px w-full ${sig.divider}`} />
             <div className="mt-6 flex flex-col gap-3">
               {precautions.map((item, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-3 rounded-[12px] border border-[#e6e6e6] bg-white p-4"
+                  className={`flex items-center gap-3 rounded-[12px] border p-4 ${sig.card}`}
                 >
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-[#a83c44]">
                     <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4">
@@ -633,7 +652,7 @@ export default async function TreatmentDetailPage({
                       />
                     </svg>
                   </span>
-                  <span className="text-[14px] leading-[1.7] text-[#555]">
+                  <span className={`text-[14px] leading-[1.7] ${sig.cardText}`}>
                     {item}
                   </span>
                 </div>
