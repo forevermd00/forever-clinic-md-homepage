@@ -15,8 +15,6 @@ export interface TreatmentDoc {
   isVisible: boolean;
   sortOrder: number;
   priceOptions?: PriceOption[];
-  eventStartDate?: string;
-  eventEndDate?: string;
 }
 
 export interface TreatmentFullDoc extends TreatmentDoc {

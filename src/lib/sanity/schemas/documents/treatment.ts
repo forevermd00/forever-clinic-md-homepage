@@ -177,25 +177,6 @@ export default defineType({
       initialValue: false,
     }),
     defineField({
-      name: 'isEvent',
-      title: '이벤트 표시',
-      description: 'EVENT 뱃지를 표시합니다',
-      type: 'boolean',
-      initialValue: false,
-    }),
-    defineField({
-      name: 'eventStartDate',
-      title: '이벤트 시작일',
-      description: '이벤트 기간 시작일 (isEvent가 true일 때만 사용)',
-      type: 'date',
-    }),
-    defineField({
-      name: 'eventEndDate',
-      title: '이벤트 종료일',
-      description: '이벤트 기간 종료일',
-      type: 'date',
-    }),
-    defineField({
       name: 'isVisible',
       title: '노출 여부',
       description: '체크 해제 시 홈페이지에서 숨깁니다',

@@ -48,8 +48,8 @@ export const homeQuickEntryQuery = `*[_type == "quickEntryCard" && isVisible == 
 export const homePromoQuery = `*[_type == "promotion" && showOnMain == true] | order(sortOrder asc)[0...3]`;
 
 export const homeEventTreatmentsQuery = `
-  *[_type == "treatment" && isVisible == true && isEvent == true && showInMenu == true] | order(sortOrder asc) {
-    _id, name, "slug": slug.current, category, tagline, priceOptions, isEvent
+  *[_type == "treatment" && isVisible == true && count(priceOptions[isEvent == true]) > 0 && showInMenu == true] | order(sortOrder asc) {
+    _id, name, "slug": slug.current, category, tagline, priceOptions, "isEvent": count(priceOptions[isEvent == true]) > 0
   }
 `;
 
@@ -78,14 +78,14 @@ export const treatmentsByCategoryQuery = `*[_type == "treatment" && isVisible ==
 }`;
 
 export const allTreatmentsGroupedQuery = `*[_type == "treatment" && isVisible == true] | order(sortOrder asc) {
-  _id, name, slug, category, tagline, keywords, description, composition, priceOptions, isEvent, isSignature, downtime, treatmentTime, duration,
+  _id, name, slug, category, tagline, keywords, description, composition, priceOptions, "isEvent": count(priceOptions[isEvent == true]) > 0, isSignature, downtime, treatmentTime, duration,
   "imageUrl": thumbnail.asset->url
 }`;
 
 export const treatmentsByQuickEntryQuery = `
   *[_type == "quickEntryCard" && _id == $cardId][0].linkedTreatments[]-> {
     _id, "name": name[$locale], "tagline": tagline[$locale], category,
-    "slug": slug.current, thumbnail, priceOptions, isEvent
+    "slug": slug.current, thumbnail, priceOptions, "isEvent": count(priceOptions[isEvent == true]) > 0
   } | order(sortOrder asc)
 `;
 
@@ -103,7 +103,7 @@ export const quickEntryCardBySlugQuery = `
       category,
       "imageUrl": thumbnail.asset->url,
       priceOptions[] { price, discountPrice },
-      isEvent,
+      "isEvent": count(priceOptions[isEvent == true]) > 0,
       isVisible
     }
   }
@@ -119,7 +119,7 @@ export const treatmentDetailQuery = `
     "description": description[$locale],
     "composition": composition[$locale],
     category,
-    isEvent,
+    "isEvent": count(priceOptions[isEvent == true]) > 0,
     isSignature,
     isVisible,
     duration,
@@ -149,14 +149,14 @@ export const treatmentDetailQuery = `
       "name": name[$locale],
       category,
       priceOptions[0] { price, discountPrice },
-      isEvent
+      "isEvent": count(priceOptions[isEvent == true]) > 0
     }
   }
 `;
 
 export const allTreatmentsForCartQuery = `
   *[_type == "treatment" && isVisible == true] | order(sortOrder asc) {
-    _id, "name": name[$locale], "slug": slug.current, category, priceOptions, isEvent
+    _id, "name": name[$locale], "slug": slug.current, category, priceOptions, "isEvent": count(priceOptions[isEvent == true]) > 0
   }
 `;
 
@@ -226,6 +226,7 @@ export const doctorsQuery = `
 // === Clinic Info ===
 export const clinicInfoQuery = `
   *[_type == "clinicInfo"][0] {
+    "clinicName": clinicName[$locale], "logoUrl": logo.asset->url,
     "address": address[$locale], phone, email,
     "businessHours": businessHours[] { dayOfWeek, "day": day[$locale], open, close, "note": note[$locale] },
     "closedDayNotice": closedDayNotice[$locale],

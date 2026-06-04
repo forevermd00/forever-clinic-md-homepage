@@ -8,11 +8,10 @@ const FULL_QUERY = `
     "name": name,
     "tagline": tagline,
     "slug": slug.current,
-    category, isEvent, isSignature, isVisible, showInMenu, sortOrder,
+    category, "isEvent": count(priceOptions[isEvent == true]) > 0, isSignature, isVisible, showInMenu, sortOrder,
     priceOptions[] {
       _key, name, caption, area, price, discountPrice, isEvent
     },
-    eventStartDate, eventEndDate,
     treatmentTime,
     "anesthesia": anesthesia,
     downtime, duration,
@@ -73,8 +72,6 @@ interface FullDoc {
   showInMenu?: boolean;
   sortOrder?: number;
   priceOptions?: PriceOptionItem[];
-  eventStartDate?: string;
-  eventEndDate?: string;
   treatmentTime?: LocalizedStr;
   anesthesia?: LocalizedStr;
   downtime?: LocalizedStr;
@@ -713,12 +710,12 @@ export function TreatmentDetail({
             </select>
           </Field>
           <Field label="이벤트">
-            <input
-              type="checkbox"
-              className="tt-toggle tt-toggle-event"
-              checked={!!doc.isEvent}
-              onChange={(e) => patchBool('isEvent', e.target.checked)}
-            />
+            <span
+              className={`tt-event-badge${doc.isEvent ? 'tt-event-badge-on' : ''}`}
+              title="가격 옵션에 '이벤트' 항목이 있으면 자동으로 켜집니다"
+            >
+              {doc.isEvent ? 'EVENT' : '—'}
+            </span>
           </Field>
           <Field label="시그니처">
             <input
@@ -822,28 +819,6 @@ export function TreatmentDetail({
           부위·용량별 옵션을 추가하세요. 고객은 상세 페이지에서 옵션을 선택·수량
           조절하여 예상금액을 확인합니다. 가격은 모두 부가세 별도 기준입니다.
         </p>
-        {doc.isEvent && (
-          <div className="tt-detail-row tt-detail-row-wrap">
-            <Field label="이벤트 시작일">
-              <input
-                type="date"
-                className="tt-text-input tt-text-input-sm"
-                defaultValue={doc.eventStartDate ?? ''}
-                onBlur={(e) =>
-                  patch({ eventStartDate: e.target.value || null })
-                }
-              />
-            </Field>
-            <Field label="이벤트 종료일">
-              <input
-                type="date"
-                className="tt-text-input tt-text-input-sm"
-                defaultValue={doc.eventEndDate ?? ''}
-                onBlur={(e) => patch({ eventEndDate: e.target.value || null })}
-              />
-            </Field>
-          </div>
-        )}
         <PriceOptionsEditor
           initialItems={doc.priceOptions}
           onSave={(items) => patchArray('priceOptions', items)}
