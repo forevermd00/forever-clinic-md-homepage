@@ -69,7 +69,7 @@ export default async function QuickEntryPage({
       <div className="mb-8">
         <Link
           href={`/${locale}/treatments`}
-          data-ga-id="quick-entry-back-to-treatments"
+          data-ga-id="quick-entry.back-to-treatments"
           className="mb-4 inline-flex items-center gap-1 text-[13px] text-[#9ca3af] hover:text-[#a83c44]"
         >
           ← 시술 목록

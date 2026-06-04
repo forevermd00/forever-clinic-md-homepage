@@ -12,7 +12,7 @@ export async function DoctorSection({ doctors }: DoctorSectionProps = {}) {
   const t = await getTranslations('home');
 
   return (
-    <section className="bg-[#faf8f5]" data-ga-section="doctor">
+    <section className="bg-[#faf8f5]" data-ga-section="home-doctor">
       <div className="mx-auto flex w-full max-w-[1280px] flex-col items-center gap-8 px-5 py-16 md:px-10 lg:px-12">
         <div className="flex flex-col items-center gap-2">
           <span className="text-[12px] font-medium tracking-[1.8px] text-[#d4c8bd]">

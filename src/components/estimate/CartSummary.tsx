@@ -66,7 +66,7 @@ function CartSummary({
 
       <Link
         href={`/${locale}/contact`}
-        data-ga-id="estimate-submit"
+        data-ga-id="estimate-summary.submit"
         className="mt-6 flex w-full items-center justify-center rounded-[var(--radius-button)] bg-[#2b2b2b] py-4 text-[15px] font-semibold text-white transition-colors hover:bg-[#1a1a1a]"
       >
         {t('requestConsultation')}

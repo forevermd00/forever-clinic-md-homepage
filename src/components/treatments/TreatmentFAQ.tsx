@@ -30,7 +30,7 @@ export function TreatmentFAQ({ items, dark = false }: Props) {
           <div
             key={i}
             className={`cursor-pointer border-b py-4 ${dark ? 'border-white/10' : 'border-[#e6e6e6]'}`}
-            data-ga-id={`faq-item-${i}`}
+            data-ga-id={`treatment-faq.item-${i}`}
             onClick={() => toggle(i)}
           >
             <div className="flex items-center justify-between">

@@ -113,7 +113,7 @@ function Pagination({
           href={getPageUrl(basePath, currentPage - 1)}
           aria-label="Previous page"
           className="hover:text-forever-charcoal inline-flex h-10 min-w-10 items-center justify-center text-neutral-400 transition-colors"
-          data-ga-id="pagination-prev"
+          data-ga-id="ui-pagination.prev"
         >
           <ChevronLeft />
         </Link>
@@ -147,7 +147,7 @@ function Pagination({
             key={page}
             href={getPageUrl(basePath, page)}
             className="hover:text-forever-charcoal inline-flex h-10 min-w-10 items-center justify-center rounded-[4px] text-sm text-neutral-600 transition-colors"
-            data-ga-id={`pagination-${page}`}
+            data-ga-id={`ui-pagination.page-${page}`}
           >
             {page}
           </Link>
@@ -167,7 +167,7 @@ function Pagination({
           href={getPageUrl(basePath, currentPage + 1)}
           aria-label="Next page"
           className="hover:text-forever-charcoal inline-flex h-10 min-w-10 items-center justify-center text-neutral-400 transition-colors"
-          data-ga-id="pagination-next"
+          data-ga-id="ui-pagination.next"
         >
           <ChevronRight />
         </Link>

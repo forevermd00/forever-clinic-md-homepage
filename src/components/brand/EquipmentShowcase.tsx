@@ -100,7 +100,7 @@ export function EquipmentShowcase({
         type="button"
         onClick={prev}
         aria-label="이전 장비"
-        data-ga-id="equipment-carousel-prev"
+        data-ga-id="brand-equipment.prev"
         className="absolute top-[40%] left-[-28px] z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center text-[#a83c44] transition-opacity hover:opacity-70 lg:left-[-40px]"
       >
         <svg
@@ -125,7 +125,7 @@ export function EquipmentShowcase({
         type="button"
         onClick={next}
         aria-label="다음 장비"
-        data-ga-id="equipment-carousel-next"
+        data-ga-id="brand-equipment.next"
         className="absolute top-[40%] right-[-28px] z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center text-[#a83c44] transition-opacity hover:opacity-70 lg:right-[-40px]"
       >
         <svg
@@ -217,7 +217,7 @@ export function EquipmentShowcase({
             }}
             type="button"
             onClick={() => setSelectedIndex(index)}
-            data-ga-id={`equipment-thumb-${item.id}`}
+            data-ga-id={`brand-equipment.thumb-${item.id}`}
             className={cn(
               'h-[90px] w-[140px] shrink-0 overflow-hidden rounded-[8px] bg-[#faf8f5] transition-all duration-200',
               index === selectedIndex

@@ -69,7 +69,7 @@ export function QuickEntrySection({
   );
 
   return (
-    <section className="bg-[#faf8f5]" data-ga-section="quick-entry">
+    <section className="bg-[#faf8f5]" data-ga-section="home-quick-entry">
       <div className="mx-auto flex w-full max-w-[1280px] flex-col items-center gap-8 px-5 py-16 md:px-10 lg:px-12">
         <h2 className="text-center text-[36px] font-bold text-[#2b2b2b]">
           {t('quickEntryTitle')}
@@ -81,7 +81,7 @@ export function QuickEntrySection({
             <button
               key={tb.id}
               onClick={() => setActiveTabId(tb.id)}
-              data-ga-id={`quick-entry-tab-${tb.id}`}
+              data-ga-id={`home-quick-entry.tab-${tb.id}`}
               className={cn(
                 'px-6 py-3 text-[14px] font-medium transition-colors',
                 activeTabId === tb.id
@@ -100,7 +100,7 @@ export function QuickEntrySection({
             <Link
               key={card.id}
               href={`/${locale}${card.linkUrl || '/treatments'}`}
-              data-ga-id={`quick-entry-card-${card.id}`}
+              data-ga-id={`home-quick-entry.card-${card.id}`}
               className="w-[270px] overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)] transition-shadow hover:drop-shadow-[0_4px_8px_rgba(0,0,0,0.12)]"
             >
               <div className="h-[160px] w-full overflow-hidden">

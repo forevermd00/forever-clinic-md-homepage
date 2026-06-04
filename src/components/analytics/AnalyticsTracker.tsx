@@ -25,9 +25,10 @@ export function AnalyticsTracker() {
       const click = deriveClickTarget(start);
       if (!click) return;
 
-      const { gaId, text, href, eventOverride, extraParams } = click;
+      const { gaId, section, text, href, eventOverride, extraParams } = click;
       const base = {
         ga_id: gaId,
+        ga_section: section,
         link_text: text,
         link_url: href,
         page_path: window.location.pathname,

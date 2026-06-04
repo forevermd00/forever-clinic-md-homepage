@@ -114,7 +114,7 @@ export default async function BlogDetailPage({
             {prevArticle && (
               <Link
                 href={`${basePath}/${prevArticle.slug}`}
-                data-ga-id="blog-nav-prev"
+                data-ga-id="media-article.prev"
                 className="flex items-center gap-3 border-b border-[#efe5d9] px-4 py-4 transition-colors hover:bg-[#f3eee6]"
               >
                 <span className="w-[60px] shrink-0 text-[13px] font-medium text-[#999]">
@@ -128,7 +128,7 @@ export default async function BlogDetailPage({
             {nextArticle && (
               <Link
                 href={`${basePath}/${nextArticle.slug}`}
-                data-ga-id="blog-nav-next"
+                data-ga-id="media-article.next"
                 className="flex items-center gap-3 border-b border-[#efe5d9] px-4 py-4 transition-colors hover:bg-[#f3eee6]"
               >
                 <span className="w-[60px] shrink-0 text-[13px] font-medium text-[#999]">
@@ -145,7 +145,7 @@ export default async function BlogDetailPage({
           <div className="flex justify-center pt-8">
             <Link
               href={basePath}
-              data-ga-id="blog-back-to-list"
+              data-ga-id="media-article.back"
               className="rounded-[4px] border border-[#2b2b2b] px-8 py-3 text-[14px] font-medium text-[#2b2b2b] transition-colors hover:bg-[#2b2b2b] hover:text-white"
             >
               {t('backToListShort')}

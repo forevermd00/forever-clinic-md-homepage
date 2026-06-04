@@ -42,7 +42,7 @@ function CTABanner({
             ? 'border-[1.5px] border-white text-white hover:bg-white/10'
             : 'bg-forever-red hover:bg-forever-red-hover text-white',
         )}
-        data-ga-id="cta-banner-cta"
+        data-ga-id="ui-cta-banner.cta"
       >
         {ctaText}
       </Link>

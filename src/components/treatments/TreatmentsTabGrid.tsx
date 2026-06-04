@@ -195,7 +195,7 @@ export function TreatmentsTabGrid({
                   aria-selected={isActive}
                   aria-controls={`panel-${cat.slug}`}
                   onClick={() => handleTabChange(cat.slug)}
-                  data-ga-id={`treatments-tab-${cat.slug}`}
+                  data-ga-id={`treatments-tab.tab-${cat.slug}`}
                   style={{ fontFamily }}
                   className={cn(
                     'mr-1.5 flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-semibold whitespace-nowrap transition-all duration-200 md:text-[14px]',
@@ -247,7 +247,7 @@ export function TreatmentsTabGrid({
                   aria-selected={isActive}
                   aria-controls={`panel-${cat.slug}`}
                   onClick={() => handleTabChange(cat.slug)}
-                  data-ga-id={`treatments-tab-${cat.slug}`}
+                  data-ga-id={`treatments-tab.tab-${cat.slug}`}
                   style={{ fontFamily }}
                   className={cn(
                     'rounded px-4 py-2 text-[13px] font-medium whitespace-nowrap transition-colors duration-200 md:px-5 md:text-[14px]',
@@ -396,7 +396,7 @@ export function TreatmentsTabGrid({
           </p>
           <Link
             href={`/${locale}/contact`}
-            data-ga-id="treatments-cta-consultation"
+            data-ga-id="treatments-tab.cta-consultation"
             className="mt-6 inline-flex items-center justify-center rounded-[4px] border border-white px-8 py-3 text-[13px] font-medium text-white transition-colors hover:bg-white/10"
           >
             {tc('consultationReservation')}

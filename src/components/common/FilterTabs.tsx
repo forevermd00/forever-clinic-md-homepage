@@ -48,7 +48,7 @@ function FilterTabs({
                   ? 'border-forever-red text-forever-charcoal border-b-2'
                   : 'hover:text-forever-charcoal text-neutral-500',
               )}
-              data-ga-id={`filter-tabs-${tab.id}`}
+              data-ga-id={`ui-filter-tabs.tab-${tab.id}`}
             >
               {tab.label}
             </button>
@@ -75,7 +75,7 @@ function FilterTabs({
                   ? 'border-forever-red text-forever-charcoal border-b-2'
                   : 'hover:text-forever-charcoal text-neutral-500',
               )}
-              data-ga-id={`filter-tabs-${tab.id}`}
+              data-ga-id={`ui-filter-tabs.tab-${tab.id}`}
             >
               {tab.label}
             </button>
@@ -102,7 +102,7 @@ function FilterTabs({
                 ? 'bg-forever-red text-white'
                 : 'bg-white text-neutral-600 hover:bg-neutral-100',
             )}
-            data-ga-id={`filter-tabs-${tab.id}`}
+            data-ga-id={`ui-filter-tabs.tab-${tab.id}`}
           >
             {tab.label}
           </button>

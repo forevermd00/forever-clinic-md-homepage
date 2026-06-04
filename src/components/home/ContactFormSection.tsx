@@ -271,7 +271,7 @@ export function ContactFormSection({
     checkedIds ?? new Set(activeCartItems.map((i) => i.id));
 
   return (
-    <section data-ga-section="contact">
+    <section data-ga-section="contact-form">
       {/* 헤더 */}
       <div
         className="relative flex flex-col items-center justify-center gap-3 px-5 py-20 text-center"
@@ -531,7 +531,7 @@ export function ContactFormSection({
                                   ? removeItem(item.id)
                                   : updateQuantity(item.id, item.quantity - 1)
                               }
-                              data-ga-id={`contact-cart-decrease-${item.id}`}
+                              data-ga-id={`contact-form.qty-minus-${item.id}`}
                               className="flex size-6 items-center justify-center rounded-full bg-[#f3edea] text-[12px] text-[#2b2b2b]"
                             >
                               −
@@ -544,7 +544,7 @@ export function ContactFormSection({
                               onClick={() =>
                                 updateQuantity(item.id, item.quantity + 1)
                               }
-                              data-ga-id={`contact-cart-increase-${item.id}`}
+                              data-ga-id={`contact-form.qty-plus-${item.id}`}
                               className="flex size-6 items-center justify-center rounded-full bg-[#f3edea] text-[12px] text-[#2b2b2b]"
                             >
                               +
@@ -560,7 +560,7 @@ export function ContactFormSection({
                   )}
                   <Link
                     href={`/${locale}/treatments`}
-                    data-ga-id="contact-explore-treatments"
+                    data-ga-id="contact-form.explore-treatments"
                     className="flex items-center justify-center py-2.5 text-[12px] font-medium transition-colors hover:bg-[#faf8f5]"
                     style={{ color: accentColor }}
                   >
@@ -663,7 +663,7 @@ export function ContactFormSection({
                               onClick={() =>
                                 setPreferredTime(selected ? '' : slot)
                               }
-                              data-ga-id={`contact-timeslot-${slot}`}
+                              data-ga-id={`contact-form.timeslot-${slot}`}
                               className={cn(
                                 'h-[44px] rounded-[6px] border px-3 text-[13px] font-medium transition-colors',
                                 selected
@@ -761,7 +761,7 @@ export function ContactFormSection({
                       href={`/${locale}/privacy`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      data-ga-id="contact-privacy-policy"
+                      data-ga-id="contact-form.privacy"
                       className="underline underline-offset-2 hover:text-[#a83c44]"
                       onClick={(e) => e.stopPropagation()}
                     >
@@ -801,7 +801,7 @@ export function ContactFormSection({
                   type="button"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  data-ga-id="contact-reservation-submit"
+                  data-ga-id="contact-form.submit"
                   className="rounded-[4px] bg-[#2b2b2b] px-12 py-4 text-[15px] font-bold text-white transition-colors hover:bg-[#1a1a1a] disabled:opacity-50"
                 >
                   {isSubmitting ? t('submitting') : tc('submit')}

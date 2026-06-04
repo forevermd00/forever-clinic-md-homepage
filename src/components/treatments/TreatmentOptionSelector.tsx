@@ -205,7 +205,7 @@ export function TreatmentOptionSelector({
                         <button
                           type="button"
                           onClick={() => setQuantity(index, active ? 0 : 1)}
-                          data-ga-id={`treatment-option-select-${treatmentSlug}-${index}`}
+                          data-ga-id={`treatment-option.select-${treatmentSlug}-${index}`}
                           className="min-w-0 flex-1 text-left"
                         >
                           <div className="flex flex-wrap items-center gap-1.5">
@@ -253,7 +253,7 @@ export function TreatmentOptionSelector({
                             type="button"
                             aria-label="minus"
                             onClick={() => setQuantity(index, count - 1)}
-                            data-ga-id={`treatment-option-qty-minus-${treatmentSlug}-${index}`}
+                            data-ga-id={`treatment-option.qty-minus-${treatmentSlug}-${index}`}
                             className={`flex h-8 w-8 items-center justify-center text-[16px] transition-colors disabled:opacity-30 ${c.stepperBtn}`}
                             disabled={count === 0}
                           >
@@ -268,7 +268,7 @@ export function TreatmentOptionSelector({
                             type="button"
                             aria-label="plus"
                             onClick={() => setQuantity(index, count + 1)}
-                            data-ga-id={`treatment-option-qty-plus-${treatmentSlug}-${index}`}
+                            data-ga-id={`treatment-option.qty-plus-${treatmentSlug}-${index}`}
                             className={`flex h-8 w-8 items-center justify-center text-[16px] transition-colors ${c.stepperBtn}`}
                           >
                             +
@@ -294,7 +294,7 @@ export function TreatmentOptionSelector({
                 setOpen((v) => !v);
               }
             }}
-            data-ga-id={`treatment-selector-toggle-${treatmentSlug}`}
+            data-ga-id={`treatment-option.toggle-${treatmentSlug}`}
             className="flex cursor-pointer items-center gap-2 px-4 py-2.5 select-none sm:gap-3 sm:px-5 sm:py-3"
           >
             <svg
@@ -343,7 +343,7 @@ export function TreatmentOptionSelector({
                 handleBook();
               }}
               disabled={selectedCount === 0}
-              data-ga-id={`add-to-cart-${treatmentSlug}`}
+              data-ga-id={`treatment-option.add-${treatmentSlug}`}
               className="shrink-0 rounded-[8px] bg-[#a83c44] px-4 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-[#8f3038] disabled:cursor-not-allowed disabled:bg-[#d8cfc4] sm:px-6 sm:text-[14px]"
             >
               {labels.book}

@@ -1,16 +1,20 @@
 /**
- * 클릭된 요소로부터 안정적인 GA 식별자를 도출한다.
+ * 클릭된 요소로부터 GA 식별자(ga_id)와 섹션(ga_section)을 도출한다.
+ * 규칙 단일 기준점: docs/analytics-tracking.md
  *
- * 우선순위:
- *   1. data-ga-id (명시적 — 가장 권장)
+ * ga_id 포맷: `{section}.{element}` (점 1개로 섹션/엘리먼트 분리)
+ *
+ * gaId 우선순위:
+ *   1. data-ga-id (명시적 — 권장)
  *   2. 요소의 id
- *   3. 내부 링크: `link:{언어코드 제거한 경로}`  (언어 무관 안정)
- *   4. tel:/mailto:/외부 링크: href 자체 (이미 안정적)
- *   5. 순수 버튼: `{섹션}__btn{섹션 내 순번}` (텍스트 비의존 → 언어 무관 안정)
+ *   3. 폴백: `{section}.{element}` 자동 생성 (화면 텍스트 비의존 → 언어 무관 안정)
+ *      - 내부 링크:  {section}.link-{언어코드 제거 경로}
+ *      - 외부 링크:  {section}.ext-{host}
+ *      - tel/mailto: {section}.tel / {section}.email
+ *      - 해시:       {section}.anchor-{해시}
+ *      - 순수 버튼:  {section}.{tag}-{섹션 내 순번}
  *
- * 핵심: 폴백 ID가 화면 텍스트(언어별로 다름)에 의존하지 않으므로,
- * 명시적 ID가 없는 버튼도 ko/en/zh/ja에서 동일한 ID로 집계된다.
- * 화면 텍스트는 link_text 파라미터로 별도 전송(리포트 가독성용).
+ * section: 가장 가까운 data-ga-section → 없으면 경로 기반 routeScope.
  */
 
 const INTERACTIVE_SELECTOR =
@@ -32,8 +36,34 @@ function slugify(input: string): string {
     .slice(0, 60);
 }
 
+/** 경로 → 논리적 페이지 스코프 (섹션 폴백용) */
+function routeScope(pathname: string): string {
+  const segs = stripLocale(pathname).split('/').filter(Boolean);
+  if (segs.length === 0) return 'home';
+  const s0 = segs[0];
+  switch (s0) {
+    case 'treatments':
+      return segs.length >= 3 ? 'treatment-detail' : 'treatments';
+    case 'before-after':
+      return 'ba';
+    case 'media':
+      return 'media';
+    case 'brand':
+      return 'brand';
+    case 'estimate':
+      return 'estimate';
+    case 'contact':
+      return 'contact';
+    case 'auth':
+      return segs[1] ? `auth-${segs[1]}` : 'auth';
+    default:
+      return s0;
+  }
+}
+
 export interface DerivedClick {
   gaId: string;
+  section: string;
   text: string;
   href: string;
   /** data-ga-event 속성으로 지정된 이벤트명 오버라이드 (있을 경우) */
@@ -71,53 +101,54 @@ export function deriveClickTarget(start: HTMLElement): DerivedClick | null {
   const href =
     anchor?.getAttribute('href') ?? target.getAttribute('href') ?? '';
 
-  // 가장 가까운 섹션 식별자 (data-ga-section 우선)
+  // 섹션: 가장 가까운 data-ga-section → 경로 기반 폴백
   const section =
     target.closest<HTMLElement>('[data-ga-section]')?.dataset.gaSection ??
-    target.closest<HTMLElement>('section[id], [id][role="region"]')?.id ??
-    'page';
+    routeScope(window.location.pathname);
 
-  // ---- 식별자 도출 (우선순위 순) ----
+  // ---- ga_id 도출 (우선순위 순) ----
   let gaId = dataNode.dataset.gaId ?? '';
 
   if (!gaId && target.id) gaId = target.id;
 
-  if (!gaId && href) {
-    if (/^(tel:|mailto:)/i.test(href)) {
-      gaId = href;
-    } else if (/^https?:\/\//i.test(href)) {
+  if (!gaId) {
+    let element: string;
+    if (href && /^(tel:)/i.test(href)) {
+      element = 'tel';
+    } else if (href && /^(mailto:)/i.test(href)) {
+      element = 'email';
+    } else if (href && /^https?:\/\//i.test(href)) {
       try {
         const url = new URL(href);
-        gaId =
+        element =
           url.host === window.location.host
-            ? `link:${stripLocale(url.pathname)}`
-            : `ext:${url.host}`;
+            ? `link-${stripLocale(url.pathname)}`
+            : `ext-${url.host}`;
       } catch {
-        gaId = `ext:${slugify(href)}`;
+        element = `ext-${slugify(href)}`;
       }
-    } else if (href.startsWith('/')) {
-      gaId = `link:${stripLocale(href)}`;
-    } else if (href.startsWith('#')) {
-      gaId = `${section}__anchor-${slugify(href)}`;
+    } else if (href && href.startsWith('/')) {
+      element = `link-${stripLocale(href)}`;
+    } else if (href && href.startsWith('#')) {
+      element = `anchor-${slugify(href)}`;
+    } else {
+      // 순수 버튼: 섹션 내 인터랙티브 요소 순번으로 안정 식별
+      const container =
+        target.closest<HTMLElement>(
+          '[data-ga-section], section, [role="dialog"]',
+        ) ?? document.body;
+      const all = Array.from(
+        container.querySelectorAll<HTMLElement>(INTERACTIVE_SELECTOR),
+      );
+      const idx = all.indexOf(target);
+      element = `${target.tagName.toLowerCase()}-${idx >= 0 ? idx : 0}`;
     }
-  }
-
-  if (!gaId) {
-    // 순수 버튼: 섹션 내 인터랙티브 요소 순번으로 안정 식별
-    const container =
-      target.closest<HTMLElement>(
-        '[data-ga-section], section, [role="dialog"]',
-      ) ?? document.body;
-    const all = Array.from(
-      container.querySelectorAll<HTMLElement>(INTERACTIVE_SELECTOR),
-    );
-    const idx = all.indexOf(target);
-    const tag = target.tagName.toLowerCase();
-    gaId = `${section}__${tag}${idx >= 0 ? idx : ''}`;
+    gaId = `${section}.${element}`;
   }
 
   return {
     gaId,
+    section,
     text,
     href,
     eventOverride: dataNode.dataset.gaEvent,

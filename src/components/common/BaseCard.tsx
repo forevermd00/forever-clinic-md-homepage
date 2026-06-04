@@ -197,7 +197,7 @@ function BaseCard({
       <a
         href={href}
         className={cardClasses}
-        data-ga-id={`base-card-${href.replace(/^\//, '').replace(/[/?#]/g, '-')}`}
+        data-ga-id={`ui-base-card.link-${href.replace(/^\//, '').replace(/[/?#]/g, '-')}`}
       >
         {content}
       </a>

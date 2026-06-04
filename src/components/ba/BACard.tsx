@@ -25,7 +25,7 @@ function BACard({ baCase, locale, className }: BACardProps) {
   return (
     <Link
       href={`/${locale}/before-after/${baCase.id}`}
-      data-ga-id={`ba-card-${baCase.id}`}
+      data-ga-id={`ba-card.link-${baCase.id}`}
       className={cn(
         'block w-[300px] overflow-hidden rounded-[8px] border border-[#efe5d9] shadow-[0px_1px_2px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-md',
         className,

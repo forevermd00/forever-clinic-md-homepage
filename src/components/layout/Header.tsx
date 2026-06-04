@@ -184,7 +184,7 @@ function MegaColumn({
       <Link
         href={`/${locale}${col.href}`}
         className="pb-3 text-[13px] font-bold text-[#a83c44]"
-        data-ga-id={`header-mega-${col.href.replace(/^\//, '').replace(/[/?#]/g, '-')}`}
+        data-ga-id={`header.mega-${col.href.replace(/^\//, '').replace(/[/?#]/g, '-')}`}
       >
         {titleTranslate(col.titleKey)}
       </Link>
@@ -195,7 +195,7 @@ function MegaColumn({
           href={`/${locale}${item.href}`}
           scroll={true}
           className="py-[5px] text-[13px] text-[#555] transition-colors hover:text-[#a83c44]"
-          data-ga-id={`header-mega-item-${item.href.replace(/^\//, '').replace(/[/?#]/g, '-')}`}
+          data-ga-id={`header.mega-item-${item.href.replace(/^\//, '').replace(/[/?#]/g, '-')}`}
         >
           {item.directName ??
             (item.tKey
@@ -249,7 +249,7 @@ function MobileNavSection({
             'flex-1 py-3.5 text-[16px] font-medium',
             isExpanded ? 'text-[#a83c44]' : 'text-[#2b2b2b]',
           )}
-          data-ga-id={`header-mobile-nav-${navItem.href.replace(/^\//, '')}`}
+          data-ga-id={`header.mobile-nav-${navItem.href.replace(/^\//, '')}`}
         >
           {tNav(navItem.labelKey)}
         </Link>
@@ -259,7 +259,7 @@ function MobileNavSection({
             setExpandedCategory(null);
           }}
           className="flex h-12 w-12 items-center justify-center text-[14px] text-[#706263]"
-          data-ga-id={`header-mobile-expand-${navItem.group}`}
+          data-ga-id={`header.mobile-expand-${navItem.group}`}
         >
           {isExpanded ? '▾' : '▸'}
         </button>
@@ -289,7 +289,7 @@ function MobileNavSection({
                             ? 'text-[#a83c44]'
                             : 'text-[#2b2b2b]',
                         )}
-                        data-ga-id={`header-mobile-cat-${cat.href.replace(/^\//, '').replace(/[/?#]/g, '-')}`}
+                        data-ga-id={`header.mobile-cat-${cat.href.replace(/^\//, '').replace(/[/?#]/g, '-')}`}
                       >
                         {catLabel}
                       </Link>
@@ -302,7 +302,7 @@ function MobileNavSection({
                           )
                         }
                         className="flex h-10 w-12 items-center justify-center text-[12px] text-[#706263]"
-                        data-ga-id={`header-mobile-expand-cat-${cat.titleKey}`}
+                        data-ga-id={`header.mobile-expand-cat-${cat.titleKey}`}
                       >
                         {expandedCategory === cat.titleKey ? '▾' : '▸'}
                       </button>
@@ -322,7 +322,7 @@ function MobileNavSection({
                             href={`/${currentLocale}${item.href}`}
                             onClick={() => setIsMobileMenuOpen(false)}
                             className="block py-2 text-[13px] text-[#706263]"
-                            data-ga-id={`header-mobile-item-${item.href.replace(/^\//, '').replace(/[/?#]/g, '-')}`}
+                            data-ga-id={`header.mobile-item-${item.href.replace(/^\//, '').replace(/[/?#]/g, '-')}`}
                           >
                             {item.directName ??
                               (item.tKey ? tMega(item.tKey) : '')}
@@ -341,7 +341,7 @@ function MobileNavSection({
                     href={`/${currentLocale}${item.href}`}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="block py-2 text-[13px] text-[#706263]"
-                    data-ga-id={`header-mobile-item-${item.href.replace(/^\//, '').replace(/[/?#]/g, '-')}`}
+                    data-ga-id={`header.mobile-item-${item.href.replace(/^\//, '').replace(/[/?#]/g, '-')}`}
                   >
                     {item.directName ??
                       (item.tKey
@@ -600,7 +600,7 @@ export function Header({
               href={`/${currentLocale}`}
               className="flex items-center"
               aria-label={clinicName || 'Forever Clinic Myeongdong'}
-              data-ga-id="header-logo"
+              data-ga-id="header.logo"
             >
               {logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -635,7 +635,7 @@ export function Header({
                   )}
                   onMouseEnter={() => openMega(group)}
                   onMouseLeave={closeMega}
-                  data-ga-id={`header-nav-${href.replace(/^\//, '')}`}
+                  data-ga-id={`header.nav-${href.replace(/^\//, '')}`}
                 >
                   {tNav(labelKey)}
                 </Link>
@@ -649,7 +649,7 @@ export function Header({
                   style={{ fontFamily: localeFonts[currentLocale] }}
                   className="flex items-center gap-1.5 text-[13px] font-medium text-[#2b2b2b]"
                   aria-label="Change language"
-                  data-ga-id="header-lang-toggle"
+                  data-ga-id="header.lang-toggle"
                 >
                   {localeNames[currentLocale]}{' '}
                   <span
@@ -672,7 +672,7 @@ export function Header({
                             ? 'font-semibold text-[#a83c44]'
                             : 'text-[#2b2b2b]',
                         )}
-                        data-ga-id={`header-lang-${locale}`}
+                        data-ga-id={`header.lang-${locale}`}
                       >
                         {localeNames[locale]}
                       </button>
@@ -687,7 +687,7 @@ export function Header({
                 href={`/${currentLocale}/estimate`}
                 className="relative hidden text-[#2b2b2b] md:inline-flex"
                 aria-label="Cart"
-                data-ga-id="header-cart"
+                data-ga-id="header.cart"
               >
                 <svg
                   width="18"
@@ -709,7 +709,7 @@ export function Header({
               <Link
                 href={`/${currentLocale}/contact`}
                 className="hidden rounded-[4px] bg-[#a83c44] px-4 py-2 text-[13px] text-white transition-colors hover:bg-[#8c2e38] md:inline-flex"
-                data-ga-id="header-reservation-cta"
+                data-ga-id="header.reservation-cta"
               >
                 {tCommon('reservation')}
               </Link>
@@ -719,7 +719,7 @@ export function Header({
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label="Toggle menu"
                 aria-expanded={isMobileMenuOpen}
-                data-ga-id="header-mobile-menu-toggle"
+                data-ga-id="header.mobile-toggle"
               >
                 <div className="space-y-1.5">
                   <span
@@ -822,7 +822,7 @@ export function Header({
                       ? 'font-semibold text-[#a83c44]'
                       : 'text-[#2b2b2b]',
                   )}
-                  data-ga-id={`header-mobile-lang-${locale}`}
+                  data-ga-id={`header.mobile-lang-${locale}`}
                 >
                   {localeNames[locale]}
                 </button>
@@ -837,7 +837,7 @@ export function Header({
               href={`/${currentLocale}/estimate`}
               onClick={() => setIsMobileMenuOpen(false)}
               className="relative inline-flex items-center gap-2 py-2 text-[14px] font-medium text-[#2b2b2b]"
-              data-ga-id="header-mobile-cart"
+              data-ga-id="header.mobile-cart"
             >
               <span className="relative">
                 <svg
@@ -864,7 +864,7 @@ export function Header({
               href={`/${currentLocale}/contact`}
               onClick={() => setIsMobileMenuOpen(false)}
               className="mt-4 flex items-center justify-center rounded-[4px] bg-[#a83c44] py-3.5 text-[14px] font-medium text-white"
-              data-ga-id="header-mobile-reservation-cta"
+              data-ga-id="header.mobile-reservation-cta"
             >
               {tCommon('reservation')}
             </Link>

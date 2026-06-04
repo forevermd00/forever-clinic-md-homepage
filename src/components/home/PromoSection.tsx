@@ -27,7 +27,7 @@ export async function PromoSection({
   const tc = await getTranslations('common');
 
   return (
-    <section className="bg-[#faf8f5]" data-ga-section="promo">
+    <section className="bg-[#faf8f5]" data-ga-section="home-promo">
       <div className="mx-auto flex w-full max-w-[1280px] flex-col items-start gap-8 px-5 py-16 md:px-10 lg:px-12">
         <h2 className="w-full text-center text-[28px] font-bold">
           {t('promoTitle')}
@@ -46,7 +46,7 @@ export async function PromoSection({
                     ? `/${locale}/treatments/${event.category}/${event.slug}`
                     : `/${locale}/treatments?cat=event`
                 }
-                data-ga-id={`promo-card-${event.slug ?? event._id}`}
+                data-ga-id={`home-promo.card-${event.slug ?? event._id}`}
                 className="group flex flex-col gap-2 rounded-[8px] border border-[#ede3d9] bg-white px-4 py-4 shadow-[0px_1px_2px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-md"
               >
                 {/* 뱃지 행 */}
@@ -83,7 +83,7 @@ export async function PromoSection({
         <div className="flex w-full justify-center">
           <Link
             href={`/${locale}/treatments?cat=event`}
-            data-ga-id="promo-view-all"
+            data-ga-id="home-promo.more"
             className="rounded-[24px] border border-[#2b2b2b] px-8 py-3 text-[14px] font-medium text-[#2b2b2b] transition-colors hover:bg-[#2b2b2b] hover:text-white"
           >
             {tc('viewAllPromotions')}

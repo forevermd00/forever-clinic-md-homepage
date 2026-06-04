@@ -29,7 +29,7 @@ export function BrandPhilosophySection({
   const t = useTranslations('brand');
 
   return (
-    <section className="bg-white py-16" data-ga-section="brand-philosophy">
+    <section className="bg-white py-16" data-ga-section="home-brand-philosophy">
       {/* Header */}
       <div className="mb-8 flex flex-col items-center gap-3 px-5 text-center md:px-10 lg:px-12">
         <span className="text-[12px] font-medium tracking-[3px] text-[#706263]">
@@ -97,7 +97,7 @@ export function BrandPhilosophySection({
       <div className="mt-8 flex justify-center">
         <Link
           href={`/${locale}/brand`}
-          data-ga-id="brand-philosophy-story-link"
+          data-ga-id="home-brand-philosophy.story-link"
           className="rounded-[24px] border border-[#2b2b2b] px-8 py-3 text-[14px] font-medium text-[#2b2b2b] transition-colors hover:bg-[#2b2b2b] hover:text-white"
         >
           {t('brandStoryLink')} →

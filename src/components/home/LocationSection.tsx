@@ -33,7 +33,7 @@ export async function LocationSection({
   const t = await getTranslations('home');
 
   return (
-    <section className="bg-[#faf8f5]" data-ga-section="location">
+    <section className="bg-[#faf8f5]" data-ga-section="home-location">
       <div className="mx-auto w-full max-w-[1280px] px-5 py-16 md:px-10 lg:px-12">
         <div className="mx-auto flex max-w-[840px] flex-col gap-8 lg:max-w-none lg:flex-row lg:gap-12">
           {/* Map */}
@@ -59,7 +59,7 @@ export async function LocationSection({
                     )}
                     target="_blank"
                     rel="noopener noreferrer"
-                    data-ga-id="location-open-map"
+                    data-ga-id="home-location.open-map"
                     data-ga-provider="amap"
                     className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-[6px] bg-white/90 px-3 py-1.5 text-[12px] font-medium text-[#2b2b2b] shadow-sm backdrop-blur-sm hover:bg-white"
                   >
@@ -95,7 +95,7 @@ export async function LocationSection({
                     )}
                     target="_blank"
                     rel="noopener noreferrer"
-                    data-ga-id="location-open-map"
+                    data-ga-id="home-location.open-map"
                     data-ga-provider="google"
                     className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-[6px] bg-white/90 px-3 py-1.5 text-[12px] font-medium text-[#2b2b2b] shadow-sm backdrop-blur-sm hover:bg-white"
                   >
@@ -131,7 +131,7 @@ export async function LocationSection({
                   href={buildGoogleMapsUrlFromAddress(clinicInfo.address)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  data-ga-id="location-open-map"
+                  data-ga-id="home-location.open-map"
                   data-ga-provider="google-address"
                   className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-[6px] bg-white/90 px-3 py-1.5 text-[12px] font-medium text-[#2b2b2b] shadow-sm backdrop-blur-sm hover:bg-white"
                 >

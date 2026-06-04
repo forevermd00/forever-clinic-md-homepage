@@ -65,7 +65,7 @@ async function BAGrid({
                   scroll={false}
                   role="tab"
                   aria-selected={isActive}
-                  data-ga-id={`ba-filter-${tab.id}`}
+                  data-ga-id={`ba-grid.filter-${tab.id}`}
                   className={cn(
                     'rounded px-4 py-2 text-[13px] font-medium whitespace-nowrap transition-colors duration-200 md:px-5 md:text-[14px]',
                     isActive

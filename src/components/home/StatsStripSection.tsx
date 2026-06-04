@@ -16,7 +16,7 @@ export async function StatsStripSection({
   }));
 
   return (
-    <section className="bg-white py-10" data-ga-section="stats">
+    <section className="bg-white py-10" data-ga-section="home-stats">
       <div className="mx-auto flex max-w-[1280px] flex-col items-center justify-between gap-8 px-5 md:flex-row md:px-10 lg:px-12">
         {items.map((stat, i) => (
           <div

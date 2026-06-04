@@ -60,7 +60,7 @@ export default function LocaleNotFound() {
       <p className="mt-2 text-[14px] text-[#808080]">{msg.desc}</p>
       <Link
         href={`/${locale}`}
-        data-ga-id="notfound-home"
+        data-ga-id="error-notfound.home"
         className="mt-8 inline-flex items-center justify-center rounded-[4px] bg-[#a83c44] px-8 py-3 text-[14px] font-medium text-white transition-colors hover:bg-[#8f3039]"
       >
         {msg.cta}
@@ -68,14 +68,14 @@ export default function LocaleNotFound() {
       <div className="mt-6 flex gap-6">
         <Link
           href={`/${locale}/treatments`}
-          data-ga-id="notfound-treatments"
+          data-ga-id="error-notfound.treatments"
           className="text-[14px] text-[#a83c44] underline underline-offset-2 transition-colors hover:text-[#8f3039]"
         >
           {msg.treatments}
         </Link>
         <Link
           href={`/${locale}/contact`}
-          data-ga-id="notfound-contact"
+          data-ga-id="error-notfound.contact"
           className="text-[14px] text-[#a83c44] underline underline-offset-2 transition-colors hover:text-[#8f3039]"
         >
           {msg.contact}

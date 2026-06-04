@@ -78,7 +78,7 @@ function TreatmentCard({
   return (
     <Link
       href={`/${locale}/treatments/${category}/${slug}`}
-      data-ga-id={`treatment-card-${slug}`}
+      data-ga-id={`treatment-card.link-${slug}`}
       className={cardClass}
     >
       {inner}
