@@ -8,7 +8,45 @@ import {
   EDITABLE_CATEGORIES,
 } from './types';
 import { TreatmentDetail } from './TreatmentDetail';
+import {
+  downloadPriceSheet,
+  readPriceFile,
+  buildPriceUpdates,
+  type ExportTreatment,
+  type TreatmentUpdate,
+  type InvalidRow,
+  type ImportMode,
+  type ParsedSheet,
+} from './excel';
 import './treatment-tool.css';
+
+// 가격표 내보내기/업로드용 — 옵션 전체(_key·다국어) 포함
+const PRICE_EXPORT_QUERY = `
+  *[_type == "treatment"] | order(sortOrder asc, _createdAt asc) {
+    _id,
+    "slug": slug.current,
+    "name": coalesce(name.ko, name.en, ""),
+    category,
+    priceOptions[]{ _key, name, caption, area, price, discountPrice, isEvent }
+  }
+`;
+
+interface ImportPlan {
+  mode: ImportMode;
+  updates: TreatmentUpdate[];
+  invalid: InvalidRow[];
+  optionTotal: number;
+  removedTotal: number;
+}
+
+interface ImportResult {
+  mode: ImportMode;
+  updated: number;
+  optionTotal: number;
+  removedTotal: number;
+  failures: { slug: string; name: string; reason: string }[];
+  invalid: InvalidRow[];
+}
 
 const QUERY = `
   *[_type == "treatment"] | order(sortOrder asc, _createdAt asc) {
@@ -16,12 +54,11 @@ const QUERY = `
     "name": coalesce(name.ko, name.en, ""),
     "slug": coalesce(slug.current, ""),
     category,
-    isEvent,
+    "isEvent": count(priceOptions[isEvent == true]) > 0,
     isSignature,
     isVisible,
     sortOrder,
-    priceOptions[] { price, discountPrice },
-    eventStartDate, eventEndDate
+    priceOptions[] { price, discountPrice }
   }
 `;
 
@@ -43,6 +80,18 @@ export function TreatmentTool() {
   const [saving, setSaving] = useState<Set<string>>(new Set());
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [deleteConfirm, setDeleteConfirm] = useState(false);
+
+  // ── 가격표 엑셀 ──
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const importSource = useRef<{
+    parsed: ParsedSheet;
+    existing: ExportTreatment[];
+  } | null>(null);
+  const [downloading, setDownloading] = useState(false);
+  const [importPlan, setImportPlan] = useState<ImportPlan | null>(null);
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
 
   const refetch = useCallback(() => {
     setLoading(true);
@@ -215,6 +264,95 @@ export function TreatmentTool() {
     router.navigate({ selectedId: newDoc._id });
   };
 
+  const handleDownloadPrices = async () => {
+    setDownloading(true);
+    try {
+      const data: ExportTreatment[] = await client.fetch(PRICE_EXPORT_QUERY);
+      downloadPriceSheet(data);
+    } catch (e) {
+      setImportError(
+        '가격표 다운로드 실패: ' + (e instanceof Error ? e.message : String(e)),
+      );
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const triggerUpload = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+      fileInputRef.current.click();
+    }
+  };
+
+  // 파싱 결과 + 모드 → 확인 계획 계산 (팝업에서 모드 토글 시 재호출)
+  const computePlan = (mode: ImportMode) => {
+    const src = importSource.current;
+    if (!src) return;
+    const { updates, invalid } = buildPriceUpdates(
+      src.parsed,
+      src.existing,
+      mode,
+    );
+    const optionTotal = updates.reduce((sum, u) => sum + u.optionCount, 0);
+    const removedTotal = updates.reduce((sum, u) => sum + u.removed, 0);
+    setImportPlan({ mode, updates, invalid, optionTotal, removedTotal });
+  };
+
+  const handleFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImportError(null);
+    try {
+      const parsed = await readPriceFile(file);
+      if (parsed.rows.length === 0 && parsed.invalid.length === 0) {
+        setImportError(
+          '엑셀에서 반영할 가격 행을 찾지 못했습니다. "가격표 다운로드"로 받은 양식인지, 슬러그가 채워졌는지 확인하세요.',
+        );
+        return;
+      }
+      const existing: ExportTreatment[] =
+        await client.fetch(PRICE_EXPORT_QUERY);
+      importSource.current = { parsed, existing };
+      computePlan('replace'); // 기본: 이것만 남기기
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : String(err));
+    }
+  };
+
+  const runImport = async () => {
+    if (!importPlan) return;
+    setImporting(true);
+    const failures: { slug: string; name: string; reason: string }[] = [];
+    let updated = 0;
+
+    for (const u of importPlan.updates) {
+      try {
+        await client.patch(u.id).set({ priceOptions: u.newOptions }).commit();
+        updated++;
+      } catch (e) {
+        failures.push({
+          slug: u.slug,
+          name: u.name,
+          reason: '갱신 실패: ' + (e instanceof Error ? e.message : String(e)),
+        });
+      }
+    }
+
+    setImporting(false);
+    setImportPlan(null);
+    importSource.current = null;
+    setImportResult({
+      mode: importPlan.mode,
+      updated,
+      optionTotal: importPlan.optionTotal,
+      removedTotal: importPlan.removedTotal,
+      failures,
+      invalid: importPlan.invalid,
+    });
+    refetch();
+  };
+
   if (selectedId) {
     return (
       <TreatmentDetail
@@ -266,6 +404,32 @@ export function TreatmentTool() {
             선택 {selected.size}개 삭제
           </button>
         )}
+
+        {/* 가격표 엑셀 */}
+        <span className="tt-excel-divider" />
+        <button
+          className="tt-excel-btn"
+          onClick={handleDownloadPrices}
+          disabled={downloading}
+          title="현재 시술의 가격옵션을 엑셀(옵션별 한 행)로 내보냅니다. 편집 후 다시 업로드하세요."
+        >
+          {downloading ? '내보내는 중…' : '⬇ 가격표 다운로드'}
+        </button>
+        <button
+          className="tt-excel-btn tt-excel-btn-primary"
+          onClick={triggerUpload}
+          title="가격표 엑셀을 업로드합니다. 업로드 후 반영 방식(이것만 남기기 / 덮어쓰기)을 선택합니다."
+        >
+          ⬆ 가격표 업로드
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".xlsx,.xls"
+          style={{ display: 'none' }}
+          onChange={handleFileSelected}
+        />
+
         <span className="tt-count">{filtered.length}개 시술</span>
       </div>
 
@@ -341,6 +505,249 @@ export function TreatmentTool() {
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* 가격표 업로드 — 실행 전 확인 */}
+      {importPlan && (
+        <div className="tt-modal-overlay">
+          <div className="tt-modal tt-modal-wide">
+            <h3 className="tt-modal-title">가격표 반영 — 방식 선택</h3>
+
+            {/* 반영 방식 선택 */}
+            <div className="tt-mode-toggle">
+              <button
+                className={`tt-mode-btn ${importPlan.mode === 'replace' ? 'active' : ''}`}
+                onClick={() => computePlan('replace')}
+                disabled={importing}
+              >
+                이것만 남기기
+                <span className="tt-mode-sub">빠진 옵션 삭제</span>
+              </button>
+              <button
+                className={`tt-mode-btn ${importPlan.mode === 'upsert' ? 'active' : ''}`}
+                onClick={() => computePlan('upsert')}
+                disabled={importing}
+              >
+                덮어쓰기
+                <span className="tt-mode-sub">추가·갱신만</span>
+              </button>
+            </div>
+
+            <div className="tt-import-summary">
+              <div className="tt-import-stat">
+                <span className="tt-import-stat-num">
+                  {importPlan.updates.length}
+                </span>
+                <span className="tt-import-stat-label">갱신 시술</span>
+              </div>
+              <div className="tt-import-stat">
+                <span className="tt-import-stat-num">
+                  {importPlan.optionTotal}
+                </span>
+                <span className="tt-import-stat-label">가격옵션</span>
+              </div>
+              {importPlan.mode === 'replace' && importPlan.removedTotal > 0 && (
+                <div className="tt-import-stat tt-import-stat-danger">
+                  <span className="tt-import-stat-num">
+                    {importPlan.removedTotal}
+                  </span>
+                  <span className="tt-import-stat-label">삭제 옵션</span>
+                </div>
+              )}
+              {importPlan.invalid.length > 0 && (
+                <div className="tt-import-stat tt-import-stat-warn">
+                  <span className="tt-import-stat-num">
+                    {importPlan.invalid.length}
+                  </span>
+                  <span className="tt-import-stat-label">오류(제외)</span>
+                </div>
+              )}
+            </div>
+
+            <p className="tt-import-note">
+              {importPlan.mode === 'replace' ? (
+                <>
+                  슬러그 기준으로 각 시술의 가격옵션을 시트 내용으로 교체합니다.
+                  <strong> 시트에서 빠진 옵션은 삭제됩니다.</strong>{' '}
+                  영어·중국어·일본어 번역은 적용부위·옵션명·용량(한국어
+                  기준)으로 매칭해 보존됩니다. 시트에 없는 시술은 변경되지
+                  않습니다.
+                </>
+              ) : (
+                <>
+                  시트의 옵션을 추가·갱신만 합니다.{' '}
+                  <strong>
+                    시트에 없는 기존 옵션은 삭제하지 않고 그대로 둡니다.
+                  </strong>{' '}
+                  번역은 적용부위·옵션명·용량(한국어 기준)으로 매칭해
+                  보존됩니다.
+                </>
+              )}
+            </p>
+
+            {importPlan.updates.length > 0 && (
+              <div className="tt-import-list">
+                <p className="tt-import-list-title">
+                  갱신될 시술 — {importPlan.updates.length}개
+                </p>
+                <ul>
+                  {importPlan.updates.map((u) => (
+                    <li key={u.id}>
+                      {u.name || '(이름없음)'}{' '}
+                      <span className="tt-import-slug">{u.slug}</span> · 옵션{' '}
+                      {u.optionCount}개
+                      {importPlan.mode === 'replace' && u.removed > 0 && (
+                        <span className="tt-import-removed">
+                          {' '}
+                          · 삭제 {u.removed}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {importPlan.invalid.length > 0 && (
+              <div className="tt-import-list tt-import-list-warn">
+                <p className="tt-import-list-title">
+                  반영되지 않는 행 — {importPlan.invalid.length}개
+                </p>
+                <ul>
+                  {importPlan.invalid.map((v, i) => (
+                    <li key={i}>
+                      {v.rowNum}행 {v.name && `· ${v.name}`}{' '}
+                      {v.slug && (
+                        <span className="tt-import-slug">{v.slug}</span>
+                      )}{' '}
+                      — {v.reason}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="tt-modal-actions">
+              <button
+                className="tt-modal-cancel"
+                onClick={() => {
+                  setImportPlan(null);
+                  importSource.current = null;
+                }}
+                disabled={importing}
+              >
+                취소
+              </button>
+              <button
+                className="tt-modal-confirm"
+                onClick={runImport}
+                disabled={importing || importPlan.updates.length === 0}
+              >
+                {importing
+                  ? '반영 중…'
+                  : importPlan.mode === 'replace'
+                    ? '이것만 남기기 실행'
+                    : '덮어쓰기 실행'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 가격표 업로드 — 결과 */}
+      {importResult && (
+        <div className="tt-modal-overlay">
+          <div className="tt-modal tt-modal-wide">
+            <h3 className="tt-modal-title">가격표 반영 완료</h3>
+            <div className="tt-import-summary">
+              <div className="tt-import-stat">
+                <span className="tt-import-stat-num">
+                  {importResult.updated}
+                </span>
+                <span className="tt-import-stat-label">갱신 시술</span>
+              </div>
+              <div className="tt-import-stat">
+                <span className="tt-import-stat-num">
+                  {importResult.optionTotal}
+                </span>
+                <span className="tt-import-stat-label">가격옵션</span>
+              </div>
+              {importResult.mode === 'replace' &&
+                importResult.removedTotal > 0 && (
+                  <div className="tt-import-stat tt-import-stat-danger">
+                    <span className="tt-import-stat-num">
+                      {importResult.removedTotal}
+                    </span>
+                    <span className="tt-import-stat-label">삭제 옵션</span>
+                  </div>
+                )}
+              {(importResult.failures.length > 0 ||
+                importResult.invalid.length > 0) && (
+                <div className="tt-import-stat tt-import-stat-warn">
+                  <span className="tt-import-stat-num">
+                    {importResult.failures.length + importResult.invalid.length}
+                  </span>
+                  <span className="tt-import-stat-label">실패</span>
+                </div>
+              )}
+            </div>
+
+            {(importResult.failures.length > 0 ||
+              importResult.invalid.length > 0) && (
+              <div className="tt-import-list tt-import-list-warn">
+                <p className="tt-import-list-title">
+                  반영하지 못한 항목 —{' '}
+                  {importResult.failures.length + importResult.invalid.length}개
+                </p>
+                <ul>
+                  {importResult.invalid.map((v, i) => (
+                    <li key={`inv-${i}`}>
+                      {v.rowNum}행 {v.name && `· ${v.name}`}{' '}
+                      {v.slug && (
+                        <span className="tt-import-slug">{v.slug}</span>
+                      )}{' '}
+                      — {v.reason}
+                    </li>
+                  ))}
+                  {importResult.failures.map((f, i) => (
+                    <li key={`fail-${i}`}>
+                      {f.name || '(이름없음)'}{' '}
+                      <span className="tt-import-slug">{f.slug}</span> —{' '}
+                      {f.reason}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="tt-modal-actions">
+              <button
+                className="tt-modal-confirm"
+                onClick={() => setImportResult(null)}
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 엑셀 오류 알림 */}
+      {importError && (
+        <div className="tt-modal-overlay">
+          <div className="tt-modal">
+            <h3 className="tt-modal-title">엑셀 처리 오류</h3>
+            <p className="tt-modal-body">{importError}</p>
+            <div className="tt-modal-actions">
+              <button
+                className="tt-modal-confirm"
+                onClick={() => setImportError(null)}
+              >
+                확인
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -461,13 +868,13 @@ function TreatmentRow({
         </select>
       </td>
 
-      <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
-        <input
-          type="checkbox"
-          className="tt-toggle tt-toggle-event"
-          checked={!!doc.isEvent}
-          onChange={(e) => onPatch(doc._id, { isEvent: e.target.checked })}
-        />
+      <td style={{ textAlign: 'center' }}>
+        <span
+          className={`tt-event-badge${doc.isEvent ? 'tt-event-badge-on' : ''}`}
+          title="가격 옵션에 '이벤트' 항목이 있으면 자동으로 표시됩니다"
+        >
+          {doc.isEvent ? 'EVENT' : '—'}
+        </span>
       </td>
 
       <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>

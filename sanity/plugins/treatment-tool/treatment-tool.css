@@ -222,6 +222,23 @@
   background: #2b2b2b;
 }
 
+.tt-event-badge {
+  display: inline-block;
+  min-width: 48px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #b0b0b0;
+  background: #f1f1f1;
+}
+
+.tt-event-badge-on {
+  color: #fff;
+  background: #a83c44;
+}
+
 .tt-price {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -688,4 +705,228 @@
 
 .tt-modal-delete:hover {
   opacity: 0.85;
+}
+
+/* ===== 엑셀 일괄 관리 ===== */
+.tt-excel-divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--card-border-color);
+  margin: 0 2px;
+}
+
+.tt-excel-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: transparent;
+  color: var(--card-fg-color);
+  border: 1px solid var(--card-border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.12s;
+}
+
+.tt-excel-btn:hover:not(:disabled) {
+  background: var(--card-bg2-color);
+}
+
+.tt-excel-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.tt-excel-btn-primary {
+  background: var(--card-fg-color);
+  color: var(--card-bg-color);
+  border-color: var(--card-fg-color);
+}
+
+.tt-excel-btn-primary:hover:not(:disabled) {
+  opacity: 0.85;
+  background: var(--card-fg-color);
+}
+
+.tt-excel-btn-danger {
+  color: #dc2626;
+  border-color: #dc2626;
+}
+
+.tt-excel-btn-danger:hover:not(:disabled) {
+  background: #dc2626;
+  color: white;
+}
+
+/* 넓은 모달 (import) */
+.tt-modal-wide {
+  max-width: 560px;
+  width: 92vw;
+  max-height: 82vh;
+  overflow-y: auto;
+}
+
+.tt-modal-confirm {
+  padding: 7px 16px;
+  font-size: 13px;
+  background: var(--card-fg-color);
+  color: var(--card-bg-color);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.tt-modal-confirm:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.tt-modal-confirm:disabled,
+.tt-modal-delete:disabled,
+.tt-modal-cancel:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* 요약 통계 */
+.tt-import-summary {
+  display: flex;
+  gap: 10px;
+  margin: 4px 0 14px;
+  flex-wrap: wrap;
+}
+
+.tt-import-stat {
+  flex: 1;
+  min-width: 80px;
+  padding: 10px 8px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 6px;
+  text-align: center;
+  background: var(--card-bg2-color);
+}
+
+.tt-import-stat-num {
+  display: block;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--card-fg-color);
+  line-height: 1.1;
+}
+
+.tt-import-stat-label {
+  display: block;
+  font-size: 11px;
+  margin-top: 4px;
+  color: var(--card-muted-fg-color);
+}
+
+.tt-import-stat-danger .tt-import-stat-num {
+  color: #dc2626;
+}
+
+.tt-import-stat-warn .tt-import-stat-num {
+  color: #d97706;
+}
+
+.tt-import-note {
+  font-size: 12px;
+  color: var(--card-muted-fg-color);
+  line-height: 1.5;
+  margin: 0 0 14px;
+}
+
+.tt-import-list {
+  border: 1px solid var(--card-border-color);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.tt-import-list-danger {
+  border-color: #dc2626;
+  background: rgba(220, 38, 38, 0.05);
+}
+
+.tt-import-list-warn {
+  border-color: #d97706;
+  background: rgba(217, 119, 6, 0.05);
+}
+
+.tt-import-list-title {
+  font-size: 12px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: var(--card-fg-color);
+}
+
+.tt-import-list ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.tt-import-list li {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--card-fg-color);
+}
+
+.tt-import-slug {
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--card-muted-fg-color);
+  background: var(--card-bg2-color);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.tt-import-removed {
+  color: #dc2626;
+  font-size: 11px;
+}
+
+/* ===== 가격표 반영 방식 선택 ===== */
+.tt-mode-toggle {
+  display: flex;
+  gap: 8px;
+  margin: 4px 0 16px;
+}
+
+.tt-mode-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 8px;
+  border: 1.5px solid var(--card-border-color);
+  border-radius: 6px;
+  background: var(--card-bg-color);
+  color: var(--card-fg-color);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.tt-mode-btn:hover:not(:disabled):not(.active) {
+  background: var(--card-bg2-color);
+}
+
+.tt-mode-btn.active {
+  border-color: #a83c44;
+  background: rgba(168, 60, 68, 0.06);
+  color: #a83c44;
+}
+
+.tt-mode-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.tt-mode-sub {
+  font-size: 11px;
+  font-weight: 400;
+  opacity: 0.7;
 }
