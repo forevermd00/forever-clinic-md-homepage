@@ -1,7 +1,10 @@
 import { notFound } from 'next/navigation';
+import { setRequestLocale } from 'next-intl/server';
 import { ArticleDetail } from '@/components/media/ArticleDetail';
 import { getNoticeDetail } from '@/lib/data/media';
 import { ViewTracker } from '@/components/media/ViewTracker';
+
+export const revalidate = 60;
 
 export default async function NoticeDetailPage({
   params,
@@ -9,6 +12,7 @@ export default async function NoticeDetailPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
+  setRequestLocale(locale);
 
   const cmsResult = await getNoticeDetail(slug, locale);
   if (!cmsResult) notFound();

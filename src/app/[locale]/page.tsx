@@ -19,7 +19,7 @@ import {
   siteDescriptions,
   getAlternates,
   ogLocales,
-  siteNames,
+  homeTitles,
 } from '@/lib/seo/keywords';
 import { getHeroContent } from '@/lib/data/hero';
 import { getQuickEntryData } from '@/lib/data/quickEntry';
@@ -39,6 +39,7 @@ import { getPageHero } from '@/lib/data/hero';
 import { sanityFetch } from '@/lib/sanity/fetch';
 import { eventPopupQuery, homePressQuery } from '@/lib/sanity/queries';
 import { urlFor } from '@/lib/sanity/image';
+import { setRequestLocale } from 'next-intl/server';
 
 export async function generateMetadata({
   params,
@@ -47,10 +48,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   return {
+    title: { absolute: homeTitles[locale] ?? homeTitles.ko },
     description: siteDescriptions[locale] ?? siteDescriptions.ko,
     alternates: getAlternates(locale),
     openGraph: {
-      title: siteNames[locale] ?? siteNames.ko,
+      title: homeTitles[locale] ?? homeTitles.ko,
       description: siteDescriptions[locale] ?? siteDescriptions.ko,
       locale: ogLocales[locale] ?? 'ko_KR',
       images: [
@@ -60,7 +62,7 @@ export async function generateMetadata({
   };
 }
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function HomePage({
   params,
@@ -68,6 +70,7 @@ export default async function HomePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  setRequestLocale(locale);
 
   const visibility = await getSectionVisibility();
 

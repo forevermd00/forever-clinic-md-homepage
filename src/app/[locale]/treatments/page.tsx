@@ -1,9 +1,9 @@
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
 import { TreatmentsTabGrid } from '@/components/treatments/TreatmentsTabGrid';
 import { getAllCategories } from '@/lib/data/treatments';
@@ -29,7 +29,7 @@ const titles: Record<string, string> = {
   ja: '施術案内',
 };
 const descriptions: Record<string, string> = {
-  ko: '포에버 클리닉 명동 시술 안내. 리프팅, 실 리프팅, 피부케어, 토닝/색소, 보톡스/필러, 여드름/흉터 전체 시술 정보.',
+  ko: '포에버의원 명동점(포에버 클리닉) 시술 안내. 리프팅, 실 리프팅, 피부케어, 토닝/색소, 보톡스/필러, 여드름/흉터 전체 시술 정보.',
   en: 'All treatments at Forever Clinic Myeongdong. Lifting, Thread Lifting, Skincare, Toning & Pigment, Botox & Filler, Acne & Scar.',
   zh: '永恒诊所明洞全部治疗项目。提升、线提升、皮肤管理、色素管理、肉毒素与玻尿酸、痤疮与疤痕。',
   ja: 'フォーエバークリニック明洞の施術一覧。リフティング、スレッドリフト、スキンケア、トーニング、ボトックス＆フィラー、ニキビ・瘢痕。',
@@ -88,6 +88,7 @@ export default async function TreatmentsPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  setRequestLocale(locale);
 
   const visibility = await getSectionVisibility();
   if (!visibility.nav.treatments) {

@@ -1,7 +1,7 @@
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { sanityFetch } from '@/lib/sanity/fetch';
 import { quickEntryCardBySlugQuery } from '@/lib/sanity/queries';
 import { TreatmentCard } from '@/components/treatments/TreatmentCard';
@@ -46,7 +46,7 @@ function formatPrice(
   return `₩${price.toLocaleString()}`;
 }
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function TreatmentCategoryPage({
   params,
@@ -54,6 +54,7 @@ export default async function TreatmentCategoryPage({
   params: Promise<{ locale: string; category: string }>;
 }) {
   const { locale, category } = await params;
+  setRequestLocale(locale);
 
   const isKnownCategory = TREATMENT_CATEGORIES.some((c) => c.slug === category);
   if (isKnownCategory) {

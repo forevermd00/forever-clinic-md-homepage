@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
 import { DoctorGrid } from '@/components/brand/DoctorGrid';
 import { GalleryCarousel } from '@/components/brand/GalleryCarousel';
@@ -35,7 +35,7 @@ const brandTitles: Record<string, string> = {
   ja: 'ブランドストーリー',
 };
 const brandDescriptions: Record<string, string> = {
-  ko: '포에버 클리닉 명동 소개. 전문의 의료진 프로필, 최신 레이저·리프팅 장비, 시술실 시설 안내. 명동역 도보 1분.',
+  ko: '포에버의원 명동점(포에버 클리닉) 소개. 전문의 의료진 프로필, 최신 레이저·리프팅 장비, 시술실 시설 안내. 명동역 도보 1분.',
   en: 'About Forever Clinic Myeongdong. Our dermatologist team, state-of-the-art laser & lifting equipment, and modern facilities. 1 min from Myeongdong Station.',
   zh: '永恒诊所明洞介绍。皮肤科专业医生团队、最新激光提升设备与现代诊疗设施。距明洞站步行1分钟。',
   ja: 'フォーエバークリニック明洞のご紹介。皮膚科専門医チーム、最新レーザー・リフティング機器、モダンな施設案内。明洞駅から徒歩1分。',
@@ -62,7 +62,7 @@ export async function generateMetadata({
   };
 }
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function BrandPage({
   params,
@@ -70,6 +70,7 @@ export default async function BrandPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  setRequestLocale(locale);
 
   const visibility = await getSectionVisibility();
   if (!visibility.nav.brand) {

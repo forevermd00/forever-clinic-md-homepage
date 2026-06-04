@@ -1,5 +1,6 @@
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
+import { setRequestLocale } from 'next-intl/server';
 import { getPageHero } from '@/lib/data/hero';
 import { urlFor } from '@/lib/sanity/image';
 import { MediaLayoutClient } from '@/components/media/MediaLayoutClient';
@@ -13,6 +14,7 @@ export default async function MediaLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  setRequestLocale(locale);
 
   const [visibility, press, video, blog, notice] = await Promise.all([
     getSectionVisibility(),

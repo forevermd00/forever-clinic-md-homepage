@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { ContactFormSection } from '@/components/home/ContactFormSection';
 import { getAlternates, ogLocales, siteNames } from '@/lib/seo/keywords';
@@ -27,7 +27,7 @@ const titles: Record<string, string> = {
   ja: '予約・お問い合わせ',
 };
 const descriptions: Record<string, string> = {
-  ko: '포에버 클리닉 명동 예약 및 상담. 온라인 상담, 오시는 길, 진료 시간 안내.',
+  ko: '포에버의원 명동점(포에버 클리닉) 예약 및 상담. 온라인 상담, 오시는 길, 진료 시간 안내.',
   en: 'Contact Forever Clinic Myeongdong. Online consultation, directions, and business hours.',
   zh: '联系永恒诊所明洞。在线咨询、交通指南、营业时间。',
   ja: 'フォーエバークリニック明洞へのお問い合わせ。オンライン相談、アクセス、診療時間。',
@@ -56,7 +56,7 @@ export async function generateMetadata({
    Hero -> Online consultation form -> Directions
    ---------------------------------------------------------------- */
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function ContactPage({
   params,
@@ -64,6 +64,7 @@ export default async function ContactPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations('contact');
   const [clinic, contactConfig, businessHours, visibility] = await Promise.all([
     getClinicInfo(locale),

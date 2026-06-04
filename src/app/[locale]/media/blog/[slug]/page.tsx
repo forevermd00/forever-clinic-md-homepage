@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { toPlainText } from '@portabletext/toolkit';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getArticleJsonLd } from '@/lib/seo/jsonld';
 import { getBlogDetail } from '@/lib/data/media';
+import { sanityFetch } from '@/lib/sanity/fetch';
 import { BlogContent } from '@/components/media/BlogContent';
 import { ViewTracker } from '@/components/media/ViewTracker';
 import {
@@ -39,12 +40,26 @@ export async function generateMetadata({
   };
 }
 
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  try {
+    const items = await sanityFetch<{ slug: string }[]>(
+      `*[_type == "blogPost" && isVisible != false]{ "slug": slug.current }`,
+    );
+    return (items ?? []).filter((i) => i.slug).map((i) => ({ slug: i.slug }));
+  } catch {
+    return [];
+  }
+}
+
 export default async function BlogDetailPage({
   params,
 }: {
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations('common');
 
   const cmsResult = await getBlogDetail(slug, locale);

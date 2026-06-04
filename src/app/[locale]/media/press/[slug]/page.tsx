@@ -5,6 +5,8 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { getArticleJsonLd } from '@/lib/seo/jsonld';
 import { getPressDetail } from '@/lib/data/media';
 import { ViewTracker } from '@/components/media/ViewTracker';
+import { setRequestLocale } from 'next-intl/server';
+import { sanityFetch } from '@/lib/sanity/fetch';
 import {
   BASE_URL,
   getAlternates,
@@ -36,12 +38,26 @@ export async function generateMetadata({
   };
 }
 
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  try {
+    const items = await sanityFetch<{ slug: string }[]>(
+      `*[_type == "pressArticle" && isVisible != false]{ "slug": _id }`,
+    );
+    return (items ?? []).filter((i) => i.slug).map((i) => ({ slug: i.slug }));
+  } catch {
+    return [];
+  }
+}
+
 export default async function PressDetailPage({
   params,
 }: {
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
+  setRequestLocale(locale);
 
   const cmsResult = await getPressDetail(slug, locale);
   if (!cmsResult) notFound();
