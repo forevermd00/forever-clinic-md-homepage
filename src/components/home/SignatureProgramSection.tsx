@@ -80,7 +80,8 @@ function ProgramCard({
 }) {
   function formatPrice(won: number | null | undefined): string {
     if (won == null) return inquireText;
-    return won.toLocaleString('ko-KR') + '원';
+    const n = won.toLocaleString('ko-KR');
+    return locale === 'ko' ? `${n}원` : `₩${n}`;
   }
 
   const category = program.category || 'signature';
