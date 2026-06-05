@@ -29,7 +29,7 @@ const titles: Record<string, string> = {
 const descriptions: Record<string, string> = {
   ko: '포에버의원 명동점(포에버 클리닉) 예약 및 상담. 온라인 상담, 오시는 길, 진료 시간 안내.',
   en: 'Contact Forever Clinic Myeongdong. Online consultation, directions, and business hours.',
-  zh: '联系永恒诊所明洞。在线咨询、交通指南、营业时间。',
+  zh: '明洞Forever皮肤科（Forever Clinic）预约及咨询。在线咨询、到院路线、诊疗时间指南。',
   ja: 'フォーエバークリニック明洞へのお問い合わせ。オンライン相談、アクセス、診療時間。',
 };
 

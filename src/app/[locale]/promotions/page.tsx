@@ -16,7 +16,7 @@ const titles: Record<string, string> = {
 const descriptions: Record<string, string> = {
   ko: '포에버의원 명동점(포에버 클리닉) 진행 중인 이벤트와 프로모션. 울쎄라, 써마지, 보톡스 할인 정보.',
   en: 'Current events and promotions at Forever Clinic Myeongdong. Ultherapy, Thermage, Botox discounts.',
-  zh: '永恒诊所明洞正在进行的活动与优惠。超声刀、热玛吉、肉毒素折扣信息。',
+  zh: '明洞Forever皮肤科（Forever Clinic）正在进行的活动与优惠。超声刀、热玛吉、肉毒素折扣信息。',
   ja: 'フォーエバークリニック明洞の開催中イベントとプロモーション。ウルセラ、サーマジ、ボトックス割引情報。',
 };
 

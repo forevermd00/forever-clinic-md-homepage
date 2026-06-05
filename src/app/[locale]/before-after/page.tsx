@@ -13,13 +13,13 @@ import { getSectionVisibility } from '@/lib/data/visibility';
 const titles: Record<string, string> = {
   ko: '비포 & 애프터',
   en: 'Before & After',
-  zh: '前后对比',
+  zh: 'Before & After',
   ja: 'ビフォー＆アフター',
 };
 const descriptions: Record<string, string> = {
   ko: '포에버의원 명동점(포에버 클리닉) 시술 전후 사진. 울쎄라, 써마지, 보톡스, 필러 등 실제 시술 결과를 확인하세요.',
   en: 'Before and after photos of treatments at Forever Clinic Myeongdong. See real results of Ultherapy, Thermage, Botox, Filler.',
-  zh: '永恒诊所明洞治疗前后照片。查看超声刀、热玛吉、肉毒素、玻尿酸的实际效果。',
+  zh: '明洞Forever皮肤科（Forever Clinic）施术前后照片。超声刀、热玛吉、肉毒素、玻尿酸等真实施术效果，欢迎查看。',
   ja: 'フォーエバークリニック明洞の施術ビフォーアフター写真。ウルセラ、サーマジ、ボトックス、フィラーの実際の結果をご確認ください。',
 };
 

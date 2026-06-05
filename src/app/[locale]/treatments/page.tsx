@@ -25,13 +25,13 @@ function toImageUrl(
 const titles: Record<string, string> = {
   ko: '시술 안내',
   en: 'Treatments',
-  zh: '治疗项目',
+  zh: '项目介绍',
   ja: '施術案内',
 };
 const descriptions: Record<string, string> = {
   ko: '포에버의원 명동점(포에버 클리닉) 시술 안내. 리프팅, 실 리프팅, 피부케어, 토닝/색소, 보톡스/필러, 여드름/흉터 전체 시술 정보.',
   en: 'All treatments at Forever Clinic Myeongdong. Lifting, Thread Lifting, Skincare, Toning & Pigment, Botox & Filler, Acne & Scar.',
-  zh: '永恒诊所明洞全部治疗项目。提升、线提升、皮肤管理、色素管理、肉毒素与玻尿酸、痤疮与疤痕。',
+  zh: '明洞Forever皮肤科（Forever Clinic）施术指南。提升、线雕提升、皮肤护理、净肤/色素、肉毒素/玻尿酸、痘痘/疤痕等全部施术信息。',
   ja: 'フォーエバークリニック明洞の施術一覧。リフティング、スレッドリフト、スキンケア、トーニング、ボトックス＆フィラー、ニキビ・瘢痕。',
 };
 

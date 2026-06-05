@@ -8,11 +8,13 @@ import { legalDocumentQuery } from '@/lib/sanity/queries';
 const titles: Record<string, string> = {
   ko: '이용약관',
   en: 'Terms of Service',
+  zh: '使用条款',
 };
 
 const descriptions: Record<string, string> = {
   ko: '포에버 의원 명동점 이용약관.',
   en: 'Terms of service for Forever Clinic Myeongdong.',
+  zh: '明洞Forever皮肤科使用条款。',
 };
 
 export async function generateMetadata({

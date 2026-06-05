@@ -34,7 +34,7 @@ import { getSectionVisibility } from '@/lib/data/visibility';
 const CLINIC_NAMES: Record<string, string> = {
   ko: '포에버의원',
   en: 'Forever Clinic',
-  zh: '博爱医院',
+  zh: 'Forever皮肤科',
   ja: 'フォーエバークリニック',
 };
 
@@ -121,7 +121,7 @@ function mapCmsTreatment(
 const CLINIC_SUFFIX: Record<string, string> = {
   ko: ' | 서울 명동 포에버의원',
   en: ' | Forever Clinic Myeongdong, Seoul',
-  zh: ' | 首尔明洞永恒诊所',
+  zh: ' | 首尔明洞Forever皮肤科',
   ja: ' | ソウル明洞フォーエバークリニック',
 };
 
