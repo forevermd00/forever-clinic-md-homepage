@@ -20,7 +20,7 @@ export function getMedicalBusinessJsonLd(
         : locale === 'en'
           ? 'Forever Clinic Myeongdong'
           : locale === 'zh'
-            ? '永恒诊所 明洞'
+            ? 'Forever皮肤科 明洞'
             : 'フォーエバークリニック 明洞',
     alternateName:
       locale === 'ko'
@@ -28,13 +28,13 @@ export function getMedicalBusinessJsonLd(
         : locale === 'en'
           ? 'Forever Clinic'
           : locale === 'zh'
-            ? 'Forever Clinic 永恒诊所'
+            ? 'Forever皮肤科'
             : 'Forever Clinic',
     description: byLocale(
       {
         ko: '포에버의원 명동점은 서울 명동에 위치한 피부과로 울쎄라·써마지 리프팅, 보톡스·필러, 스킨케어를 제공합니다. 한국어·영어·중국어·일본어 상담이 가능하며 외국인 환자 진료를 환영합니다.',
         en: 'Forever Clinic Myeongdong is a dermatology clinic in Myeongdong, Seoul, offering Ulthera and Thermage lifting, Botox and filler, and skincare. Consultations are available in Korean, English, Chinese, and Japanese, and international patients are welcome.',
-        zh: '永恒诊所明洞店是位于首尔明洞的皮肤科诊所，提供超声刀(Ulthera)·热玛吉(Thermage)提升、肉毒素·填充及皮肤管理。可用韩语·英语·中文·日语咨询，欢迎外国患者就诊。',
+        zh: 'Forever皮肤科明洞店是位于首尔明洞的皮肤科诊所，提供超声刀(Ulthera)·热玛吉(Thermage)提升、肉毒素·填充及皮肤管理。可用韩语·英语·中文·日语咨询，欢迎外国患者就诊。',
         ja: 'フォーエバークリニック明洞店はソウル明洞に位置する皮膚科で、ウルセラ・サーマジェのリフティング、ボトックス・フィラー、スキンケアを提供します。韓国語・英語・中国語・日本語での相談が可能で、外国人患者を歓迎します。',
       },
       locale,

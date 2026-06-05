@@ -94,7 +94,7 @@ export function getKeywords(locale: string): string[] {
 export const siteNames: Record<string, string> = {
   ko: '포에버의원 명동점',
   en: 'Forever Clinic Myeongdong',
-  zh: '永恒诊所 明洞',
+  zh: 'Forever皮肤科 明洞',
   ja: 'フォーエバークリニック 明洞',
 };
 
@@ -102,7 +102,7 @@ export const siteNames: Record<string, string> = {
 export const homeTitles: Record<string, string> = {
   ko: '포에버의원 명동점 | 서울 명동 피부과 써마지 울쎄라',
   en: 'Forever Clinic Myeongdong | Seoul Dermatology — Ultherapy & Thermage',
-  zh: '永恒诊所 明洞（Forever Clinic）| 首尔明洞皮肤科 热玛吉 超声刀',
+  zh: 'Forever皮肤科 明洞（Forever Clinic）| 首尔明洞皮肤科 热玛吉 超声刀',
   ja: 'フォーエバークリニック明洞（Forever Clinic）| ソウル明洞皮膚科 サーマジ・ウルセラ',
 };
 
