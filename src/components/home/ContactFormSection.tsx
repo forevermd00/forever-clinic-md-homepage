@@ -506,11 +506,6 @@ export function ContactFormSection({
                   <label className="text-[13px] font-medium text-[#2b2b2b]">
                     {t('formPreferredDatetime')}
                     <span className="ml-1 text-[#a83c44]">*</span>
-                    {attemptedSubmit && datetimeInvalid && (
-                      <span className="ml-2 text-[11px] font-normal text-[#a83c44]">
-                        {tc('required')}
-                      </span>
-                    )}
                   </label>
                   <div className="flex min-h-[44px] gap-5">
                     {/* 좌: 날짜 선택 */}
