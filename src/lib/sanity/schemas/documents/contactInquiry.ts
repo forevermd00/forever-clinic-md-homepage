@@ -171,5 +171,51 @@ export default defineType({
       type: 'datetime',
       readOnly: true,
     }),
+
+    // ── CRM(전능) 예약 적재 결과 (시스템 자동 기록) ──
+    defineField({
+      name: 'crmSyncStatus',
+      title: 'CRM 적재 상태',
+      type: 'string',
+      readOnly: true,
+      options: {
+        list: [
+          { title: '성공', value: 'success' },
+          { title: '실패', value: 'failed' },
+          { title: '미시도', value: 'skipped' },
+        ],
+      },
+    }),
+    defineField({
+      name: 'crmCustomerNumber',
+      title: 'CRM 고객번호',
+      type: 'string',
+      readOnly: true,
+    }),
+    defineField({
+      name: 'crmReservationSeqNo',
+      title: 'CRM 예약번호',
+      type: 'number',
+      readOnly: true,
+    }),
+    defineField({
+      name: 'crmReservationFrom',
+      title: '유입 출처(UTM)',
+      type: 'string',
+      readOnly: true,
+    }),
+    defineField({
+      name: 'crmError',
+      title: 'CRM 적재 오류',
+      type: 'text',
+      rows: 2,
+      readOnly: true,
+    }),
+    defineField({
+      name: 'crmSyncedAt',
+      title: 'CRM 적재 시각',
+      type: 'datetime',
+      readOnly: true,
+    }),
   ],
 });

@@ -12,6 +12,7 @@ import { SessionProvider } from 'next-auth/react';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getMedicalBusinessJsonLd } from '@/lib/seo/jsonld';
 import { AnalyticsTracker } from '@/components/analytics/AnalyticsTracker';
+import { UtmCapture } from '@/components/analytics/UtmCapture';
 import { GA_MEASUREMENT_ID, isGAEnabled } from '@/lib/analytics/config';
 import { sanityFetch } from '@/lib/sanity/fetch';
 import {
@@ -139,6 +140,7 @@ export default async function LocaleLayout({
             />
             <FloatingCTA messengerLinks={clinicInfo?.messengerLinks ?? []} />
             <AnalyticsTracker />
+            <UtmCapture />
           </NextIntlClientProvider>
         </SessionProvider>
         {isGAEnabled && <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />}

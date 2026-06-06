@@ -147,20 +147,6 @@ export const sectionVisibility = defineType({
       ],
     }),
     defineField({
-      name: 'contact',
-      title: '상담 폼 설정',
-      type: 'object',
-      fields: [
-        defineField({
-          name: 'showPreferredDatetime',
-          title: '희망 예약 일시 표시',
-          description: '꺼두면 상담 폼에서 날짜/시간 선택 항목이 숨겨집니다.',
-          type: 'boolean',
-          initialValue: true,
-        }),
-      ],
-    }),
-    defineField({
       name: 'treatments',
       title: '시술 페이지 설정',
       type: 'object',

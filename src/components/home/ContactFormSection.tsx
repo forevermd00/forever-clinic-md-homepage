@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useSyncExternalStore } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { cn } from '@/lib/utils/cn';
 import { useCartStore } from '@/lib/store/cart';
 import { trackFormSubmit } from '@/lib/analytics/events';
+import { buildAttribution, clearStoredUtm } from '@/lib/utm';
 import type {
   ContactSectionConfig,
   BusinessHoursEntry,
@@ -164,6 +165,29 @@ export function ContactFormSection({
   const [privacyError, setPrivacyError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  // CRM 부서별 예약수 기준으로 마감된 슬롯 (HH:mm)
+  const [blockedSlots, setBlockedSlots] = useState<string[]>([]);
+
+  // 날짜 선택 시 가용 슬롯 조회 → 한도 초과 슬롯 비활성화
+  // (빈 상태로의 초기화는 날짜 변경 핸들러에서 처리 → effect 내 동기 setState 회피)
+  useEffect(() => {
+    if (!showPreferredDatetime || !preferredDate) return;
+    let cancelled = false;
+    fetch(`/api/reservation/availability?date=${preferredDate}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data) return;
+        setBlockedSlots(
+          Array.isArray(data.blockedSlots) ? data.blockedSlots : [],
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setBlockedSlots([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [preferredDate, showPreferredDatetime]);
 
   const headerBgColor = '#1a1a1a';
   const accentColor = '#a83c44';
@@ -182,13 +206,22 @@ export function ContactFormSection({
   const phoneInvalid = !phoneDigits;
   const emailInvalid = !email.trim() || !emailValid;
   const birthDateInvalid = !birthDate || !birthDateValid;
+  // CRM은 예약 일시가 필수 → 날짜·시간 모두 필수 입력
+  const datetimeInvalid =
+    showPreferredDatetime && (!preferredDate || !preferredTime);
   const errBorder = (invalid: boolean) =>
     attemptedSubmit && invalid ? 'border-[#a83c44]' : 'border-[#d9d9d9]';
 
   const handleSubmit = async () => {
     if (isSubmitting) return;
     setAttemptedSubmit(true);
-    if (nameInvalid || phoneInvalid || emailInvalid || birthDateInvalid) {
+    if (
+      nameInvalid ||
+      phoneInvalid ||
+      emailInvalid ||
+      birthDateInvalid ||
+      datetimeInvalid
+    ) {
       return;
     }
     if (!privacyConsent) {
@@ -197,14 +230,17 @@ export function ContactFormSection({
     }
     setIsSubmitting(true);
     try {
+      const toLine = (i: (typeof activeCartItems)[number]) => ({
+        treatmentSlug: i.treatmentSlug,
+        treatmentName: i.treatmentName,
+        packageLabel: i.packageLabel,
+        quantity: i.quantity,
+      });
       const selectedTreatments = activeCartItems
         .filter((i) => effectiveCheckedIds.has(i.id))
-        .map((i) => ({
-          treatmentSlug: i.treatmentSlug,
-          treatmentName: i.treatmentName,
-          packageLabel: i.packageLabel,
-          quantity: i.quantity,
-        }));
+        .map(toLine);
+      // 견적(장바구니 전체) — etcMemo 기록용
+      const estimateItems = activeCartItems.map(toLine);
 
       const res = await fetch('/api/contact', {
         method: 'POST',
@@ -214,15 +250,18 @@ export function ContactFormSection({
           birthDate,
           email: email.trim(),
           phone: `${countryCode} ${formatPhone(phoneDigits)}`,
+          cellPhone: phoneDigits, // 국가코드 제외 로컬 숫자 (CRM 등록용)
           messengerType: messengerId.trim() ? messengerType : undefined,
           messengerId: messengerId.trim() || undefined,
           message,
           treatments:
             selectedTreatments.length > 0 ? selectedTreatments : undefined,
+          estimateItems: estimateItems.length > 0 ? estimateItems : undefined,
           preferredDate: preferredDate || undefined,
           preferredTime: preferredTime || undefined,
           source: 'contact-form',
           locale,
+          attribution: buildAttribution(),
         }),
       });
 
@@ -233,6 +272,8 @@ export function ContactFormSection({
           has_preferred_datetime: Boolean(preferredDate),
         });
         setIsSuccess(true);
+        // 예약 시점에 UTM 소비 → 저장값 제거
+        clearStoredUtm();
         setName('');
         setBirthDate('');
         setEmail('');
@@ -459,6 +500,128 @@ export function ContactFormSection({
                 </div>
               </div>
 
+              {/* 희망 예약 일시 — 메신저 바로 아래 */}
+              {showDatetime && (
+                <div className="flex flex-col gap-2">
+                  <label className="text-[13px] font-medium text-[#2b2b2b]">
+                    {t('formPreferredDatetime')}
+                    <span className="ml-1 text-[#a83c44]">*</span>
+                    {attemptedSubmit && datetimeInvalid && (
+                      <span className="ml-2 text-[11px] font-normal text-[#a83c44]">
+                        {tc('required')}
+                      </span>
+                    )}
+                  </label>
+                  <div className="flex min-h-[44px] gap-5">
+                    {/* 좌: 날짜 선택 */}
+                    <div className="flex w-[180px] shrink-0 flex-col gap-1.5">
+                      <div className="relative h-[44px] w-full rounded-[6px] border border-[#d9d9d9] bg-white">
+                        {/* 로케일별 포맷 표시 */}
+                        <div className="pointer-events-none absolute inset-0 flex items-center justify-between px-3">
+                          <span className="text-[14px] text-[#2b2b2b]">
+                            {preferredDate ? (
+                              formatDateForLocale(preferredDate, locale)
+                            ) : (
+                              <span className="text-[#bbb]">
+                                {DATE_PLACEHOLDER[locale] ??
+                                  DATE_PLACEHOLDER.ko}
+                              </span>
+                            )}
+                          </span>
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#999"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <rect
+                              x="3"
+                              y="4"
+                              width="18"
+                              height="18"
+                              rx="2"
+                              ry="2"
+                            />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                          </svg>
+                        </div>
+                        {/* 실제 date input — 투명하게 올려서 picker 동작 */}
+                        <input
+                          type="date"
+                          value={preferredDate}
+                          min={getTodayStr()}
+                          onChange={(e) => {
+                            setPreferredDate(e.target.value);
+                            setPreferredTime('');
+                            setBlockedSlots([]);
+                          }}
+                          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                        />
+                      </div>
+                    </div>
+                    {/* 우: 시간 슬롯 */}
+                    <div className="flex flex-1 flex-wrap content-start gap-1.5">
+                      {(() => {
+                        if (!preferredDate) {
+                          return null;
+                        }
+                        const slots = getTimeSlots(preferredDate, hours);
+                        if (slots.length === 0) {
+                          return (
+                            <div className="flex h-[44px] items-center">
+                              <p className="text-[13px] text-[#ccc]">
+                                {t('clinicClosedOnDate')}
+                              </p>
+                            </div>
+                          );
+                        }
+                        return slots.map((slot) => {
+                          const available =
+                            isSlotAvailable(preferredDate, slot) &&
+                            !blockedSlots.includes(slot);
+                          const selected = preferredTime === slot;
+                          return (
+                            <button
+                              key={slot}
+                              type="button"
+                              disabled={!available}
+                              onClick={() =>
+                                setPreferredTime(selected ? '' : slot)
+                              }
+                              data-ga-id={`contact-form.timeslot-${slot}`}
+                              className={cn(
+                                'h-[44px] rounded-[6px] border px-3 text-[13px] font-medium transition-colors',
+                                selected
+                                  ? 'border-transparent text-white'
+                                  : available
+                                    ? 'border-[#d9d9d9] bg-white text-[#2b2b2b] hover:border-[#a83c44] hover:text-[#a83c44]'
+                                    : 'cursor-not-allowed border-[#eee] bg-white text-[#ccc]',
+                              )}
+                              style={
+                                selected
+                                  ? {
+                                      backgroundColor: accentColor,
+                                      borderColor: accentColor,
+                                    }
+                                  : undefined
+                              }
+                            >
+                              {slot}
+                            </button>
+                          );
+                        });
+                      })()}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Row 2: Cart treatments with quantity controls */}
               <div className="flex flex-col gap-2">
                 <label className="text-[13px] font-medium text-[#2b2b2b]">
@@ -571,125 +734,6 @@ export function ContactFormSection({
                   {t('treatmentOptionalNote')}
                 </p>
               </div>
-
-              {/* Row 3: Preferred Date & Time — 좌: 날짜, 우: 시간 */}
-              {showDatetime && (
-                <div className="flex flex-col gap-2">
-                  <label className="text-[13px] font-medium text-[#2b2b2b]">
-                    {t('formPreferredDatetime')}
-                    <span className="ml-1.5 text-[11px] font-normal text-[#999]">
-                      ({tc('optional')})
-                    </span>
-                  </label>
-                  <div className="flex min-h-[80px] gap-5">
-                    {/* 좌: 날짜 선택 */}
-                    <div className="flex w-[180px] shrink-0 flex-col gap-1.5">
-                      <div className="relative h-[44px] w-full rounded-[6px] border border-[#d9d9d9] bg-white">
-                        {/* 로케일별 포맷 표시 */}
-                        <div className="pointer-events-none absolute inset-0 flex items-center justify-between px-3">
-                          <span className="text-[14px] text-[#2b2b2b]">
-                            {preferredDate ? (
-                              formatDateForLocale(preferredDate, locale)
-                            ) : (
-                              <span className="text-[#bbb]">
-                                {DATE_PLACEHOLDER[locale] ??
-                                  DATE_PLACEHOLDER.ko}
-                              </span>
-                            )}
-                          </span>
-                          <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="#999"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <rect
-                              x="3"
-                              y="4"
-                              width="18"
-                              height="18"
-                              rx="2"
-                              ry="2"
-                            />
-                            <line x1="16" y1="2" x2="16" y2="6" />
-                            <line x1="8" y1="2" x2="8" y2="6" />
-                            <line x1="3" y1="10" x2="21" y2="10" />
-                          </svg>
-                        </div>
-                        {/* 실제 date input — 투명하게 올려서 picker 동작 */}
-                        <input
-                          type="date"
-                          value={preferredDate}
-                          min={getTodayStr()}
-                          onChange={(e) => {
-                            setPreferredDate(e.target.value);
-                            setPreferredTime('');
-                          }}
-                          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                        />
-                      </div>
-                    </div>
-                    {/* 우: 시간 슬롯 */}
-                    <div className="flex flex-1 flex-wrap content-start gap-1.5">
-                      {(() => {
-                        if (!preferredDate) {
-                          return null;
-                        }
-                        const slots = getTimeSlots(preferredDate, hours);
-                        if (slots.length === 0) {
-                          return (
-                            <div className="flex h-[44px] items-center">
-                              <p className="text-[13px] text-[#ccc]">
-                                {t('clinicClosedOnDate')}
-                              </p>
-                            </div>
-                          );
-                        }
-                        return slots.map((slot) => {
-                          const available = isSlotAvailable(
-                            preferredDate,
-                            slot,
-                          );
-                          const selected = preferredTime === slot;
-                          return (
-                            <button
-                              key={slot}
-                              type="button"
-                              disabled={!available}
-                              onClick={() =>
-                                setPreferredTime(selected ? '' : slot)
-                              }
-                              data-ga-id={`contact-form.timeslot-${slot}`}
-                              className={cn(
-                                'h-[44px] rounded-[6px] border px-3 text-[13px] font-medium transition-colors',
-                                selected
-                                  ? 'border-transparent text-white'
-                                  : available
-                                    ? 'border-[#d9d9d9] bg-white text-[#2b2b2b] hover:border-[#a83c44] hover:text-[#a83c44]'
-                                    : 'cursor-not-allowed border-[#eee] bg-white text-[#ccc]',
-                              )}
-                              style={
-                                selected
-                                  ? {
-                                      backgroundColor: accentColor,
-                                      borderColor: accentColor,
-                                    }
-                                  : undefined
-                              }
-                            >
-                              {slot}
-                            </button>
-                          );
-                        });
-                      })()}
-                    </div>
-                  </div>
-                </div>
-              )}
 
               {/* Row 4: Message */}
               <div className="flex flex-col gap-1.5">

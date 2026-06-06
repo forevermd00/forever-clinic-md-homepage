@@ -8,6 +8,8 @@ const QUERY = `*[_type == "contactInquiry"] | order(createdAt desc) {
   _id, _createdAt, name, phone, email, message, source,
   status, consultNote, createdAt, preferredDate, preferredTime,
   isHidden,
+  crmSyncStatus, crmCustomerNumber, crmReservationSeqNo,
+  crmReservationFrom, crmError, crmSyncedAt,
   "treatments": selectedTreatments[]{ name, packageLabel, quantity }
 }`;
 
@@ -20,7 +22,8 @@ type SortKey =
   | 'message'
   | 'source'
   | 'consultNote'
-  | 'preferredDate';
+  | 'preferredDate'
+  | 'crm';
 type SortDir = 'asc' | 'desc';
 
 type Column = { key: SortKey; label: string; width: string };
@@ -32,6 +35,7 @@ const DEFAULT_COLUMNS: Column[] = [
   { key: 'phone', label: '연락처', width: '10%' },
   { key: 'source', label: '출처', width: '6%' },
   { key: 'preferredDate', label: '희망 예약일', width: '10%' },
+  { key: 'crm', label: 'CRM 적재', width: '7%' },
   { key: 'treatments', label: '관심 시술', width: '13%' },
   { key: 'message', label: '문의 내용', width: '17%' },
   { key: 'consultNote', label: '상담 메모', width: '20%' },
@@ -72,6 +76,8 @@ function getSortValue(doc: ConsultationDoc, key: SortKey): string {
       return doc.preferredDate
         ? `${doc.preferredDate}${doc.preferredTime ? ' ' + doc.preferredTime : ''}`
         : '';
+    case 'crm':
+      return doc.crmSyncStatus || '';
     default:
       return String((doc as unknown as Record<string, unknown>)[key] || '');
   }
@@ -537,6 +543,12 @@ function CellRenderer({
             : '-'}
         </td>
       );
+    case 'crm':
+      return (
+        <td onClick={onSelect}>
+          <CrmBadge doc={doc} />
+        </td>
+      );
     case 'treatments':
       return (
         <td
@@ -596,6 +608,33 @@ export function StatusBadge({ status }: { status: string }) {
   const opt = STATUS_OPTIONS.find((s) => s.value === status);
   if (!opt) return <span>{status}</span>;
   return <span className={`ct-badge ct-badge-${status}`}>{opt.label}</span>;
+}
+
+export function CrmBadge({ doc }: { doc: ConsultationDoc }) {
+  const s = doc.crmSyncStatus;
+  if (!s) return <span style={{ color: '#bbb' }}>-</span>;
+  if (s === 'success') {
+    return (
+      <span
+        title={
+          doc.crmReservationSeqNo
+            ? `예약번호 ${doc.crmReservationSeqNo}`
+            : undefined
+        }
+        style={{ color: '#059669', fontWeight: 600, fontSize: 12 }}
+      >
+        ● 성공
+      </span>
+    );
+  }
+  return (
+    <span
+      title={doc.crmError || undefined}
+      style={{ color: '#dc2626', fontWeight: 600, fontSize: 12 }}
+    >
+      ● 실패
+    </span>
+  );
 }
 
 export function formatDate(dateStr: string) {

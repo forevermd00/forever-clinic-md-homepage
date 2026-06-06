@@ -44,9 +44,6 @@ export interface SectionVisibility {
     detail: boolean;
     showPrice: boolean;
   };
-  contact: {
-    showPreferredDatetime: boolean;
-  };
   navOrder?: string[] | null;
   megaMenuOrder?: string[] | null;
   homeOrder?: string[] | null;
@@ -90,7 +87,6 @@ export const DEFAULT_VISIBILITY: SectionVisibility = {
   },
   media: { press: true, blog: true, notice: true, video: true },
   treatments: { detail: true, showPrice: true },
-  contact: { showPreferredDatetime: true },
 };
 
 // Admin saves catXxx keys (catLiftingLaser), but consuming code uses slugs (lifting-laser)
@@ -116,7 +112,6 @@ const QUERY = `*[_type == "sectionVisibility" && _id == "sectionVisibility"][0]{
   brand,
   media,
   treatments,
-  contact,
   navOrder,
   megaMenuOrder,
   homeOrder,
@@ -130,7 +125,6 @@ type RawVisibility = {
   brand?: Partial<SectionVisibility['brand']> | null;
   media?: Partial<SectionVisibility['media']> | null;
   treatments?: Partial<SectionVisibility['treatments']> | null;
-  contact?: Partial<SectionVisibility['contact']> | null;
   navOrder?: string[] | null;
   megaMenuOrder?: string[] | null;
   homeOrder?: string[] | null;
@@ -188,9 +182,6 @@ export async function getSectionVisibility(): Promise<SectionVisibility> {
     treatments: {
       detail: raw.treatments?.detail ?? true,
       showPrice: raw.treatments?.showPrice ?? true,
-    },
-    contact: {
-      showPreferredDatetime: raw.contact?.showPreferredDatetime ?? true,
     },
     navOrder: raw.navOrder ?? null,
     megaMenuOrder: normalizeMegaMenuOrder(raw.megaMenuOrder),

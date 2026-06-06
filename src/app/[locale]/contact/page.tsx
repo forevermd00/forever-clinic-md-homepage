@@ -9,7 +9,6 @@ import {
   getContactSectionConfig,
   getBusinessHours,
 } from '@/lib/data/clinic';
-import { getSectionVisibility } from '@/lib/data/visibility';
 import {
   buildAmapUrl,
   buildGoogleMapsUrl,
@@ -66,11 +65,10 @@ export default async function ContactPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations('contact');
-  const [clinic, contactConfig, businessHours, visibility] = await Promise.all([
+  const [clinic, contactConfig, businessHours] = await Promise.all([
     getClinicInfo(locale),
     getContactSectionConfig(locale),
     getBusinessHours(),
-    getSectionVisibility(),
   ]);
 
   return (
@@ -80,7 +78,6 @@ export default async function ContactPage({
         <ContactFormSection
           config={contactConfig}
           businessHours={businessHours}
-          showPreferredDatetime={visibility.contact.showPreferredDatetime}
         />
       </Suspense>
 

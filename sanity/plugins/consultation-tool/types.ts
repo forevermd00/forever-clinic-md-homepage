@@ -13,6 +13,13 @@ export interface ConsultationDoc {
   preferredDate?: string;
   preferredTime?: string;
   isHidden?: boolean;
+  // CRM(전능) 예약 적재 결과
+  crmSyncStatus?: 'success' | 'failed' | 'skipped';
+  crmCustomerNumber?: string;
+  crmReservationSeqNo?: number;
+  crmReservationFrom?: string;
+  crmError?: string;
+  crmSyncedAt?: string;
 }
 
 export const STATUS_OPTIONS = [

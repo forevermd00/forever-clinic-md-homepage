@@ -199,7 +199,6 @@ export default async function HomePage({
           <ContactFormSection
             config={contactConfig}
             businessHours={businessHours}
-            showPreferredDatetime={visibility.contact.showPreferredDatetime}
             bannerImageUrl={contactBannerUrl}
           />
         </Suspense>

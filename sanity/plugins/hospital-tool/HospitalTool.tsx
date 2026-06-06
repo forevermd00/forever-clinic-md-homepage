@@ -170,7 +170,6 @@ interface SectionVisibilityDoc {
     notice?: boolean;
   };
   treatments?: { detail?: boolean; showPrice?: boolean };
-  contact?: { showPreferredDatetime?: boolean };
 }
 
 // ─── Queries ─────────────────────────────────────────────
@@ -268,7 +267,13 @@ type BrandTab =
   | 'equipment'
   | 'clinicInfo';
 
-type SettingsTab = 'hero' | 'popups' | 'quickNav' | 'sections' | 'legal';
+type SettingsTab =
+  | 'hero'
+  | 'popups'
+  | 'quickNav'
+  | 'sections'
+  | 'legal'
+  | 'crm';
 
 const BRAND_TABS: { key: BrandTab; label: string }[] = [
   { key: 'doctors', label: '의료진' },
@@ -285,6 +290,7 @@ const SETTINGS_TABS: { key: SettingsTab; label: string }[] = [
   { key: 'quickNav', label: '빠른 탐색' },
   { key: 'sections', label: '섹션 노출' },
   { key: 'legal', label: '약관 관리' },
+  { key: 'crm', label: 'CRM 연동' },
 ];
 
 // ─── 의료진 패널 (드래그 정렬) ────────────────────────────
@@ -2836,12 +2842,6 @@ function SectionsPanel() {
       <div className="ht-sv-group">
         <div className="ht-sv-group-title">기타</div>
         <ToggleRow
-          label="상담폼 (희망예약일시)"
-          path="contact.showPreferredDatetime"
-          value={doc.contact?.showPreferredDatetime}
-          onToggle={toggle}
-        />
-        <ToggleRow
           label="시술 상세 페이지"
           path="treatments.detail"
           value={doc.treatments?.detail}
@@ -3729,6 +3729,410 @@ export function BrandTool() {
   );
 }
 
+// ─── CRM 연동 설정 패널 ─────────────────────────────────────
+interface CrmTargetUser {
+  id: string;
+  name: string;
+}
+interface CrmTargetDept {
+  code: string;
+  name: string;
+  subjectCode: string;
+  subjectName: string;
+  userDTOs: CrmTargetUser[];
+}
+interface CrmSettingsDoc {
+  subjectCode?: string | null;
+  subjectName?: string | null;
+  departmentCode?: string | null;
+  departmentName?: string | null;
+  chargeDoctorId?: string | null;
+  chargeDoctorName?: string | null;
+  reservationDurationMin?: number;
+}
+
+const crmInput: React.CSSProperties = {
+  padding: '8px 10px',
+  fontSize: 14,
+  border: '1px solid #d1d5db',
+  borderRadius: 6,
+  background: '#fff',
+  minWidth: 260,
+};
+const crmLabel: React.CSSProperties = {
+  display: 'block',
+  fontSize: 12,
+  fontWeight: 600,
+  color: '#6b7280',
+  marginBottom: 6,
+};
+
+function CrmConnectionPanel() {
+  const client = useClient({ apiVersion: '2026-05-13' });
+  const [doc, setDoc] = useState<CrmSettingsDoc | null>(null);
+  const [depts, setDepts] = useState<CrmTargetDept[]>([]);
+  const [loadingTargets, setLoadingTargets] = useState(false);
+  const [targetsError, setTargetsError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [durationMin, setDurationMin] = useState(30);
+
+  const loadTargets = () => {
+    setLoadingTargets(true);
+    setTargetsError(null);
+    fetch('/api/admin/crm/targets')
+      .then(async (r) => {
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || `HTTP ${r.status}`);
+        return d;
+      })
+      .then((d) => setDepts(d.departments ?? []))
+      .catch((e) => setTargetsError(e.message))
+      .finally(() => setLoadingTargets(false));
+  };
+
+  // 진입 시 저장값 + CRM 목록 자동 로드
+  useEffect(() => {
+    client
+      .fetch<CrmSettingsDoc | null>(
+        `*[_type == "crmSettings"][0]{subjectCode,subjectName,departmentCode,departmentName,chargeDoctorId,chargeDoctorName,reservationDurationMin}`,
+      )
+      .then((d) => {
+        setDoc(d ?? {});
+        setDurationMin(d?.reservationDurationMin ?? 30);
+      })
+      .catch(() => setDoc({}));
+    // 동기 setState 회피 위해 다음 틱에 목록 로드
+    const t = setTimeout(loadTargets, 0);
+    return () => clearTimeout(t);
+  }, [client]);
+
+  // 진료과목·부서·담당의를 각각 독립 선택 — 전체 목록에서 중복 제거
+  const subjects = Array.from(
+    new Map(
+      depts.map((d) => [
+        d.subjectCode,
+        { code: d.subjectCode, name: d.subjectName },
+      ]),
+    ).values(),
+  );
+  const doctors = Array.from(
+    new Map(depts.flatMap((d) => d.userDTOs).map((u) => [u.id, u])).values(),
+  );
+
+  // 선택 즉시 자동 저장 (다른 설정 탭과 동일)
+  const persist = async (patch: Partial<CrmSettingsDoc>) => {
+    const next = { ...(doc ?? {}), ...patch };
+    setDoc(next);
+    setSaving(true);
+    try {
+      await client.createOrReplace({
+        _id: 'crmSettings',
+        _type: 'crmSettings',
+        subjectCode: next.subjectCode ?? null,
+        subjectName: next.subjectName ?? null,
+        departmentCode: next.departmentCode ?? null,
+        departmentName: next.departmentName ?? null,
+        chargeDoctorId: next.chargeDoctorId ?? null,
+        chargeDoctorName: next.chargeDoctorName ?? null,
+        reservationDurationMin: next.reservationDurationMin ?? 30,
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!doc) return <div className="ht-loading">불러오는 중...</div>;
+
+  return (
+    <div className="ht-panel-section" style={{ maxWidth: 760 }}>
+      <p style={{ fontSize: 13, color: '#6b7280', margin: '0 0 16px' }}>
+        홈페이지에서 접수된 예약을 전능 CRM에 등록할 때 사용할 기본
+        진료과목·부서·담당의를 지정합니다. 선택하면 자동 저장됩니다. 슬롯당 예약
+        한도는 전능 CRM의 부서 설정값을 자동으로 따릅니다.
+      </p>
+
+      {saving && <span className="ht-saving-indicator">저장 중…</span>}
+
+      {targetsError && (
+        <p
+          style={{
+            fontSize: 13,
+            color: '#b91c1c',
+            background: '#fef2f2',
+            border: '1px solid #fecaca',
+            borderRadius: 6,
+            padding: '8px 12px',
+            marginBottom: 16,
+          }}
+        >
+          ⚠️ CRM 목록 조회 실패: {targetsError}{' '}
+          <button
+            type="button"
+            onClick={loadTargets}
+            style={{
+              marginLeft: 8,
+              textDecoration: 'underline',
+              background: 'none',
+              border: 'none',
+              color: '#b91c1c',
+              cursor: 'pointer',
+            }}
+          >
+            다시 시도
+          </button>
+        </p>
+      )}
+
+      <div style={{ marginBottom: 14 }}>
+        <button
+          type="button"
+          style={{
+            padding: '8px 14px',
+            fontSize: 13,
+            fontWeight: 600,
+            borderRadius: 6,
+            border: '1px solid #111',
+            background: '#fff',
+            color: '#111',
+            cursor: 'pointer',
+          }}
+          onClick={loadTargets}
+          disabled={loadingTargets}
+        >
+          {loadingTargets
+            ? '불러오는 중…'
+            : '↻ CRM에서 진료과목·부서·담당의 불러오기'}
+        </button>
+        <span style={{ marginLeft: 10, fontSize: 12, color: '#9ca3af' }}>
+          전능 CRM의 최신 목록을 가져옵니다 (탭 진입 시 자동 조회됨)
+        </span>
+      </div>
+
+      <div
+        style={{ display: 'flex', gap: 24, flexWrap: 'wrap', marginBottom: 20 }}
+      >
+        <div>
+          <label style={crmLabel}>
+            진료과목 {loadingTargets && <span>(불러오는 중…)</span>}
+          </label>
+          <select
+            style={crmInput}
+            value={doc.subjectCode ?? ''}
+            onChange={(e) => {
+              const s = subjects.find((x) => x.code === e.target.value);
+              persist({
+                subjectCode: e.target.value || null,
+                subjectName: s?.name ?? null,
+              });
+            }}
+          >
+            <option value="">— 선택 —</option>
+            {subjects.map((s) => (
+              <option key={s.code} value={s.code}>
+                {s.name} ({s.code})
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label style={crmLabel}>부서</label>
+          <select
+            style={crmInput}
+            value={doc.departmentCode ?? ''}
+            onChange={(e) => {
+              const d = depts.find((x) => x.code === e.target.value);
+              persist({
+                departmentCode: e.target.value || null,
+                departmentName: d?.name ?? null,
+              });
+            }}
+          >
+            <option value="">— 선택 —</option>
+            {depts.map((d) => (
+              <option key={d.code} value={d.code}>
+                {d.name} ({d.code})
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label style={crmLabel}>담당의</label>
+          <select
+            style={crmInput}
+            value={doc.chargeDoctorId ?? ''}
+            onChange={(e) => {
+              const u = doctors.find((x) => x.id === e.target.value);
+              persist({
+                chargeDoctorId: e.target.value || null,
+                chargeDoctorName: u?.name ?? null,
+              });
+            }}
+          >
+            <option value="">— 선택 —</option>
+            {doctors.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.name} ({u.id})
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 24 }}>
+        <label style={crmLabel}>예약 소요 시간(분)</label>
+        <input
+          type="number"
+          min={5}
+          step={5}
+          style={{ ...crmInput, minWidth: 160 }}
+          value={durationMin}
+          onChange={(e) => setDurationMin(Number(e.target.value))}
+          onBlur={() => persist({ reservationDurationMin: durationMin })}
+        />
+      </div>
+
+      <hr
+        style={{
+          border: 'none',
+          borderTop: '1px solid #e5e7eb',
+          margin: '8px 0 20px',
+        }}
+      />
+
+      <CrmSlotViewer departmentName={doc.departmentName ?? null} />
+    </div>
+  );
+}
+
+// ─── 예약 가능 슬롯(시간대별 예약 수) 조회 ──────────────────
+function CrmSlotViewer({ departmentName }: { departmentName: string | null }) {
+  const [date, setDate] = useState('');
+  const [data, setData] = useState<{
+    limit: number;
+    rows: { time: string; count: number }[];
+  } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const query = () => {
+    if (!date) return;
+    setLoading(true);
+    setErr(null);
+    setData(null);
+    fetch(`/api/admin/crm/slots?date=${date}`)
+      .then(async (r) => {
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || `HTTP ${r.status}`);
+        return d;
+      })
+      .then((d) => setData({ limit: d.limit ?? 0, rows: d.rows ?? [] }))
+      .catch((e) => setErr(e.message))
+      .finally(() => setLoading(false));
+  };
+
+  return (
+    <div>
+      <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 4px' }}>
+        예약 가능 슬롯 조회
+      </h3>
+      <p style={{ fontSize: 12, color: '#9ca3af', margin: '0 0 12px' }}>
+        선택한 날짜의 {departmentName ? `「${departmentName}」 ` : ''}부서
+        시간대별 예약 수를 조회합니다.
+      </p>
+
+      <div
+        style={{
+          display: 'flex',
+          gap: 10,
+          alignItems: 'flex-end',
+          marginBottom: 14,
+        }}
+      >
+        <div>
+          <label style={crmLabel}>날짜</label>
+          <input
+            type="date"
+            style={{ ...crmInput, minWidth: 180 }}
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+          />
+        </div>
+        <button
+          type="button"
+          style={{
+            padding: '9px 16px',
+            fontSize: 13,
+            fontWeight: 600,
+            borderRadius: 6,
+            border: '1px solid #111',
+            background: '#111',
+            color: '#fff',
+            cursor: 'pointer',
+          }}
+          onClick={query}
+          disabled={loading || !date}
+        >
+          {loading ? '조회 중…' : '조회'}
+        </button>
+      </div>
+
+      {err && <p style={{ fontSize: 13, color: '#b91c1c' }}>⚠️ {err}</p>}
+
+      {data && (
+        <div>
+          <p style={{ fontSize: 12, color: '#6b7280', margin: '0 0 8px' }}>
+            슬롯당 한도: <b>{data.limit > 0 ? `${data.limit}건` : '무제한'}</b>
+          </p>
+          {data.rows.length === 0 ? (
+            <p style={{ fontSize: 13, color: '#9ca3af' }}>
+              해당 날짜에 예약이 없습니다.
+            </p>
+          ) : (
+            <table
+              style={{
+                borderCollapse: 'collapse',
+                fontSize: 13,
+                minWidth: 320,
+              }}
+            >
+              <thead>
+                <tr style={{ textAlign: 'left', color: '#6b7280' }}>
+                  <th style={{ padding: '6px 16px 6px 0' }}>시간</th>
+                  <th style={{ padding: '6px 16px 6px 0' }}>예약 수</th>
+                  <th style={{ padding: '6px 0' }}>상태</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.rows.map((r) => {
+                  const full = data.limit > 0 && r.count >= data.limit;
+                  return (
+                    <tr key={r.time} style={{ borderTop: '1px solid #f0f0f0' }}>
+                      <td style={{ padding: '6px 16px 6px 0' }}>{r.time}</td>
+                      <td style={{ padding: '6px 16px 6px 0' }}>
+                        {r.count}
+                        {data.limit > 0 ? ` / ${data.limit}` : ''}
+                      </td>
+                      <td
+                        style={{
+                          padding: '6px 0',
+                          color: full ? '#dc2626' : '#059669',
+                          fontWeight: 600,
+                        }}
+                      >
+                        {full ? '마감' : '가능'}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function SettingsTool() {
   const router = useRouter();
   const routerState = useRouterState() as {
@@ -3790,6 +4194,7 @@ export function SettingsTool() {
       )}
       {activeTab === 'sections' && <SectionsPanel />}
       {activeTab === 'legal' && <LegalDocPanel />}
+      {activeTab === 'crm' && <CrmConnectionPanel />}
     </div>
   );
 }

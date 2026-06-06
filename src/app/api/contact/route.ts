@@ -1,6 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse, after } from 'next/server';
 import { createClient } from '@sanity/client';
 import nodemailer from 'nodemailer';
+import {
+  syncReservationToCrm,
+  type ReservationSyncResult,
+} from '@/lib/crm/sync';
+
+// CRM 동기화(외부 API 호출 + 재시도)를 위해 함수 실행 시간 여유 확보
+export const maxDuration = 30;
 
 /* ================================================================
    이메일 발송 유틸 — Gmail OAuth2 (nodemailer)
@@ -23,6 +30,7 @@ async function sendInquiryEmail(params: {
   }[];
   preferredDate?: string;
   preferredTime?: string;
+  crm?: ReservationSyncResult;
 }): Promise<void> {
   const clientId = process.env.GMAIL_CLIENT_ID;
   const clientSecret = process.env.GMAIL_CLIENT_SECRET;
@@ -76,6 +84,33 @@ async function sendInquiryEmail(params: {
         .join('')
     : `<tr><td colspan="3" style="padding:8px 12px;color:#999;">선택된 시술 없음</td></tr>`;
 
+  // CRM 적재 상태 배너 (성공/실패/에러)
+  const crm = params.crm;
+  let crmBannerHtml = '';
+  if (crm) {
+    if (crm.status === 'success') {
+      crmBannerHtml = `
+        <tr>
+          <td style="padding:0 32px;padding-top:20px;">
+            <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:6px;padding:12px 16px;font-size:13px;color:#065f46;">
+              ✅ <b>CRM 예약 적재 완료</b> · 고객번호 ${crm.customerNumber ?? '-'} · 예약번호 ${crm.reservationSeqNo ?? '-'}
+            </div>
+          </td>
+        </tr>`;
+    } else {
+      crmBannerHtml = `
+        <tr>
+          <td style="padding:0 32px;padding-top:20px;">
+            <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:12px 16px;font-size:13px;color:#991b1b;line-height:1.6;">
+              ⚠️ <b>CRM 예약 적재 실패</b> — 수기 등록이 필요합니다.<br>
+              단계: ${crm.failedStep ?? '-'}${crm.httpStatus ? ` · HTTP ${crm.httpStatus}` : ''}<br>
+              사유: ${(crm.error ?? '알 수 없음').replace(/</g, '&lt;')}
+            </div>
+          </td>
+        </tr>`;
+    }
+  }
+
   const htmlBody = `
 <!DOCTYPE html>
 <html lang="ko">
@@ -92,7 +127,7 @@ async function sendInquiryEmail(params: {
             <h1 style="margin:6px 0 0;color:#fff;font-size:18px;font-weight:600;">새 상담 문의가 접수되었습니다</h1>
           </td>
         </tr>
-
+        ${crmBannerHtml}
         <!-- 접수 정보 -->
         <tr>
           <td style="padding:28px 32px 0;">
@@ -469,24 +504,75 @@ function getSanityClient() {
   });
 }
 
+interface CartLine {
+  treatmentSlug: string;
+  treatmentName: string;
+  packageLabel: string;
+  quantity: number;
+}
+
 interface InquiryBody {
   name: string;
   birthDate?: string;
   email?: string;
   phone: string;
+  /** 국가코드 제외 로컬 전화 숫자 (CRM 등록용). 없으면 phone에서 파싱 */
+  cellPhone?: string;
   messengerType?: string;
   messengerId?: string;
   message?: string;
-  treatments?: {
-    treatmentSlug: string;
-    treatmentName: string;
-    packageLabel: string;
-    quantity: number;
-  }[];
+  /** 예약(상담)에 선택한 시술 */
+  treatments?: CartLine[];
+  /** 견적(장바구니 전체) 시술 — etcMemo 기록용 */
+  estimateItems?: CartLine[];
   preferredDate?: string;
   preferredTime?: string;
   source?: string;
   locale?: string;
+  /** UTM 등 유입 출처 문자열 (etcReservationFrom) */
+  attribution?: string;
+}
+
+/** CRM etcMemo 본문 구성 — 선택 시술 + 견적 시술 + 요구사항 원문 (이메일과 동일 정보) */
+function buildEtcMemo(body: InquiryBody): string {
+  const lines: string[] = ['[홈페이지 예약]'];
+
+  const fmt = (items: CartLine[]) =>
+    items.map((t) => `- ${t.treatmentName} ${t.packageLabel} x${t.quantity}`);
+
+  if (body.treatments && body.treatments.length > 0) {
+    lines.push('', '■ 예약 선택 시술');
+    lines.push(...fmt(body.treatments));
+  }
+
+  // 견적(장바구니 전체) 중 예약 선택에 없는 항목도 함께 기록
+  if (body.estimateItems && body.estimateItems.length > 0) {
+    const selectedKeys = new Set(
+      (body.treatments ?? []).map(
+        (t) => `${t.treatmentSlug}|${t.packageLabel}`,
+      ),
+    );
+    const extra = body.estimateItems.filter(
+      (e) => !selectedKeys.has(`${e.treatmentSlug}|${e.packageLabel}`),
+    );
+    if (extra.length > 0) {
+      lines.push('', '■ 견적 시술 (장바구니)');
+      lines.push(...fmt(extra));
+    }
+  }
+
+  if (body.message && body.message.trim()) {
+    lines.push('', '■ 요청사항', body.message.trim());
+  }
+
+  if (body.messengerId) {
+    lines.push(
+      '',
+      `■ 메신저: ${body.messengerType ?? ''} ${body.messengerId}`.trim(),
+    );
+  }
+
+  return lines.join('\n');
 }
 
 export async function POST(req: NextRequest) {
@@ -554,44 +640,97 @@ export async function POST(req: NextRequest) {
 
     const result = await sanityWriteClient.create(doc);
 
-    // 병원 알림 메일 발송 (환경변수 없으면 건너뜀)
-    sendInquiryEmail({
-      name: body.name,
-      birthDate: body.birthDate,
-      email: body.email,
-      phone: body.phone,
-      messengerType: body.messengerId ? body.messengerType : undefined,
-      messengerId: body.messengerId,
-      message: body.message,
-      treatments: body.treatments,
-      preferredDate: body.preferredDate,
-      preferredTime: body.preferredTime,
-    }).catch((emailErr) => {
-      // 이메일 발송 실패가 상담 접수에 영향을 주지 않도록 에러만 로깅
-      console.error('[email] Failed to send inquiry notification:', emailErr);
-    });
+    // CRM 동기화(외부 API, 장애 시 수초 소요)와 이메일 발송은 응답 이후
+    // 백그라운드에서 처리 → 사용자 대기시간 최소화. after()는 응답 flush 후
+    // maxDuration 내에서 실행을 보장한다.
+    after(async () => {
+      // ── 스마트닥터 CRM 예약 적재 (실패해도 상담 접수는 성공 처리) ──
+      // 시술명은 "원문 그대로"(이메일과 동일) etcMemo에 담는다.
+      const reservationMemo =
+        body.treatments && body.treatments.length > 0
+          ? `[홈페이지예약] ${body.treatments
+              .map((t) => `${t.treatmentName} ${t.packageLabel}`)
+              .join(', ')}`
+          : '[홈페이지예약] 상담 신청';
 
-    // 고객 예약접수 완료 확인 메일 발송 (이메일 입력 시에만)
-    if (body.email) {
-      sendCustomerConfirmationEmail({
+      let crmResult: ReservationSyncResult | undefined;
+      try {
+        crmResult = await syncReservationToCrm({
+          name: body.name,
+          phone: body.cellPhone || body.phone,
+          email: body.email,
+          reservationDate: body.preferredDate,
+          reservationTime: body.preferredTime,
+          reservationMemo,
+          etcMemo: buildEtcMemo(body),
+          etcReservationFrom: body.attribution,
+        });
+      } catch (crmErr) {
+        // syncReservationToCrm는 throw하지 않도록 설계되어 있으나 방어적으로 캐치
+        console.error('[crm] 동기화 예외:', crmErr);
+        crmResult = {
+          status: 'failed',
+          failedStep: 'reservation',
+          error: crmErr instanceof Error ? crmErr.message : String(crmErr),
+        };
+      }
+
+      // CRM 적재 결과를 상담 문의 문서에 역기록 → Studio "상담 관리"에서 확인
+      try {
+        await sanityWriteClient
+          .patch(result._id)
+          .set({
+            crmSyncStatus: crmResult.status,
+            crmCustomerNumber: crmResult.customerNumber,
+            crmReservationSeqNo: crmResult.reservationSeqNo,
+            crmReservationFrom: body.attribution,
+            crmError: crmResult.error,
+            crmSyncedAt: new Date().toISOString(),
+          })
+          .commit();
+      } catch (patchErr) {
+        console.error('[crm] 결과 역기록 실패:', patchErr);
+      }
+
+      // 병원 알림 메일 발송 (환경변수 없으면 건너뜀) — CRM 적재 상태 포함
+      await sendInquiryEmail({
         name: body.name,
+        birthDate: body.birthDate,
         email: body.email,
         phone: body.phone,
-        birthDate: body.birthDate,
         messengerType: body.messengerId ? body.messengerType : undefined,
         messengerId: body.messengerId,
         message: body.message,
-        locale: body.locale,
         treatments: body.treatments,
         preferredDate: body.preferredDate,
         preferredTime: body.preferredTime,
+        crm: crmResult,
       }).catch((emailErr) => {
-        console.error(
-          '[email] Failed to send customer confirmation:',
-          emailErr,
-        );
+        console.error('[email] Failed to send inquiry notification:', emailErr);
       });
-    }
+
+      // 고객 예약접수 완료 확인 메일 발송 (이메일 입력 시에만)
+      if (body.email) {
+        await sendCustomerConfirmationEmail({
+          name: body.name,
+          email: body.email,
+          phone: body.phone,
+          birthDate: body.birthDate,
+          messengerType: body.messengerId ? body.messengerType : undefined,
+          messengerId: body.messengerId,
+          message: body.message,
+          locale: body.locale,
+          treatments: body.treatments,
+          preferredDate: body.preferredDate,
+          preferredTime: body.preferredTime,
+        }).catch((emailErr) => {
+          console.error(
+            '[email] Failed to send customer confirmation:',
+            emailErr,
+          );
+        });
+      }
+    });
 
     return NextResponse.json({ success: true, id: result._id });
   } catch (err) {

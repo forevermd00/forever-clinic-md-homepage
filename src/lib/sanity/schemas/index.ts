@@ -28,6 +28,7 @@ import notice from './documents/notice';
 import contactInquiry from './documents/contactInquiry';
 import pageHero from './documents/pageHero';
 import { sectionVisibility } from './documents/sectionVisibility';
+import { crmSettings } from './documents/crmSettings';
 
 export const schemaTypes = [
   // Objects (must be registered before documents that reference them)
@@ -59,4 +60,5 @@ export const schemaTypes = [
   contactInquiry,
   pageHero,
   sectionVisibility,
+  crmSettings,
 ];

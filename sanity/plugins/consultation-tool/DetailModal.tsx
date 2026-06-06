@@ -113,6 +113,46 @@ export function DetailModal({
             <div className="ct-readonly-box">{doc.message || '-'}</div>
           </div>
 
+          {/* CRM 적재 상태 (read-only) */}
+          {doc.crmSyncStatus && (
+            <div className="ct-section">
+              <div className="ct-section-label">CRM 예약 적재</div>
+              <div
+                className="ct-readonly-box"
+                style={{
+                  color:
+                    doc.crmSyncStatus === 'success' ? '#047857' : '#b91c1c',
+                }}
+              >
+                {doc.crmSyncStatus === 'success' ? (
+                  <>
+                    ✅ 적재 완료
+                    {doc.crmReservationSeqNo
+                      ? ` · 예약번호 ${doc.crmReservationSeqNo}`
+                      : ''}
+                    {doc.crmCustomerNumber
+                      ? ` · 고객번호 ${doc.crmCustomerNumber}`
+                      : ''}
+                    {doc.crmReservationFrom
+                      ? ` · 출처 ${doc.crmReservationFrom}`
+                      : ''}
+                  </>
+                ) : (
+                  <>
+                    ⚠️ 적재 실패 — 수기 등록 필요
+                    {doc.crmError ? (
+                      <div
+                        style={{ marginTop: 6, fontSize: 12, lineHeight: 1.5 }}
+                      >
+                        {doc.crmError}
+                      </div>
+                    ) : null}
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Status (editable) */}
           <div className="ct-section">
             <div className="ct-section-label">상담 상태</div>
