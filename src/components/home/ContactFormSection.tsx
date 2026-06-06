@@ -515,7 +515,12 @@ export function ContactFormSection({
                   <div className="flex min-h-[44px] gap-5">
                     {/* 좌: 날짜 선택 */}
                     <div className="flex w-[180px] shrink-0 flex-col gap-1.5">
-                      <div className="relative h-[44px] w-full rounded-[6px] border border-[#d9d9d9] bg-white">
+                      <div
+                        className={cn(
+                          'relative h-[44px] w-full rounded-[6px] border bg-white',
+                          errBorder(!preferredDate),
+                        )}
+                      >
                         {/* 로케일별 포맷 표시 */}
                         <div className="pointer-events-none absolute inset-0 flex items-center justify-between px-3">
                           <span className="text-[14px] text-[#2b2b2b]">
