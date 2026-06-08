@@ -79,11 +79,27 @@ export default defineType({
         defineArrayMember({
           type: 'object',
           preview: {
-            select: { name: 'name', pkg: 'packageLabel', qty: 'quantity' },
-            prepare({ name, pkg, qty }) {
+            select: {
+              name: 'name',
+              pkg: 'packageLabel',
+              qty: 'quantity',
+              unitPrice: 'unitPrice',
+              priceStatus: 'priceStatus',
+            },
+            prepare({ name, pkg, qty, unitPrice, priceStatus }) {
+              const statusTag =
+                priceStatus === 'changed'
+                  ? ' · 가격변경'
+                  : priceStatus === 'removed'
+                    ? ' · 판매종료'
+                    : '';
+              const priceText =
+                typeof unitPrice === 'number'
+                  ? ` · ₩${(unitPrice * (qty || 1)).toLocaleString('ko-KR')}`
+                  : '';
               return {
                 title: name || '',
-                subtitle: `${pkg || ''} × ${qty || 1}`,
+                subtitle: `${pkg || ''} × ${qty || 1}${priceText}${statusTag}`,
               };
             },
           },
@@ -112,9 +128,35 @@ export default defineType({
               type: 'number',
               readOnly: true,
             }),
+            defineField({
+              name: 'unitPrice',
+              title: '단가(고객 확인가, 부가세 별도)',
+              type: 'number',
+              readOnly: true,
+            }),
+            defineField({
+              name: 'priceStatus',
+              title: '가격 상태',
+              type: 'string',
+              readOnly: true,
+              description: 'ok=정상 / removed=판매종료',
+            }),
           ],
         }),
       ],
+    }),
+    defineField({
+      name: 'estimateTotal',
+      title: '견적 합계(고객 확인가, 부가세 별도)',
+      type: 'number',
+      readOnly: true,
+    }),
+    defineField({
+      name: 'estimateViewedAt',
+      title: '가격 확인 시각',
+      type: 'datetime',
+      readOnly: true,
+      description: '고객이 견적 가격을 마지막으로 확인(재대조)한 시각',
     }),
     defineField({
       name: 'source',

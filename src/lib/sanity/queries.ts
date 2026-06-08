@@ -127,6 +127,7 @@ export const treatmentDetailQuery = `
     treatmentTime,
     "imageUrl": thumbnail.asset->url,
     priceOptions[] {
+      _key,
       "name": coalesce(name[$locale], name.ko),
       "caption": coalesce(caption[$locale], caption.ko),
       area,
@@ -150,6 +151,25 @@ export const treatmentDetailQuery = `
       category,
       priceOptions[0] { price, discountPrice },
       "isEvent": count(priceOptions[isEvent == true]) > 0
+    }
+  }
+`;
+
+// 장바구니 가격 재대조용 — 담긴 시술의 live priceOption을 _key 기준으로 조회.
+// 견적 스냅샷 가격이 변동/종료되었는지 판정하는 단일 소스.
+export const cartReconcileQuery = `
+  *[_type == "treatment" && slug.current in $slugs]{
+    "slug": slug.current,
+    "name": name[$locale],
+    "isVisible": isVisible,
+    priceOptions[]{
+      _key,
+      "name": coalesce(name[$locale], name.ko),
+      "caption": coalesce(caption[$locale], caption.ko),
+      area,
+      price,
+      discountPrice,
+      isEvent
     }
   }
 `;

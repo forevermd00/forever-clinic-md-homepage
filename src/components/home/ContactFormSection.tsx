@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { cn } from '@/lib/utils/cn';
 import { useCartStore } from '@/lib/store/cart';
+import { useReconciledCart } from '@/lib/store/useReconciledCart';
 import { trackFormSubmit } from '@/lib/analytics/events';
 import { buildAttribution, clearStoredUtm } from '@/lib/utm';
 import type {
@@ -137,9 +138,10 @@ export function ContactFormSection({
   const programSlug = searchParams.get('program');
   const programName = searchParams.get('programName');
 
-  const cartItems = useCartStore((s) => s.items);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const removeItem = useCartStore((s) => s.removeItem);
+  // 견적 가격을 live 재대조 → 고객이 보는 값 = 전송하는 값 (정합성)
+  const { items: reconciledItems, viewedAt } = useReconciledCart(locale);
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -230,10 +232,13 @@ export function ContactFormSection({
     }
     setIsSubmitting(true);
     try {
+      // 전송 라인: live 재대조된(=고객이 본) 단가·라벨 + 변동/종료 상태
       const toLine = (i: (typeof activeCartItems)[number]) => ({
         treatmentSlug: i.treatmentSlug,
         treatmentName: i.treatmentName,
-        packageLabel: i.packageLabel,
+        packageLabel: i.displayLabel,
+        unitPrice: i.displayUnitPrice,
+        priceStatus: i.status,
         quantity: i.quantity,
       });
       const selectedTreatments = activeCartItems
@@ -262,6 +267,8 @@ export function ContactFormSection({
           source: 'contact-form',
           locale,
           attribution: buildAttribution(),
+          // 고객이 견적 가격을 마지막으로 확인(재대조)한 시각 — 가격 시점 명시
+          viewedAt: viewedAt ? new Date(viewedAt).toISOString() : undefined,
         }),
       });
 
@@ -304,12 +311,20 @@ export function ContactFormSection({
   };
 
   const activeCartItems = mounted
-    ? cartItems.filter((i) => i.quantity > 0)
+    ? reconciledItems.filter((i) => i.quantity > 0)
     : [];
 
-  // 기본 전체 선택: checkedIds가 null이면 모든 항목 선택
+  // 기본 전체 선택: checkedIds가 null이면 종료되지 않은 항목 전체 선택
   const effectiveCheckedIds =
-    checkedIds ?? new Set(activeCartItems.map((i) => i.id));
+    checkedIds ??
+    new Set(
+      activeCartItems.filter((i) => i.status !== 'removed').map((i) => i.id),
+    );
+
+  // 선택된 항목 견적 합계 (live 단가, 종료 항목 제외) — 고객이 보는 금액
+  const estimateSubtotal = activeCartItems
+    .filter((i) => effectiveCheckedIds.has(i.id) && i.status !== 'removed')
+    .reduce((sum, i) => sum + i.displayUnitPrice * i.quantity, 0);
 
   return (
     <section data-ga-section="contact-form">
@@ -556,6 +571,9 @@ export function ContactFormSection({
                           type="date"
                           value={preferredDate}
                           min={getTodayStr()}
+                          onClick={(e) => {
+                            e.currentTarget.showPicker?.();
+                          }}
                           onChange={(e) => {
                             setPreferredDate(e.target.value);
                             setPreferredTime('');
@@ -634,91 +652,137 @@ export function ContactFormSection({
                       return (
                         <div
                           key={item.id}
-                          className="flex items-center gap-3 border-b border-[#faf8f5] px-3.5 py-2.5"
+                          className={cn(
+                            'flex items-center gap-3 border-b border-[#faf8f5] px-3.5 py-2.5',
+                            item.status === 'removed' && 'opacity-60',
+                          )}
                         >
-                          {/* Checkbox */}
-                          <label className="flex cursor-pointer items-center">
+                          {/* Checkbox — 판매종료 시 선택 불가 */}
+                          {item.status === 'removed' ? (
                             <span
-                              className={cn(
-                                'flex size-[18px] shrink-0 items-center justify-center rounded-[3px] border transition-colors',
-                                isChecked
-                                  ? 'border-transparent'
-                                  : 'border-[#d5cabe] bg-white',
-                              )}
-                              style={
-                                isChecked
-                                  ? {
-                                      backgroundColor: accentColor,
-                                      borderColor: accentColor,
-                                    }
-                                  : undefined
-                              }
-                            >
-                              {isChecked && (
-                                <svg
-                                  width="12"
-                                  height="12"
-                                  viewBox="0 0 12 12"
-                                  fill="none"
-                                >
-                                  <path
-                                    d="M2.5 6L5 8.5L9.5 4"
-                                    stroke="white"
-                                    strokeWidth="1.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  />
-                                </svg>
-                              )}
-                            </span>
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={() => toggleCheck(item.id)}
-                              className="sr-only"
+                              aria-hidden
+                              className="flex size-[18px] shrink-0 items-center justify-center rounded-[3px] border border-[#e0d8cd] bg-[#f3edea]"
                             />
-                          </label>
+                          ) : (
+                            <label className="flex cursor-pointer items-center">
+                              <span
+                                className={cn(
+                                  'flex size-[18px] shrink-0 items-center justify-center rounded-[3px] border transition-colors',
+                                  isChecked
+                                    ? 'border-transparent'
+                                    : 'border-[#d5cabe] bg-white',
+                                )}
+                                style={
+                                  isChecked
+                                    ? {
+                                        backgroundColor: accentColor,
+                                        borderColor: accentColor,
+                                      }
+                                    : undefined
+                                }
+                              >
+                                {isChecked && (
+                                  <svg
+                                    width="12"
+                                    height="12"
+                                    viewBox="0 0 12 12"
+                                    fill="none"
+                                  >
+                                    <path
+                                      d="M2.5 6L5 8.5L9.5 4"
+                                      stroke="white"
+                                      strokeWidth="1.5"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
+                                )}
+                              </span>
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => toggleCheck(item.id)}
+                                className="sr-only"
+                              />
+                            </label>
+                          )}
                           {/* Name */}
                           <span className="flex-1 text-[13px] text-[#2b2b2b]">
                             {item.treatmentName}
                             <span className="ml-1.5 text-[11px] text-[#999]">
-                              {item.packageLabel}
+                              {item.displayLabel}
                             </span>
+                            {item.status === 'removed' && (
+                              <span className="ml-1.5 inline-flex items-center rounded-[3px] bg-[#9a9a9a] px-1 py-0.5 align-middle text-[10px] font-bold text-white">
+                                {tc('discontinued')}
+                              </span>
+                            )}
                           </span>
-                          {/* Quantity */}
-                          <div className="flex items-center gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                item.quantity <= 1
-                                  ? removeItem(item.id)
-                                  : updateQuantity(item.id, item.quantity - 1)
-                              }
-                              data-ga-id={`contact-form.qty-minus-${item.id}`}
-                              className="flex size-6 items-center justify-center rounded-full bg-[#f3edea] text-[12px] text-[#2b2b2b]"
-                            >
-                              −
-                            </button>
-                            <span className="w-5 text-center text-[13px] font-medium">
-                              {item.quantity}
+                          {/* Price (live) */}
+                          {item.status !== 'removed' && (
+                            <span className="shrink-0 text-[12px] font-semibold text-[#2b2b2b]">
+                              ₩
+                              {(
+                                item.displayUnitPrice * item.quantity
+                              ).toLocaleString('ko-KR')}
                             </span>
+                          )}
+                          {/* 판매종료: 제거 버튼만 / 그 외: 수량 스테퍼 */}
+                          {item.status === 'removed' ? (
                             <button
                               type="button"
-                              onClick={() =>
-                                updateQuantity(item.id, item.quantity + 1)
-                              }
-                              data-ga-id={`contact-form.qty-plus-${item.id}`}
-                              className="flex size-6 items-center justify-center rounded-full bg-[#f3edea] text-[12px] text-[#2b2b2b]"
+                              onClick={() => removeItem(item.id)}
+                              data-ga-id={`contact-form.remove-${item.id}`}
+                              aria-label={tc('removeItem')}
+                              className="flex size-6 items-center justify-center rounded-full text-[13px] text-[#999] transition-colors hover:bg-[#f3edea] hover:text-[#2b2b2b]"
                             >
-                              +
+                              ✕
                             </button>
-                          </div>
+                          ) : (
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  item.quantity <= 1
+                                    ? removeItem(item.id)
+                                    : updateQuantity(item.id, item.quantity - 1)
+                                }
+                                data-ga-id={`contact-form.qty-minus-${item.id}`}
+                                className="flex size-6 items-center justify-center rounded-full bg-[#f3edea] text-[12px] text-[#2b2b2b]"
+                              >
+                                −
+                              </button>
+                              <span className="w-5 text-center text-[13px] font-medium">
+                                {item.quantity}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  updateQuantity(item.id, item.quantity + 1)
+                                }
+                                data-ga-id={`contact-form.qty-plus-${item.id}`}
+                                className="flex size-6 items-center justify-center rounded-full bg-[#f3edea] text-[12px] text-[#2b2b2b]"
+                              >
+                                +
+                              </button>
+                            </div>
+                          )}
                         </div>
                       );
                     })
                   ) : (
                     <div className="px-3.5 py-4 text-center text-[13px] text-[#999]">
                       {t('emptyCartNote')}
+                    </div>
+                  )}
+                  {estimateSubtotal > 0 && (
+                    <div className="flex items-center justify-between border-t border-[#efe5d9] bg-[#faf8f5] px-3.5 py-2.5">
+                      <span className="text-[12px] font-medium text-[#666]">
+                        {tc('estimateSubtotal')}
+                      </span>
+                      <span className="text-[14px] font-bold text-[#a83c44]">
+                        ₩{estimateSubtotal.toLocaleString('ko-KR')}
+                      </span>
                     </div>
                   )}
                   <Link

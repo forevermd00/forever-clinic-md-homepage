@@ -23,11 +23,13 @@ async function sendInquiryEmail(params: {
   messengerType?: string;
   messengerId?: string;
   message?: string;
-  treatments?: {
-    treatmentName: string;
-    packageLabel: string;
-    quantity: number;
-  }[];
+  treatments?: CartLine[];
+  /** 선택 시술 견적 합계 (원) */
+  estimateTotal?: number;
+  /** UTM 등 유입 출처 문자열 */
+  attribution?: string;
+  /** 고객이 가격을 확인한 시각 (ISO) */
+  viewedAt?: string;
   preferredDate?: string;
   preferredTime?: string;
   crm?: ReservationSyncResult;
@@ -71,18 +73,53 @@ async function sendInquiryEmail(params: {
           ? params.preferredTime
           : null;
 
+  // UTM/유입 출처 — "utm_source=ad;utm_content=d" 를 읽기 쉽게
+  const attributionDisplay = params.attribution
+    ? params.attribution.replace(/;/g, ' · ')
+    : null;
+
+  // 고객이 가격을 확인한 시각 (KST)
+  const viewedAtDisplay = params.viewedAt
+    ? new Date(params.viewedAt).toLocaleString('ko-KR', {
+        timeZone: 'Asia/Seoul',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : null;
+
+  const statusTag = (s?: CartLine['priceStatus']) =>
+    s === 'removed'
+      ? ` <span style="display:inline-block;margin-left:4px;padding:1px 5px;border-radius:3px;background:#f3f3f3;color:#888;font-size:11px;font-weight:600;">판매종료</span>`
+      : '';
+
+  const estimateTotal =
+    params.estimateTotal ??
+    (hasTreatments
+      ? params.treatments!.reduce((sum, t) => sum + lineAmount(t), 0)
+      : 0);
+
   const treatmentRowsHtml = hasTreatments
     ? params
         .treatments!.map(
           (t) => `
         <tr>
-          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;">${t.treatmentName}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;">${t.treatmentName}${statusTag(t.priceStatus)}</td>
           <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;">${t.packageLabel}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;text-align:right;color:#666;">${t.unitPrice != null ? won(t.unitPrice) : '-'}</td>
           <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;text-align:center;">${t.quantity}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600;">${t.unitPrice != null ? won(lineAmount(t)) : '-'}</td>
         </tr>`,
         )
-        .join('')
-    : `<tr><td colspan="3" style="padding:8px 12px;color:#999;">선택된 시술 없음</td></tr>`;
+        .join('') +
+      `
+        <tr>
+          <td colspan="4" style="padding:10px 12px;text-align:right;font-size:13px;color:#444;border-top:2px solid #eee;">합계 (부가세 별도)</td>
+          <td style="padding:10px 12px;text-align:right;font-size:15px;font-weight:700;color:#a83c44;border-top:2px solid #eee;">${won(estimateTotal)}</td>
+        </tr>`
+    : `<tr><td colspan="5" style="padding:8px 12px;color:#999;">선택된 시술 없음</td></tr>`;
 
   // CRM 적재 상태 배너 (성공/실패/에러)
   const crm = params.crm;
@@ -161,10 +198,18 @@ async function sendInquiryEmail(params: {
                 <td style="padding:14px 16px;font-size:13px;border-bottom:1px solid #eee;">${now}</td>
               </tr>
               <tr>
-                <td style="padding:14px 16px;color:#888;font-size:13px;">희망 예약일시</td>
-                <td style="padding:14px 16px;font-size:14px;font-weight:600;${preferredDatetimeDisplay ? 'color:#a83c44;' : 'color:#bbb;'}">
+                <td style="padding:14px 16px;color:#888;font-size:13px;border-bottom:1px solid #eee;">희망 예약일시</td>
+                <td style="padding:14px 16px;font-size:14px;font-weight:600;border-bottom:1px solid #eee;${preferredDatetimeDisplay ? 'color:#a83c44;' : 'color:#bbb;'}">
                   ${preferredDatetimeDisplay ?? '미선택'}
                 </td>
+              </tr>
+              <tr>
+                <td style="padding:14px 16px;color:#888;font-size:13px;border-bottom:1px solid #eee;">유입경로(UTM)</td>
+                <td style="padding:14px 16px;font-size:13px;border-bottom:1px solid #eee;${attributionDisplay ? 'color:#1a1a1a;' : 'color:#bbb;'}">${attributionDisplay ?? '직접 유입'}</td>
+              </tr>
+              <tr>
+                <td style="padding:14px 16px;color:#888;font-size:13px;">가격 확인 시각</td>
+                <td style="padding:14px 16px;font-size:13px;${viewedAtDisplay ? 'color:#666;' : 'color:#bbb;'}">${viewedAtDisplay ?? '-'}<span style="color:#bbb;"> · 고객이 본 견적가 기준</span></td>
               </tr>
             </table>
           </td>
@@ -179,7 +224,9 @@ async function sendInquiryEmail(params: {
                 <tr style="background:#f5f5f5;">
                   <th style="padding:9px 12px;text-align:left;font-size:12px;color:#888;font-weight:500;">시술명</th>
                   <th style="padding:9px 12px;text-align:left;font-size:12px;color:#888;font-weight:500;">패키지</th>
+                  <th style="padding:9px 12px;text-align:right;font-size:12px;color:#888;font-weight:500;">단가</th>
                   <th style="padding:9px 12px;text-align:center;font-size:12px;color:#888;font-weight:500;">수량</th>
+                  <th style="padding:9px 12px;text-align:right;font-size:12px;color:#888;font-weight:500;">금액</th>
                 </tr>
               </thead>
               <tbody>${treatmentRowsHtml}</tbody>
@@ -509,6 +556,20 @@ interface CartLine {
   treatmentName: string;
   packageLabel: string;
   quantity: number;
+  /** 고객이 본(live 재대조) 단가 — 원, 부가세 별도 */
+  unitPrice?: number;
+  /** 가격 재대조 상태: ok=정상, removed=종료 */
+  priceStatus?: 'ok' | 'removed' | 'pending';
+}
+
+/** 라인 합계 (수량×단가). 단가 없으면 0 */
+function lineAmount(t: CartLine): number {
+  return (t.unitPrice ?? 0) * t.quantity;
+}
+
+/** 원화 표기 */
+function won(n: number): string {
+  return `₩${n.toLocaleString('ko-KR')}`;
 }
 
 interface InquiryBody {
@@ -531,18 +592,32 @@ interface InquiryBody {
   locale?: string;
   /** UTM 등 유입 출처 문자열 (etcReservationFrom) */
   attribution?: string;
+  /** 고객이 견적 가격을 마지막으로 확인한 시각 (ISO) — 가격 시점 명시 */
+  viewedAt?: string;
 }
 
 /** CRM etcMemo 본문 구성 — 선택 시술 + 견적 시술 + 요구사항 원문 (이메일과 동일 정보) */
 function buildEtcMemo(body: InquiryBody): string {
   const lines: string[] = ['[홈페이지 예약]'];
 
+  const tag = (t: CartLine) =>
+    t.priceStatus === 'removed' ? ' (판매종료)' : '';
+
   const fmt = (items: CartLine[]) =>
-    items.map((t) => `- ${t.treatmentName} ${t.packageLabel} x${t.quantity}`);
+    items.map(
+      (t) =>
+        `- ${t.treatmentName} ${t.packageLabel} x${t.quantity}${
+          t.unitPrice != null
+            ? ` = ${won(lineAmount(t))} (단가 ${won(t.unitPrice)})`
+            : ''
+        }${tag(t)}`,
+    );
 
   if (body.treatments && body.treatments.length > 0) {
     lines.push('', '■ 예약 선택 시술');
     lines.push(...fmt(body.treatments));
+    const total = body.treatments.reduce((s, t) => s + lineAmount(t), 0);
+    if (total > 0) lines.push(`합계: ${won(total)} (부가세 별도)`);
   }
 
   // 견적(장바구니 전체) 중 예약 선택에 없는 항목도 함께 기록
@@ -559,6 +634,13 @@ function buildEtcMemo(body: InquiryBody): string {
       lines.push('', '■ 견적 시술 (장바구니)');
       lines.push(...fmt(extra));
     }
+  }
+
+  if (body.viewedAt) {
+    const v = new Date(body.viewedAt).toLocaleString('ko-KR', {
+      timeZone: 'Asia/Seoul',
+    });
+    lines.push('', `※ 가격은 고객이 ${v}에 확인한 견적가 기준`);
   }
 
   if (body.message && body.message.trim()) {
@@ -595,6 +677,8 @@ export async function POST(req: NextRequest) {
       name: string;
       packageLabel: string;
       quantity: number;
+      unitPrice?: number;
+      priceStatus?: string;
     }[] = [];
 
     if (body.treatments && body.treatments.length > 0) {
@@ -616,9 +700,17 @@ export async function POST(req: NextRequest) {
           name: t.treatmentName,
           packageLabel: t.packageLabel,
           quantity: t.quantity,
+          unitPrice: t.unitPrice,
+          priceStatus: t.priceStatus,
         };
       });
     }
+
+    // 선택 시술 견적 합계 (고객이 본 live 단가 기준, 부가세 별도)
+    const estimateTotal = (body.treatments ?? []).reduce(
+      (sum, t) => sum + lineAmount(t),
+      0,
+    );
 
     const doc = {
       _type: 'contactInquiry',
@@ -631,6 +723,9 @@ export async function POST(req: NextRequest) {
       message: body.message || undefined,
       selectedTreatments:
         selectedTreatments.length > 0 ? selectedTreatments : undefined,
+      estimateTotal: estimateTotal > 0 ? estimateTotal : undefined,
+      estimateViewedAt: body.viewedAt || undefined,
+      crmReservationFrom: body.attribution || undefined,
       preferredDate: body.preferredDate || undefined,
       preferredTime: body.preferredTime || undefined,
       source: body.source || 'contact-form',
@@ -650,7 +745,9 @@ export async function POST(req: NextRequest) {
         body.treatments && body.treatments.length > 0
           ? `[홈페이지예약] ${body.treatments
               .map((t) => `${t.treatmentName} ${t.packageLabel}`)
-              .join(', ')}`
+              .join(', ')}${
+              estimateTotal > 0 ? ` / 견적합계 ${won(estimateTotal)}` : ''
+            }`
           : '[홈페이지예약] 상담 신청';
 
       let crmResult: ReservationSyncResult | undefined;
@@ -702,6 +799,9 @@ export async function POST(req: NextRequest) {
         messengerId: body.messengerId,
         message: body.message,
         treatments: body.treatments,
+        estimateTotal,
+        attribution: body.attribution,
+        viewedAt: body.viewedAt,
         preferredDate: body.preferredDate,
         preferredTime: body.preferredTime,
         crm: crmResult,

@@ -4,8 +4,10 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export interface CartItem {
-  id: string; // unique: `${treatmentSlug}-${packageId}`
+  id: string; // unique: `${treatmentSlug}::${optionKey}`
   treatmentSlug: string;
+  /** Sanity priceOption 배열의 _key — live 가격 재대조의 안정적 식별자. 구버전 카트는 없을 수 있음. */
+  optionKey?: string;
   treatmentName: string;
   packageLabel: string;
   unitPrice: number;

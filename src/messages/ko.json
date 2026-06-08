@@ -37,7 +37,10 @@
     "addedToEstimate": "견적에 추가되었습니다",
     "dismissToday": "오늘 다시 열지 않음",
     "popupSlide": "팝업 {n}",
-    "inquire": "문의"
+    "inquire": "문의",
+    "discontinued": "판매 종료",
+    "estimateSubtotal": "예상 견적 합계",
+    "removeItem": "항목 삭제"
   },
   "nav": {
     "beforeAfter": "Before & After",
@@ -172,7 +175,9 @@
     "discountApplied": "할인 적용",
     "decreaseQuantity": "수량 줄이기",
     "increaseQuantity": "수량 늘리기",
-    "removeItem": "항목 삭제"
+    "removeItem": "항목 삭제",
+    "discontinued": "판매 종료",
+    "discontinuedHint": "현재 판매하지 않는 상품입니다"
   },
   "brand": {
     "doctors": "의료진 소개",

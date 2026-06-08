@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useCartStore } from '@/lib/store/cart';
 
 export interface SelectorOption {
+  /** Sanity priceOption 배열의 _key — 견적 담기 시 안정적 식별자로 사용 */
+  key?: string;
   name: string;
   caption?: string;
   area?: string;
@@ -133,10 +135,13 @@ export function TreatmentOptionSelector({
       const labelParts = [opt.area, opt.name, opt.caption]
         .filter(Boolean)
         .join(' · ');
+      // _key가 있으면 안정적 식별자로, 없으면(레거시) 인덱스로 폴백
+      const optionKey = opt.key ?? String(i);
       addItem(
         {
-          id: `${treatmentSlug}::${i}`,
+          id: `${treatmentSlug}::${optionKey}`,
           treatmentSlug,
+          optionKey,
           treatmentName,
           packageLabel: labelParts || treatmentName,
           unitPrice: effective(opt),

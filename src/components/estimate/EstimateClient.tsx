@@ -3,12 +3,13 @@
 import { useSyncExternalStore } from 'react';
 import { useTranslations } from 'next-intl';
 import { useCartStore } from '@/lib/store/cart';
+import { useReconciledCart } from '@/lib/store/useReconciledCart';
 import { CartItem } from '@/components/estimate/CartItem';
 import { CartSummary } from '@/components/estimate/CartSummary';
 
 export function EstimateClient({ locale }: { locale: string }) {
   const t = useTranslations('estimate');
-  const items = useCartStore((s) => s.items);
+  const { items } = useReconciledCart(locale);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const removeItem = useCartStore((s) => s.removeItem);
 
@@ -28,10 +29,12 @@ export function EstimateClient({ locale }: { locale: string }) {
     removeItem(id);
   }
 
-  // Only count items with quantity > 0 for subtotal
-  const activeItems = items.filter((item) => item.quantity > 0);
+  // 합계는 수량>0 && 종료되지 않은 항목만 (live 단가 기준)
+  const activeItems = items.filter(
+    (item) => item.quantity > 0 && item.status !== 'removed',
+  );
   const subtotal = activeItems.reduce(
-    (sum, item) => sum + item.unitPrice * item.quantity,
+    (sum, item) => sum + item.displayUnitPrice * item.quantity,
     0,
   );
   const discount = 0;
@@ -61,13 +64,14 @@ export function EstimateClient({ locale }: { locale: string }) {
     );
   }
 
-  // Map CartStore items to CartItemData shape
+  // Map reconciled items to CartItemData shape (live 단가·라벨 반영)
   const cartItemData = items.map((item) => ({
     id: item.id,
     name: item.treatmentName,
-    packageLabel: item.packageLabel,
-    unitPrice: item.unitPrice,
+    packageLabel: item.displayLabel,
+    unitPrice: item.displayUnitPrice,
     quantity: item.quantity,
+    status: item.status,
   }));
 
   return (

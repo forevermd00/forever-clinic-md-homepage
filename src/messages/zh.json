@@ -37,7 +37,10 @@
     "addedToEstimate": "已添加到报价单",
     "dismissToday": "今日不再显示",
     "popupSlide": "弹窗（n）",
-    "inquire": "咨询"
+    "inquire": "咨询",
+    "discontinued": "已下架",
+    "estimateSubtotal": "预估合计",
+    "removeItem": "删除项目"
   },
   "nav": {
     "beforeAfter": "Before & After",
@@ -172,7 +175,9 @@
     "discountApplied": "已享折扣",
     "decreaseQuantity": "减少数量",
     "increaseQuantity": "增加数量",
-    "removeItem": "删除项目"
+    "removeItem": "删除项目",
+    "discontinued": "已下架",
+    "discontinuedHint": "该项目已停止提供"
   },
   "brand": {
     "doctors": "医疗团队介绍",

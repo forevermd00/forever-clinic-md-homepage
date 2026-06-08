@@ -265,6 +265,7 @@ export default async function TreatmentDetailPage({
   const selectorOptions: SelectorOption[] = cmsData?.priceOptions
     ? (cmsData.priceOptions as any[])
         .map((o: any) => ({
+          key: typeof o._key === 'string' ? o._key : undefined,
           name: extractLocale(o.name as unknown, locale),
           caption: extractLocale(o.caption as unknown, locale) || undefined,
           area: typeof o.area === 'string' ? o.area : undefined,

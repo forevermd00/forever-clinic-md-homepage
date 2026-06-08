@@ -37,7 +37,10 @@
     "addedToEstimate": "見積もりに追加しました",
     "dismissToday": "今日は表示しない",
     "popupSlide": "ポップアップ {n}",
-    "inquire": "お問い合わせ"
+    "inquire": "お問い合わせ",
+    "discontinued": "販売終了",
+    "estimateSubtotal": "見積り合計",
+    "removeItem": "項目を削除"
   },
   "nav": {
     "beforeAfter": "ビフォーアフター",
@@ -172,7 +175,9 @@
     "discountApplied": "割引適用",
     "decreaseQuantity": "数量を減らす",
     "increaseQuantity": "数量を増やす",
-    "removeItem": "項目を削除"
+    "removeItem": "項目を削除",
+    "discontinued": "販売終了",
+    "discontinuedHint": "現在お取り扱いのない商品です"
   },
   "brand": {
     "doctors": "医療チーム紹介",

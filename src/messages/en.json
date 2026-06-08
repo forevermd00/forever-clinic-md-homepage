@@ -37,7 +37,10 @@
     "addedToEstimate": "Added to estimate",
     "dismissToday": "Don't show today",
     "popupSlide": "Popup {n}",
-    "inquire": "Inquire"
+    "inquire": "Inquire",
+    "discontinued": "Discontinued",
+    "estimateSubtotal": "Estimated subtotal",
+    "removeItem": "Remove item"
   },
   "nav": {
     "beforeAfter": "Before & After",
@@ -172,7 +175,9 @@
     "discountApplied": "Discount Applied",
     "decreaseQuantity": "Decrease quantity",
     "increaseQuantity": "Increase quantity",
-    "removeItem": "Remove item"
+    "removeItem": "Remove item",
+    "discontinued": "Discontinued",
+    "discontinuedHint": "This item is no longer available"
   },
   "brand": {
     "doctors": "Medical Team",
