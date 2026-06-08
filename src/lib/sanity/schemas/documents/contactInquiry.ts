@@ -81,25 +81,26 @@ export default defineType({
           preview: {
             select: {
               name: 'name',
+              nameKo: 'nameKo',
               pkg: 'packageLabel',
+              pkgKo: 'packageLabelKo',
               qty: 'quantity',
               unitPrice: 'unitPrice',
               priceStatus: 'priceStatus',
             },
-            prepare({ name, pkg, qty, unitPrice, priceStatus }) {
-              const statusTag =
-                priceStatus === 'changed'
-                  ? ' · 가격변경'
-                  : priceStatus === 'removed'
-                    ? ' · 판매종료'
-                    : '';
+            prepare({ name, nameKo, pkg, pkgKo, qty, unitPrice, priceStatus }) {
+              const statusTag = priceStatus === 'removed' ? ' · 판매종료' : '';
               const priceText =
                 typeof unitPrice === 'number'
                   ? ` · ₩${(unitPrice * (qty || 1)).toLocaleString('ko-KR')}`
                   : '';
+              // 한글 원문 우선 표기, 번역이 다르면 괄호 병기
+              const titleName =
+                nameKo && nameKo !== name ? `${nameKo} (${name})` : name || '';
+              const subPkg = pkgKo && pkgKo !== pkg ? `${pkgKo} (${pkg})` : pkg;
               return {
-                title: name || '',
-                subtitle: `${pkg || ''} × ${qty || 1}${priceText}${statusTag}`,
+                title: titleName,
+                subtitle: `${subPkg || ''} × ${qty || 1}${priceText}${statusTag}`,
               };
             },
           },
@@ -111,14 +112,26 @@ export default defineType({
               to: [{ type: 'treatment' }],
             }),
             defineField({
+              name: 'nameKo',
+              title: '시술명(원문/한글)',
+              type: 'string',
+              readOnly: true,
+            }),
+            defineField({
               name: 'name',
-              title: '시술명',
+              title: '시술명(고객 언어)',
+              type: 'string',
+              readOnly: true,
+            }),
+            defineField({
+              name: 'packageLabelKo',
+              title: '패키지(원문/한글)',
               type: 'string',
               readOnly: true,
             }),
             defineField({
               name: 'packageLabel',
-              title: '패키지',
+              title: '패키지(고객 언어)',
               type: 'string',
               readOnly: true,
             }),
@@ -150,13 +163,6 @@ export default defineType({
       title: '견적 합계(고객 확인가, 부가세 별도)',
       type: 'number',
       readOnly: true,
-    }),
-    defineField({
-      name: 'estimateViewedAt',
-      title: '가격 확인 시각',
-      type: 'datetime',
-      readOnly: true,
-      description: '고객이 견적 가격을 마지막으로 확인(재대조)한 시각',
     }),
     defineField({
       name: 'source',

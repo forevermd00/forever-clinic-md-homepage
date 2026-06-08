@@ -141,7 +141,7 @@ export function ContactFormSection({
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const removeItem = useCartStore((s) => s.removeItem);
   // 견적 가격을 live 재대조 → 고객이 보는 값 = 전송하는 값 (정합성)
-  const { items: reconciledItems, viewedAt } = useReconciledCart(locale);
+  const { items: reconciledItems } = useReconciledCart(locale);
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -239,6 +239,7 @@ export function ContactFormSection({
         packageLabel: i.displayLabel,
         unitPrice: i.displayUnitPrice,
         priceStatus: i.status,
+        optionKey: i.optionKey,
         quantity: i.quantity,
       });
       const selectedTreatments = activeCartItems
@@ -267,8 +268,6 @@ export function ContactFormSection({
           source: 'contact-form',
           locale,
           attribution: buildAttribution(),
-          // 고객이 견적 가격을 마지막으로 확인(재대조)한 시각 — 가격 시점 명시
-          viewedAt: viewedAt ? new Date(viewedAt).toISOString() : undefined,
         }),
       });
 

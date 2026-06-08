@@ -28,8 +28,6 @@ async function sendInquiryEmail(params: {
   estimateTotal?: number;
   /** UTM 등 유입 출처 문자열 */
   attribution?: string;
-  /** 고객이 가격을 확인한 시각 (ISO) */
-  viewedAt?: string;
   preferredDate?: string;
   preferredTime?: string;
   crm?: ReservationSyncResult;
@@ -78,18 +76,6 @@ async function sendInquiryEmail(params: {
     ? params.attribution.replace(/;/g, ' · ')
     : null;
 
-  // 고객이 가격을 확인한 시각 (KST)
-  const viewedAtDisplay = params.viewedAt
-    ? new Date(params.viewedAt).toLocaleString('ko-KR', {
-        timeZone: 'Asia/Seoul',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    : null;
-
   const statusTag = (s?: CartLine['priceStatus']) =>
     s === 'removed'
       ? ` <span style="display:inline-block;margin-left:4px;padding:1px 5px;border-radius:3px;background:#f3f3f3;color:#888;font-size:11px;font-weight:600;">판매종료</span>`
@@ -106,8 +92,8 @@ async function sendInquiryEmail(params: {
         .treatments!.map(
           (t) => `
         <tr>
-          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;">${t.treatmentName}${statusTag(t.priceStatus)}</td>
-          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;">${t.packageLabel}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;">${biHtml(t.nameKo, t.treatmentName)}${statusTag(t.priceStatus)}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;">${biHtml(t.packageLabelKo, t.packageLabel)}</td>
           <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;text-align:right;color:#666;">${t.unitPrice != null ? won(t.unitPrice) : '-'}</td>
           <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;text-align:center;">${t.quantity}</td>
           <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600;">${t.unitPrice != null ? won(lineAmount(t)) : '-'}</td>
@@ -204,12 +190,8 @@ async function sendInquiryEmail(params: {
                 </td>
               </tr>
               <tr>
-                <td style="padding:14px 16px;color:#888;font-size:13px;border-bottom:1px solid #eee;">유입경로(UTM)</td>
-                <td style="padding:14px 16px;font-size:13px;border-bottom:1px solid #eee;${attributionDisplay ? 'color:#1a1a1a;' : 'color:#bbb;'}">${attributionDisplay ?? '직접 유입'}</td>
-              </tr>
-              <tr>
-                <td style="padding:14px 16px;color:#888;font-size:13px;">가격 확인 시각</td>
-                <td style="padding:14px 16px;font-size:13px;${viewedAtDisplay ? 'color:#666;' : 'color:#bbb;'}">${viewedAtDisplay ?? '-'}<span style="color:#bbb;"> · 고객이 본 견적가 기준</span></td>
+                <td style="padding:14px 16px;color:#888;font-size:13px;">유입경로(UTM)</td>
+                <td style="padding:14px 16px;font-size:13px;${attributionDisplay ? 'color:#1a1a1a;' : 'color:#bbb;'}">${attributionDisplay ?? '직접 유입'}</td>
               </tr>
             </table>
           </td>
@@ -553,13 +535,37 @@ function getSanityClient() {
 
 interface CartLine {
   treatmentSlug: string;
+  /** 고객 로케일 시술명 (번역) */
   treatmentName: string;
+  /** 고객 로케일 패키지 라벨 (번역) */
   packageLabel: string;
   quantity: number;
   /** 고객이 본(live 재대조) 단가 — 원, 부가세 별도 */
   unitPrice?: number;
   /** 가격 재대조 상태: ok=정상, removed=종료 */
   priceStatus?: 'ok' | 'removed' | 'pending';
+  /** priceOption _key — 한글 원문 라벨 매칭용 */
+  optionKey?: string;
+  /** 한글 원문 시술명 (서버 enrich) */
+  nameKo?: string;
+  /** 한글 원문 패키지 라벨 (서버 enrich) */
+  packageLabelKo?: string;
+}
+
+/** 원문(한글) + 번역 텍스트. 한글 없거나 번역과 같으면 번역만. CRM/메모용 */
+function biText(ko: string | undefined, translated: string): string {
+  const k = (ko ?? '').trim();
+  const tr = translated.trim();
+  return !k || k === tr ? tr : `${k} (${tr})`;
+}
+
+/** 원문(한글) 크게 + 번역 작게(회색). 이메일 HTML용 */
+function biHtml(ko: string | undefined, translated: string): string {
+  const k = (ko ?? '').trim();
+  const tr = translated.trim();
+  return !k || k === tr
+    ? tr
+    : `${k}<br><span style="color:#999;font-size:12px;">${tr}</span>`;
 }
 
 /** 라인 합계 (수량×단가). 단가 없으면 0 */
@@ -592,8 +598,6 @@ interface InquiryBody {
   locale?: string;
   /** UTM 등 유입 출처 문자열 (etcReservationFrom) */
   attribution?: string;
-  /** 고객이 견적 가격을 마지막으로 확인한 시각 (ISO) — 가격 시점 명시 */
-  viewedAt?: string;
 }
 
 /** CRM etcMemo 본문 구성 — 선택 시술 + 견적 시술 + 요구사항 원문 (이메일과 동일 정보) */
@@ -606,7 +610,10 @@ function buildEtcMemo(body: InquiryBody): string {
   const fmt = (items: CartLine[]) =>
     items.map(
       (t) =>
-        `- ${t.treatmentName} ${t.packageLabel} x${t.quantity}${
+        `- ${biText(t.nameKo, t.treatmentName)} ${biText(
+          t.packageLabelKo,
+          t.packageLabel,
+        )} x${t.quantity}${
           t.unitPrice != null
             ? ` = ${won(lineAmount(t))} (단가 ${won(t.unitPrice)})`
             : ''
@@ -636,13 +643,6 @@ function buildEtcMemo(body: InquiryBody): string {
     }
   }
 
-  if (body.viewedAt) {
-    const v = new Date(body.viewedAt).toLocaleString('ko-KR', {
-      timeZone: 'Asia/Seoul',
-    });
-    lines.push('', `※ 가격은 고객이 ${v}에 확인한 견적가 기준`);
-  }
-
   if (body.message && body.message.trim()) {
     lines.push('', '■ 요청사항', body.message.trim());
   }
@@ -669,42 +669,74 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // slug로 treatment _id 조회 + selectedTreatments 객체 배열 구성
-    let selectedTreatments: {
-      _type: string;
-      _key: string;
-      treatment?: { _type: string; _ref: string };
-      name: string;
-      packageLabel: string;
-      quantity: number;
-      unitPrice?: number;
-      priceStatus?: string;
-    }[] = [];
-
-    if (body.treatments && body.treatments.length > 0) {
-      const slugs = [...new Set(body.treatments.map((t) => t.treatmentSlug))];
-      const treatments = await sanityWriteClient.fetch<
-        { _id: string; slug: string }[]
+    // slug로 한글 원문(시술명·패키지 라벨) + treatment _id 조회 → 라인 enrich
+    // 고객 로케일(번역)은 클라이언트가 보낸 값, 한글 원문은 서버에서 권위있게 채움
+    const allLines = [
+      ...(body.treatments ?? []),
+      ...(body.estimateItems ?? []),
+    ];
+    const slugToId = new Map<string, string>();
+    if (allLines.length > 0) {
+      const slugs = [...new Set(allLines.map((l) => l.treatmentSlug))];
+      const rows = await sanityWriteClient.fetch<
+        {
+          _id: string;
+          slug: string;
+          nameKo?: string;
+          priceOptions?: {
+            _key?: string;
+            nameKo?: string;
+            captionKo?: string;
+            area?: string;
+          }[];
+        }[]
       >(
-        `*[_type == "treatment" && slug.current in $slugs]{ _id, "slug": slug.current }`,
+        `*[_type == "treatment" && slug.current in $slugs]{
+          _id, "slug": slug.current, "nameKo": name.ko,
+          priceOptions[]{ _key, "nameKo": name.ko, "captionKo": caption.ko, area }
+        }`,
         { slugs },
       );
-      const slugToId = new Map(treatments.map((t) => [t.slug, t._id]));
-
-      selectedTreatments = body.treatments.map((t, i) => {
-        const id = slugToId.get(t.treatmentSlug);
-        return {
-          _type: 'object',
-          _key: `treatment-${i}-${Date.now()}`,
-          treatment: id ? { _type: 'reference', _ref: id } : undefined,
-          name: t.treatmentName,
-          packageLabel: t.packageLabel,
-          quantity: t.quantity,
-          unitPrice: t.unitPrice,
-          priceStatus: t.priceStatus,
-        };
-      });
+      const slugToNameKo = new Map<string, string>();
+      const labelKoByKey = new Map<string, string>();
+      for (const r of rows) {
+        if (r._id) slugToId.set(r.slug, r._id);
+        if (r.nameKo) slugToNameKo.set(r.slug, r.nameKo);
+        for (const o of r.priceOptions ?? []) {
+          if (!o._key) continue;
+          const lbl = [o.area, o.nameKo, o.captionKo]
+            .filter(Boolean)
+            .join(' · ');
+          if (lbl) labelKoByKey.set(`${r.slug}::${o._key}`, lbl);
+        }
+      }
+      for (const l of allLines) {
+        l.nameKo = slugToNameKo.get(l.treatmentSlug);
+        l.packageLabelKo = l.optionKey
+          ? labelKoByKey.get(`${l.treatmentSlug}::${l.optionKey}`)
+          : undefined;
+      }
     }
+
+    // selectedTreatments 객체 배열 (한글 원문 + 번역 둘 다 저장)
+    const selectedTreatments =
+      body.treatments && body.treatments.length > 0
+        ? body.treatments.map((t, i) => {
+            const id = slugToId.get(t.treatmentSlug);
+            return {
+              _type: 'object',
+              _key: `treatment-${i}-${Date.now()}`,
+              treatment: id ? { _type: 'reference', _ref: id } : undefined,
+              name: t.treatmentName,
+              nameKo: t.nameKo,
+              packageLabel: t.packageLabel,
+              packageLabelKo: t.packageLabelKo,
+              quantity: t.quantity,
+              unitPrice: t.unitPrice,
+              priceStatus: t.priceStatus,
+            };
+          })
+        : [];
 
     // 선택 시술 견적 합계 (고객이 본 live 단가 기준, 부가세 별도)
     const estimateTotal = (body.treatments ?? []).reduce(
@@ -724,7 +756,6 @@ export async function POST(req: NextRequest) {
       selectedTreatments:
         selectedTreatments.length > 0 ? selectedTreatments : undefined,
       estimateTotal: estimateTotal > 0 ? estimateTotal : undefined,
-      estimateViewedAt: body.viewedAt || undefined,
       crmReservationFrom: body.attribution || undefined,
       preferredDate: body.preferredDate || undefined,
       preferredTime: body.preferredTime || undefined,
@@ -740,11 +771,17 @@ export async function POST(req: NextRequest) {
     // maxDuration 내에서 실행을 보장한다.
     after(async () => {
       // ── 스마트닥터 CRM 예약 적재 (실패해도 상담 접수는 성공 처리) ──
-      // 시술명은 "원문 그대로"(이메일과 동일) etcMemo에 담는다.
+      // 시술명은 한글 원문(번역 병기)으로 etcMemo와 동일하게 담는다.
       const reservationMemo =
         body.treatments && body.treatments.length > 0
           ? `[홈페이지예약] ${body.treatments
-              .map((t) => `${t.treatmentName} ${t.packageLabel}`)
+              .map(
+                (t) =>
+                  `${biText(t.nameKo, t.treatmentName)} ${biText(
+                    t.packageLabelKo,
+                    t.packageLabel,
+                  )}`,
+              )
               .join(', ')}${
               estimateTotal > 0 ? ` / 견적합계 ${won(estimateTotal)}` : ''
             }`
@@ -801,7 +838,6 @@ export async function POST(req: NextRequest) {
         treatments: body.treatments,
         estimateTotal,
         attribution: body.attribution,
-        viewedAt: body.viewedAt,
         preferredDate: body.preferredDate,
         preferredTime: body.preferredTime,
         crm: crmResult,
