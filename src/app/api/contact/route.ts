@@ -204,8 +204,8 @@ async function sendInquiryEmail(params: {
             <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eee;border-radius:6px;overflow:hidden;">
               <thead>
                 <tr style="background:#f5f5f5;">
-                  <th style="padding:9px 12px;text-align:left;font-size:12px;color:#888;font-weight:500;">시술명</th>
-                  <th style="padding:9px 12px;text-align:left;font-size:12px;color:#888;font-weight:500;">패키지</th>
+                  <th style="padding:9px 12px;text-align:left;font-size:12px;color:#888;font-weight:500;">시술</th>
+                  <th style="padding:9px 12px;text-align:left;font-size:12px;color:#888;font-weight:500;">옵션</th>
                   <th style="padding:9px 12px;text-align:right;font-size:12px;color:#888;font-weight:500;">단가</th>
                   <th style="padding:9px 12px;text-align:center;font-size:12px;color:#888;font-weight:500;">수량</th>
                   <th style="padding:9px 12px;text-align:right;font-size:12px;color:#888;font-weight:500;">금액</th>
@@ -285,6 +285,13 @@ type ConfirmationContent = {
   labelDatetime: string;
   labelTreatments: string;
   labelMessage: string;
+  colTreatment: string;
+  colOption: string;
+  colUnitPrice: string;
+  colQty: string;
+  colAmount: string;
+  totalLabel: string;
+  vatNote: string;
   noneValue: string;
   noneDatetime: string;
   noneTreatments: string;
@@ -310,6 +317,13 @@ const CONFIRMATION_CONTENT: Record<string, ConfirmationContent> = {
     labelDatetime: '희망 일시',
     labelTreatments: '관심 시술',
     labelMessage: '문의 내용',
+    colTreatment: '시술',
+    colOption: '옵션',
+    colUnitPrice: '단가',
+    colQty: '수량',
+    colAmount: '금액',
+    totalLabel: '합계',
+    vatNote: '부가세 별도',
     noneValue: '미입력',
     noneDatetime: '미지정',
     noneTreatments: '선택 없음',
@@ -333,6 +347,13 @@ const CONFIRMATION_CONTENT: Record<string, ConfirmationContent> = {
     labelDatetime: 'ご希望日時',
     labelTreatments: '関心のある施術',
     labelMessage: 'お問い合わせ内容',
+    colTreatment: '施術',
+    colOption: 'オプション',
+    colUnitPrice: '単価',
+    colQty: '数量',
+    colAmount: '金額',
+    totalLabel: '合計',
+    vatNote: '税別',
     noneValue: '未入力',
     noneDatetime: '指定なし',
     noneTreatments: '選択なし',
@@ -357,6 +378,13 @@ const CONFIRMATION_CONTENT: Record<string, ConfirmationContent> = {
     labelDatetime: 'Preferred date/time',
     labelTreatments: 'Treatments of interest',
     labelMessage: 'Message',
+    colTreatment: 'Treatment',
+    colOption: 'Option',
+    colUnitPrice: 'Unit price',
+    colQty: 'Qty',
+    colAmount: 'Amount',
+    totalLabel: 'Total',
+    vatNote: 'VAT excl.',
     noneValue: 'Not provided',
     noneDatetime: 'Not specified',
     noneTreatments: 'None selected',
@@ -381,6 +409,13 @@ const CONFIRMATION_CONTENT: Record<string, ConfirmationContent> = {
     labelDatetime: '希望日期时间',
     labelTreatments: '感兴趣的项目',
     labelMessage: '咨询内容',
+    colTreatment: '项目',
+    colOption: '选项',
+    colUnitPrice: '单价',
+    colQty: '数量',
+    colAmount: '金额',
+    totalLabel: '合计',
+    vatNote: '不含税',
     noneValue: '未填写',
     noneDatetime: '未指定',
     noneTreatments: '未选择',
@@ -397,7 +432,7 @@ async function sendCustomerConfirmationEmail(params: {
   messengerId?: string;
   message?: string;
   locale?: string;
-  treatments?: { treatmentName: string }[];
+  treatments?: CartLine[];
   preferredDate?: string;
   preferredTime?: string;
 }): Promise<void> {
@@ -420,11 +455,6 @@ async function sendCustomerConfirmationEmail(params: {
     params.preferredDate && params.preferredTime
       ? `${params.preferredDate} ${params.preferredTime}`
       : params.preferredDate || params.preferredTime || c.noneDatetime;
-
-  const treatmentDisplay =
-    params.treatments && params.treatments.length > 0
-      ? params.treatments.map((t) => t.treatmentName).join(', ')
-      : c.noneTreatments;
 
   const messengerDisplay =
     params.messengerId && params.messengerType
@@ -451,11 +481,48 @@ async function sendCustomerConfirmationEmail(params: {
     params.birthDate ? detailRow(c.labelBirthDate, params.birthDate) : '',
     params.messengerId ? detailRow(c.labelMessenger, messengerDisplay) : '',
     hasDatetime ? detailRow(c.labelDatetime, datetimeDisplay) : '',
-    hasTreatments ? detailRow(c.labelTreatments, treatmentDisplay) : '',
     hasMessage
       ? detailRow(c.labelMessage, params.message!.replace(/\n/g, '<br>'))
       : '',
   ].join('');
+
+  // 관심 시술 표 (고객 언어로만 표시) — 시술·옵션·단가·수량·금액 + 합계
+  const custTotal = hasTreatments
+    ? params.treatments!.reduce((sum, t) => sum + lineAmount(t), 0)
+    : 0;
+  const treatmentTableHtml = hasTreatments
+    ? `
+        <tr>
+          <td style="padding:8px 32px 0;">
+            <p style="margin:0 0 8px;font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:1px;">${c.labelTreatments}</p>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eee;border-radius:6px;overflow:hidden;">
+              <tr style="background:#fafafa;">
+                <th align="left" style="padding:8px 10px;font-size:11px;color:#999;font-weight:500;">${c.colTreatment}</th>
+                <th align="left" style="padding:8px 10px;font-size:11px;color:#999;font-weight:500;">${c.colOption}</th>
+                <th align="right" style="padding:8px 10px;font-size:11px;color:#999;font-weight:500;">${c.colUnitPrice}</th>
+                <th align="center" style="padding:8px 10px;font-size:11px;color:#999;font-weight:500;">${c.colQty}</th>
+                <th align="right" style="padding:8px 10px;font-size:11px;color:#999;font-weight:500;">${c.colAmount}</th>
+              </tr>
+              ${params
+                .treatments!.map(
+                  (t) => `
+              <tr>
+                <td style="padding:8px 10px;border-top:1px solid #f2f2f2;font-size:13px;color:#1a1a1a;">${t.treatmentName}</td>
+                <td style="padding:8px 10px;border-top:1px solid #f2f2f2;font-size:13px;color:#555;">${t.packageLabel}</td>
+                <td align="right" style="padding:8px 10px;border-top:1px solid #f2f2f2;font-size:13px;color:#555;">${t.unitPrice != null ? won(t.unitPrice) : '-'}</td>
+                <td align="center" style="padding:8px 10px;border-top:1px solid #f2f2f2;font-size:13px;color:#555;">${t.quantity}</td>
+                <td align="right" style="padding:8px 10px;border-top:1px solid #f2f2f2;font-size:13px;color:#1a1a1a;font-weight:600;">${t.unitPrice != null ? won(lineAmount(t)) : '-'}</td>
+              </tr>`,
+                )
+                .join('')}
+              <tr>
+                <td colspan="4" align="right" style="padding:9px 10px;border-top:2px solid #eee;font-size:12px;color:#444;">${c.totalLabel} <span style="color:#999;">(${c.vatNote})</span></td>
+                <td align="right" style="padding:9px 10px;border-top:2px solid #eee;font-size:14px;font-weight:700;color:#a83c44;">${won(custTotal)}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>`
+    : '';
 
   const bodyHtml = c.body
     .map(
@@ -499,6 +566,7 @@ async function sendCustomerConfirmationEmail(params: {
             </table>
           </td>
         </tr>
+        ${treatmentTableHtml}
         <tr>
           <td style="padding:28px 32px;border-top:1px solid #f0f0f0;">
             <p style="margin:0;font-size:12px;color:#bbb;text-align:center;">${c.footer}</p>

@@ -125,13 +125,13 @@ export default defineType({
             }),
             defineField({
               name: 'packageLabelKo',
-              title: '패키지(원문/한글)',
+              title: '옵션(원문/한글)',
               type: 'string',
               readOnly: true,
             }),
             defineField({
               name: 'packageLabel',
-              title: '패키지(고객 언어)',
+              title: '옵션(고객 언어)',
               type: 'string',
               readOnly: true,
             }),
