@@ -273,7 +273,8 @@ type SettingsTab =
   | 'quickNav'
   | 'sections'
   | 'legal'
-  | 'crm';
+  | 'crm'
+  | 'utm';
 
 const BRAND_TABS: { key: BrandTab; label: string }[] = [
   { key: 'doctors', label: '의료진' },
@@ -291,6 +292,7 @@ const SETTINGS_TABS: { key: SettingsTab; label: string }[] = [
   { key: 'sections', label: '섹션 노출' },
   { key: 'legal', label: '약관 관리' },
   { key: 'crm', label: 'CRM 연동' },
+  { key: 'utm', label: 'UTM 링크' },
 ];
 
 // ─── 의료진 패널 (드래그 정렬) ────────────────────────────
@@ -4133,6 +4135,361 @@ function CrmSlotViewer({ departmentName }: { departmentName: string | null }) {
   );
 }
 
+// ─── UTM 링크 빌더 ──────────────────────────────────────────
+const UTM_BASE_URL = 'https://md.foreverclinic.co.kr';
+
+// 선택 + 직접 입력 모두 가능하도록 datalist 프리셋 제공
+const UTM_SOURCE_PRESETS = [
+  'naver',
+  'google',
+  'instagram',
+  'facebook',
+  'kakao',
+  'youtube',
+  'blog',
+  'daangn',
+  'sms',
+  'email',
+  'newsletter',
+];
+const UTM_MEDIUM_PRESETS = [
+  'cpc',
+  'display',
+  'social',
+  'banner',
+  'post',
+  'dm',
+  'email',
+  'sms',
+  'organic',
+  'referral',
+  'qr',
+];
+
+// 사이트 i18n 로케일 (src/lib/i18n/config.ts와 동일) — localePrefix: 'always'
+const UTM_LOCALES: { value: string; label: string }[] = [
+  { value: 'ko', label: '한국어 (ko)' },
+  { value: 'en', label: 'English (en)' },
+  { value: 'zh', label: '中文 (zh)' },
+  { value: 'ja', label: '日本語 (ja)' },
+];
+const UTM_LOCALE_CODES = UTM_LOCALES.map((l) => l.value);
+
+type UtmFields = {
+  base: string;
+  lang: string;
+  source: string;
+  medium: string;
+  campaign: string;
+  term: string;
+  content: string;
+};
+
+// 선택한 언어를 경로의 로케일 세그먼트에 반영 (없으면 추가, 있으면 교체)
+function applyLocale(base: string, lang: string): string {
+  if (!lang) return base;
+  try {
+    const u = new URL(base);
+    const segs = u.pathname.split('/').filter(Boolean);
+    if (segs.length > 0 && UTM_LOCALE_CODES.includes(segs[0])) {
+      segs[0] = lang;
+    } else {
+      segs.unshift(lang);
+    }
+    u.pathname = '/' + segs.join('/');
+    return u.toString();
+  } catch {
+    // 절대 URL이 아니면 원본 유지
+    return base;
+  }
+}
+
+function buildUtmUrl(f: UtmFields): string {
+  const base = applyLocale(f.base.trim(), f.lang);
+  if (!base) return '';
+  const params: [string, string][] = [];
+  const push = (key: string, val: string) => {
+    const v = val.trim();
+    if (v) params.push([key, v]);
+  };
+  push('utm_source', f.source);
+  push('utm_medium', f.medium);
+  push('utm_campaign', f.campaign);
+  push('utm_term', f.term);
+  push('utm_content', f.content);
+  if (params.length === 0) return base;
+
+  // 기존 쿼리스트링 보존하며 병합
+  const [path, existingQuery] = base.split('?');
+  const search = new URLSearchParams(existingQuery ?? '');
+  for (const [k, v] of params) search.set(k, v);
+  const hashIdx = path.indexOf('#');
+  const cleanPath = hashIdx >= 0 ? path.slice(0, hashIdx) : path;
+  const hash = hashIdx >= 0 ? path.slice(hashIdx) : '';
+  return `${cleanPath}?${search.toString()}${hash}`;
+}
+
+function UtmTextField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  required,
+  listId,
+  presets,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  required?: boolean;
+  listId?: string;
+  presets?: string[];
+}) {
+  return (
+    <div style={{ flex: '1 1 240px', minWidth: 220 }}>
+      <label style={crmLabel}>
+        {label}
+        {required && <span style={{ color: '#dc2626' }}> *</span>}
+      </label>
+      <input
+        type="text"
+        style={{ ...crmInput, minWidth: 0, width: '100%' }}
+        value={value}
+        list={listId}
+        placeholder={placeholder}
+        onChange={(e) => onChange(e.target.value)}
+      />
+      {presets && listId && (
+        <datalist id={listId}>
+          {presets.map((p) => (
+            <option key={p} value={p} />
+          ))}
+        </datalist>
+      )}
+    </div>
+  );
+}
+
+function UtmLinkPanel() {
+  const [fields, setFields] = useState<UtmFields>({
+    base: UTM_BASE_URL,
+    lang: '',
+    source: '',
+    medium: '',
+    campaign: '',
+    term: '',
+    content: '',
+  });
+  const [copied, setCopied] = useState(false);
+
+  const set = (patch: Partial<UtmFields>) => {
+    setFields((prev) => ({ ...prev, ...patch }));
+    setCopied(false);
+  };
+
+  const url = buildUtmUrl(fields);
+  const ready =
+    fields.base.trim() !== '' &&
+    fields.source.trim() !== '' &&
+    fields.medium.trim() !== '';
+
+  const copy = async () => {
+    if (!url) return;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // clipboard API 미지원 환경 폴백
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const reset = () =>
+    setFields({
+      base: UTM_BASE_URL,
+      lang: '',
+      source: '',
+      medium: '',
+      campaign: '',
+      term: '',
+      content: '',
+    });
+
+  return (
+    <div className="ht-panel-section" style={{ maxWidth: 760 }}>
+      <p style={{ fontSize: 13, color: '#6b7280', margin: '0 0 16px' }}>
+        캠페인·채널별 유입을 GA4에서 구분하기 위한 UTM 추적 링크를 만듭니다.{' '}
+        <b>소스·매체</b>만 필수이며(GA4 채널 분류 기준), 나머지는 비워두면
+        링크에서 제외됩니다. 각 항목은 프리셋을 선택하거나 직접 입력할 수
+        있습니다. 완성된 링크를 복사해 광고·SNS·메시지에 사용하세요.
+      </p>
+
+      <div
+        style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}
+      >
+        <UtmTextField
+          label="도착 URL (랜딩 페이지)"
+          value={fields.base}
+          onChange={(v) => set({ base: v })}
+          placeholder={UTM_BASE_URL}
+          required
+        />
+        <div style={{ flex: '0 1 200px', minWidth: 180 }}>
+          <label style={crmLabel}>언어</label>
+          <select
+            style={{ ...crmInput, minWidth: 0, width: '100%' }}
+            value={fields.lang}
+            onChange={(e) => set({ lang: e.target.value })}
+          >
+            <option value="">선택 안 함 (자동/현재 경로)</option>
+            {UTM_LOCALES.map((l) => (
+              <option key={l.value} value={l.value}>
+                {l.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div
+        style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 14 }}
+      >
+        <UtmTextField
+          label="소스 (utm_source)"
+          value={fields.source}
+          onChange={(v) => set({ source: v })}
+          placeholder="예: naver, instagram"
+          required
+          listId="utm-source-list"
+          presets={UTM_SOURCE_PRESETS}
+        />
+        <UtmTextField
+          label="매체 (utm_medium)"
+          value={fields.medium}
+          onChange={(v) => set({ medium: v })}
+          placeholder="예: cpc, social"
+          required
+          listId="utm-medium-list"
+          presets={UTM_MEDIUM_PRESETS}
+        />
+      </div>
+
+      <div style={{ marginBottom: 14 }}>
+        <UtmTextField
+          label="캠페인 (utm_campaign, 선택)"
+          value={fields.campaign}
+          onChange={(v) => set({ campaign: v })}
+          placeholder="예: 2026_summer_lifting"
+        />
+      </div>
+
+      <div
+        style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 20 }}
+      >
+        <UtmTextField
+          label="키워드 (utm_term, 선택)"
+          value={fields.term}
+          onChange={(v) => set({ term: v })}
+          placeholder="유료 검색 키워드"
+        />
+        <UtmTextField
+          label="콘텐츠 (utm_content, 선택)"
+          value={fields.content}
+          onChange={(v) => set({ content: v })}
+          placeholder="소재·버전 구분 (예: banner_a)"
+        />
+      </div>
+
+      <hr
+        style={{
+          border: 'none',
+          borderTop: '1px solid #e5e7eb',
+          margin: '8px 0 16px',
+        }}
+      />
+
+      <label style={crmLabel}>생성된 추적 링크</label>
+      <div
+        style={{
+          display: 'flex',
+          gap: 8,
+          alignItems: 'stretch',
+          marginBottom: 12,
+        }}
+      >
+        <textarea
+          readOnly
+          value={url}
+          onFocus={(e) => e.currentTarget.select()}
+          placeholder="필수 항목(소스·매체·캠페인)을 입력하면 링크가 생성됩니다."
+          style={{
+            flex: 1,
+            minHeight: 64,
+            padding: '10px 12px',
+            fontSize: 13,
+            fontFamily: 'monospace',
+            lineHeight: 1.5,
+            border: '1px solid #d1d5db',
+            borderRadius: 6,
+            background: '#f9fafb',
+            color: '#111',
+            resize: 'vertical',
+            wordBreak: 'break-all',
+          }}
+        />
+      </div>
+
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+        <button
+          type="button"
+          onClick={copy}
+          disabled={!url}
+          style={{
+            padding: '9px 18px',
+            fontSize: 13,
+            fontWeight: 600,
+            borderRadius: 6,
+            border: '1px solid #111',
+            background: url ? '#111' : '#9ca3af',
+            color: '#fff',
+            cursor: url ? 'pointer' : 'not-allowed',
+          }}
+        >
+          {copied ? '✓ 복사됨' : '링크 복사'}
+        </button>
+        <button
+          type="button"
+          onClick={reset}
+          style={{
+            padding: '9px 16px',
+            fontSize: 13,
+            fontWeight: 600,
+            borderRadius: 6,
+            border: '1px solid #d1d5db',
+            background: '#fff',
+            color: '#374151',
+            cursor: 'pointer',
+          }}
+        >
+          초기화
+        </button>
+        {!ready && url && (
+          <span style={{ fontSize: 12, color: '#9ca3af' }}>
+            * 필수 항목(소스·매체)을 채우면 GA4에서 정상 분류됩니다.
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function SettingsTool() {
   const router = useRouter();
   const routerState = useRouterState() as {
@@ -4195,6 +4552,7 @@ export function SettingsTool() {
       {activeTab === 'sections' && <SectionsPanel />}
       {activeTab === 'legal' && <LegalDocPanel />}
       {activeTab === 'crm' && <CrmConnectionPanel />}
+      {activeTab === 'utm' && <UtmLinkPanel />}
     </div>
   );
 }
