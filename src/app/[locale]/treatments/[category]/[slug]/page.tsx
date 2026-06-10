@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import {
   TREATMENT_CATEGORIES,
@@ -220,10 +220,10 @@ export default async function TreatmentDetailPage({
 
   const visibility = await getSectionVisibility();
   if (!visibility.nav.treatments) {
-    redirect(`/${locale}`);
+    permanentRedirect(`/${locale}`);
   }
   if (!visibility.treatments.detail) {
-    redirect(`/${locale}/treatments`);
+    permanentRedirect(`/${locale}/treatments`);
   }
 
   const cmsData = (await getTreatmentDetail(slug, locale)) as any;

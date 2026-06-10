@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+import { permanentRedirect } from 'next/navigation';
 import { getSectionVisibility } from '@/lib/data/visibility';
 import { getFirstVisibleMediaTab } from '@/lib/data/mediaRedirect';
 
@@ -10,11 +10,11 @@ export default async function MediaPage({ params }: PageProps) {
   const { locale } = await params;
   const visibility = await getSectionVisibility();
   if (!visibility.nav.media) {
-    redirect(`/${locale}`);
+    permanentRedirect(`/${locale}`);
   }
   const firstTab = getFirstVisibleMediaTab(
     visibility.media,
     visibility.mediaOrder,
   );
-  redirect(`/${locale}/media/${firstTab ?? 'press'}`);
+  permanentRedirect(`/${locale}/media/${firstTab ?? 'press'}`);
 }

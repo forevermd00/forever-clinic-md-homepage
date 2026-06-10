@@ -2,7 +2,7 @@ export const revalidate = 60;
 
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { redirect } from 'next/navigation';
+import { permanentRedirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
 import { TreatmentsTabGrid } from '@/components/treatments/TreatmentsTabGrid';
@@ -92,7 +92,7 @@ export default async function TreatmentsPage({
 
   const visibility = await getSectionVisibility();
   if (!visibility.nav.treatments) {
-    redirect(`/${locale}`);
+    permanentRedirect(`/${locale}`);
   }
 
   const t = await getTranslations('treatments');

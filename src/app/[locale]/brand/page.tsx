@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+import { permanentRedirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
 import { DoctorGrid } from '@/components/brand/DoctorGrid';
@@ -74,7 +74,7 @@ export default async function BrandPage({
 
   const visibility = await getSectionVisibility();
   if (!visibility.nav.brand) {
-    redirect(`/${locale}`);
+    permanentRedirect(`/${locale}`);
   }
 
   const t = await getTranslations('brand');

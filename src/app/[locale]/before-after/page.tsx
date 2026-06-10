@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
+import { permanentRedirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
 import { BAGrid } from '@/components/ba/BAGrid';
@@ -66,7 +66,7 @@ export default async function BeforeAfterPage({
 
   const visibility = await getSectionVisibility();
   if (!visibility.nav.bnA) {
-    redirect(`/${locale}`);
+    permanentRedirect(`/${locale}`);
   }
 
   const { page, cat } = await searchParams;

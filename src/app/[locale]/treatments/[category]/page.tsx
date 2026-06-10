@@ -1,4 +1,4 @@
-import { redirect, notFound } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -56,10 +56,8 @@ export default async function TreatmentCategoryPage({
   const { locale, category } = await params;
   setRequestLocale(locale);
 
-  const isKnownCategory = TREATMENT_CATEGORIES.some((c) => c.slug === category);
-  if (isKnownCategory) {
-    redirect(`/${locale}/treatments?cat=${category}`);
-  }
+  // 알려진 카테고리(/treatments/{category})는 next.config의 301 redirect로
+  // /treatments?cat={category}에 정규화됨. 여기까지 온 슬러그는 QuickEntry 카드로 처리.
 
   // QuickEntry 카드 슬러그로 처리
   const [card, visibility, hero, categories, tc] = await Promise.all([

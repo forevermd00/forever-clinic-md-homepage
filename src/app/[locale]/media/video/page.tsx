@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
+import { permanentRedirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { VideoCard } from '@/components/media/VideoCard';
 import { Pagination } from '@/components/common/Pagination';
@@ -42,11 +42,11 @@ export default async function VideoPage({
 
   const visibility = await getSectionVisibility();
   if (!visibility.nav.media) {
-    redirect(`/${locale}`);
+    permanentRedirect(`/${locale}`);
   }
   if (!visibility.media.video) {
     const firstTab = getFirstVisibleMediaTab(visibility.media);
-    redirect(`/${locale}/media/${firstTab ?? 'press'}`);
+    permanentRedirect(`/${locale}/media/${firstTab ?? 'press'}`);
   }
 
   const { items: videos, totalPages } = await getYoutubeVideos(

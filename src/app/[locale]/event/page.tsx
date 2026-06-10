@@ -1,7 +1,7 @@
 export const revalidate = 60;
 
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
+import { permanentRedirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { HeroBanner } from '@/components/common/HeroBanner';
 import { EventCard } from '@/components/event/EventCard';
@@ -55,7 +55,7 @@ export default async function EventListPage({
 
   const visibility = await getSectionVisibility();
   if (!visibility.nav.event) {
-    redirect(`/${locale}`);
+    permanentRedirect(`/${locale}`);
   }
 
   const t = await getTranslations('event');
