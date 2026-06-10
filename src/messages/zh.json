@@ -46,7 +46,8 @@
     "beforeAfter": "Before & After",
     "treatments": "诊疗项目",
     "brand": "品牌介绍",
-    "media": "媒体中心"
+    "media": "媒体中心",
+    "event": "活动"
   },
   "header": {
     "estimate": "我的报价",
@@ -250,6 +251,13 @@
     "ctaDescription": "通过1:1专家咨询，找到最适合您的诊疗方案",
     "loginRequired": "登录后可查看术前照片",
     "loginToView": "登录查看"
+  },
+  "event": {
+    "title": "活动",
+    "heroSubtitle": "明洞Forever皮肤科正在进行的活动",
+    "empty": "暂无进行中的活动。",
+    "period": "活动期间",
+    "linkedTreatments": "活动项目"
   },
   "treatments": {
     "title": "诊疗项目",

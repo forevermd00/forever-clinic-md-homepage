@@ -87,16 +87,6 @@ interface StatsDoc {
   stats?: StatsItem[];
 }
 
-interface EventPopupDoc {
-  _id: string;
-  title?: { ko?: string; en?: string; zh?: string; ja?: string };
-  image?: { asset?: { _ref: string } };
-  linkUrl?: string;
-  startDate?: string;
-  endDate?: string;
-  isVisible?: boolean;
-}
-
 interface QuickTabDoc {
   _id: string;
   key?: string;
@@ -135,6 +125,7 @@ interface SectionVisibilityDoc {
     treatments?: boolean;
     brand?: boolean;
     media?: boolean;
+    event?: boolean;
     catLiftingLaser?: boolean;
     catPetitLifting?: boolean;
     catSkincare?: boolean;
@@ -194,10 +185,6 @@ const BRAND_QUERY = `*[_type == "brandPhilosophy" && _id == "brand-philosophy"][
 
 const STATS_QUERY = `*[_type == "statsStrip" && _id == "forever-myeongdong-stats"][0] {
   stats[] { _key, label, number, unit, description }
-}`;
-
-const POPUPS_QUERY = `*[_type == "eventPopup"] | order(_createdAt desc) {
-  _id, title, image { asset { _ref } }, linkUrl, startDate, endDate, isVisible
 }`;
 
 const QTABS_QUERY = `*[_type == "quickEntryTab"] | order(sortOrder asc) {
@@ -267,14 +254,7 @@ type BrandTab =
   | 'equipment'
   | 'clinicInfo';
 
-type SettingsTab =
-  | 'hero'
-  | 'popups'
-  | 'quickNav'
-  | 'sections'
-  | 'legal'
-  | 'crm'
-  | 'utm';
+type SettingsTab = 'hero' | 'quickNav' | 'sections' | 'legal' | 'crm' | 'utm';
 
 const BRAND_TABS: { key: BrandTab; label: string }[] = [
   { key: 'doctors', label: '의료진' },
@@ -287,7 +267,6 @@ const BRAND_TABS: { key: BrandTab; label: string }[] = [
 
 const SETTINGS_TABS: { key: SettingsTab; label: string }[] = [
   { key: 'hero', label: '히어로 배너' },
-  { key: 'popups', label: '이벤트 팝업' },
   { key: 'quickNav', label: '빠른 탐색' },
   { key: 'sections', label: '섹션 노출' },
   { key: 'legal', label: '약관 관리' },
@@ -1999,246 +1978,6 @@ function StatsSection() {
   );
 }
 
-// ─── 이벤트 팝업 패널 ─────────────────────────────────────
-
-function PopupsSection() {
-  const client = useClient({ apiVersion: '2026-05-13' });
-  const [docs, setDocs] = useState<EventPopupDoc[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [uploadingId, setUploadingId] = useState<string | null>(null);
-
-  useEffect(() => {
-    client.fetch<EventPopupDoc[]>(POPUPS_QUERY).then((data) => {
-      setDocs(data ?? []);
-      setLoading(false);
-    });
-  }, [client]);
-
-  const patch = async (id: string, fields: Record<string, unknown>) => {
-    await client.patch(id).set(fields).commit();
-    setDocs((prev) =>
-      prev.map((d) => (d._id === id ? { ...d, ...fields } : d)),
-    );
-  };
-
-  const handleImageUpload = async (
-    id: string,
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingId(id);
-    try {
-      const imageRef = await uploadImageAsset(client, file);
-      await client.patch(id).set({ image: imageRef }).commit();
-      setDocs((prev) =>
-        prev.map((d) =>
-          d._id === id
-            ? { ...d, image: { asset: { _ref: imageRef.asset._ref } } }
-            : d,
-        ),
-      );
-    } finally {
-      setUploadingId(null);
-    }
-  };
-
-  const handleAdd = async () => {
-    const newDoc = await client.create({
-      _type: 'eventPopup',
-      title: { ko: '' },
-    });
-    setDocs((prev) => [
-      { _id: newDoc._id, title: { ko: '' }, isVisible: true },
-      ...prev,
-    ]);
-    setExpandedId(newDoc._id);
-  };
-
-  if (loading) return <div className="ht-loading">불러오는 중...</div>;
-
-  return (
-    <div className="ht-panel-section">
-      <div className="ht-toolbar" style={{ marginBottom: 12 }}>
-        <button className="ht-add-btn" onClick={handleAdd}>
-          + 팝업 추가
-        </button>
-      </div>
-      <div className="ht-popup-list">
-        {docs.map((doc) => (
-          <div key={doc._id} className="ht-popup-item">
-            <div
-              className="ht-popup-header"
-              onClick={() =>
-                setExpandedId((prev) => (prev === doc._id ? null : doc._id))
-              }
-            >
-              <span className="ht-popup-title">
-                {doc.title?.ko || '(제목 없음)'}
-              </span>
-              <span className="ht-popup-meta">
-                {doc.startDate ? doc.startDate.slice(0, 10) : ''}
-                {doc.endDate ? ` ~ ${doc.endDate.slice(0, 10)}` : ''}
-              </span>
-              <input
-                type="checkbox"
-                className="tt-toggle"
-                checked={!!doc.isVisible}
-                onClick={(e) => e.stopPropagation()}
-                onChange={(e) =>
-                  patch(doc._id, { isVisible: e.target.checked })
-                }
-              />
-              <span className="ht-popup-chevron">
-                {expandedId === doc._id ? '▲' : '▼'}
-              </span>
-            </div>
-            {expandedId === doc._id && (
-              <div className="ht-popup-body">
-                {/* ─── 팝업 이미지 ─── */}
-                <div className="ht-detail-section" style={{ marginBottom: 12 }}>
-                  <div className="ht-detail-section-title">팝업 이미지</div>
-                  <div
-                    className="ht-detail-body"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: 12,
-                      flexWrap: 'wrap',
-                    }}
-                  >
-                    {doc.image?.asset?._ref ? (
-                      <img
-                        src={sanityImageUrl(
-                          'ecoamz42',
-                          'production',
-                          doc.image.asset._ref,
-                        )}
-                        alt="팝업 미리보기"
-                        style={{
-                          width: 100,
-                          height: 133,
-                          objectFit: 'cover',
-                          borderRadius: 4,
-                          border: '1px solid #e5e7eb',
-                        }}
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          width: 100,
-                          height: 133,
-                          borderRadius: 4,
-                          border: '1px dashed #d1d5db',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: 12,
-                          color: '#9ca3af',
-                          flexShrink: 0,
-                        }}
-                      >
-                        이미지 없음
-                      </div>
-                    )}
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 8,
-                      }}
-                    >
-                      <label
-                        className="ht-add-btn"
-                        style={{ cursor: 'pointer', display: 'inline-block' }}
-                      >
-                        {uploadingId === doc._id
-                          ? '업로드 중…'
-                          : '이미지 업로드'}
-                        <input
-                          type="file"
-                          accept="image/*"
-                          style={{ display: 'none' }}
-                          disabled={uploadingId === doc._id}
-                          onChange={(e) => handleImageUpload(doc._id, e)}
-                        />
-                      </label>
-                      <span style={{ fontSize: 11, color: '#9ca3af' }}>
-                        권장 비율: 3:4 (세로형)
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="ht-detail-grid4" style={{ marginBottom: 10 }}>
-                  {CLINIC_LOCALES.map(({ key, label }) => (
-                    <div key={key} className="ht-detail-field">
-                      <label className="ht-detail-label">제목 ({label})</label>
-                      <input
-                        type="text"
-                        className="ht-text-input"
-                        defaultValue={doc.title?.[key] ?? ''}
-                        onBlur={(e) =>
-                          patch(doc._id, { [`title.${key}`]: e.target.value })
-                        }
-                      />
-                    </div>
-                  ))}
-                </div>
-                <div className="ht-detail-field" style={{ marginBottom: 10 }}>
-                  <label className="ht-detail-label">링크 URL</label>
-                  <input
-                    type="text"
-                    className="ht-text-input"
-                    defaultValue={doc.linkUrl ?? ''}
-                    onBlur={(e) => patch(doc._id, { linkUrl: e.target.value })}
-                  />
-                </div>
-                <div className="ht-detail-row">
-                  <div className="ht-detail-field">
-                    <label className="ht-detail-label">시작일</label>
-                    <input
-                      type="datetime-local"
-                      className="ht-text-input"
-                      defaultValue={
-                        doc.startDate ? doc.startDate.slice(0, 16) : ''
-                      }
-                      onBlur={(e) =>
-                        patch(doc._id, {
-                          startDate: e.target.value
-                            ? new Date(e.target.value).toISOString()
-                            : null,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="ht-detail-field">
-                    <label className="ht-detail-label">종료일</label>
-                    <input
-                      type="datetime-local"
-                      className="ht-text-input"
-                      defaultValue={doc.endDate ? doc.endDate.slice(0, 16) : ''}
-                      onBlur={(e) =>
-                        patch(doc._id, {
-                          endDate: e.target.value
-                            ? new Date(e.target.value).toISOString()
-                            : null,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
-        {docs.length === 0 && <p className="ht-empty">팝업이 없습니다</p>}
-      </div>
-    </div>
-  );
-}
-
 // ─── 빠른 탐색 패널 (드래그 정렬) ────────────────────────
 
 function QuickNavSection({ onEditCard }: { onEditCard: (id: string) => void }) {
@@ -2565,6 +2304,7 @@ const NAV_ITEMS = [
   { key: 'treatments', label: '시술' },
   { key: 'brand', label: '브랜드' },
   { key: 'media', label: '미디어' },
+  { key: 'event', label: '이벤트' },
 ];
 const MEGAMENU_ITEMS = [
   { key: 'catLiftingLaser', label: '리프팅·레이저' },
@@ -4543,7 +4283,6 @@ export function SettingsTool() {
       {activeTab === 'hero' && (
         <HeroBannerPanel onEdit={(key) => router.navigate({ heroKey: key })} />
       )}
-      {activeTab === 'popups' && <PopupsSection />}
       {activeTab === 'quickNav' && (
         <QuickNavSection
           onEditCard={(id) => router.navigate({ qcardId: id })}

@@ -376,12 +376,79 @@ export const statsStripQuery = `
   }
 `;
 
+// 메인 진입 시 노출되는 팝업 — 노출 ON + 팝업 ON + 기간 내
 export const eventPopupQuery = `
-  *[_type == "eventPopup" && isVisible == true
-    && (!defined(startDate) || dateTime(now()) >= dateTime(startDate))
-    && (!defined(endDate) || dateTime(now()) <= dateTime(endDate))
-  ] | order(_createdAt asc) {
-    _id, image, "title": title[$locale], linkUrl
+  *[_type == "eventPopup" && isVisible == true && showAsPopup != false
+    && (!defined(startDate) || dateTime(now()) >= dateTime(string::split(startDate, "T")[0] + "T00:00:00+09:00"))
+    && (!defined(endDate) || dateTime(now()) <= dateTime(string::split(endDate, "T")[0] + "T23:59:59+09:00"))
+  ] | order(sortOrder asc, _createdAt asc) {
+    _id,
+    "uid": uid.current,
+    "title": coalesce(title[$locale], title.ko),
+    "pcImage": coalesce(pcImage[$locale], pcImage.ko),
+    "mobileImage": coalesce(mobileImage[$locale], mobileImage.ko),
+    image,
+    "linkUrl": linkUrl
+  }
+`;
+
+// 이벤트 상세에서 해석된 가격 옵션 raw 형태
+export interface EventOptionRaw {
+  _key?: string;
+  name?: string;
+  caption?: string;
+  area?: string;
+  price?: number;
+  discountPrice?: number;
+  isEvent?: boolean;
+}
+
+// 이벤트 메뉴(목록) — 노출 ON 전체
+export const eventListQuery = `
+  *[_type == "eventPopup" && isVisible == true] | order(sortOrder asc, _createdAt asc) {
+    _id,
+    "uid": uid.current,
+    "title": coalesce(title[$locale], title.ko),
+    "oneLineDescription": coalesce(oneLineDescription[$locale], oneLineDescription.ko),
+    "pcImage": coalesce(pcImage[$locale], pcImage.ko),
+    "mobileImage": coalesce(mobileImage[$locale], mobileImage.ko),
+    image,
+    startDate,
+    endDate
+  }
+`;
+
+// 이벤트 상세 — uid로 단건 조회, 연결 시술의 가격 옵션까지 해석
+export const eventByUidQuery = `
+  *[_type == "eventPopup" && isVisible == true && uid.current == $uid][0] {
+    _id,
+    "uid": uid.current,
+    "title": coalesce(title[$locale], title.ko),
+    "oneLineDescription": coalesce(oneLineDescription[$locale], oneLineDescription.ko),
+    "description": coalesce(description[$locale], description.ko),
+    "pcImage": coalesce(pcImage[$locale], pcImage.ko),
+    "mobileImage": coalesce(mobileImage[$locale], mobileImage.ko),
+    image,
+    startDate,
+    endDate,
+    "linkedTreatments": linkedTreatments[]{
+      optionKeys,
+      "treatment": treatment->{
+        _id,
+        "slug": slug.current,
+        "name": coalesce(name[$locale], name.ko),
+        category,
+        priceOptions[]{
+          _key,
+          "name": coalesce(name[$locale], name.ko),
+          "caption": coalesce(caption[$locale], caption.ko),
+          area,
+          price,
+          discountPrice,
+          isEvent
+        }
+      }
+    }
   }
 `;
 

@@ -137,6 +137,12 @@ const CATEGORY_VIS_KEYS: Record<string, keyof SectionVisibility['nav']> = {
 /* Nav items with group mapping - label is a translation key under "nav" namespace */
 const ALL_NAV_ITEMS = [
   {
+    labelKey: 'event',
+    href: '/event',
+    group: 'event',
+    visKey: 'event' as const,
+  },
+  {
     labelKey: 'beforeAfter',
     href: '/before-after',
     group: 'ba',
@@ -238,6 +244,20 @@ function MobileNavSection({
 }) {
   const isExpanded = expandedMenu === navItem.group;
   const groupColumns = allColumns.filter((c) => c.group === navItem.group);
+
+  // 메가 컬럼이 없는 단순 메뉴(이벤트 등)는 펼침 없이 링크만 렌더
+  if (groupColumns.length === 0) {
+    return (
+      <Link
+        href={`/${currentLocale}${navItem.href}`}
+        onClick={() => setIsMobileMenuOpen(false)}
+        className="py-3.5 text-[16px] font-medium text-[#2b2b2b]"
+        data-ga-id={`header.mobile-nav-${navItem.href.replace(/^\//, '')}`}
+      >
+        {tNav(navItem.labelKey)}
+      </Link>
+    );
+  }
 
   return (
     <>
@@ -625,21 +645,24 @@ export function Header({
               className="hidden items-center gap-8 md:flex"
               aria-label="main"
             >
-              {navItems.map(({ labelKey, href, group }) => (
-                <Link
-                  key={href}
-                  href={`/${currentLocale}${href}`}
-                  className={cn(
-                    'py-5 text-[14px] font-medium text-[#2b2b2b] transition-colors hover:text-[#a83c44]',
-                    hoveredGroup === group && 'text-[#a83c44]',
-                  )}
-                  onMouseEnter={() => openMega(group)}
-                  onMouseLeave={closeMega}
-                  data-ga-id={`header.nav-${href.replace(/^\//, '')}`}
-                >
-                  {tNav(labelKey)}
-                </Link>
-              ))}
+              {navItems.map(({ labelKey, href, group }) => {
+                const hasMega = allColumns.some((c) => c.group === group);
+                return (
+                  <Link
+                    key={href}
+                    href={`/${currentLocale}${href}`}
+                    className={cn(
+                      'py-5 text-[14px] font-medium text-[#2b2b2b] transition-colors hover:text-[#a83c44]',
+                      hoveredGroup === group && 'text-[#a83c44]',
+                    )}
+                    onMouseEnter={hasMega ? () => openMega(group) : undefined}
+                    onMouseLeave={hasMega ? closeMega : undefined}
+                    data-ga-id={`header.nav-${href.replace(/^\//, '')}`}
+                  >
+                    {tNav(labelKey)}
+                  </Link>
+                );
+              })}
             </nav>
 
             <div className="flex items-center gap-4">

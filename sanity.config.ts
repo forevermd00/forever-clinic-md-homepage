@@ -3,6 +3,7 @@ import { schemaTypes } from './src/lib/sanity/schemas';
 import { consultationTool } from './sanity/plugins/consultation-tool';
 import { treatmentTool } from './sanity/plugins/treatment-tool';
 import { bnaAdminTool } from './sanity/plugins/bna-tool';
+import { eventAdminTool } from './sanity/plugins/event-tool';
 import { mediaAdminTool } from './sanity/plugins/media-tool';
 import { brandAdminTool } from './sanity/plugins/brand-tool';
 import { settingsAdminTool } from './sanity/plugins/settings-tool';
@@ -38,6 +39,7 @@ export default defineConfig({
   },
   plugins: [
     bnaAdminTool(),
+    eventAdminTool(),
     treatmentTool(),
     brandAdminTool(),
     mediaAdminTool(),

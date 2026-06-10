@@ -46,7 +46,8 @@
     "beforeAfter": "ビフォーアフター",
     "treatments": "施術案内",
     "brand": "ブランド",
-    "media": "メディア"
+    "media": "メディア",
+    "event": "イベント"
   },
   "header": {
     "estimate": "お見積もり",
@@ -250,6 +251,13 @@
     "ctaDescription": "専門医との1:1カウンセリングで最適な施術を見つけましょう",
     "loginRequired": "ログインするとBefore写真を確認できます",
     "loginToView": "ログインして見る"
+  },
+  "event": {
+    "title": "イベント",
+    "heroSubtitle": "フォーエバークリニック明洞の開催中イベント",
+    "empty": "開催中のイベントはありません。",
+    "period": "イベント期間",
+    "linkedTreatments": "イベント施術"
   },
   "treatments": {
     "title": "施術案内",

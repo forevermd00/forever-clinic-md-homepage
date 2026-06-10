@@ -46,7 +46,8 @@
     "beforeAfter": "Before & After",
     "treatments": "Treatments",
     "brand": "About Us",
-    "media": "Media"
+    "media": "Media",
+    "event": "EVENT"
   },
   "header": {
     "estimate": "My Estimate",
@@ -250,6 +251,13 @@
     "ctaDescription": "Find the right treatment for you with a 1:1 consultation",
     "loginRequired": "Log in to view Before photos",
     "loginToView": "Log in to view"
+  },
+  "event": {
+    "title": "Events",
+    "heroSubtitle": "Ongoing events at Forever Clinic Myeongdong",
+    "empty": "There are no ongoing events.",
+    "period": "Event Period",
+    "linkedTreatments": "Event Treatments"
   },
   "treatments": {
     "title": "Treatments",

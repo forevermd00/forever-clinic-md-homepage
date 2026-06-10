@@ -34,6 +34,13 @@ export const sectionVisibility = defineType({
           type: 'boolean',
           initialValue: true,
         }),
+        defineField({
+          name: 'event',
+          title: '이벤트',
+          description: '상단 메뉴에 이벤트 메뉴를 노출합니다',
+          type: 'boolean',
+          initialValue: false,
+        }),
       ],
     }),
     defineField({

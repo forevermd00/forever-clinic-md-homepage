@@ -41,6 +41,16 @@ import { eventPopupQuery, homePressQuery } from '@/lib/sanity/queries';
 import { urlFor } from '@/lib/sanity/image';
 import { setRequestLocale } from 'next-intl/server';
 
+interface RawPopup {
+  _id: string;
+  uid?: string;
+  title?: string;
+  pcImage?: unknown;
+  mobileImage?: unknown;
+  image?: unknown;
+  linkUrl?: string;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -106,7 +116,7 @@ export default async function HomePage({
       : null,
     visibility.home.contact ? getContactSectionConfig(locale) : null,
     visibility.home.contact ? getBusinessHours() : null,
-    sanityFetch<PopupItem[]>(eventPopupQuery, { locale }),
+    sanityFetch<RawPopup[]>(eventPopupQuery, { locale }),
     visibility.home.contact ? getPageHero('contact', locale) : null,
   ]);
 
@@ -117,10 +127,19 @@ export default async function HomePage({
     ? (urlFor(contactHero.heroImage)?.width(1600).url() ?? null)
     : null;
 
-  const popupList = popups ?? [];
-  const popupImageUrls = popupList.map((p) =>
-    p.image ? (urlFor(p.image)?.width(480).url() ?? '') : '',
-  );
+  const popupRaw = popups ?? [];
+  const popupList: PopupItem[] = popupRaw.map((p) => {
+    const pc = p.pcImage ?? p.image ?? p.mobileImage;
+    const mobile = p.mobileImage ?? p.image ?? p.pcImage;
+    return {
+      _id: p._id,
+      uid: p.uid ?? undefined,
+      title: p.title ?? undefined,
+      pcImageUrl: pc ? (urlFor(pc)?.width(1200).url() ?? '') : '',
+      mobileImageUrl: mobile ? (urlFor(mobile)?.width(760).url() ?? '') : '',
+      linkUrl: p.linkUrl ?? undefined,
+    };
+  });
 
   const DEFAULT_HOME_ORDER = [
     'hero',
@@ -207,7 +226,7 @@ export default async function HomePage({
 
   return (
     <>
-      <EventPopupModal popups={popupList} imageUrls={popupImageUrls} />
+      <EventPopupModal popups={popupList} locale={locale} />
       {orderedHomeKeys.map((key) =>
         homeSections[key] ? (
           <Fragment key={key}>{homeSections[key]}</Fragment>

@@ -2,6 +2,8 @@
 import localizedString from './objects/localizedString';
 import localizedText from './objects/localizedText';
 import localizedBlockContent from './objects/localizedBlockContent';
+import localizedImage from './objects/localizedImage';
+import eventTreatmentLink from './objects/eventTreatmentLink';
 import priceOption from './objects/priceOption';
 import faqItem from './objects/faqItem';
 import businessHours from './objects/businessHours';
@@ -35,6 +37,8 @@ export const schemaTypes = [
   localizedString,
   localizedText,
   localizedBlockContent,
+  localizedImage,
+  eventTreatmentLink,
   priceOption,
   faqItem,
   businessHours,

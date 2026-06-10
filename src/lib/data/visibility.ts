@@ -6,6 +6,7 @@ export interface SectionVisibility {
     treatments: boolean;
     brand: boolean;
     media: boolean;
+    event: boolean;
     catLiftingLaser: boolean;
     catPetitLifting: boolean;
     catSkincare: boolean;
@@ -57,6 +58,7 @@ export const DEFAULT_VISIBILITY: SectionVisibility = {
     treatments: true,
     brand: true,
     media: true,
+    event: false,
     catLiftingLaser: true,
     catPetitLifting: true,
     catSkincare: true,
@@ -145,6 +147,7 @@ export async function getSectionVisibility(): Promise<SectionVisibility> {
       treatments: raw.nav?.treatments ?? true,
       brand: raw.nav?.brand ?? true,
       media: raw.nav?.media ?? true,
+      event: raw.nav?.event ?? false,
       catLiftingLaser: raw.nav?.catLiftingLaser ?? true,
       catPetitLifting: raw.nav?.catPetitLifting ?? true,
       catSkincare: raw.nav?.catSkincare ?? true,
