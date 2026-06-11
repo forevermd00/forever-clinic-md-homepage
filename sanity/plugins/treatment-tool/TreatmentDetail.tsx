@@ -22,7 +22,14 @@ const FULL_QUERY = `
     "recommendedFor": recommendedFor[],
     "procedure": procedure[],
     "precautions": precautions[],
-    "faq": faq[]
+    "faq": faq[],
+    detailDisplayMode,
+    "detailImagesLocalized": {
+      "ko": detailImagesLocalized.ko[]{ _key, "ref": asset._ref, "url": asset->url },
+      "en": detailImagesLocalized.en[]{ _key, "ref": asset._ref, "url": asset->url },
+      "zh": detailImagesLocalized.zh[]{ _key, "ref": asset._ref, "url": asset->url },
+      "ja": detailImagesLocalized.ja[]{ _key, "ref": asset._ref, "url": asset->url }
+    }
   }
 `;
 
@@ -48,6 +55,19 @@ interface FaqItem {
   question?: { ko?: string; en?: string; zh?: string; ja?: string };
   answer?: { ko?: string; en?: string; zh?: string; ja?: string };
 }
+
+interface ImageItem {
+  _key: string;
+  ref?: string;
+  url?: string;
+}
+
+type LocalizedImages = {
+  ko?: ImageItem[];
+  en?: ImageItem[];
+  zh?: ImageItem[];
+  ja?: ImageItem[];
+} | null;
 
 interface PriceOptionItem {
   _key: string;
@@ -84,6 +104,8 @@ interface FullDoc {
   procedure?: LocalizedItem[];
   precautions?: LocalizedItem[];
   faq?: FaqItem[];
+  detailDisplayMode?: 'text' | 'image';
+  detailImagesLocalized?: LocalizedImages;
 }
 
 const LOCALES: { key: 'ko' | 'en' | 'zh' | 'ja'; label: string }[] = [
@@ -573,6 +595,119 @@ function PriceOptionsEditor({
   );
 }
 
+const ttUploadBtnStyle: React.CSSProperties = {
+  display: 'inline-block',
+  padding: '6px 14px',
+  borderRadius: 6,
+  border: '1px solid #a83c44',
+  background: '#fff',
+  color: '#a83c44',
+  fontSize: 13,
+  fontWeight: 600,
+  cursor: 'pointer',
+  textAlign: 'center',
+};
+
+function LocalizedImageEditor({
+  docId,
+  initial,
+  client,
+}: {
+  docId: string;
+  initial: LocalizedImages;
+  client: ReturnType<typeof useClient>;
+}) {
+  const [images, setImages] = useState<Record<string, ImageItem | null>>({
+    ko: initial?.ko?.[0] ?? null,
+    en: initial?.en?.[0] ?? null,
+    zh: initial?.zh?.[0] ?? null,
+    ja: initial?.ja?.[0] ?? null,
+  });
+  const [uploading, setUploading] = useState<string | null>(null);
+
+  const handleUpload = async (
+    locale: 'ko' | 'en' | 'zh' | 'ja',
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(locale);
+    try {
+      const asset = await client.assets.upload('image', file, {
+        filename: file.name,
+      });
+      const item: ImageItem = {
+        _key: newKey(),
+        ref: asset._id,
+        url: (asset as { url?: string }).url,
+      };
+      // 언어별 1장 → 프론트가 배열을 읽으므로 1개짜리 배열로 저장
+      await client
+        .patch(docId)
+        .setIfMissing({ detailImagesLocalized: {} })
+        .set({
+          [`detailImagesLocalized.${locale}`]: [
+            {
+              _type: 'image',
+              _key: item._key,
+              asset: { _type: 'reference', _ref: item.ref },
+            },
+          ],
+        })
+        .commit();
+      setImages((p) => ({ ...p, [locale]: item }));
+    } finally {
+      e.target.value = '';
+      setUploading(null);
+    }
+  };
+
+  return (
+    <div className="tt-detail-grid4">
+      {LOCALES.map(({ key, label }) => {
+        const img = images[key];
+        return (
+          <div key={key} className="tt-detail-field">
+            <label className="tt-detail-label">{label}</label>
+            {img?.url && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={img.url}
+                alt={label}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  maxHeight: 160,
+                  objectFit: 'contain',
+                  objectPosition: 'top',
+                  borderRadius: 6,
+                  border: '1px solid #eee',
+                  marginBottom: 8,
+                  background: '#fafafa',
+                }}
+              />
+            )}
+            <label style={ttUploadBtnStyle}>
+              {uploading === key
+                ? '업로드 중…'
+                : img?.url
+                  ? '이미지 변경'
+                  : '이미지 선택'}
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                disabled={uploading === key}
+                onChange={(e) => handleUpload(key, e)}
+              />
+            </label>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export function TreatmentDetail({
   id,
   onBack,
@@ -741,6 +876,46 @@ export function TreatmentDetail({
               onChange={(e) => patchBool('showInMenu', e.target.checked)}
             />
           </Field>
+          <Field label="본문 표시 방식">
+            <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+              {(
+                [
+                  { v: 'text', label: '텍스트' },
+                  { v: 'image', label: '이미지' },
+                ] as const
+              ).map(({ v, label }) => {
+                const selected = (doc.detailDisplayMode ?? 'text') === v;
+                return (
+                  <label
+                    key={v}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      fontSize: 13,
+                      fontWeight: selected ? 700 : 500,
+                      color: selected ? '#a83c44' : '#444',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="detailDisplayMode"
+                      checked={selected}
+                      onChange={() => {
+                        patch({ detailDisplayMode: v });
+                        setDoc((prev) =>
+                          prev ? { ...prev, detailDisplayMode: v } : prev,
+                        );
+                      }}
+                    />
+                    {label}
+                  </label>
+                );
+              })}
+            </div>
+          </Field>
         </div>
       </Section>
 
@@ -864,6 +1039,22 @@ export function TreatmentDetail({
       {/* ─── 시술 정보 ─── */}
       <TreatmentInfoSection doc={doc} patch={patch} />
 
+      {/* ─── 상세 이미지 (언어별) ─── */}
+      <Section title="상세 이미지 (언어별)">
+        <p className="tt-detail-hint">
+          기본 설정의 &lsquo;본문 표시 방식&rsquo;을 &lsquo;이미지&rsquo;로
+          선택하면, 본문(소개·고민·변화·과정·주의) 자리에 이 이미지가
+          표시됩니다. 언어별로 1장씩 올릴 수 있고, &lsquo;이미지&rsquo;로
+          선택했더라도 해당 언어 이미지가 없으면 그 언어 페이지는 텍스트로
+          표시됩니다. (선택 즉시 저장)
+        </p>
+        <LocalizedImageEditor
+          docId={id}
+          initial={doc.detailImagesLocalized ?? null}
+          client={client}
+        />
+      </Section>
+
       {/* ─── 시술 소개 ─── */}
       <Section title="시술 소개">
         <div className="tt-detail-grid2">
@@ -906,19 +1097,19 @@ export function TreatmentDetail({
         />
       </Section>
 
-      {/* ─── 자주 묻는 질문 ─── */}
-      <Section title="자주 묻는 질문 (FAQ)">
-        <FaqEditor
-          initialItems={doc.faq}
-          onSave={(items) => patchArray('faq', items)}
-        />
-      </Section>
-
       {/* ─── 주의사항 ─── */}
       <Section title="주의사항">
         <LocalizedArrayEditor
           initialItems={doc.precautions}
           onSave={(items) => patchArray('precautions', items)}
+        />
+      </Section>
+
+      {/* ─── 자주 묻는 질문 (항상 맨 아래) ─── */}
+      <Section title="자주 묻는 질문 (FAQ)">
+        <FaqEditor
+          initialItems={doc.faq}
+          onSave={(items) => patchArray('faq', items)}
         />
       </Section>
 

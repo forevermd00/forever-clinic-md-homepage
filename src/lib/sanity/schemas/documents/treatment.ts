@@ -72,6 +72,28 @@ export default defineType({
       of: [defineArrayMember({ type: 'image', options: { hotspot: true } })],
     }),
     defineField({
+      name: 'detailDisplayMode',
+      title: '상세페이지 본문 표시 방식',
+      description:
+        "'텍스트': 아래 입력한 시술 소개·효과·과정 등을 글로 표시 / '이미지': 언어별 상세 이미지를 대신 표시",
+      type: 'string',
+      options: {
+        list: [
+          { title: '텍스트 (기본)', value: 'text' },
+          { title: '이미지', value: 'image' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'text',
+    }),
+    defineField({
+      name: 'detailImagesLocalized',
+      title: '상세 이미지 (언어별)',
+      description:
+        "위 '표시 방식'을 '이미지'로 선택하면 본문 자리에 이 이미지가 표시됩니다. 미리 올려두고 모드만 나중에 바꿔도 됩니다. '이미지'로 선택했더라도 해당 언어 이미지가 없으면 그 언어 페이지는 텍스트로 표시됩니다",
+      type: 'localizedImageArray',
+    }),
+    defineField({
       name: 'tagline',
       title: '한줄 소개',
       type: 'localizedString',

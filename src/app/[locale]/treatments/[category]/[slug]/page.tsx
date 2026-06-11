@@ -286,6 +286,20 @@ export default async function TreatmentDetailPage({
     ? Math.min(...effectivePrices)
     : treatment.priceNumeric;
   const hasMultipleOptions = selectorOptions.length > 1;
+
+  // 상세페이지 본문 표시 방식: 'image'면 텍스트 본문 대신 현재 언어 이미지 노출.
+  // 이미지 모드여도 해당 언어 이미지가 없으면 텍스트로 표시 (ko 폴백 안 함).
+  const detailDisplayMode =
+    typeof cmsData?.detailDisplayMode === 'string'
+      ? cmsData.detailDisplayMode
+      : 'text';
+  const detailImages: string[] = Array.isArray(cmsData?.detailImagesLocalized)
+    ? cmsData.detailImagesLocalized.filter(
+        (u: unknown): u is string => typeof u === 'string',
+      )
+    : [];
+  const isImageMode = detailDisplayMode === 'image' && detailImages.length > 0;
+
   // 시그니처: "타이틀(히어로) 섹션"만 다크 테마. 본문 섹션은 일반과 동일한 라이트 유지.
   const isSig = treatment.hasSignature;
   const sig = {
@@ -491,8 +505,26 @@ export default async function TreatmentDetailPage({
         </section>
       )}
 
+      {/* ── 이미지 모드: 언어별 상세 이미지 (텍스트 본문 대체) ── */}
+      {isImageMode && (
+        <section className="bg-white py-10 lg:py-12">
+          <div className="mx-auto flex w-full max-w-[680px] flex-col px-5">
+            {detailImages.map((url, i) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={i}
+                src={url}
+                alt={`${treatment.name} 상세 ${i + 1}`}
+                className="block h-auto w-full"
+                loading={i === 0 ? undefined : 'lazy'}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* ── 시술 소개 ── */}
-      {descriptionText && (
+      {!isImageMode && descriptionText && (
         <section className={`${sig.bgA} py-12`}>
           <div className="mx-auto w-full max-w-[680px] px-5">
             <p className="text-[11px] font-medium tracking-[0.15em] text-[#a83c44] uppercase">
@@ -512,7 +544,7 @@ export default async function TreatmentDetailPage({
       )}
 
       {/* ── 이런 고민이 있다면 ── */}
-      {recommendedFor.length > 0 && (
+      {!isImageMode && recommendedFor.length > 0 && (
         <section className={`${sig.bgB} py-12`}>
           <div className="mx-auto w-full max-w-[680px] px-5">
             <p className="text-[11px] font-medium tracking-[0.15em] text-[#a83c44] uppercase">
@@ -552,7 +584,7 @@ export default async function TreatmentDetailPage({
       )}
 
       {/* ── 이런 변화를 기대할 수 있어요 ── */}
-      {features.length > 0 && (
+      {!isImageMode && features.length > 0 && (
         <section className={`${sig.bgA} py-12`}>
           <div className="mx-auto w-full max-w-[680px] px-5">
             <p className="text-[11px] font-medium tracking-[0.15em] text-[#a83c44] uppercase">
@@ -584,7 +616,7 @@ export default async function TreatmentDetailPage({
       )}
 
       {/* ── 시술 과정 ── */}
-      {procedureSteps.length > 0 && (
+      {!isImageMode && procedureSteps.length > 0 && (
         <section className={`${sig.bgB} py-12`}>
           <div className="mx-auto w-full max-w-[680px] px-5">
             <p className="text-[11px] font-medium tracking-[0.15em] text-[#a83c44] uppercase">
@@ -610,27 +642,9 @@ export default async function TreatmentDetailPage({
         </section>
       )}
 
-      {/* ── 자주 묻는 질문 ── */}
-      {faqItems.length > 0 && (
-        <section className={`${sig.bgA} py-12`}>
-          <div className="mx-auto w-full max-w-[680px] px-5">
-            <p className="text-[11px] font-medium tracking-[0.15em] text-[#a83c44] uppercase">
-              {CLINIC_NAMES[locale] ?? CLINIC_NAMES.ko}
-            </p>
-            <h2 className={`mt-1 text-[20px] font-bold ${sig.heading}`}>
-              {t('faq')}
-            </h2>
-            <div className={`mt-4 h-px w-full ${sig.divider}`} />
-            <div className="mt-6">
-              <TreatmentFAQ items={faqItems} />
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* ── 주의사항 ── */}
-      {precautions.length > 0 && (
-        <section className={`${sig.bgB} py-12`}>
+      {!isImageMode && precautions.length > 0 && (
+        <section className={`${sig.bgA} py-12`}>
           <div className="mx-auto w-full max-w-[680px] px-5">
             <p className="text-[11px] font-medium tracking-[0.15em] text-[#a83c44] uppercase">
               {CLINIC_NAMES[locale] ?? CLINIC_NAMES.ko}
@@ -661,6 +675,24 @@ export default async function TreatmentDetailPage({
                   </span>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── 자주 묻는 질문 (텍스트/이미지 모드 공통, 항상 맨 아래·흰색 배경) ── */}
+      {faqItems.length > 0 && (
+        <section className={`${sig.bgA} py-12`}>
+          <div className="mx-auto w-full max-w-[680px] px-5">
+            <p className="text-[11px] font-medium tracking-[0.15em] text-[#a83c44] uppercase">
+              {CLINIC_NAMES[locale] ?? CLINIC_NAMES.ko}
+            </p>
+            <h2 className={`mt-1 text-[20px] font-bold ${sig.heading}`}>
+              {t('faq')}
+            </h2>
+            <div className={`mt-4 h-px w-full ${sig.divider}`} />
+            <div className="mt-6">
+              <TreatmentFAQ items={faqItems} />
             </div>
           </div>
         </section>
