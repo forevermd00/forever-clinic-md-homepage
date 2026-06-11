@@ -682,7 +682,9 @@ export default async function TreatmentDetailPage({
 
       {/* ── 자주 묻는 질문 (텍스트/이미지 모드 공통, 항상 맨 아래·흰색 배경) ── */}
       {faqItems.length > 0 && (
-        <section className={`${sig.bgA} py-12`}>
+        <section
+          className={`${isImageMode ? sig.bgA : sig.bgB} pt-12 pb-24 lg:pb-28`}
+        >
           <div className="mx-auto w-full max-w-[680px] px-5">
             <p className="text-[11px] font-medium tracking-[0.15em] text-[#a83c44] uppercase">
               {CLINIC_NAMES[locale] ?? CLINIC_NAMES.ko}
