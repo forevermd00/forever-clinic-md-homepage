@@ -284,12 +284,13 @@ export async function createReservation(
     reservationDate: input.reservationDate,
     reservationStartTime: input.reservationStartTime,
     reservationEndTime: input.reservationEndTime,
+    sendMessage: true,
   };
   if (input.reservationMemo) body.reservationMemo = input.reservationMemo;
   if (input.etcMemo) body.etcMemo = input.etcMemo;
   if (input.etcReservationFrom)
     body.etcReservationFrom = input.etcReservationFrom;
-  // labelId(0), sendMessage(false), prescriptionCodes 는 생략 (기본값/미사용)
+  // sendMessage(true): 예약 등록 시 CRM 문자 발송. labelId(0), prescriptionCodes 는 생략 (기본값/미사용)
 
   const data = await request<{
     reservation?: { id?: { seqNo?: number } };
