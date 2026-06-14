@@ -1,7 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { cn } from '@/lib/utils/cn';
+import { locales, localeNames } from '@/lib/i18n/config';
 import type { SectionVisibility } from '@/lib/data/visibility';
 
 const ALL_TREATMENT_LINKS = [
@@ -119,6 +122,15 @@ export function Footer({
   mediaOrder,
 }: FooterProps) {
   const t = useTranslations('footer');
+  const pathname = usePathname();
+
+  // 현재 경로의 로케일 세그먼트만 교체. 실제 <a href>로 항상 렌더해
+  // 4개 언어 버전이 정적 DOM에서 서로를 가리키게 함(색인 안정성의 핵심).
+  const localeHref = (target: string) => {
+    const segments = pathname.split('/');
+    segments[1] = target;
+    return segments.join('/') || `/${target}`;
+  };
 
   // Treatment categories: apply order + visibility filter
   const orderedTreatmentSlugs = megaMenuOrder?.length
@@ -243,6 +255,30 @@ export function Footer({
             ))}
           </div>
         </div>
+
+        {/* 언어 전환 — 4개 언어 버전 상호 내부링크 (항상 정적 DOM에 렌더) */}
+        <nav
+          aria-label="Language"
+          className="mt-12 flex flex-wrap items-center gap-x-5 gap-y-2"
+        >
+          <span className="text-[12px] font-bold tracking-wide text-white">
+            LANGUAGE
+          </span>
+          {locales.map((l) => (
+            <Link
+              key={l}
+              href={localeHref(l)}
+              hrefLang={l}
+              className={cn(
+                'text-[13px] transition-colors hover:text-white',
+                l === locale ? 'font-semibold text-white' : 'text-[#706263]',
+              )}
+              data-ga-id={`footer.lang-${l}`}
+            >
+              {localeNames[l]}
+            </Link>
+          ))}
+        </nav>
 
         {/* Divider */}
         <div className="my-10 h-px w-full bg-[rgba(112,98,99,0.3)]" />

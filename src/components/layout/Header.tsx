@@ -578,10 +578,12 @@ export function Header({
     ja: 'kozuka-mincho-pro-b, serif',
   };
 
-  const switchLocale = (locale: Locale) => {
+  // 현재 경로의 로케일 세그먼트만 교체한 경로를 반환.
+  // 실제 <a href>로 렌더해 4개 언어 홈이 서로를 가리키게 함(색인 안정성).
+  const localeHref = (locale: Locale) => {
     const segments = pathname.split('/');
     segments[1] = locale;
-    window.location.assign(segments.join('/'));
+    return segments.join('/') || `/${locale}`;
   };
 
   const navItems = useMemo(() => {
@@ -685,9 +687,11 @@ export function Header({
                 {isLangOpen && (
                   <div className="absolute top-full right-0 mt-1 min-w-[100px] overflow-hidden rounded-[4px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.12)]">
                     {locales.map((locale) => (
-                      <button
+                      <Link
                         key={locale}
-                        onClick={() => switchLocale(locale)}
+                        href={localeHref(locale)}
+                        hrefLang={locale}
+                        onClick={() => setIsLangOpen(false)}
                         style={{ fontFamily: localeFonts[locale] }}
                         className={cn(
                           'block w-full px-4 py-2 text-center text-[13px] transition-colors hover:bg-neutral-100',
@@ -698,7 +702,7 @@ export function Header({
                         data-ga-id={`header.lang-${locale}`}
                       >
                         {localeNames[locale]}
-                      </button>
+                      </Link>
                     ))}
                   </div>
                 )}
@@ -833,11 +837,11 @@ export function Header({
             {/* Language Selector */}
             <div className="mb-4 flex justify-center gap-3">
               {locales.map((locale) => (
-                <button
+                <Link
                   key={locale}
-                  onClick={() => {
-                    switchLocale(locale);
-                  }}
+                  href={localeHref(locale)}
+                  hrefLang={locale}
+                  onClick={() => setIsMobileMenuOpen(false)}
                   style={{ fontFamily: localeFonts[locale] }}
                   className={cn(
                     'px-3 py-1.5 text-[14px] transition-colors',
@@ -848,7 +852,7 @@ export function Header({
                   data-ga-id={`header.mobile-lang-${locale}`}
                 >
                   {localeNames[locale]}
-                </button>
+                </Link>
               ))}
             </div>
 
