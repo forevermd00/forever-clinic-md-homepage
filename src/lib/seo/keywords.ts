@@ -107,7 +107,7 @@ export const homeTitles: Record<string, string> = {
 };
 
 export const siteDescriptions: Record<string, string> = {
-  ko: '포에버의원 명동점(포에버 클리닉). 서울 명동 피부과 — 울쎄라·써마지 리프팅, 보톡스·필러, 스킨케어. 한·중·일·영 상담 가능, 외국인 환자 환영.',
+  ko: '포에버의원 명동점. 서울 명동 피부과 — 울쎄라·써마지 리프팅, 보톡스·필러, 스킨케어. 한·중·일·영 상담 가능, 외국인 환자 환영.',
   en: 'Dermatology clinic in Myeongdong, Seoul. Ultherapy, Thermage, Botox & Filler, skincare. English, Chinese & Japanese consultation available.',
   zh: '首尔明洞皮肤科诊所。超声刀、热玛吉提升，肉毒素、玻尿酸微整形，皮肤护理。提供中文咨询，欢迎外国患者。',
   ja: 'ソウル明洞の皮膚科クリニック。ウルセラ・サーマジリフティング、ボトックス・フィラー、スキンケア。日本語対応可、外国人患者歓迎。',
