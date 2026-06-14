@@ -54,7 +54,10 @@ export async function generateMetadata({
       locale: ogLocales[locale] ?? 'ko_KR',
     },
     verification: {
-      google: 'IotcjEEtjt4yVKvwG9Jcf-v2B9W7I7kxWMntfEAM5NQ',
+      google: '8pqNh6GdwcDYVGQH1umiaKgvKO65JxBm1eiUGV1HpJI',
+      other: {
+        'naver-site-verification': '68a8e44721907bdb32f411ab60625eb77cc928c7',
+      },
     },
   };
 }
