@@ -1016,6 +1016,29 @@ export function TreatmentDetail({
         </div>
       </Section>
 
+      {/* ─── 구성 (시그니처) ─── */}
+      <Section title="구성 (시그니처)">
+        <p className="tt-detail-hint">
+          시그니처 프로그램의 구성 시술 목록입니다. 시그니처로 지정된 시술 상세
+          페이지 상단 &lsquo;COMPOSITION&rsquo; 박스에 표시됩니다. 예: 이브뮤즈
+          AI 피부진단 + 수면 + 올쎄라피 프라임 600샷 + 써마지 600샷 …
+        </p>
+        <div className="tt-detail-grid2">
+          {LOCALES.map(({ key, label }) => (
+            <Field key={key} label={label}>
+              <textarea
+                className="tt-text-input tt-textarea"
+                defaultValue={doc.composition?.[key] ?? ''}
+                rows={4}
+                onBlur={(e) =>
+                  patch({ [`composition.${key}`]: e.target.value })
+                }
+              />
+            </Field>
+          ))}
+        </div>
+      </Section>
+
       {/* ─── 키워드 (태그) ─── */}
       <Section title="키워드 (태그)">
         <p className="tt-detail-hint">
