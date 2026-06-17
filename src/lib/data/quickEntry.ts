@@ -78,6 +78,10 @@ export async function getQuickEntryData(
   >();
 
   for (const card of data) {
+    // 탭 노출이 OFF(false)면 해당 탭과 카드 전체 제외 (관리자 '빠른 탐색' 탭 노출 토글)
+    // null/undefined는 노출로 간주 — 카드 isVisible != false 컨벤션과 동일
+    if (card.tabVisible === false) continue;
+
     // 그룹핑 키: tabRef(document _id) 우선, 없으면 tabKey(string)
     const groupKey = card.tabRef ?? card.tabKey;
     if (!groupKey) continue;
