@@ -13,6 +13,7 @@ export interface TreatmentDoc {
   isEvent: boolean;
   isSignature: boolean;
   isVisible: boolean;
+  showInMenu: boolean;
   sortOrder: number;
   priceOptions?: PriceOption[];
 }

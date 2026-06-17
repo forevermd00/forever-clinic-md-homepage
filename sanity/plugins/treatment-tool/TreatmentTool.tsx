@@ -57,6 +57,7 @@ const QUERY = `
     "isEvent": count(priceOptions[isEvent == true]) > 0,
     isSignature,
     isVisible,
+    showInMenu,
     sortOrder,
     priceOptions[] { price, discountPrice }
   }
@@ -469,6 +470,7 @@ export function TreatmentTool() {
               <col style={{ width: '60px' }} />
               <col style={{ width: '60px' }} />
               <col style={{ width: '60px' }} />
+              <col style={{ width: '60px' }} />
               <col />
             </colgroup>
             <thead>
@@ -497,13 +499,14 @@ export function TreatmentTool() {
                 <th style={{ cursor: 'default' }}>이벤트</th>
                 <th style={{ cursor: 'default' }}>시그니처</th>
                 <th style={{ cursor: 'default' }}>노출</th>
+                <th style={{ cursor: 'default' }}>메뉴</th>
                 <th style={{ cursor: 'default' }}>가격</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="tt-empty">
+                  <td colSpan={10} className="tt-empty">
                     시술이 없습니다
                   </td>
                 </tr>
@@ -940,6 +943,15 @@ function TreatmentRow({
           className="tt-toggle"
           checked={!!doc.isVisible}
           onChange={(e) => onPatch(doc._id, { isVisible: e.target.checked })}
+        />
+      </td>
+
+      <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+        <input
+          type="checkbox"
+          className="tt-toggle"
+          checked={!!doc.showInMenu}
+          onChange={(e) => onPatch(doc._id, { showInMenu: e.target.checked })}
         />
       </td>
 
