@@ -447,7 +447,7 @@ export function ContactFormSection({
                       onChange={handlePhoneChange}
                       placeholder="010-0000-0000"
                       className={cn(
-                        'h-[44px] flex-1 rounded-[6px] border bg-white px-3 py-2.5 text-[14px] placeholder:text-[#b3b3b3]',
+                        'h-[44px] min-w-0 flex-1 rounded-[6px] border bg-white px-3 py-2.5 text-[14px] placeholder:text-[#b3b3b3]',
                         errBorder(phoneInvalid),
                       )}
                     />
@@ -509,7 +509,7 @@ export function ContactFormSection({
                     value={messengerId}
                     onChange={(e) => setMessengerId(e.target.value)}
                     placeholder={t('formMessengerPlaceholder')}
-                    className="h-[44px] flex-1 rounded-[6px] border border-[#d9d9d9] bg-white px-3 py-2.5 text-[14px] placeholder:text-[#b3b3b3]"
+                    className="h-[44px] min-w-0 flex-1 rounded-[6px] border border-[#d9d9d9] bg-white px-3 py-2.5 text-[14px] placeholder:text-[#b3b3b3]"
                   />
                 </div>
               </div>
