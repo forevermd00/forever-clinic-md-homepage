@@ -36,7 +36,10 @@ export async function PromoSection({
         <div className="mx-auto w-full max-w-[1272px]">
           <div
             className="grid justify-center gap-4"
-            style={{ gridTemplateColumns: 'repeat(auto-fill, 300px)' }}
+            style={{
+              gridTemplateColumns:
+                'repeat(auto-fill, minmax(min(100%, 300px), 300px))',
+            }}
           >
             {events.map((event) => (
               <Link

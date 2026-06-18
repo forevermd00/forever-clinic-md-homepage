@@ -37,7 +37,10 @@ export async function SignatureProgramSection({
         <div className="mx-auto w-full max-w-[1272px]">
           <div
             className="grid justify-center gap-4"
-            style={{ gridTemplateColumns: 'repeat(auto-fill, 280px)' }}
+            style={{
+              gridTemplateColumns:
+                'repeat(auto-fill, minmax(min(100%, 280px), 280px))',
+            }}
           >
             {programs.map((program) => (
               <ProgramCard

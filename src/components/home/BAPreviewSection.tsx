@@ -80,7 +80,7 @@ export function BAPreviewSection({ cases }: BAPreviewSectionProps = {}) {
                   key={card.id}
                   href={`/${locale}/before-after/${card.id}`}
                   data-ga-id={`home-ba-preview.card-${card.id}`}
-                  className="block w-[311px] overflow-hidden rounded-[8px] border border-[#efe5d9] shadow-[0px_1px_2px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-md"
+                  className="block w-[300px] max-w-full overflow-hidden rounded-[8px] border border-[#efe5d9] shadow-[0px_1px_2px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-md"
                 >
                   <div className="flex h-[250px]">
                     <div className="flex-1 overflow-hidden">

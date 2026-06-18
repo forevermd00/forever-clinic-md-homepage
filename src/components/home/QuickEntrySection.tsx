@@ -101,7 +101,7 @@ export function QuickEntrySection({
               key={card.id}
               href={`/${locale}${card.linkUrl || '/treatments'}`}
               data-ga-id={`home-quick-entry.card-${card.id}`}
-              className="w-[270px] overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)] transition-shadow hover:drop-shadow-[0_4px_8px_rgba(0,0,0,0.12)]"
+              className="w-[270px] max-w-full overflow-hidden rounded-[8px] bg-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.08)] transition-shadow hover:drop-shadow-[0_4px_8px_rgba(0,0,0,0.12)]"
             >
               <div className="h-[160px] w-full overflow-hidden">
                 <img

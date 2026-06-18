@@ -43,7 +43,10 @@ export function HomePressSection({ locale, items }: HomePressProps) {
 
         <div
           className="grid w-full max-w-[1272px] justify-center gap-6"
-          style={{ gridTemplateColumns: 'repeat(auto-fill, 300px)' }}
+          style={{
+            gridTemplateColumns:
+              'repeat(auto-fill, minmax(min(100%, 300px), 300px))',
+          }}
         >
           {items.map((item) => (
             <ContentCard
