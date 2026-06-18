@@ -1,6 +1,6 @@
 // === Signature Programs (treatment 타입, isSignature == true) ===
 export const signatureProgramsQuery = `
-  *[_type == "treatment" && isSignature == true && isVisible == true] | order(sortOrder asc) {
+  *[_type == "treatment" && isSignature == true && isVisible == true] | order(sortOrder asc, _createdAt asc) {
     _id,
     "slug": slug.current,
     "name": name[$locale],
@@ -48,7 +48,7 @@ export const homeQuickEntryQuery = `*[_type == "quickEntryCard" && isVisible == 
 export const homePromoQuery = `*[_type == "promotion" && showOnMain == true] | order(sortOrder asc)[0...3]`;
 
 export const homeEventTreatmentsQuery = `
-  *[_type == "treatment" && isVisible == true && count(priceOptions[isEvent == true]) > 0 && showInMenu == true] | order(sortOrder asc) {
+  *[_type == "treatment" && isVisible == true && count(priceOptions[isEvent == true]) > 0 && showInMenu == true] | order(sortOrder asc, _createdAt asc) {
     _id, name, "slug": slug.current, category, tagline, priceOptions, "isEvent": count(priceOptions[isEvent == true]) > 0
   }
 `;
@@ -73,11 +73,11 @@ export const homeClinicInfoQuery = `*[_type == "clinicInfo"][0]`;
 export const homeEventPopupQuery = `*[_type == "eventPopup" && dateTime(now()) >= dateTime(startDate) && dateTime(now()) <= dateTime(endDate)][0]`;
 
 // === Treatment ===
-export const treatmentsByCategoryQuery = `*[_type == "treatment" && isVisible == true && category == $category] | order(sortOrder asc) {
+export const treatmentsByCategoryQuery = `*[_type == "treatment" && isVisible == true && category == $category] | order(sortOrder asc, _createdAt asc) {
   ..., "imageUrl": thumbnail.asset->url
 }`;
 
-export const allTreatmentsGroupedQuery = `*[_type == "treatment" && isVisible == true] | order(sortOrder asc) {
+export const allTreatmentsGroupedQuery = `*[_type == "treatment" && isVisible == true] | order(sortOrder asc, _createdAt asc) {
   _id, name, slug, category, tagline, keywords, description, composition, priceOptions, "isEvent": count(priceOptions[isEvent == true]) > 0, isSignature, downtime, treatmentTime, duration,
   "imageUrl": thumbnail.asset->url
 }`;
@@ -177,7 +177,7 @@ export const cartReconcileQuery = `
 `;
 
 export const allTreatmentsForCartQuery = `
-  *[_type == "treatment" && isVisible == true] | order(sortOrder asc) {
+  *[_type == "treatment" && isVisible == true] | order(sortOrder asc, _createdAt asc) {
     _id, "name": name[$locale], "slug": slug.current, category, priceOptions, "isEvent": count(priceOptions[isEvent == true]) > 0
   }
 `;
@@ -475,7 +475,7 @@ export interface NavTreatment {
 }
 
 export const navTreatmentsQuery = `
-  *[_type == "treatment" && showInMenu == true && isVisible == true] | order(category asc, sortOrder asc) {
+  *[_type == "treatment" && showInMenu == true && isVisible == true] | order(category asc, sortOrder asc, _createdAt asc) {
     "slug": slug.current,
     category,
     "name": { "ko": name.ko, "en": name.en, "zh": name.zh, "ja": name.ja }

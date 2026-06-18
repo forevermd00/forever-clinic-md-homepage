@@ -71,9 +71,26 @@ export function TreatmentsTabGrid({
       labelEn: 'EVENTS',
       description: t('eventDescription'),
       bgColor: 'bg-white',
-      treatments: categories
-        .flatMap((cat) => cat.treatments)
-        .filter((treatment) => treatment.hasEvent),
+      // 관리자 이벤트 탭과 동일하게 카테고리 무관 전역 정렬(sortOrder asc, _createdAt asc).
+      // categories는 카테고리별로 묶여 있으므로 전역 sortIndex로 다시 평면 정렬하고,
+      // 시그니처 카테고리 중복 등 slug 중복은 제거.
+      treatments: (() => {
+        const seen = new Set<string>();
+        return categories
+          .flatMap((cat) => cat.treatments)
+          .filter((treatment) => treatment.hasEvent)
+          .filter((treatment) => {
+            const key = treatment.slug || treatment.name;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          })
+          .sort(
+            (a, b) =>
+              (a.sortIndex ?? Number.MAX_SAFE_INTEGER) -
+              (b.sortIndex ?? Number.MAX_SAFE_INTEGER),
+          );
+      })(),
     }),
     [categories, t],
   );

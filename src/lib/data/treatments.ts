@@ -153,6 +153,10 @@ export async function getAllCategories(
 
   if (!raw || raw.length === 0) return TREATMENT_CATEGORIES;
 
+  // raw는 이미 관리자와 동일한 전역 정렬(sortOrder asc, _createdAt asc) 상태.
+  // 이벤트 등 카테고리 횡단 목록을 관리자 순서와 일치시키기 위한 전역 인덱스 맵.
+  const orderMap = new Map(raw.map((t, i) => [t._id, i]));
+
   // Sanity 데이터를 카테고리별로 그룹핑
   const grouped: Record<string, SanityTreatment[]> = {};
   for (const t of raw) {
@@ -202,6 +206,7 @@ export async function getAllCategories(
           recovery: extractLocale(t.downtime, locale),
           recommended: t.duration || '',
           imageUrl: t.imageUrl,
+          sortIndex: orderMap.get(t._id) ?? Number.MAX_SAFE_INTEGER,
         };
       }),
     };

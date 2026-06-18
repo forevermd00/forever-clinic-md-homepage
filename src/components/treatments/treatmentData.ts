@@ -16,6 +16,8 @@ export interface Treatment {
   recovery: string;
   recommended: string;
   imageUrl?: string;
+  /** 관리자 정렬 기준(sortOrder asc, _createdAt asc)의 전역 순서 인덱스 — 이벤트 등 카테고리 횡단 목록 정렬용 */
+  sortIndex?: number;
 }
 
 export interface TreatmentCategory {

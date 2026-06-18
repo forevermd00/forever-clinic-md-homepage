@@ -380,12 +380,6 @@ export default async function TreatmentDetailPage({
                   EVENT
                 </span>
               )}
-              {(treatment.hasSignature || treatment.hasEvent) &&
-                (treatment.discountRate ?? 0) > 0 && (
-                  <span className="inline-flex rounded-[4px] bg-[#2b2b2b] px-1.5 py-0.5 text-[12px] font-bold text-white">
-                    {treatment.discountRate}% OFF
-                  </span>
-                )}
             </div>
 
             {/* Name */}
