@@ -10,7 +10,6 @@ import {
 } from '@/lib/sanity/queries';
 import { urlFor } from '@/lib/sanity/image';
 import type { NoticeItem } from '@/components/media/NoticeTable';
-import type { PortableTextBlock } from '@portabletext/types';
 
 /* ─── Sanity raw shapes ─── */
 
@@ -340,7 +339,7 @@ export type BlogDetailResult = {
     slug: string;
     title: string;
     date: string;
-    content: PortableTextBlock[];
+    content: string;
     views: number;
   };
   prevArticle: ArticleNav;
@@ -353,8 +352,8 @@ interface SanityBlogDetail {
   _id: string;
   title?: string;
   slug?: string;
-  content?: PortableTextBlock[];
-  publishDate?: string;
+  content?: string;
+  publishedAt?: string;
   views?: number;
   prevArticle?: { slug?: string; _id?: string; title?: string };
   nextArticle?: { slug?: string; _id?: string; title?: string };
@@ -378,8 +377,8 @@ export async function getBlogDetail(
       _id: data._id,
       slug: data.slug || data._id,
       title: data.title,
-      date: formatDate(data.publishDate),
-      content: data.content || [],
+      date: formatDate(data.publishedAt),
+      content: data.content || '',
       views: data.views ?? 0,
     },
     prevArticle: data.prevArticle?.title

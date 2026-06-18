@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { toPlainText } from '@portabletext/toolkit';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getArticleJsonLd } from '@/lib/seo/jsonld';
 import { getBlogDetail } from '@/lib/data/media';
@@ -16,6 +15,17 @@ import {
   siteNames,
 } from '@/lib/seo/keywords';
 
+// 마크다운 본문에서 메타 설명용 평문 추출 (문법 기호 제거)
+function mdToPlainText(md: string): string {
+  return (md || '')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '') // 이미지 제거
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1') // 링크 → 텍스트
+    .replace(/<[^>]+>/g, '') // 인라인 HTML 제거
+    .replace(/[#>*_`~|-]/g, ' ') // 마크다운 기호 제거
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -25,8 +35,7 @@ export async function generateMetadata({
   const cmsResult = await getBlogDetail(slug, locale);
   if (!cmsResult) return {};
   const { article } = cmsResult;
-  const plainText =
-    article.content.length > 0 ? toPlainText(article.content) : '';
+  const plainText = mdToPlainText(article.content);
   const description = plainText.slice(0, 160);
   return {
     title: article.title,
@@ -67,8 +76,7 @@ export default async function BlogDetailPage({
 
   const { article, prevArticle, nextArticle } = cmsResult;
   const basePath = `/${locale}/media/blog`;
-  const plainText =
-    article.content.length > 0 ? toPlainText(article.content) : '';
+  const plainText = mdToPlainText(article.content);
 
   return (
     <>

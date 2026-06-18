@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useClient } from 'sanity';
 import type { SanityClient } from 'sanity';
-import type { PortableTextBlock } from '@sanity/types';
 import { BlogEditor } from './BlogEditor';
 
 interface BlogDoc {
@@ -9,11 +8,11 @@ interface BlogDoc {
   title?: { ko?: string; en?: string; zh?: string; ja?: string };
   slug?: { current?: string };
   category?: string;
-  body?: {
-    ko?: PortableTextBlock[];
-    en?: PortableTextBlock[];
-    zh?: PortableTextBlock[];
-    ja?: PortableTextBlock[];
+  markdownContent?: {
+    ko?: string;
+    en?: string;
+    zh?: string;
+    ja?: string;
   };
   publishedAt?: string;
   thumbnail?: { asset?: { _ref: string } };
@@ -46,8 +45,8 @@ async function uploadImage(client: SanityClient, file: File) {
 }
 
 const QUERY = `*[_type == "blogPost" && _id == $id][0] {
-  _id, title, slug, category, publishedAt,
-  body { ko, en, zh, ja },
+  _id, title, slug, category, "publishedAt": coalesce(publishedAt, publishDate),
+  markdownContent { ko, en, zh, ja },
   thumbnail { asset { _ref } }
 }`;
 
@@ -219,8 +218,10 @@ export function BlogDetail({ id, onBack }: { id: string; onBack: () => void }) {
           <BlogEditor
             key={`${id}-${activeLang}`}
             client={client}
-            value={doc.body?.[activeLang] ?? []}
-            onChange={(blocks) => patch({ [`body.${activeLang}`]: blocks })}
+            docId={id}
+            lang={activeLang}
+            value={doc.markdownContent?.[activeLang] ?? ''}
+            onChange={(md) => patch({ [`markdownContent.${activeLang}`]: md })}
           />
         </div>
       </div>

@@ -29,12 +29,13 @@ export default defineType({
       type: 'string',
     }),
     defineField({
-      name: 'content',
-      title: '본문',
-      type: 'localizedBlockContent',
+      name: 'markdownContent',
+      title: '본문 (마크다운)',
+      description: '마크다운 문법으로 작성합니다. 관리자 도구에서 편집하세요.',
+      type: 'localizedText',
     }),
     defineField({
-      name: 'publishDate',
+      name: 'publishedAt',
       title: '게시일',
       type: 'date',
     }),

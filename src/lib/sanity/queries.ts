@@ -333,11 +333,12 @@ export const pressArticleDetailQuery = `
 
 export const blogPostDetailQuery = `
   *[_type == "blogPost" && slug.current == $slug][0] {
-    _id, "title": title[$locale], "slug": slug.current, thumbnail, category, publishDate, views,
-    "content": content[$locale],
-    "prevArticle": *[_type == "blogPost" && publishDate > ^.publishDate] | order(publishDate asc)[0] { "slug": slug.current, "title": title[$locale] },
-    "nextArticle": *[_type == "blogPost" && publishDate < ^.publishDate] | order(publishDate desc)[0] { "slug": slug.current, "title": title[$locale] },
-    "position": count(*[_type == "blogPost" && publishDate > ^.publishDate]) + 1,
+    _id, "title": title[$locale], "slug": slug.current, thumbnail, category, views,
+    "publishedAt": coalesce(publishedAt, publishDate),
+    "content": coalesce(markdownContent[$locale], ""),
+    "prevArticle": *[_type == "blogPost" && coalesce(publishedAt, publishDate) > coalesce(^.publishedAt, ^.publishDate)] | order(coalesce(publishedAt, publishDate) asc)[0] { "slug": slug.current, "title": title[$locale] },
+    "nextArticle": *[_type == "blogPost" && coalesce(publishedAt, publishDate) < coalesce(^.publishedAt, ^.publishDate)] | order(coalesce(publishedAt, publishDate) desc)[0] { "slug": slug.current, "title": title[$locale] },
+    "position": count(*[_type == "blogPost" && coalesce(publishedAt, publishDate) > coalesce(^.publishedAt, ^.publishDate)]) + 1,
     "total": count(*[_type == "blogPost"])
   }
 `;
