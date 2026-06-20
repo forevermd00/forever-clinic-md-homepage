@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
-import { GoogleAnalytics } from '@next/third-parties/google';
+import { GoogleAnalytics, GoogleTagManager } from '@next/third-parties/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -13,7 +13,12 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { getMedicalBusinessJsonLd } from '@/lib/seo/jsonld';
 import { AnalyticsTracker } from '@/components/analytics/AnalyticsTracker';
 import { UtmCapture } from '@/components/analytics/UtmCapture';
-import { GA_MEASUREMENT_ID, isGAEnabled } from '@/lib/analytics/config';
+import {
+  GA_MEASUREMENT_ID,
+  isGAEnabled,
+  GTM_CONTAINER_ID,
+  isGTMEnabled,
+} from '@/lib/analytics/config';
 import { sanityFetch } from '@/lib/sanity/fetch';
 import {
   clinicInfoQuery,
@@ -105,6 +110,17 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body>
+        {/* Google Tag Manager (noscript) */}
+        {isGTMEnabled && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${GTM_CONTAINER_ID}`}
+              height="0"
+              width="0"
+              style={{ display: 'none', visibility: 'hidden' }}
+            />
+          </noscript>
+        )}
         {/* Adobe Fonts (Typekit) — kit: uac7ujz */}
         <Script
           id="typekit"
@@ -147,6 +163,7 @@ export default async function LocaleLayout({
           </NextIntlClientProvider>
         </SessionProvider>
         {isGAEnabled && <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />}
+        {isGTMEnabled && <GoogleTagManager gtmId={GTM_CONTAINER_ID} />}
       </body>
     </html>
   );
