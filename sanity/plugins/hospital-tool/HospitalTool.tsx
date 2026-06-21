@@ -292,7 +292,7 @@ function DoctorsPanel({ onEdit }: { onEdit: (id: string) => void }) {
   }, [client]);
 
   const handleAdd = async () => {
-    const newDoc = await client.create({ _type: 'doctor' });
+    const newDoc = await client.create({ _type: 'doctor', isVisible: false });
     onEdit(newDoc._id);
   };
 
@@ -405,7 +405,7 @@ function DoctorsPanel({ onEdit }: { onEdit: (id: string) => void }) {
                     <input
                       type="checkbox"
                       className="tt-toggle"
-                      checked={!!doc.isVisible}
+                      checked={doc.isVisible !== false}
                       onChange={(e) => toggleVisible(doc._id, e.target.checked)}
                     />
                   </td>

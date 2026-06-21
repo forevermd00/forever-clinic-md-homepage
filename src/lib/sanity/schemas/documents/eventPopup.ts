@@ -128,6 +128,14 @@ export default defineType({
       group: 'detail',
     }),
     defineField({
+      name: 'detailImage',
+      title: '상세 이미지 (언어별)',
+      description:
+        '상세페이지에서 이벤트 기간 바로 아래(연결 시술 위)에 노출되는 이미지. 언어별로 1장씩 등록, 미등록 시 한국어 폴백. 비워두면 표시되지 않습니다.',
+      type: 'localizedImage',
+      group: 'detail',
+    }),
+    defineField({
       name: 'linkedTreatments',
       title: '연결 이벤트 시술',
       description:
@@ -151,7 +159,7 @@ export default defineType({
       title: '메인 진입 시 팝업 노출',
       description: '체크 시 메인 페이지 진입 시 팝업으로 노출됩니다.',
       type: 'boolean',
-      initialValue: true,
+      initialValue: false,
       group: 'settings',
     }),
     defineField({

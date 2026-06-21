@@ -74,10 +74,10 @@ const BLOG_QUERY = `
 `;
 
 const NOTICE_QUERY = `
-  *[_type == "notice"] | order(isPinned desc, publishedAt desc) {
+  *[_type == "notice"] | order(isPinned desc, coalesce(publishDate, _createdAt) desc) {
     _id,
     "title": coalesce(title.ko, title.en, "(제목 없음)"),
-    isPinned, publishedAt, isVisible
+    isPinned, "publishedAt": coalesce(publishDate, _createdAt), isVisible
   }
 `;
 
@@ -151,7 +151,7 @@ function PressPanel({ onEdit }: { onEdit: (id: string) => void }) {
     const newDoc = await client.create({
       _type: 'pressArticle',
       title: { ko: '' },
-      isVisible: true,
+      isVisible: false,
     });
     onEdit(newDoc._id);
   };
@@ -248,7 +248,7 @@ function VideoPanel({ onEdit }: { onEdit: (id: string) => void }) {
     const newDoc = await client.create({
       _type: 'youtubeVideo',
       title: { ko: '' },
-      isVisible: true,
+      isVisible: false,
       displayLanguages: ['ko', 'en', 'zh', 'ja'],
       publishedAt: new Date().toISOString().slice(0, 10),
     });
@@ -371,7 +371,7 @@ function BlogPanel({ onEdit }: { onEdit: (id: string) => void }) {
     const newDoc = await client.create({
       _type: 'blogPost',
       title: { ko: '' },
-      isVisible: true,
+      isVisible: false,
     });
     onEdit(newDoc._id);
   };
@@ -466,7 +466,7 @@ function NoticePanel({ onEdit }: { onEdit: (id: string) => void }) {
     const newDoc = await client.create({
       _type: 'notice',
       title: { ko: '' },
-      isVisible: true,
+      isVisible: false,
     });
     onEdit(newDoc._id);
   };

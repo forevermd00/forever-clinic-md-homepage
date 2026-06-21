@@ -66,7 +66,7 @@ export const homeBrandQuery = `*[_type == "brandPhilosophy"][0]{ slogan, subtitl
 
 export const homeStatsQuery = `*[_type == "statsStrip"][0]`;
 
-export const homeDoctorsQuery = `*[_type == "doctor" && isVisible == true] | order(sortOrder asc)`;
+export const homeDoctorsQuery = `*[_type == "doctor" && isVisible != false] | order(sortOrder asc)`;
 
 export const homeClinicInfoQuery = `*[_type == "clinicInfo"][0]`;
 
@@ -237,7 +237,7 @@ export const pageHeroQuery = `
 
 // === Doctor ===
 export const doctorsQuery = `
-  *[_type == "doctor" && isVisible == true] | order(sortOrder asc) {
+  *[_type == "doctor" && isVisible != false] | order(sortOrder asc) {
     _id, "name": name[$locale], "position": position[$locale],
     profileImage, "philosophy": philosophy[$locale],
     licenseNumber, "specialties": specialties[][$locale],
@@ -312,8 +312,8 @@ export const blogPostsQuery = `
 `;
 
 export const noticesQuery = `
-  *[_type == "notice" && isVisible != false] | order(isPinned desc, coalesce(publishedAt, _createdAt) desc) {
-    _id, "title": title[$locale], "publishedAt": coalesce(publishedAt, _createdAt), isPinned, views
+  *[_type == "notice" && isVisible != false] | order(isPinned desc, coalesce(publishDate, _createdAt) desc) {
+    _id, "title": title[$locale], "publishedAt": coalesce(publishDate, _createdAt), isPinned, views
   }
 `;
 
@@ -431,6 +431,7 @@ export const eventByUidQuery = `
     "description": coalesce(description[$locale], description.ko),
     "pcImage": coalesce(pcImage[$locale], pcImage.ko),
     "mobileImage": coalesce(mobileImage[$locale], mobileImage.ko),
+    "detailImage": coalesce(detailImage[$locale], detailImage.ko),
     image,
     startDate,
     endDate,

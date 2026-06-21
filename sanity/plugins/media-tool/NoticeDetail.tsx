@@ -1,16 +1,31 @@
 import { useState, useEffect } from 'react';
 import { useClient } from 'sanity';
 
-interface NoticeDoc {
-  _id: string;
-  title?: { ko?: string; en?: string };
-  body?: { ko?: string; en?: string };
-  publishedAt?: string;
-  isPinned?: boolean;
+interface LocalizedString {
+  ko?: string;
+  en?: string;
+  zh?: string;
+  ja?: string;
 }
 
+interface NoticeDoc {
+  _id: string;
+  title?: LocalizedString;
+  content?: LocalizedString;
+  publishDate?: string;
+  isPinned?: boolean;
+  isVisible?: boolean;
+}
+
+const LOCALES: { key: keyof LocalizedString; label: string }[] = [
+  { key: 'ko', label: '한국어' },
+  { key: 'en', label: 'English' },
+  { key: 'zh', label: '中文' },
+  { key: 'ja', label: '日本語' },
+];
+
 const QUERY = `*[_type == "notice" && _id == $id][0] {
-  _id, title, body, publishedAt, isPinned
+  _id, title, content, publishDate, isPinned, isVisible
 }`;
 
 export function NoticeDetail({
@@ -88,25 +103,18 @@ export function NoticeDetail({
       <div className="mt-detail-section">
         <div className="mt-detail-section-title">제목</div>
         <div className="mt-detail-body">
-          <div className="mt-detail-grid2">
-            <div className="mt-detail-field">
-              <label className="mt-detail-label">한국어</label>
-              <input
-                type="text"
-                className="mt-text-input"
-                defaultValue={doc.title?.ko ?? ''}
-                onBlur={(e) => patch({ 'title.ko': e.target.value })}
-              />
-            </div>
-            <div className="mt-detail-field">
-              <label className="mt-detail-label">English</label>
-              <input
-                type="text"
-                className="mt-text-input"
-                defaultValue={doc.title?.en ?? ''}
-                onBlur={(e) => patch({ 'title.en': e.target.value })}
-              />
-            </div>
+          <div className="mt-detail-grid4">
+            {LOCALES.map(({ key, label }) => (
+              <div className="mt-detail-field" key={key}>
+                <label className="mt-detail-label">{label}</label>
+                <input
+                  type="text"
+                  className="mt-text-input"
+                  defaultValue={doc.title?.[key] ?? ''}
+                  onBlur={(e) => patch({ [`title.${key}`]: e.target.value })}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -114,25 +122,18 @@ export function NoticeDetail({
       <div className="mt-detail-section">
         <div className="mt-detail-section-title">본문</div>
         <div className="mt-detail-body">
-          <div className="mt-detail-grid2">
-            <div className="mt-detail-field">
-              <label className="mt-detail-label">한국어</label>
-              <textarea
-                className="mt-text-input mt-textarea mt-textarea-lg"
-                defaultValue={doc.body?.ko ?? ''}
-                rows={6}
-                onBlur={(e) => patch({ 'body.ko': e.target.value })}
-              />
-            </div>
-            <div className="mt-detail-field">
-              <label className="mt-detail-label">English</label>
-              <textarea
-                className="mt-text-input mt-textarea mt-textarea-lg"
-                defaultValue={doc.body?.en ?? ''}
-                rows={6}
-                onBlur={(e) => patch({ 'body.en': e.target.value })}
-              />
-            </div>
+          <div className="mt-detail-grid4">
+            {LOCALES.map(({ key, label }) => (
+              <div className="mt-detail-field" key={key}>
+                <label className="mt-detail-label">{label}</label>
+                <textarea
+                  className="mt-text-input mt-textarea mt-textarea-lg"
+                  defaultValue={doc.content?.[key] ?? ''}
+                  rows={10}
+                  onBlur={(e) => patch({ [`content.${key}`]: e.target.value })}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -146,8 +147,8 @@ export function NoticeDetail({
               <input
                 type="date"
                 className="mt-text-input"
-                defaultValue={doc.publishedAt ?? ''}
-                onBlur={(e) => patch({ publishedAt: e.target.value || null })}
+                defaultValue={doc.publishDate ?? ''}
+                onBlur={(e) => patch({ publishDate: e.target.value || null })}
               />
             </div>
             <div className="mt-detail-field">
@@ -157,6 +158,15 @@ export function NoticeDetail({
                 className="tt-toggle"
                 checked={!!doc.isPinned}
                 onChange={(e) => patchBool('isPinned', e.target.checked)}
+              />
+            </div>
+            <div className="mt-detail-field">
+              <label className="mt-detail-label">노출 여부</label>
+              <input
+                type="checkbox"
+                className="tt-toggle"
+                checked={doc.isVisible !== false}
+                onChange={(e) => patchBool('isVisible', e.target.checked)}
               />
             </div>
           </div>

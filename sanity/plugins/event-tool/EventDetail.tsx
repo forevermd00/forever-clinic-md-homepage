@@ -31,6 +31,7 @@ interface EventDoc {
   oneLineDescription?: Loc;
   pcImage?: LocalizedImg;
   mobileImage?: LocalizedImg;
+  detailImage?: LocalizedImg;
   startDate?: string;
   endDate?: string;
   showAsPopup?: boolean;
@@ -49,6 +50,7 @@ const DOC_QUERY = `*[_type == "eventPopup" && uid.current == $uid][0] {
   _id, "uid": uid.current, title, oneLineDescription,
   pcImage{ ko{asset{_ref}}, en{asset{_ref}}, zh{asset{_ref}}, ja{asset{_ref}} },
   mobileImage{ ko{asset{_ref}}, en{asset{_ref}}, zh{asset{_ref}}, ja{asset{_ref}} },
+  detailImage{ ko{asset{_ref}}, en{asset{_ref}}, zh{asset{_ref}}, ja{asset{_ref}} },
   startDate, endDate, showAsPopup, isVisible,
   linkedTreatments[]{ _key, "treatmentId": treatment._ref, optionKeys }
 }`;
@@ -129,7 +131,7 @@ function Field({
   );
 }
 
-type ImgField = 'pcImage' | 'mobileImage';
+type ImgField = 'pcImage' | 'mobileImage' | 'detailImage';
 
 export function EventDetail({
   uid,
@@ -326,6 +328,17 @@ export function EventDetail({
               type="checkbox"
               className="bn-toggle bn-toggle-main"
               checked={doc.showAsPopup !== false}
+              disabled={!doc.isVisible}
+              title={
+                !doc.isVisible
+                  ? '이벤트 노출이 꺼져 있어 메인 팝업도 표시되지 않습니다'
+                  : undefined
+              }
+              style={
+                !doc.isVisible
+                  ? { opacity: 0.4, cursor: 'not-allowed' }
+                  : undefined
+              }
               onChange={(e) => patch({ showAsPopup: e.target.checked })}
             />
           </Field>
@@ -388,24 +401,6 @@ export function EventDetail({
         })}
       </Section>
 
-      {/* ─── 한 줄 설명 ─── */}
-      <Section title="한 줄 설명">
-        <div className="bn-detail-grid4">
-          {(['ko', 'en', 'zh', 'ja'] as const).map((locale) => (
-            <Field key={locale} label={LOCALE_LABELS[locale]}>
-              <input
-                type="text"
-                className="bn-text-input"
-                defaultValue={doc.oneLineDescription?.[locale] ?? ''}
-                onBlur={(e) =>
-                  patch({ [`oneLineDescription.${locale}`]: e.target.value })
-                }
-              />
-            </Field>
-          ))}
-        </div>
-      </Section>
-
       {/* ─── 이벤트 기간 ─── */}
       <Section title="이벤트 기간">
         <div className="bn-detail-row">
@@ -425,6 +420,71 @@ export function EventDetail({
               onBlur={(e) => patch({ endDate: e.target.value || null })}
             />
           </Field>
+        </div>
+      </Section>
+
+      {/* ─── 한 줄 설명 ─── */}
+      <Section title="한 줄 설명">
+        <div className="bn-detail-grid4">
+          {(['ko', 'en', 'zh', 'ja'] as const).map((locale) => (
+            <Field key={locale} label={LOCALE_LABELS[locale]}>
+              <input
+                type="text"
+                className="bn-text-input"
+                defaultValue={doc.oneLineDescription?.[locale] ?? ''}
+                onBlur={(e) =>
+                  patch({ [`oneLineDescription.${locale}`]: e.target.value })
+                }
+              />
+            </Field>
+          ))}
+        </div>
+      </Section>
+
+      {/* ─── 상세 이미지 (언어별) ─── */}
+      <Section title="상세 이미지 (언어별)">
+        <p
+          style={{
+            fontSize: 12,
+            color: 'var(--card-muted-fg-color)',
+            marginBottom: 10,
+          }}
+        >
+          상세페이지에서 이벤트 기간 바로 아래(연결 시술 위)에 노출됩니다.
+          언어별 1장, 미등록 시 한국어 폴백. (비워두면 표시되지 않음)
+        </p>
+        <div className="bn-detail-grid4">
+          {LOCALE_KEYS.map((locale) => {
+            const ref = doc.detailImage?.[locale]?.asset?._ref;
+            const slot = `detailImage:${locale}`;
+            return (
+              <div key={locale} className="bn-detail-field">
+                <label className="bn-detail-label">
+                  {LOCALE_LABELS[locale]}
+                </label>
+                {ref && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={sanityImageUrl(ref)}
+                    alt={slot}
+                    className="bn-thumb-preview"
+                  />
+                )}
+                <label className="bn-upload-btn">
+                  {uploading === slot ? '업로드 중…' : '이미지 선택'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    disabled={uploading === slot}
+                    onChange={(e) =>
+                      handleImageUpload('detailImage', locale, e)
+                    }
+                  />
+                </label>
+              </div>
+            );
+          })}
         </div>
       </Section>
 

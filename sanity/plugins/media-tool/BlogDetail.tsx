@@ -16,6 +16,7 @@ interface BlogDoc {
   };
   publishedAt?: string;
   thumbnail?: { asset?: { _ref: string } };
+  isVisible?: boolean;
 }
 
 const LOCALES: { key: 'ko' | 'en' | 'zh' | 'ja'; label: string }[] = [
@@ -47,7 +48,8 @@ async function uploadImage(client: SanityClient, file: File) {
 const QUERY = `*[_type == "blogPost" && _id == $id][0] {
   _id, title, slug, category, "publishedAt": coalesce(publishedAt, publishDate),
   markdownContent { ko, en, zh, ja },
-  thumbnail { asset { _ref } }
+  thumbnail { asset { _ref } },
+  isVisible
 }`;
 
 export function BlogDetail({ id, onBack }: { id: string; onBack: () => void }) {
@@ -180,6 +182,15 @@ export function BlogDetail({ id, onBack }: { id: string; onBack: () => void }) {
                 className="mt-text-input"
                 defaultValue={doc.publishedAt ?? ''}
                 onBlur={(e) => patch({ publishedAt: e.target.value || null })}
+              />
+            </div>
+            <div className="mt-detail-field">
+              <label className="mt-detail-label">노출 여부</label>
+              <input
+                type="checkbox"
+                className="tt-toggle"
+                checked={doc.isVisible !== false}
+                onChange={(e) => patch({ isVisible: e.target.checked })}
               />
             </div>
           </div>

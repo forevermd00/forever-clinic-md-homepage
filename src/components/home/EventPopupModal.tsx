@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 export interface PopupItem {
@@ -27,6 +28,7 @@ function getTodayKey(): string {
 
 export function EventPopupModal({ popups, locale }: EventPopupModalProps) {
   const t = useTranslations('common');
+  const router = useRouter();
   const [visible, setVisible] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -63,6 +65,10 @@ export function EventPopupModal({ popups, locale }: EventPopupModalProps) {
     setCurrentIndex((prev) => (prev + 1) % popups.length);
   };
 
+  // uid가 있으면 상세페이지, 없으면 레거시 linkUrl 폴백
+  const slideHref = (p: PopupItem) =>
+    p.uid ? `/${locale}/event/${p.uid}` : p.linkUrl || '';
+
   // 드래그/스와이프 슬라이드 (웹·모바일 공통, Pointer 이벤트)
   const viewportRef = useRef<HTMLDivElement>(null);
   const startXRef = useRef(0);
@@ -89,12 +95,23 @@ export function EventPopupModal({ popups, locale }: EventPopupModalProps) {
     if (!draggingRef.current) return;
     const w = viewportRef.current?.offsetWidth ?? 1;
     const dx = dragPx;
+    const moved = movedRef.current;
     draggingRef.current = false;
     setDragging(false);
     setDragPx(0);
     if (Math.abs(dx) > Math.min(60, w * 0.15)) {
       if (dx < 0) handleNext();
       else handlePrev();
+      return;
+    }
+    // 탭(드래그 아님): 슬라이드(다중 팝업)에서는 포인터 캡처가 click을 가로채
+    // <Link> 이동이 막히므로, 여기서 직접 라우팅한다.
+    if (!moved) {
+      const href = slideHref(popups[currentIndex]);
+      if (href) {
+        handleClose();
+        router.push(href);
+      }
     }
   };
 
@@ -111,10 +128,6 @@ export function EventPopupModal({ popups, locale }: EventPopupModalProps) {
   if (!visible || popups.length === 0) return null;
 
   const showTabs = popups.length > 1;
-
-  // uid가 있으면 상세페이지, 없으면 레거시 linkUrl 폴백
-  const slideHref = (p: PopupItem) =>
-    p.uid ? `/${locale}/event/${p.uid}` : p.linkUrl || '';
 
   return (
     <div

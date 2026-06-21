@@ -45,6 +45,8 @@ export interface EventDetail {
   description: string;
   pcImageUrl: string;
   mobileImageUrl: string;
+  /** 상세페이지 본문 상단(연결 시술 위) 노출 이미지 — 현재 언어, 없으면 빈 문자열 */
+  detailImageUrl: string;
   startDate?: string;
   endDate?: string;
   treatments: EventDetailTreatment[];
@@ -66,6 +68,7 @@ interface RawEventList {
 
 interface RawEventDetail extends RawEventList {
   description?: string;
+  detailImage?: unknown;
   linkedTreatments?: {
     optionKeys?: string[];
     treatment?: {
@@ -168,6 +171,7 @@ export async function getEventByUid(
     description: raw.description ?? '',
     pcImageUrl,
     mobileImageUrl,
+    detailImageUrl: imgUrl(raw.detailImage, 1400),
     startDate: raw.startDate,
     endDate: raw.endDate,
     treatments,

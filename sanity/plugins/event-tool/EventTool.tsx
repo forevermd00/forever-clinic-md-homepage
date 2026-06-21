@@ -124,8 +124,8 @@ export function EventTool() {
       _type: 'eventPopup',
       title: { ko: '' },
       uid: { _type: 'slug', current: uid },
-      isVisible: true,
-      showAsPopup: true,
+      isVisible: false,
+      showAsPopup: false,
       sortOrder,
     });
     setDocs((prev) => [
@@ -134,8 +134,8 @@ export function EventTool() {
         _id: newDoc._id,
         uid,
         title: { ko: '' },
-        isVisible: true,
-        showAsPopup: true,
+        isVisible: false,
+        showAsPopup: false,
         sortOrder,
       },
     ]);
@@ -427,6 +427,15 @@ function EventRowView({
           type="checkbox"
           className="bn-toggle bn-toggle-main"
           checked={doc.showAsPopup !== false}
+          disabled={!doc.isVisible}
+          title={
+            !doc.isVisible
+              ? '이벤트 노출이 꺼져 있어 메인 팝업도 표시되지 않습니다'
+              : undefined
+          }
+          style={
+            !doc.isVisible ? { opacity: 0.4, cursor: 'not-allowed' } : undefined
+          }
           onChange={(e) => onPatch(doc._id, { showAsPopup: e.target.checked })}
         />
       </td>

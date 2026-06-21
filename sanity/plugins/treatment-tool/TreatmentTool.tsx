@@ -275,7 +275,7 @@ export function TreatmentTool() {
     const newDoc = await client.create({
       _type: 'treatment',
       name: { ko: '' },
-      isVisible: true,
+      isVisible: false,
     });
     router.navigate({ selectedId: newDoc._id });
   };

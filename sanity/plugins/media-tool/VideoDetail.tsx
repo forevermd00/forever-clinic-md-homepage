@@ -8,6 +8,7 @@ interface VideoDoc {
   youtubeUrl?: string;
   publishedAt?: string;
   displayLanguages?: string[];
+  isVisible?: boolean;
 }
 
 const LOCALES: { key: 'ko' | 'en' | 'zh' | 'ja'; label: string }[] = [
@@ -18,7 +19,7 @@ const LOCALES: { key: 'ko' | 'en' | 'zh' | 'ja'; label: string }[] = [
 ];
 
 const QUERY = `*[_type == "youtubeVideo" && _id == $id][0] {
-  _id, title, youtubeId, youtubeUrl, publishedAt, displayLanguages
+  _id, title, youtubeId, youtubeUrl, publishedAt, displayLanguages, isVisible
 }`;
 
 export function VideoDetail({
@@ -149,16 +150,27 @@ export function VideoDetail({
       </div>
 
       <div className="mt-detail-section">
-        <div className="mt-detail-section-title">게시일</div>
+        <div className="mt-detail-section-title">게시일 / 노출</div>
         <div className="mt-detail-body">
-          <div className="mt-detail-field">
-            <label className="mt-detail-label">게시일</label>
-            <input
-              type="date"
-              className="mt-text-input"
-              defaultValue={doc.publishedAt ?? ''}
-              onBlur={(e) => patch({ publishedAt: e.target.value || null })}
-            />
+          <div className="mt-detail-row">
+            <div className="mt-detail-field">
+              <label className="mt-detail-label">게시일</label>
+              <input
+                type="date"
+                className="mt-text-input"
+                defaultValue={doc.publishedAt ?? ''}
+                onBlur={(e) => patch({ publishedAt: e.target.value || null })}
+              />
+            </div>
+            <div className="mt-detail-field">
+              <label className="mt-detail-label">노출 여부</label>
+              <input
+                type="checkbox"
+                className="tt-toggle"
+                checked={doc.isVisible !== false}
+                onChange={(e) => patch({ isVisible: e.target.checked })}
+              />
+            </div>
           </div>
         </div>
       </div>

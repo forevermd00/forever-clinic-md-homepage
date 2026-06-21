@@ -84,7 +84,7 @@ export function BnaTool() {
   }, [docs]);
 
   const handleAdd = useCallback(async () => {
-    const newDoc = await client.create({ _type: 'baCase', isVisible: true });
+    const newDoc = await client.create({ _type: 'baCase', isVisible: false });
     router.navigate({ selectedId: newDoc._id });
   }, [client, router]);
 

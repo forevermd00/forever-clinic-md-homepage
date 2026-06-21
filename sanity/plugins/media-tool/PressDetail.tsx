@@ -17,6 +17,7 @@ interface PressDoc {
   url?: string;
   publishedAt?: string;
   thumbnail?: { asset?: { _ref: string } };
+  isVisible?: boolean;
 }
 
 const LOCALES: { key: keyof LocalizedString; label: string }[] = [
@@ -50,7 +51,8 @@ const QUERY = `*[_type == "pressArticle" && _id == $id][0] {
   "publisher": coalesce(publisher, source),
   url,
   "publishedAt": coalesce(publishedAt, publishDate),
-  thumbnail { asset { _ref } }
+  thumbnail { asset { _ref } },
+  isVisible
 }`;
 
 export function PressDetail({
@@ -262,6 +264,15 @@ export function PressDetail({
                     publishDate: null,
                   })
                 }
+              />
+            </div>
+            <div className="mt-detail-field">
+              <label className="mt-detail-label">노출 여부</label>
+              <input
+                type="checkbox"
+                className="tt-toggle"
+                checked={doc.isVisible !== false}
+                onChange={(e) => patch({ isVisible: e.target.checked })}
               />
             </div>
           </div>

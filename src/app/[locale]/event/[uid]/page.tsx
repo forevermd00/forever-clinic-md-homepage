@@ -140,6 +140,20 @@ export default async function EventDetailPage({
         </div>
       </section>
 
+      {/* ── 상세 이미지 (언어별, 연결 시술 위) ── */}
+      {event.detailImageUrl && (
+        <section className="bg-white pt-8">
+          <div className="mx-auto w-full max-w-[760px] px-5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={event.detailImageUrl}
+              alt={event.title}
+              className="block w-full"
+            />
+          </div>
+        </section>
+      )}
+
       {/* ── 상세 본문 (선택) ── */}
       {event.description && (
         <section className="bg-white py-10">

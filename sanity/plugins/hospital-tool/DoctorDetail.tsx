@@ -434,7 +434,7 @@ export function DoctorDetail({
               <input
                 type="checkbox"
                 className="tt-toggle"
-                checked={!!doc.isVisible}
+                checked={doc.isVisible !== false}
                 onChange={(e) => patchBool('isVisible', e.target.checked)}
               />
             </div>
