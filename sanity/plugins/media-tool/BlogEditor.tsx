@@ -367,24 +367,55 @@ export function BlogEditor({
     [apply],
   );
 
+  // 파일 1개를 Sanity에 업로드하고 커서 위치에 이미지 마크다운 삽입
+  const uploadAndInsert = useCallback(
+    async (file: File) => {
+      setUploading(true);
+      try {
+        const asset = await client.assets.upload('image', file, {
+          filename: file.name || 'pasted-image',
+        });
+        sessionUploadsRef.current.add(asset.url);
+        const alt = (file.name || '').replace(/\.[^.]+$/, '');
+        insertAtCursor(`\n\n![${alt}](${asset.url})\n\n`);
+      } finally {
+        setUploading(false);
+      }
+    },
+    [client, insertAtCursor],
+  );
+
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file) return;
-      setUploading(true);
       try {
-        const asset = await client.assets.upload('image', file, {
-          filename: file.name,
-        });
-        sessionUploadsRef.current.add(asset.url);
-        const alt = file.name.replace(/\.[^.]+$/, '');
-        insertAtCursor(`\n\n![${alt}](${asset.url})\n\n`);
+        await uploadAndInsert(file);
       } finally {
-        setUploading(false);
         if (fileInputRef.current) fileInputRef.current.value = '';
       }
     },
-    [client, insertAtCursor],
+    [uploadAndInsert],
+  );
+
+  // 클립보드에서 이미지 붙여넣기 → 업로드 후 삽입
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of items) {
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+          const file = item.getAsFile();
+          if (file) {
+            e.preventDefault(); // 텍스트 붙여넣기 기본 동작 차단
+            void uploadAndInsert(file);
+            return; // 이미지 1개만 처리
+          }
+        }
+      }
+      // 이미지가 없으면 기본 텍스트 붙여넣기 그대로 진행
+    },
+    [uploadAndInsert],
   );
 
   const handleKeyDown = useCallback(
@@ -505,8 +536,9 @@ export function BlogEditor({
           value={text}
           onChange={(e) => apply(e.target.value, 'type')}
           onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
           onBlur={() => commit(text)}
-          placeholder="마크다운으로 작성하거나 AI가 생성한 내용을 붙여넣으세요…"
+          placeholder="마크다운으로 작성하거나 AI가 생성한 내용을 붙여넣으세요. 이미지는 복사 후 붙여넣기(⌘V)로 바로 삽입됩니다…"
           spellCheck={false}
           style={{
             flex: 1,
