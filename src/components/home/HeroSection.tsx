@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import type { HeroData } from '@/lib/data/hero';
 import { urlFor } from '@/lib/sanity/image';
@@ -65,15 +64,19 @@ export async function HeroSection({ hero }: HeroSectionProps = {}) {
           className="absolute inset-0 h-full w-full object-cover"
         />
       )}
-      {/* Background image from CMS (fallback when no video) */}
+      {/* Background image from CMS (fallback when no video)
+          Googlebot WRS가 /_next/image 최적화 프록시는 렌더 시점에 못 가져와
+          히어로가 빈 채로 색인되는 문제 → Brand 히어로처럼 Sanity CDN을
+          직접 쓰는 plain <img>로 서빙(이미 ?w=1920&h=1080로 리사이즈됨).
+          LCP 위해 fetchPriority high + eager. */}
       {heroImageUrl && (
-        <Image
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
           src={heroImageUrl}
           alt={title}
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
+          fetchPriority="high"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover"
         />
       )}
       {/* Dark overlay */}
