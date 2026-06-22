@@ -307,6 +307,14 @@ export function DoctorDetail({
     }
   };
 
+  const handleImageDelete = async () => {
+    if (!confirm('프로필 이미지를 삭제할까요?')) return;
+    setSaving(true);
+    await client.patch(id).unset(['profileImage']).commit();
+    setDoc((prev) => (prev ? { ...prev, profileImage: undefined } : prev));
+    setSaving(false);
+  };
+
   if (!doc) return <div className="ht-loading">불러오는 중...</div>;
 
   const projectId = 'ecoamz42';
@@ -452,15 +460,26 @@ export function DoctorDetail({
               className="ht-thumb-preview"
             />
           )}
-          <label className="ht-upload-btn">
-            {uploading ? '업로드 중…' : '이미지 선택'}
-            <input
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={handleImageUpload}
-            />
-          </label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <label className="ht-upload-btn">
+              {uploading ? '업로드 중…' : '이미지 선택'}
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={handleImageUpload}
+              />
+            </label>
+            {imageRef && (
+              <button
+                type="button"
+                className="ht-delete-btn"
+                onClick={handleImageDelete}
+              >
+                삭제
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

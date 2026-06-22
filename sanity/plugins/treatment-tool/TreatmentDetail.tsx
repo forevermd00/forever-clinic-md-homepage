@@ -608,6 +608,19 @@ const ttUploadBtnStyle: React.CSSProperties = {
   textAlign: 'center',
 };
 
+const ttDeleteBtnStyle: React.CSSProperties = {
+  display: 'inline-block',
+  padding: '6px 14px',
+  borderRadius: 6,
+  border: '1px solid #d22',
+  background: 'transparent',
+  color: '#d22',
+  fontSize: 13,
+  fontWeight: 600,
+  cursor: 'pointer',
+  textAlign: 'center',
+};
+
 function LocalizedImageEditor({
   docId,
   initial,
@@ -662,6 +675,15 @@ function LocalizedImageEditor({
     }
   };
 
+  const handleDelete = async (locale: 'ko' | 'en' | 'zh' | 'ja') => {
+    if (!confirm('이미지를 삭제할까요?')) return;
+    await client
+      .patch(docId)
+      .unset([`detailImagesLocalized.${locale}`])
+      .commit();
+    setImages((p) => ({ ...p, [locale]: null }));
+  };
+
   return (
     <div className="tt-detail-grid4">
       {LOCALES.map(({ key, label }) => {
@@ -687,20 +709,32 @@ function LocalizedImageEditor({
                 }}
               />
             )}
-            <label style={ttUploadBtnStyle}>
-              {uploading === key
-                ? '업로드 중…'
-                : img?.url
-                  ? '이미지 변경'
-                  : '이미지 선택'}
-              <input
-                type="file"
-                accept="image/*"
-                style={{ display: 'none' }}
-                disabled={uploading === key}
-                onChange={(e) => handleUpload(key, e)}
-              />
-            </label>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <label style={ttUploadBtnStyle}>
+                {uploading === key
+                  ? '업로드 중…'
+                  : img?.url
+                    ? '이미지 변경'
+                    : '이미지 선택'}
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  disabled={uploading === key}
+                  onChange={(e) => handleUpload(key, e)}
+                />
+              </label>
+              {img?.url && (
+                <button
+                  type="button"
+                  style={ttDeleteBtnStyle}
+                  disabled={uploading === key}
+                  onClick={() => handleDelete(key)}
+                >
+                  이미지 삭제
+                </button>
+              )}
+            </div>
           </div>
         );
       })}

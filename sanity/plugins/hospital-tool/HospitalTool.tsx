@@ -1153,24 +1153,45 @@ function ClinicInfoPanel() {
                         }}
                       />
                     )}
-                    <label
-                      className="ht-upload-btn"
-                      style={{ fontSize: 11, padding: '2px 8px' }}
-                    >
-                      {messengerUploading === s._key
-                        ? '업로드 중…'
-                        : '로고 선택'}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        style={{ display: 'none' }}
-                        disabled={messengerUploading === s._key}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) uploadMessengerLogo(s._key, file);
-                        }}
-                      />
-                    </label>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <label
+                        className="ht-upload-btn"
+                        style={{ fontSize: 11, padding: '2px 8px' }}
+                      >
+                        {messengerUploading === s._key
+                          ? '업로드 중…'
+                          : '로고 선택'}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          style={{ display: 'none' }}
+                          disabled={messengerUploading === s._key}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) uploadMessengerLogo(s._key, file);
+                          }}
+                        />
+                      </label>
+                      {s.logoRef && (
+                        <button
+                          type="button"
+                          className="ht-upload-btn"
+                          style={{ fontSize: 11, padding: '2px 8px' }}
+                          onClick={() => {
+                            if (!confirm('로고를 삭제할까요?')) return;
+                            const updated = messenger.map((m) =>
+                              m._key === s._key
+                                ? { ...m, logoRef: undefined }
+                                : m,
+                            );
+                            setMessenger(updated);
+                            saveMessenger(updated);
+                          }}
+                        >
+                          로고 삭제
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <div className="ht-detail-field">
                     <label className="ht-detail-label">
@@ -1456,6 +1477,17 @@ function BrandSection() {
     });
   };
 
+  const handleValueImageDelete = (idx: number) => {
+    if (!confirm('이미지를 삭제할까요?')) return;
+    setValues((prev) => {
+      const updated = prev.map((v, i) =>
+        i === idx ? { ...v, image: undefined } : v,
+      );
+      saveValues(updated);
+      return updated;
+    });
+  };
+
   const addValue = () => {
     setValues((prev) => {
       const updated = [...prev, { _key: newKey(), title: {}, description: {} }];
@@ -1710,15 +1742,32 @@ function BrandSection() {
                         className="ht-thumb-preview"
                       />
                     )}
-                    <label className="ht-upload-btn">
-                      이미지 선택
-                      <input
-                        type="file"
-                        accept="image/*"
-                        style={{ display: 'none' }}
-                        onChange={(e) => handleValueImageUpload(e, idx)}
-                      />
-                    </label>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                      }}
+                    >
+                      <label className="ht-upload-btn">
+                        이미지 선택
+                        <input
+                          type="file"
+                          accept="image/*"
+                          style={{ display: 'none' }}
+                          onChange={(e) => handleValueImageUpload(e, idx)}
+                        />
+                      </label>
+                      {valImageRef && (
+                        <button
+                          type="button"
+                          className="ht-delete-btn"
+                          onClick={() => handleValueImageDelete(idx)}
+                        >
+                          삭제
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
@@ -2904,6 +2953,14 @@ function EquipmentSection() {
     }
   };
 
+  const handleImageDelete = async (id: string) => {
+    if (!confirm('이미지를 삭제할까요?')) return;
+    await client.patch(id).unset(['image']).commit();
+    setDocs((prev) =>
+      prev.map((d) => (d._id === id ? { ...d, image: undefined } : d)),
+    );
+  };
+
   const handleAdd = async () => {
     const newDoc = await client.create({
       _type: 'equipment',
@@ -3062,23 +3119,42 @@ function EquipmentSection() {
                         이미지 없음
                       </div>
                     )}
-                    <label
-                      className="ht-add-btn"
+                    <div
                       style={{
-                        cursor: 'pointer',
-                        display: 'inline-block',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
                         alignSelf: 'flex-end',
                       }}
                     >
-                      {uploadingId === doc._id ? '업로드 중…' : '이미지 업로드'}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        style={{ display: 'none' }}
-                        disabled={uploadingId === doc._id}
-                        onChange={(e) => handleImageUpload(doc._id, e)}
-                      />
-                    </label>
+                      <label
+                        className="ht-add-btn"
+                        style={{
+                          cursor: 'pointer',
+                          display: 'inline-block',
+                        }}
+                      >
+                        {uploadingId === doc._id
+                          ? '업로드 중…'
+                          : '이미지 업로드'}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          style={{ display: 'none' }}
+                          disabled={uploadingId === doc._id}
+                          onChange={(e) => handleImageUpload(doc._id, e)}
+                        />
+                      </label>
+                      {doc.image?.asset?._ref && (
+                        <button
+                          type="button"
+                          className="ht-delete-btn"
+                          onClick={() => handleImageDelete(doc._id)}
+                        >
+                          삭제
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="ht-detail-section" style={{ marginBottom: 12 }}>
@@ -3183,6 +3259,14 @@ function FacilitySection() {
     } finally {
       setUploadingId(null);
     }
+  };
+
+  const handleImageDelete = async (id: string) => {
+    if (!confirm('이미지를 삭제할까요?')) return;
+    await client.patch(id).unset(['image']).commit();
+    setDocs((prev) =>
+      prev.map((d) => (d._id === id ? { ...d, image: undefined } : d)),
+    );
   };
 
   const handleAdd = async () => {
@@ -3343,23 +3427,42 @@ function FacilitySection() {
                         이미지 없음
                       </div>
                     )}
-                    <label
-                      className="ht-add-btn"
+                    <div
                       style={{
-                        cursor: 'pointer',
-                        display: 'inline-block',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
                         alignSelf: 'flex-end',
                       }}
                     >
-                      {uploadingId === doc._id ? '업로드 중…' : '이미지 업로드'}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        style={{ display: 'none' }}
-                        disabled={uploadingId === doc._id}
-                        onChange={(e) => handleImageUpload(doc._id, e)}
-                      />
-                    </label>
+                      <label
+                        className="ht-add-btn"
+                        style={{
+                          cursor: 'pointer',
+                          display: 'inline-block',
+                        }}
+                      >
+                        {uploadingId === doc._id
+                          ? '업로드 중…'
+                          : '이미지 업로드'}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          style={{ display: 'none' }}
+                          disabled={uploadingId === doc._id}
+                          onChange={(e) => handleImageUpload(doc._id, e)}
+                        />
+                      </label>
+                      {doc.image?.asset?._ref && (
+                        <button
+                          type="button"
+                          className="ht-delete-btn"
+                          onClick={() => handleImageDelete(doc._id)}
+                        >
+                          삭제
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="ht-detail-section" style={{ marginBottom: 12 }}>

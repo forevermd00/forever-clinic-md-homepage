@@ -194,6 +194,14 @@ export function QuickCardDetail({
     }
   };
 
+  const handleIconDelete = async () => {
+    if (!confirm('썸네일 이미지를 삭제할까요?')) return;
+    setSaving(true);
+    await client.patch(id).unset(['icon']).commit();
+    setDoc((prev) => (prev ? { ...prev, icon: undefined } : prev));
+    setSaving(false);
+  };
+
   const handleDelete = async () => {
     if (!confirm('이 카드를 삭제하시겠습니까?')) return;
     await client.delete(id);
@@ -409,15 +417,26 @@ export function QuickCardDetail({
               className="ht-thumb-preview"
             />
           )}
-          <label className="ht-upload-btn">
-            {uploading ? '업로드 중…' : '이미지 선택'}
-            <input
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={handleIconUpload}
-            />
-          </label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <label className="ht-upload-btn">
+              {uploading ? '업로드 중…' : '이미지 선택'}
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={handleIconUpload}
+              />
+            </label>
+            {iconRef && (
+              <button
+                type="button"
+                className="ht-delete-btn"
+                onClick={handleIconDelete}
+              >
+                삭제
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

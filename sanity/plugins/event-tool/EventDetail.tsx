@@ -203,6 +203,23 @@ export function EventDetail({
     }
   };
 
+  const handleImageDelete = async (field: ImgField, locale: LocaleKey) => {
+    if (!doc) return;
+    if (!confirm('이미지를 삭제할까요?')) return;
+    setSaving(true);
+    await client
+      .patch(doc._id)
+      .unset([`${field}.${locale}`])
+      .commit();
+    setDoc((prev) => {
+      if (!prev) return prev;
+      const next = { ...(prev[field] ?? {}) } as LocalizedImg;
+      delete next[locale];
+      return { ...prev, [field]: next };
+    });
+    setSaving(false);
+  };
+
   const persistLinks = async (links: LinkedTreatment[]) => {
     if (!doc) return;
     const arr = links.map((l) => ({
@@ -392,6 +409,15 @@ export function EventDetail({
                           onChange={(e) => handleImageUpload(field, locale, e)}
                         />
                       </label>
+                      {ref && (
+                        <button
+                          type="button"
+                          className="bn-img-delete-btn"
+                          onClick={() => handleImageDelete(field, locale)}
+                        >
+                          삭제
+                        </button>
+                      )}
                     </div>
                   );
                 })}
@@ -482,6 +508,15 @@ export function EventDetail({
                     }
                   />
                 </label>
+                {ref && (
+                  <button
+                    type="button"
+                    className="bn-img-delete-btn"
+                    onClick={() => handleImageDelete('detailImage', locale)}
+                  >
+                    삭제
+                  </button>
+                )}
               </div>
             );
           })}

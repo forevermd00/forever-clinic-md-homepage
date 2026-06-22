@@ -166,6 +166,18 @@ export function BnaDetail({ id, onBack }: { id: string; onBack: () => void }) {
     }
   };
 
+  const handleBeforeDelete = async () => {
+    if (!confirm('Before 이미지를 삭제할까요?')) return;
+    await client.patch(id).unset(['beforeImage']).commit();
+    setDoc((prev) => (prev ? { ...prev, beforeImage: undefined } : prev));
+  };
+
+  const handleAfterDelete = async () => {
+    if (!confirm('After 이미지를 삭제할까요?')) return;
+    await client.patch(id).unset(['afterImage']).commit();
+    setDoc((prev) => (prev ? { ...prev, afterImage: undefined } : prev));
+  };
+
   const handleDelete = async () => {
     await client.delete(id);
     onBack();
@@ -346,6 +358,15 @@ export function BnaDetail({ id, onBack }: { id: string; onBack: () => void }) {
                 onChange={handleBeforeUpload}
               />
             </label>
+            {beforeRef && (
+              <button
+                type="button"
+                className="bn-img-delete-btn"
+                onClick={handleBeforeDelete}
+              >
+                삭제
+              </button>
+            )}
           </div>
           <div className="bn-detail-field">
             <label className="bn-detail-label">After 이미지</label>
@@ -366,6 +387,15 @@ export function BnaDetail({ id, onBack }: { id: string; onBack: () => void }) {
                 onChange={handleAfterUpload}
               />
             </label>
+            {afterRef && (
+              <button
+                type="button"
+                className="bn-img-delete-btn"
+                onClick={handleAfterDelete}
+              >
+                삭제
+              </button>
+            )}
           </div>
         </div>
       </Section>
