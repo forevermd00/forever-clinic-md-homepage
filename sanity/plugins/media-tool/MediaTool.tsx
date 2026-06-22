@@ -69,7 +69,8 @@ const BLOG_QUERY = `
     _id,
     "title": coalesce(title.ko, title.en, "(제목 없음)"),
     "slug": slug.current,
-    category, publishedAt, isVisible
+    "category": coalesce(category.ko, category.en, category.zh, category.ja, category),
+    publishedAt, isVisible
   }
 `;
 
