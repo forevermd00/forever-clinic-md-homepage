@@ -38,6 +38,21 @@ export default defineType({
       type: 'localizedString',
     }),
     defineField({
+      name: 'backgroundType',
+      title: '배경 선택',
+      description:
+        '이미지와 영상을 모두 올려도 여기서 선택한 것만 표시됩니다. (메인 페이지 전용)',
+      type: 'string',
+      options: {
+        list: [
+          { title: '배경 영상', value: 'video' },
+          { title: '배경 이미지', value: 'image' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'image',
+    }),
+    defineField({
       name: 'heroImage',
       title: '배경 이미지',
       type: 'image',
@@ -46,7 +61,7 @@ export default defineType({
     defineField({
       name: 'heroVideo',
       title: '배경 영상',
-      description: '메인 페이지 전용. 영상이 있으면 이미지 대신 재생됩니다.',
+      description: '메인 페이지 전용. mp4 파일을 업로드하세요.',
       type: 'file',
       options: { accept: 'video/mp4' },
     }),

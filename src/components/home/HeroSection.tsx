@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import type { HeroData } from '@/lib/data/hero';
 import { urlFor } from '@/lib/sanity/image';
@@ -30,11 +31,23 @@ export async function HeroSection({ hero }: HeroSectionProps = {}) {
   const title = hero?.title || t('heroTitle');
   const subtitle = hero?.subtitle || t('heroSubtitle');
   const badge = hero?.badge ?? t('heroSince');
-  const heroVideoUrl = hero?.heroVideo ? getVideoUrl(hero.heroVideo) : null;
-  const heroImageUrl =
-    !heroVideoUrl && hero?.heroImage
-      ? urlFor(hero.heroImage)?.width(1920).height(1080).url() || null
-      : null;
+  const videoUrl = hero?.heroVideo ? getVideoUrl(hero.heroVideo) : null;
+  const imageUrl = hero?.heroImage
+    ? urlFor(hero.heroImage)?.width(1920).height(1080).url() || null
+    : null;
+
+  // 배경 선택: 기본은 이미지. backgroundType이 'video'면 영상 우선.
+  // 선택한 매체가 비어 있으면 있는 매체로 자동 폴백(양방향).
+  const preferVideo = hero?.backgroundType === 'video';
+  let heroVideoUrl: string | null = null;
+  let heroImageUrl: string | null = null;
+  if (preferVideo) {
+    if (videoUrl) heroVideoUrl = videoUrl;
+    else heroImageUrl = imageUrl;
+  } else {
+    if (imageUrl) heroImageUrl = imageUrl;
+    else heroVideoUrl = videoUrl;
+  }
 
   return (
     <section
@@ -54,10 +67,13 @@ export async function HeroSection({ hero }: HeroSectionProps = {}) {
       )}
       {/* Background image from CMS (fallback when no video) */}
       {heroImageUrl && (
-        <img
+        <Image
           src={heroImageUrl}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover"
+          alt={title}
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
         />
       )}
       {/* Dark overlay */}

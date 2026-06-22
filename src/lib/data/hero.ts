@@ -7,6 +7,8 @@ export type HeroData = {
   title?: string;
   subtitle?: string;
   badge?: string;
+  /** 'video' | 'image' — 둘 다 올려도 이 값으로 표시할 배경 선택. 미지정 시 영상 우선 */
+  backgroundType?: 'video' | 'image';
   heroVideo?: unknown;
   heroImage?: unknown;
 };

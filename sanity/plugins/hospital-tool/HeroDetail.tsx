@@ -9,6 +9,7 @@ interface HeroDoc {
   badge?: { ko?: string; en?: string; zh?: string; ja?: string };
   title?: { ko?: string; en?: string; zh?: string; ja?: string };
   subtitle?: { ko?: string; en?: string; zh?: string; ja?: string };
+  backgroundType?: 'image' | 'video';
   heroImage?: { asset?: { _ref: string } };
   heroVideo?: { asset?: { _ref: string }; _type?: string };
 }
@@ -50,7 +51,7 @@ async function uploadFile(client: SanityClient, file: File) {
 }
 
 const QUERY = `*[_type == "pageHero" && _id == $docId][0] {
-  _id, pageName, badge, title, subtitle,
+  _id, pageName, badge, title, subtitle, backgroundType,
   heroImage { asset { _ref } },
   heroVideo { asset { _ref } }
 }`;
@@ -216,6 +217,41 @@ export function HeroDetail({
                   onBlur={(e) => patch({ [`subtitle.${key}`]: e.target.value })}
                 />
               </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="ht-detail-section">
+        <div className="ht-detail-section-title">배경 선택</div>
+        <div className="ht-detail-body">
+          <p className="ht-detail-label" style={{ marginBottom: 10 }}>
+            이미지와 영상을 모두 올려도 여기서 선택한 것만 표시됩니다.
+          </p>
+          <div style={{ display: 'flex', gap: 24 }}>
+            {[
+              { value: 'image', label: '배경 이미지' },
+              { value: 'video', label: '배경 영상' },
+            ].map((opt) => (
+              <label
+                key={opt.value}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  cursor: 'pointer',
+                }}
+              >
+                <input
+                  type="radio"
+                  name="hero-background-type"
+                  checked={(doc.backgroundType ?? 'image') === opt.value}
+                  onChange={() =>
+                    patch({ backgroundType: opt.value as 'image' | 'video' })
+                  }
+                />
+                {opt.label}
+              </label>
             ))}
           </div>
         </div>
