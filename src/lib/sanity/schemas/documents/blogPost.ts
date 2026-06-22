@@ -5,7 +5,11 @@ export default defineType({
   title: '블로그',
   type: 'document',
   preview: {
-    select: { title: 'title.ko', subtitle: 'category', media: 'thumbnail' },
+    select: {
+      title: 'title.ko',
+      subtitle: 'category.ko',
+      media: 'thumbnail.ko',
+    },
   },
   fields: [
     defineField({
@@ -26,7 +30,7 @@ export default defineType({
     defineField({
       name: 'category',
       title: '카테고리',
-      type: 'string',
+      type: 'localizedString',
     }),
     defineField({
       name: 'markdownContent',
@@ -42,8 +46,7 @@ export default defineType({
     defineField({
       name: 'thumbnail',
       title: '썸네일',
-      type: 'image',
-      options: { hotspot: true },
+      type: 'localizedImage',
     }),
   ],
 });

@@ -3,23 +3,23 @@ import { useClient } from 'sanity';
 import type { SanityClient } from 'sanity';
 import { BlogEditor } from './BlogEditor';
 
+type Locale = 'ko' | 'en' | 'zh' | 'ja';
+type LocalizedString = Partial<Record<Locale, string>>;
+type ImageRef = { asset?: { _ref: string } };
+type LocalizedImage = Partial<Record<Locale, ImageRef>>;
+
 interface BlogDoc {
   _id: string;
-  title?: { ko?: string; en?: string; zh?: string; ja?: string };
+  title?: LocalizedString;
   slug?: { current?: string };
-  category?: string;
-  markdownContent?: {
-    ko?: string;
-    en?: string;
-    zh?: string;
-    ja?: string;
-  };
+  category?: LocalizedString;
+  markdownContent?: LocalizedString;
   publishedAt?: string;
-  thumbnail?: { asset?: { _ref: string } };
+  thumbnail?: LocalizedImage;
   isVisible?: boolean;
 }
 
-const LOCALES: { key: 'ko' | 'en' | 'zh' | 'ja'; label: string }[] = [
+const LOCALES: { key: Locale; label: string }[] = [
   { key: 'ko', label: '한국어' },
   { key: 'en', label: 'English' },
   { key: 'zh', label: '中文' },
@@ -45,19 +45,48 @@ async function uploadImage(client: SanityClient, file: File) {
   };
 }
 
+// category(구버전 string) / thumbnail(구버전 단일 image) 원본을 그대로 받아 JS에서 정규화
 const QUERY = `*[_type == "blogPost" && _id == $id][0] {
-  _id, title, slug, category, "publishedAt": coalesce(publishedAt, publishDate),
+  _id, title, slug, category,
+  "publishedAt": coalesce(publishedAt, publishDate),
   markdownContent { ko, en, zh, ja },
-  thumbnail { asset { _ref } },
+  thumbnail {
+    ko { asset { _ref } }, en { asset { _ref } },
+    zh { asset { _ref } }, ja { asset { _ref } },
+    asset { _ref }
+  },
   isVisible
 }`;
+
+// 구버전(string category, 단일 image thumbnail)을 다국어 형태로 정규화
+function normalizeDoc(raw: BlogDoc & { category?: unknown }): BlogDoc {
+  const rawCategory = raw.category as unknown;
+  const category: LocalizedString =
+    typeof rawCategory === 'string'
+      ? { ko: rawCategory }
+      : (rawCategory as LocalizedString) || {};
+
+  const rawThumb = (raw.thumbnail || {}) as LocalizedImage & ImageRef;
+  const hasLocaleThumb = LOCALES.some((l) => rawThumb[l.key]?.asset?._ref);
+  const thumbnail: LocalizedImage =
+    !hasLocaleThumb && rawThumb.asset?._ref
+      ? { ko: { asset: rawThumb.asset } } // 구버전 단일 썸네일 → 한국어로 승계
+      : {
+          ko: rawThumb.ko,
+          en: rawThumb.en,
+          zh: rawThumb.zh,
+          ja: rawThumb.ja,
+        };
+
+  return { ...raw, category, thumbnail };
+}
 
 export function BlogDetail({ id, onBack }: { id: string; onBack: () => void }) {
   const client = useClient({ apiVersion: '2026-05-13' });
   const [doc, setDoc] = useState<BlogDoc | null>(null);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [activeLang, setActiveLang] = useState<'ko' | 'en' | 'zh' | 'ja'>('ko');
+  const [activeLang, setActiveLang] = useState<Locale>('ko');
+  const [thumbUploading, setThumbUploading] = useState<Locale | null>(null);
 
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
@@ -85,7 +114,9 @@ export function BlogDetail({ id, onBack }: { id: string; onBack: () => void }) {
   }, [onBack]);
 
   useEffect(() => {
-    client.fetch<BlogDoc>(QUERY, { id }).then(setDoc);
+    client
+      .fetch<BlogDoc & { category?: unknown }>(QUERY, { id })
+      .then((raw) => setDoc(raw ? normalizeDoc(raw) : null));
   }, [client, id]);
 
   const patch = async (fields: Record<string, unknown>) => {
@@ -101,24 +132,75 @@ export function BlogDetail({ id, onBack }: { id: string; onBack: () => void }) {
     onBack();
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
+  // 카테고리(언어별) 수정: 구버전 string과의 충돌을 피하려 객체 전체를 set
+  const patchCategory = (key: Locale, value: string) => {
+    const next: LocalizedString = { ...(doc?.category || {}), [key]: value };
+    patch({ category: next });
+  };
+
+  // 파일 1개를 해당 언어 썸네일로 업로드: 객체 전체를 set 하여 구버전 단일 이미지 형태를 덮어씀
+  const applyThumb = async (key: Locale, file: File) => {
+    setThumbUploading(key);
     try {
       const imageRef = await uploadImage(client, file);
-      await client.patch(id).set({ thumbnail: imageRef }).commit();
-      setDoc((prev) => (prev ? { ...prev, thumbnail: imageRef } : prev));
+      const next: LocalizedImage = {
+        ...(doc?.thumbnail || {}),
+        [key]: imageRef,
+      };
+      await client.patch(id).set({ thumbnail: next }).commit();
+      setDoc((prev) => (prev ? { ...prev, thumbnail: next } : prev));
     } finally {
-      setUploading(false);
+      setThumbUploading(null);
     }
+  };
+
+  const handleThumbUpload = async (
+    key: Locale,
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      await applyThumb(key, file);
+    } finally {
+      e.target.value = '';
+    }
+  };
+
+  // 클립보드 이미지를 해당 언어 썸네일로 붙여넣기
+  const handleThumbPaste = async (key: Locale) => {
+    try {
+      const items = await navigator.clipboard.read();
+      for (const item of items) {
+        const type = item.types.find((t) => t.startsWith('image/'));
+        if (type) {
+          const blob = await item.getType(type);
+          const ext = type.split('/')[1] || 'png';
+          const file = new File([blob], `pasted-thumb-${key}.${ext}`, { type });
+          await applyThumb(key, file);
+          return;
+        }
+      }
+      alert('클립보드에 이미지가 없습니다. 이미지를 먼저 복사하세요.');
+    } catch {
+      alert(
+        '클립보드를 읽지 못했습니다. 브라우저의 클립보드 권한을 허용해 주세요.',
+      );
+    }
+  };
+
+  // 썸네일(언어별) 제거
+  const handleThumbRemove = async (key: Locale) => {
+    const next: LocalizedImage = { ...(doc?.thumbnail || {}) };
+    delete next[key];
+    await client.patch(id).set({ thumbnail: next }).commit();
+    setDoc((prev) => (prev ? { ...prev, thumbnail: next } : prev));
   };
 
   if (!doc) return <div className="mt-loading">불러오는 중...</div>;
 
   const projectId = 'ecoamz42';
   const dataset = 'production';
-  const imageRef = doc.thumbnail?.asset?._ref;
 
   return (
     <div className="mt-detail-container">
@@ -167,15 +249,6 @@ export function BlogDetail({ id, onBack }: { id: string; onBack: () => void }) {
               />
             </div>
             <div className="mt-detail-field">
-              <label className="mt-detail-label">카테고리</label>
-              <input
-                type="text"
-                className="mt-text-input"
-                defaultValue={doc.category ?? ''}
-                onBlur={(e) => patch({ category: e.target.value })}
-              />
-            </div>
-            <div className="mt-detail-field">
               <label className="mt-detail-label">게시일</label>
               <input
                 type="date"
@@ -193,6 +266,19 @@ export function BlogDetail({ id, onBack }: { id: string; onBack: () => void }) {
                 onChange={(e) => patch({ isVisible: e.target.checked })}
               />
             </div>
+          </div>
+          <div className="mt-detail-grid4" style={{ marginTop: 12 }}>
+            {LOCALES.map(({ key, label }) => (
+              <div key={key} className="mt-detail-field">
+                <label className="mt-detail-label">카테고리 ({label})</label>
+                <input
+                  type="text"
+                  className="mt-text-input"
+                  defaultValue={doc.category?.[key] ?? ''}
+                  onBlur={(e) => patchCategory(key, e.target.value)}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -238,24 +324,76 @@ export function BlogDetail({ id, onBack }: { id: string; onBack: () => void }) {
       </div>
 
       <div className="mt-detail-section">
-        <div className="mt-detail-section-title">썸네일</div>
+        <div className="mt-detail-section-title">썸네일 (언어별 · 선택)</div>
         <div className="mt-detail-body">
-          {imageRef && (
-            <img
-              src={sanityImageUrl(projectId, dataset, imageRef)}
-              alt="thumbnail"
-              className="mt-thumb-preview"
-            />
-          )}
-          <label className="mt-upload-btn">
-            {uploading ? '업로드 중…' : '이미지 선택'}
-            <input
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={handleImageUpload}
-            />
-          </label>
+          <div className="mt-detail-grid4">
+            {LOCALES.map(({ key, label }) => {
+              const ref = doc.thumbnail?.[key]?.asset?._ref;
+              return (
+                <div key={key} className="mt-detail-field">
+                  <label className="mt-detail-label">{label}</label>
+                  {ref && (
+                    <img
+                      src={sanityImageUrl(projectId, dataset, ref)}
+                      alt={`thumbnail-${key}`}
+                      className="mt-thumb-preview"
+                    />
+                  )}
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: 6,
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    <label className="mt-upload-btn">
+                      {thumbUploading === key
+                        ? '업로드 중…'
+                        : ref
+                          ? '이미지 교체'
+                          : '이미지 선택'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        onChange={(e) => handleThumbUpload(key, e)}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      className="mt-upload-btn"
+                      onClick={() => handleThumbPaste(key)}
+                      disabled={thumbUploading === key}
+                    >
+                      📋 붙여넣기
+                    </button>
+                    {ref && (
+                      <button
+                        type="button"
+                        className="mt-back-btn"
+                        onClick={() => handleThumbRemove(key)}
+                      >
+                        제거
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <p
+            style={{
+              fontSize: 12,
+              color: '#6b7280',
+              marginTop: 8,
+            }}
+          >
+            썸네일을 지정하지 않으면 해당 언어 본문의 <b>첫 번째 이미지</b>가
+            자동으로 썸네일이 됩니다. 직접 지정하면 그 이미지가 우선합니다.
+            언어별 썸네일이 모두 없으면 한국어 → 영어 → 중국어 → 일본어 순으로
+            대체됩니다.
+          </p>
         </div>
       </div>
 

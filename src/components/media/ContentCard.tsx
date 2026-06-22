@@ -7,6 +7,8 @@ interface ContentCardProps {
   title: string;
   description: string;
   views?: number;
+  /** 'cover'(기본·꽉 채워 크롭) | 'contain'(이미지 전체가 다 보이게) */
+  imageFit?: 'cover' | 'contain';
 }
 
 function ContentCard({
@@ -16,6 +18,7 @@ function ContentCard({
   title,
   description,
   views,
+  imageFit = 'cover',
 }: ContentCardProps) {
   return (
     <Link
@@ -30,7 +33,9 @@ function ContentCard({
             <img
               src={imageUrl}
               alt={title}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className={`h-full w-full transition-transform duration-300 group-hover:scale-105 ${
+                imageFit === 'contain' ? 'object-contain' : 'object-cover'
+              }`}
             />
           )}
         </div>

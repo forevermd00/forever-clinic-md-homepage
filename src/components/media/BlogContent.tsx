@@ -43,7 +43,24 @@ export function BlogContent({ value }: { value: string }) {
               {children}
             </h4>
           ),
-          p: ({ children }) => <p className="mb-4">{children}</p>,
+          // 이미지만 든 문단은 <p>로 감싸지 않음 (figure/figcaption이 <p> 안에 오면 hydration 에러)
+          p: ({ node, children }) => {
+            const kids = (node?.children ?? []) as Array<{
+              type: string;
+              tagName?: string;
+              value?: string;
+            }>;
+            const meaningful = kids.filter(
+              (c) => !(c.type === 'text' && !(c.value ?? '').trim()),
+            );
+            const onlyImages =
+              meaningful.length > 0 &&
+              meaningful.every(
+                (c) => c.type === 'element' && c.tagName === 'img',
+              );
+            if (onlyImages) return <>{children}</>;
+            return <p className="mb-4">{children}</p>;
+          },
           strong: ({ children }) => (
             <strong className="font-bold">{children}</strong>
           ),

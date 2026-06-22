@@ -45,6 +45,7 @@ export async function generateMetadata({
       title: `${article.title} | ${siteNames[locale] ?? siteNames.ko}`,
       description,
       locale: ogLocales[locale] ?? 'ko_KR',
+      ...(article.thumbnail ? { images: [{ url: article.thumbnail }] } : {}),
     },
   };
 }
@@ -97,12 +98,6 @@ export default async function BlogDetailPage({
               <h1 className="text-[24px] font-bold text-[#2b2b2b] lg:text-[28px]">
                 {article.title}
               </h1>
-              {cmsResult.position !== undefined &&
-                cmsResult.total !== undefined && (
-                  <span className="shrink-0 pt-1 text-[13px] text-[#999]">
-                    {cmsResult.position}/{cmsResult.total}
-                  </span>
-                )}
             </div>
             <div className="mt-3 flex items-center gap-4 text-[13px] text-[#999]">
               <span>{article.date}</span>

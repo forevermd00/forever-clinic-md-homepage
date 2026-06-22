@@ -307,7 +307,11 @@ export const youtubeVideosQuery = `
 
 export const blogPostsQuery = `
   *[_type == "blogPost" && isVisible != false] | order(publishedAt desc) {
-    _id, "title": title[$locale], "slug": slug.current, thumbnail, category, publishedAt, views
+    _id, "title": title[$locale], "slug": slug.current,
+    "thumbnail": coalesce(thumbnail[$locale], thumbnail.ko, thumbnail.en, thumbnail.zh, thumbnail.ja),
+    "bodyForThumb": coalesce(markdownContent[$locale], markdownContent.ko, markdownContent.en, markdownContent.zh, markdownContent.ja),
+    "category": coalesce(category[$locale], category.ko, category.en, category.zh, category.ja),
+    publishedAt, views
   }
 `;
 
@@ -333,7 +337,10 @@ export const pressArticleDetailQuery = `
 
 export const blogPostDetailQuery = `
   *[_type == "blogPost" && slug.current == $slug][0] {
-    _id, "title": title[$locale], "slug": slug.current, thumbnail, category, views,
+    _id, "title": title[$locale], "slug": slug.current,
+    "thumbnail": coalesce(thumbnail[$locale], thumbnail.ko, thumbnail.en, thumbnail.zh, thumbnail.ja),
+    "category": coalesce(category[$locale], category.ko, category.en, category.zh, category.ja),
+    views,
     "publishedAt": coalesce(publishedAt, publishDate),
     "content": coalesce(markdownContent[$locale], ""),
     "prevArticle": *[_type == "blogPost" && coalesce(publishedAt, publishDate) > coalesce(^.publishedAt, ^.publishDate)] | order(coalesce(publishedAt, publishDate) asc)[0] { "slug": slug.current, "title": title[$locale] },

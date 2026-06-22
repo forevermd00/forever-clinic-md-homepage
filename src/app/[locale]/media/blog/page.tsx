@@ -65,6 +65,8 @@ export default async function BlogPage({
             <ContentCard
               key={post.slug}
               href={`/${locale}/media/blog/${post.slug}`}
+              imageUrl={post.thumbnail}
+              imageFit="contain"
               date={post.date}
               title={post.title}
               description={post.description}

@@ -29,6 +29,7 @@ interface SanityBlogPost {
   title?: string;
   slug?: string;
   thumbnail?: unknown;
+  bodyForThumb?: string;
   category?: string;
   publishedAt?: string;
   views?: number;
@@ -102,15 +103,53 @@ function mapPressArticles(raw: SanityPressArticle[]): PressArticle[] {
   }));
 }
 
+// 마크다운 본문에서 첫 번째 Sanity 이미지 URL 추출
+function firstBodyImageUrl(md?: string): string | undefined {
+  if (!md) return undefined;
+  const m = md.match(
+    /!\[[^\]]*\]\((https:\/\/cdn\.sanity\.io\/images\/[^)\s]+)\)/,
+  );
+  return m?.[1];
+}
+
+// CDN URL → Sanity 이미지 ref (urlFor로 리사이즈/크롭 적용 가능하게)
+function urlToImageRef(
+  url?: string,
+): { _type: 'image'; asset: { _type: 'reference'; _ref: string } } | undefined {
+  if (!url) return undefined;
+  const file = url.split('/').pop()?.split('?')[0];
+  if (!file) return undefined;
+  const dot = file.lastIndexOf('.');
+  if (dot < 0) return undefined;
+  const assetId = `image-${file.slice(0, dot)}-${file.slice(dot + 1)}`;
+  return { _type: 'image', asset: { _type: 'reference', _ref: assetId } };
+}
+
+// 썸네일: 명시적 썸네일 우선, 없으면 본문 첫 이미지(언어별)에서 자동 도출
+// h 미지정 시 원본 비율 유지(카드에서 전체가 보이도록), 지정 시 해당 비율로 크롭(OG 등)
+function resolveBlogThumbnail(
+  p: SanityBlogPost,
+  w = 600,
+  h?: number,
+): string | undefined {
+  const build = (img: unknown): string | undefined => {
+    let b = urlFor(img)?.width(w);
+    if (b && h) b = b.height(h);
+    return b?.url() || undefined;
+  };
+  const explicit = p.thumbnail ? build(p.thumbnail) : undefined;
+  if (explicit) return explicit;
+  const ref = urlToImageRef(firstBodyImageUrl(p.bodyForThumb));
+  return ref ? build(ref) : undefined;
+}
+
 function mapBlogPosts(raw: SanityBlogPost[]): BlogPost[] {
   return raw.map((p) => ({
     slug: p.slug || p._id,
     date: formatDate(p.publishedAt),
     title: p.title || '',
     description: p.category || '',
-    thumbnail: p.thumbnail
-      ? urlFor(p.thumbnail)?.width(600).height(400).url() || undefined
-      : undefined,
+    thumbnail: resolveBlogThumbnail(p),
     views: p.views ?? 0,
   }));
 }
@@ -340,6 +379,7 @@ export type BlogDetailResult = {
     title: string;
     date: string;
     content: string;
+    thumbnail?: string;
     views: number;
   };
   prevArticle: ArticleNav;
@@ -353,6 +393,7 @@ interface SanityBlogDetail {
   title?: string;
   slug?: string;
   content?: string;
+  thumbnail?: unknown;
   publishedAt?: string;
   views?: number;
   prevArticle?: { slug?: string; _id?: string; title?: string };
@@ -379,6 +420,15 @@ export async function getBlogDetail(
       title: data.title,
       date: formatDate(data.publishedAt),
       content: data.content || '',
+      thumbnail: resolveBlogThumbnail(
+        {
+          _id: data._id,
+          thumbnail: data.thumbnail,
+          bodyForThumb: data.content,
+        },
+        1200,
+        630,
+      ),
       views: data.views ?? 0,
     },
     prevArticle: data.prevArticle?.title
