@@ -144,6 +144,22 @@ export function HeroDetail({
     }
   };
 
+  const handleImageDelete = async () => {
+    if (!confirm('배경 이미지를 삭제할까요?')) return;
+    setSaving(true);
+    await client.patch(docId).unset(['heroImage']).commit();
+    setDoc((prev) => (prev ? { ...prev, heroImage: undefined } : prev));
+    setSaving(false);
+  };
+
+  const handleVideoDelete = async () => {
+    if (!confirm('배경 영상을 삭제할까요?')) return;
+    setSaving(true);
+    await client.patch(docId).unset(['heroVideo']).commit();
+    setDoc((prev) => (prev ? { ...prev, heroVideo: undefined } : prev));
+    setSaving(false);
+  };
+
   if (!doc) return <div className="ht-loading">불러오는 중...</div>;
 
   const projectId = 'ecoamz42';
@@ -267,15 +283,30 @@ export function HeroDetail({
               className="ht-thumb-preview"
             />
           )}
-          <label className="ht-upload-btn">
-            {uploading ? '업로드 중…' : '이미지 선택'}
-            <input
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={handleImageUpload}
-            />
-          </label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <label className="ht-upload-btn">
+              {uploading
+                ? '업로드 중…'
+                : imageRef
+                  ? '이미지 변경'
+                  : '이미지 선택'}
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={handleImageUpload}
+              />
+            </label>
+            {imageRef && (
+              <button
+                type="button"
+                className="ht-delete-btn"
+                onClick={handleImageDelete}
+              >
+                삭제
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -287,15 +318,30 @@ export function HeroDetail({
               영상 등록됨: {videoRef.slice(0, 40)}…
             </p>
           )}
-          <label className="ht-upload-btn">
-            {uploadingVideo ? '업로드 중…' : '영상 선택 (mp4)'}
-            <input
-              type="file"
-              accept="video/mp4"
-              style={{ display: 'none' }}
-              onChange={handleVideoUpload}
-            />
-          </label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <label className="ht-upload-btn">
+              {uploadingVideo
+                ? '업로드 중…'
+                : videoRef
+                  ? '영상 변경 (mp4)'
+                  : '영상 선택 (mp4)'}
+              <input
+                type="file"
+                accept="video/mp4"
+                style={{ display: 'none' }}
+                onChange={handleVideoUpload}
+              />
+            </label>
+            {videoRef && (
+              <button
+                type="button"
+                className="ht-delete-btn"
+                onClick={handleVideoDelete}
+              >
+                삭제
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
