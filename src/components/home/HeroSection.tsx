@@ -49,8 +49,13 @@ export async function HeroSection({ hero }: HeroSectionProps = {}) {
   }
 
   return (
+    // min-h 상한(1024px) 필수: Googlebot WRS는 매우 큰 레이아웃 뷰포트로
+    // 렌더해 100svh/100dvh/100vh가 모두 그 큰 값으로 잡힌다(svh=dvh=lvh).
+    // 상한이 없으면 히어로가 수천 px로 부풀어 세로 중앙 정렬된 텍스트가
+    // 첫 화면(GSC 스크린샷 캡처 영역) 밖으로 밀려나 배경만 남는다.
+    // 실기기(폰 vh~700)는 상한 미만이라 그대로 풀스크린.
     <section
-      className="relative flex min-h-[calc(100dvh-4rem)] w-full items-center justify-center overflow-hidden bg-[#c4b7a9]"
+      className="relative flex min-h-[min(calc(100svh-4rem),1024px)] w-full items-center justify-center overflow-hidden bg-[#c4b7a9]"
       data-ga-section="home-hero"
     >
       {/* Background video from CMS (preferred over image) */}
